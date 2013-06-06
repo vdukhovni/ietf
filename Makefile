@@ -1,5 +1,5 @@
 
-DRAFTS=draft-dukhovni-dane-ops-00.txt draft-dukhovni-smtp-opportunistic-tls-00.txt
+DRAFTS=draft-dukhovni-dane-ops-01.txt draft-dukhovni-smtp-opportunistic-tls-01.txt
 
 all: $(DRAFTS)
 
