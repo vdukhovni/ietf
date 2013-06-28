@@ -49,18 +49,14 @@
 <keyword>SMTP</keyword>
 
 <abstract> <t>
-This memo describes an experimental protocol for opportunistic TLS
-security based on the DANE TLSA PKI.  The design goal is an incremental
+This memo describes a protocol for opportunistic TLS
+security based on the DANE TLSA DNS record.  The design goal is an incremental
 transition of the Internet email backbone (MTA to MTA SMTP traffic)
 from today's unauthenticated and typically unencrypted connections
 to TLS encrypted and authenticated delivery when the client is DANE
 TLSA aware and the server domain publishes DANE TLSA records for
-its MX hosts.  This protocol has been implemented by author in the
-Postfix MTA.  It is hoped that other MTA implementations will find
-this protocol well suited to their needs and will adopt interoperable
-implementations.  This protocol may be suited to other use-cases
-for opportunistic TLS beyond SMTP, but such use-cases are not covered
-here, and will need to be defined in separate specifications.
+its MX hosts.  This protocol is being implemented by multiple MTA
+software packages.
 </t> </abstract>
 
 </front>
@@ -77,12 +73,13 @@ is defined in <xref target="RFC4033"/>, <xref target="RFC4034"/> and
 </t>
 
 <t>
-As described in the introduction of <xref target="RFC6698"/> TLS
+As described in the introduction of <xref target="RFC6698"/>, TLS
 authentication via the existing public CA PKI suffers from an
 over-abundance of trusted certificate authorities capable of issuing
 certificates for any domain of their choice.  DNS-Based Authentication
 of Named Entities (DANE) leverages the DNSSEC infrastructure to
-publish trusted keys and certificates for use with TLS via a new
+publish trusted keys and certificates (or hashed references to them)
+for use with TLS via a new
 TLSA record type.  DNSSEC validated DANE TLSA records
 yield a new PKI designed to augment or replace the trust model of
 the existing public CA PKI.
@@ -105,7 +102,7 @@ TLS 1.2 <xref target="RFC5246"/>.
 <section title="SMTP Channel Security">
 
 <t>
-With SMTP neither the recipient address, nor the MX records directly
+With SMTP, neither the recipient address, nor the MX records directly
 imply or preclude delivery via TLS.  The same SMTP TCP endpoint can
 serve both TLS and non-TLS clients, with TLS negotiated via the
 SMTP STARTTLS command (<xref target="RFC3207"/>).
@@ -115,34 +112,39 @@ SMTP STARTTLS command (<xref target="RFC3207"/>).
 An MTA may need to forward a message to a particular email recipient
 &lt;user@example.com&gt;.  To deliver the message the MTA needs to
 retrieve the MX hosts of example.com from DNS, and then deliver the
-message to one of these.  Absent DNSSEC the MX lookup is vulnerable
+message to one of these.  Absent DNSSEC, the MX lookup is vulnerable
 to man-in-the-middle and cache poisoning attacks.  As a result,
-securing delivery by verifying the authenticity of the MX host is
-futile as the attacker can simply forge DNS replies.
+securing delivery without using DNSSEC is futile as the attacker can
+simply forge DNS replies and issue bogus MX records, directing traffic
+directly to the attacker.
 </t>
 
 <t>
 One might try to harden STARTTLS with SMTP against DNS attacks by
 requiring each MX host to posess an X.509 certificate for the
-recipient domain which is obtained from the message envelope and
+recipient domain that is obtained from the message envelope and
 is not subject to DNS reply forgery.  Unfortunately, this is
-impractical as email for many domains is handled by third parties,
+impractical, as email for many domains is handled by third parties,
 which are not in a position to obtain certificates for all the
 domains they serve.  Deployment of SNI (see <xref target="RFC3546"/>
 Section 3.1) is no panacea, since the key management
-is too difficult unless the email service provider is also the
+is operationally challenging at large scale unless the email service provider is also the
 domain's registrar and its certificate issuer; this is rarely the
 case for email.
+
+XXXWJH:  I'm not sure this paragraph is needed, given the next.
 </t>
 
 <t>
 A man-in-the-middle can also suppress the MX host's STARTTLS EHLO
 response.  Unless the sending MTA is statically configured to use
-TLS for mail sent to example.com, the message will be sent in the
-clear.  Sender-side configuration of peer-domains for which TLS
-must be used, can protect an organization and a few of its business
+TLS for mail sent to example.com, the message will be sent
+unauthenticated and in the clear.
+Sender-side configuration of peer-domains for which TLS
+must be used can protect an organization and a few of its business
 partners, but is not a viable approach to securing the Internet
-email backbone.
+email backbone.  Internet email requires contacting many new domains for
+which pre-arranged security configuration can not be established in advance.
 </t>
 
 <t>
