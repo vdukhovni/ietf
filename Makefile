@@ -5,3 +5,6 @@ all: $(DRAFTS)
 
 %.txt: %.xml
 	xml2rfc $<
+
+%.html: %.xml
+	xml2rfc $< --html
