@@ -511,7 +511,7 @@ and SHOULD NOT be used by opportunistic SMTP DANE TLS clients.
 </t>
 
 <t>
-It may be temping to publish CNAMEs in the hosted domain pointing
+It may be tempting to publish CNAMEs in the hosted domain pointing
 to the provider's TLSA RRset.  This only works when the provider's TLSA
 RRs specify certificate usage 3.  Otherwise, an SMTP client that
 used the alias name (from the hosted rather than the provider's domain)
