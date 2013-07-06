@@ -20,7 +20,7 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="info" docName="draft-dukhovni-dane-ops-00" ipr="trust200902" updates="6698">
+<rfc category="info" docName="draft-dukhovni-dane-ops-01" ipr="trust200902" updates="6698">
 
 <front>
 <title abbrev="DANE operations">DANE TLSA implementation and operational guidance</title>
