@@ -20,7 +20,7 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="info" docName="draft-dukhovni-dane-ops-00" ipr="trust200902" updates="6698">
+<rfc category="info" docName="draft-dukhovni-dane-ops-01" ipr="trust200902" updates="6698">
 
 <front>
 <title abbrev="DANE operations">DANE TLSA implementation and operational guidance</title>
@@ -314,7 +314,7 @@ dependent maximum nesting depths).
 
 <t>
 When CNAMEs are employed the sensible place to seek DANE TLSA records
-is in the providers domain, as that is the party that best knows
+is in the provider's domain, as that is the party that best knows
 which certificates are deployed on the server.  Therefore, DANE PKI
 clients connecting to a server whose DNS name is a CNAME alias
 SHOULD follow the CNAME hop-by-hop to its ultimate target host
@@ -325,8 +325,8 @@ the resulting target host as the base domain for TLSA lookups.
 <t>
 If CNAMEs were not followed, to support DANE validation the origin
 domain would have to publish TLSA records that match the server
-certificate chain.  Since the origin domain may not be operationally
-responsible for the server this imposes a complex key management burden
+certificate chain.  Since the origin domain may not administer
+the target server this imposes a difficult key management burden
 on the hosting provider and hosted customer even with SNI.
 </t>
 
