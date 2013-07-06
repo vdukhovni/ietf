@@ -282,7 +282,7 @@ chain.
 If the server's TLSA RRset includes records with a matching type
 other than "0" (that is digest records), the SHA-256 digest of any
 object SHOULD be provided along with any other digest published,
-since clients may support only SHA-256.  Unless SHA256 proves
+since clients may support only SHA-256.  Unless SHA-256 proves
 vulnerable to a "second pre-image" attack, it should be the only
 digest algorithm used in TLSA records.
 </t>
