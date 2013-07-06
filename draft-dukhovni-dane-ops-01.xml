@@ -30,6 +30,19 @@
 <email>ietf-dane@dukhovni.org</email>
 </address>
 </author>
+    <author initials="W.H." surname="Hardaker" fullname="Wes Hardaker">
+      <organization>Parsons</organization>
+      <address>
+        <postal>
+          <street>P.O. Box 382</street>
+          <city>Davis</city>
+          <region>CA</region>
+          <code>95617</code>
+          <country>US</country>
+        </postal>
+        <email>hardaker@tislabs.com</email>
+      </address>
+    </author>
 <date year="2013" />
 <area>sec</area>
 <workgroup>DANE</workgroup>
