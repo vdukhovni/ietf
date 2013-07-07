@@ -361,12 +361,13 @@
 <link href="#rfc.section.4.2" rel="Chapter" title="4.2 TLSA records and trust anchor digests"/>
 <link href="#rfc.section.4.3" rel="Chapter" title="4.3 Trust anchor public keys"/>
 <link href="#rfc.section.4.4" rel="Chapter" title="4.4 Certificate usage 0 trust chains"/>
-<link href="#rfc.section.5" rel="Chapter" title="5 Note on DNSSEC security"/>
-<link href="#rfc.section.6" rel="Chapter" title="6 Acknowledgements"/>
-<link href="#rfc.section.7" rel="Chapter" title="7 Security Considerations"/>
-<link href="#rfc.references" rel="Chapter" title="8 References"/>
-<link href="#rfc.references.1" rel="Chapter" title="8.1 Normative References"/>
-<link href="#rfc.references.2" rel="Chapter" title="8.2 Informative References"/>
+<link href="#rfc.section.5" rel="Chapter" title="5 Certificate Transparency Interaction"/>
+<link href="#rfc.section.6" rel="Chapter" title="6 Note on DNSSEC security"/>
+<link href="#rfc.section.7" rel="Chapter" title="7 Acknowledgements"/>
+<link href="#rfc.section.8" rel="Chapter" title="8 Security Considerations"/>
+<link href="#rfc.references" rel="Chapter" title="9 References"/>
+<link href="#rfc.references.1" rel="Chapter" title="9.1 Normative References"/>
+<link href="#rfc.references.2" rel="Chapter" title="9.2 Informative References"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
@@ -375,7 +376,7 @@
 
   <meta name="dct.creator" content="Dukhovni, V. and W.H. Hardaker" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-dukhovni-dane-ops-01" />
-  <meta name="dct.issued" scheme="ISO8601" content="2013-7-06" />
+  <meta name="dct.issued" scheme="ISO8601" content="2013-7-07" />
   <meta name="dct.abstract" content="This memo provides operational guidance to server operators to help ensure that clients will be able to authenticate a server's certificate chain via its published TLSA records.  Guidance is also provided to clients to choose combinations of TLSA record parameters that are sufficiently reliable to be usable for server authentication.  " />
   <meta name="description" content="This memo provides operational guidance to server operators to help ensure that clients will be able to authenticate a server's certificate chain via its published TLSA records.  Guidance is also provided to clients to choose combinations of TLSA record parameters that are sufficiently reliable to be usable for server authentication.  " />
 
@@ -403,8 +404,8 @@
   <td class="right">Parsons</td>
 </tr>
 <tr>
-  <td class="left">Expires: January 07, 2014</td>
-  <td class="right">July 06, 2013</td>
+  <td class="left">Expires: January 08, 2014</td>
+  <td class="right">July 07, 2013</td>
 </tr>
 
     	
@@ -424,7 +425,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on January 07, 2014.</p>
+<p>This Internet-Draft will expire on January 08, 2014.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -445,12 +446,13 @@
 <li>4.2.   <a href="#rfc.section.4.2">TLSA records and trust anchor digests</a></li>
 <li>4.3.   <a href="#rfc.section.4.3">Trust anchor public keys</a></li>
 <li>4.4.   <a href="#rfc.section.4.4">Certificate usage 0 trust chains</a></li>
-<li>5.   <a href="#rfc.section.5">Note on DNSSEC security</a></li>
-<li>6.   <a href="#rfc.section.6">Acknowledgements</a></li>
-<li>7.   <a href="#rfc.section.7">Security Considerations</a></li>
-<li>8.   <a href="#rfc.references">References</a></li>
-<li>8.1.   <a href="#rfc.references.1">Normative References</a></li>
-<li>8.2.   <a href="#rfc.references.2">Informative References</a></li>
+<li>5.   <a href="#rfc.section.5">Certificate Transparency Interaction</a></li>
+<li>6.   <a href="#rfc.section.6">Note on DNSSEC security</a></li>
+<li>7.   <a href="#rfc.section.7">Acknowledgements</a></li>
+<li>8.   <a href="#rfc.section.8">Security Considerations</a></li>
+<li>9.   <a href="#rfc.references">References</a></li>
+<li>9.1.   <a href="#rfc.references.1">Normative References</a></li>
+<li>9.2.   <a href="#rfc.references.2">Informative References</a></li>
 <li><a href="#rfc.authors">Authors' Addresses</a></li>
 
 
@@ -580,18 +582,24 @@ _25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
 <p id="rfc.section.4.4.p.1">TLSA certificate usage "0" allows a domain to publish constraints on the set of certificate authorities trusted to issue certificates for its TLS servers.  It is expected that clients will only accept trust chains which contain a match for one of the published TLSA records.  This is simple for TLSA certificate usage "1" where the PKIX trust chain always contains the leaf server certificate.  The situation for certificate usage "0" is more subtle.  </p>
 <p id="rfc.section.4.4.p.2">It may often be the case the server domain publishes trust in a particular public root CA, expecting that clients will then only accept chains anchored at that root.  It is however possible that the client's set of trusted certificates includes some intermediate CAs, either with or without the corresponding root CA.  When a client construct a trust chain leading from a trusted intermediate CA to the server leaf certificate, such a chain may omit any trusted roots published in the server's TLSA records.  </p>
 <p id="rfc.section.4.4.p.3">If the omitted root is also trusted, the client may erroneously reject the server chain, if it fails to determine that the shorter chain it constructed extends to a longer trusted chain that matches the TLSA records.  This means that a client SHOULD not always stop extending the chain when the first locally trusted certificate is found.  If no TLSA records have matched any of the elements of the chain, it MUST build attempt to build a longer chain if the trusted certificate found is not self-issued, in the hope that a certificate closer to the root may in fact match the server's TLSA records.  </p>
-<h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> Note on DNSSEC security</h1>
-<p id="rfc.section.5.p.1">Clearly the security of the DANE TLSA PKI rests on the security of the underlying DNSSEC infrastructure.  While this memo is not a guide to DNSSEC security a few comments may be helpful to TLSA implementors.  </p>
-<p id="rfc.section.5.p.2">With the existing public CA PKI, name constraints are rarely used, and every public root CA can issue certificates for any domain of its choice.  With DNSSEC the situation is different.  Only the registrar of record can update a domain's DS record in the registry parent zone, in some cases of course the registry is the sole registrar.  With gTLDs for which multiple registrars compete to provide domains in a single registry it is important to make sure that rogue registrars cannot easily initiate an unauthorized domain transfer, and thus take over DNSSEC for the domain.  A registrar lock on one's domain may be a reasonable precaution for this reason.  </p>
-<p id="rfc.section.5.p.3">When the registrar is also the DNS operator for the domain, when using DNSSEC one needs to consider whether the registrar will allow orderly migration of the domain to another registrar or DNS operator in a way that will maintain DNSSEC integrity.  Discuss this with your registrar DNS operator before it is an emergency.  </p>
-<p id="rfc.section.5.p.4">DNSSEC signed RRsets cannot be securely revoked before they expire.  Plan accordingly and don't generate signatures with excessively long duration.  For domains publishing high-value keys, a signature lifetime of a few days is reasonable, with the zone resigned every day or so.  For more mundane domains a good signature lifetime is a couple of weeks to a month, with the zone resigned every week or so.  Monitoring of the signature lifetime is important.  If the zone is not resigned in a timely manner, one risks a major outage with the entire domain becoming invalid.  </p>
-<h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#Acknowledgements" id="Acknowledgements">Acknowledgements</a></h1>
-<p id="rfc.section.6.p.1">Thanks to Tony Finch who finally prodded me into participating in DANE working group discussions.  Thanks to Paul Hoffman who motivated me to produce this memo and provided feedback on early drafts.  </p>
-<h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#Security" id="Security">Security Considerations</a></h1>
-<p id="rfc.section.7.p.1">Application protocols that cannot make use of the existing public CA PKI (so called non-PKIX protocols), may choose to not implement certain PKIX-dependent TLSA record types defined in <a href="#RFC6698">[RFC6698]</a>, or may choose to make a best-effort use of such records.  In neither case is security compromised, since by assumption PKIX verification is simply not an option for these protocols.  When the TLS server is authenticated based on the TLSA records alone, the client is as well authenticated as possible, treating the TLSA records as unusable would lead to weaker security.  </p>
-<p id="rfc.section.7.p.2">Therefore, when TLSA records are used with protocols where PKIX does not apply, the recommended trade-off is for servers to not publish PKIX-dependent TLSA records, and for clients to use them as best they can, but otherwise treat them unusable.  Of course when PKIX validation is an option clients SHOULD perform PKIX validation per <a href="#RFC6698">[RFC6698]</a>.  </p>
-<h1 id="rfc.references"><a href="#rfc.references">8.</a> References</h1>
-<h1 id="rfc.references.1"><a href="#rfc.references.1">8.1.</a> Normative References</h1>
+<h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> Certificate Transparency Interaction</h1>
+<p><a href="#RFC6962">[RFC6962]</a> Certificate Transparency or CT for short, defines an approach to mitigate the risk of rogue or compromised public CAs issuing unauthorized certificates.  In this section we clarify the interaction of CT and DANE.  We observe that CT applies only to public CAs, and only when they are free to issue unauthorized certificates for a domain.  If the CA is not a public CA, or DANE TLSA RRs constrain the end-entity certificate to a fixed public key, there is no role for CT, and clients SHOULD NOT apply CT checks.  </p>
+<p id="rfc.section.5.p.2">When a server is authenticated via a DANE TLSA RR with certificate usage "1" or "3" (that is an end-entity certificate association), the domain owner has unambiguously specified the certificate associated with the given service.  Even if a rogue CA were able to issue an unauthorized end-entity certificate that binds a public key to a name in that domain, barring "second preimage" attacks on SHA-256 or SHA-512 any such certificate would not match the TLSA record and would be rejected.  </p>
+<p id="rfc.section.5.p.3">Therefore, when a TLS client authenticates the TLS server via a TLSA certificate association with usage "1" or "3", CT checks SHOULD NOT be performed.  Publication of the server certificate or public key (digest) in a DNSSEC signed zone by the domain owner assures the client that the certificate is not an unauthorized certificate issued by a rogue CA without the domain owner's consent.  </p>
+<p id="rfc.section.5.p.4">When a server is authenticated via a DANE TLSA RR with certificate usage "2" and the server certificate does not chain to a known public root CA, CT cannot apply (CT logs only accept chains that start with a known root).  Since certificate usage "2" is generally intended to support non-PKIX trust anchors, by far the simplest client implementation strategy is not perform CT checks with usage "2".  A server operator that wants CT checks can publish TLSA RRs with usage "0", or can obviate them with usage "1" or "3".  It is therefore recommended that clients SHOULD NOT perform CT checks with usage "2".  </p>
+<p id="rfc.section.5.p.5">CT checks are applicable with certificate usage "0" when the client supports both DANE and CT and the trusted PKIX root issuer is a known public root.  </p>
+<h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> Note on DNSSEC security</h1>
+<p id="rfc.section.6.p.1">Clearly the security of the DANE TLSA PKI rests on the security of the underlying DNSSEC infrastructure.  While this memo is not a guide to DNSSEC security a few comments may be helpful to TLSA implementors.  </p>
+<p id="rfc.section.6.p.2">With the existing public CA PKI, name constraints are rarely used, and every public root CA can issue certificates for any domain of its choice.  With DNSSEC the situation is different.  Only the registrar of record can update a domain's DS record in the registry parent zone, in some cases of course the registry is the sole registrar.  With gTLDs for which multiple registrars compete to provide domains in a single registry it is important to make sure that rogue registrars cannot easily initiate an unauthorized domain transfer, and thus take over DNSSEC for the domain.  A registrar lock on one's domain may be a reasonable precaution for this reason.  </p>
+<p id="rfc.section.6.p.3">When the registrar is also the DNS operator for the domain, when using DNSSEC one needs to consider whether the registrar will allow orderly migration of the domain to another registrar or DNS operator in a way that will maintain DNSSEC integrity.  Discuss this with your registrar DNS operator before it is an emergency.  </p>
+<p id="rfc.section.6.p.4">DNSSEC signed RRsets cannot be securely revoked before they expire.  Plan accordingly and don't generate signatures with excessively long duration.  For domains publishing high-value keys, a signature lifetime of a few days is reasonable, with the zone resigned every day or so.  For more mundane domains a good signature lifetime is a couple of weeks to a month, with the zone resigned every week or so.  Monitoring of the signature lifetime is important.  If the zone is not resigned in a timely manner, one risks a major outage with the entire domain becoming invalid.  </p>
+<h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#Acknowledgements" id="Acknowledgements">Acknowledgements</a></h1>
+<p id="rfc.section.7.p.1">Thanks to Tony Finch who finally prodded me into participating in DANE working group discussions.  Thanks to Paul Hoffman who motivated me to produce this memo and provided feedback on early drafts.  </p>
+<h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#Security" id="Security">Security Considerations</a></h1>
+<p id="rfc.section.8.p.1">Application protocols that cannot make use of the existing public CA PKI (so called non-PKIX protocols), may choose to not implement certain PKIX-dependent TLSA record types defined in <a href="#RFC6698">[RFC6698]</a>, or may choose to make a best-effort use of such records.  In neither case is security compromised, since by assumption PKIX verification is simply not an option for these protocols.  When the TLS server is authenticated based on the TLSA records alone, the client is as well authenticated as possible, treating the TLSA records as unusable would lead to weaker security.  </p>
+<p id="rfc.section.8.p.2">Therefore, when TLSA records are used with protocols where PKIX does not apply, the recommended trade-off is for servers to not publish PKIX-dependent TLSA records, and for clients to use them as best they can, but otherwise treat them unusable.  Of course when PKIX validation is an option clients SHOULD perform PKIX validation per <a href="#RFC6698">[RFC6698]</a>.  </p>
+<h1 id="rfc.references"><a href="#rfc.references">9.</a> References</h1>
+<h1 id="rfc.references.1"><a href="#rfc.references.1">9.1.</a> Normative References</h1>
 <table>
   <tbody>
     <tr>
@@ -660,9 +668,15 @@ _25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
       </td>
       <td class="top"><a>Hoffman, P.</a> and <a>J. Schlyter</a>, "<a href="http://tools.ietf.org/html/rfc6698">The DNS-Based Authentication of Named Entities (DANE) Transport Layer Security (TLS) Protocol: TLSA</a>", RFC 6698, August 2012.</td>
     </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC6962">[RFC6962]</b>
+      </td>
+      <td class="top"><a>Laurie, B.</a>, <a>Langley, A.</a> and <a>E. Kasper</a>, "<a href="http://tools.ietf.org/html/rfc6962">Certificate Transparency</a>", RFC 6962, June 2013.</td>
+    </tr>
   </tbody>
 </table>
-<h1 id="rfc.references.2"><a href="#rfc.references.2">8.2.</a> Informative References</h1>
+<h1 id="rfc.references.2"><a href="#rfc.references.2">9.2.</a> Informative References</h1>
 <table>
   <tbody>
     <tr>
