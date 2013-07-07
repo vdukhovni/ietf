@@ -11,6 +11,7 @@
 <!ENTITY RFC5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
+<!ENTITY RFC6962 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6962.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 ]>
 <?rfc strict="yes" ?>
@@ -689,6 +690,59 @@ the root may in fact match the server's TLSA records.
 
 </section><!-- TLSA record usability -->
 
+<section title="Certificate Transparency Interaction">
+
+<t>
+<xref target="RFC6962"/> Certificate Transparency or CT for short,
+defines an approach to mitigate the risk of rogue or compromised
+public CAs issuing unauthorized certificates.  In this section we
+clarify the interaction of CT and DANE.  We observe that CT applies
+only to public CAs, and only when they are free to issue unauthorized
+certificates for a domain.  If the CA is not a public CA, or DANE
+TLSA RRs constrain the end-entity certificate to a fixed public
+key, there is no role for CT, and clients SHOULD NOT apply CT checks.
+</t>
+
+<t>
+When a server is authenticated via a DANE TLSA RR with certificate
+usage "1" or "3" (that is an end-entity certificate association),
+the domain owner has unambiguously specified the certificate
+associated with the given service.  Even if a rogue CA were able
+to issue an unauthorized end-entity certificate that binds a public
+key to a name in that domain, barring "second preimage" attacks on
+SHA-256 or SHA-512 any such certificate would not match the TLSA
+record and would be rejected.
+</t>
+
+<t>
+Therefore, when a TLS client authenticates the TLS server via a
+TLSA certificate association with usage "1" or "3", CT checks SHOULD
+NOT be performed.  Publication of the server certificate or public
+key (digest) in a DNSSEC signed zone by the domain owner assures
+the client that the certificate is not an unauthorized certificate
+issued by a rogue CA without the domain owner's consent.
+</t>
+
+<t>
+When a server is authenticated via a DANE TLSA RR with certificate
+usage "2" and the server certificate does not chain to a known
+public root CA, CT cannot apply (CT logs only accept chains that
+start with a known root).  Since certificate usage "2" is generally
+intended to support non-PKIX trust anchors, by far the simplest client
+implementation strategy is not perform CT checks with usage "2".
+A server operator that wants CT checks can publish TLSA RRs with
+usage "0", or can obviate them with usage "1" or "3".  It is therefore
+recommended that clients SHOULD NOT perform CT checks with usage "2".
+</t>
+
+<t>
+CT checks are applicable with certificate usage "0" when the client
+supports both DANE and CT and the trusted PKIX root issuer is a known
+public root.
+</t>
+
+</section><!-- Certificate Transparency Interaction -->
+
 <section title="Note on DNSSEC security">
 
 <t>
@@ -781,6 +835,7 @@ option clients SHOULD perform PKIX validation per <xref target="RFC6698"/>.
 &RFC5280;
 &RFC6125;
 &RFC6698;
+&RFC6962;
 </references>
 <references title="Informative References">
 &I-D.ietf-dane-srv;
