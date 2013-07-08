@@ -93,7 +93,7 @@ The DTLS protocol was later documented in <xref target="RFC6347"/>.
 </t>
 
 <t>
-As described in the introduction of <xref target="RFC6698"/> TLS
+As described in the introduction of <xref target="RFC6698"/>, TLS
 authentication via the existing public CA PKI suffers from an
 over-abundance of trusted certificate authorities capable of issuing
 certificates for any domain of their choice.  DNS-Based Authentication
@@ -105,16 +105,21 @@ the existing public CA PKI.
 </t>
 
 <t>
-When a client goes to the trouble of authenticating a server it
-should not continue to use the server in case of authentication
-failure, otherwise authentication serves no purpose.  Consequently,
-if a client cannot reliably authenticate correctly configured
-legitimate servers via a particular combination of TLSA parameters,
-then the client SHOULD treat that combination of parameters as
-unusable.  Otherwise, the client risks routinely dropping connections
-to legimate servers.  Servers publishing TLSA records MUST be configured
-in a manner that allows correctly configured clients to successfully
-authenticate the server.
+When a client goes to the trouble of authenticating a certificate
+presented by a TLS server, it should not continue to use the server in
+case of authentication failure or else authentication serves no
+purpose.  Consequently, if a client cannot reliably authenticate
+correctly configured legitimate servers via a particular combination
+of TLSA parameters, then the client SHOULD treat that combination of
+parameters as unusable. <!-- XXXWJH: you don't say what to do if unusable;
+the next sentence implies "connect anyway", which based on our
+discussions of Type 0, is what I suspect you believe.  But I'd argue
+it's very protocol dependent, and I don' think the average person will
+say "if too much is broken out there, just give up on security" -->
+Otherwise, the client risks routinely dropping connections to
+legitimate servers.  Servers publishing TLSA records MUST be
+configured in a manner that allows correctly configured clients to
+successfully authenticate the server's TLS certificate.
 </t>
 
 <section title="Terminology">
@@ -134,6 +139,10 @@ This memo is being discussed on the dane@ietf.org mailing list.
 </section><!-- Introduction -->
 
 <section title="DANE TLSA record overview">
+<!-- XXXWJH: This section is probably a bit long; we should just refer
+the reader to 6698 generally and don't necessarily need such a long
+overview.  That being said, I also find it useful.  I keep changing my
+mind over the years how much repeating is a good thing between RFCs. -->
 <t>
 <xref target="RFC6698"/> specifies a protocol for publishing TLS server
 certificate associations via DNSSEC.  The DANE TLSA specification defines
@@ -178,21 +187,21 @@ matches an EE (server) certificate.
 <t>
 When the low bit is not set (certificate usages 0 and 2) the TLSA
 record matches a trust-anchor (a certificate authority) that issued
-the server certificate, possibly through a chain of intermediate
-certificate authorities.
+a certificate somewhere in the certificate chain the authenticates the
+final end-entity certificate.
 </t>
 
 <t>
 When the high bit is set (certificate usages 2 and 3) the server
 certificate chain is domain-issued and may be verified without
-reference to the existing public certificate authority PKI, with
-trust entirely based on the content of the TLSA records obtained
-via DNSSEC.
+reference to the existing public certificate authority PKI.  Trust is
+entirely placed on the content of the TLSA records obtained via
+DNSSEC.
 </t>
 
 <t>
 When the high bit is not set (certificate usages 0 and 1) the TLSA
-record publishes a server policy to the effect that its certificate
+record publishes a server policy stating that its certificate
 chain must pass PKIX validation <xref target="RFC5280"/>, with the
 DANE TLSA record used to constrain the server certificate chain to
 contain a given CA or EE certificate.
@@ -204,26 +213,26 @@ contain a given CA or EE certificate.
 <t>
 The selector field specifies whether the TLSA RR matches the whole
 certificate or just its subjectPublicKeyInfo (i.e. an ASN.1 DER
-encoding of the algorithm id, any parameters and the public key
-data).  In this memo the term public key will be an informal
-short-hand for the subjectPublicKeyInfo.  A selector field of "0"
-specifies the whole certificate.  A selector field of "1" specifies
-just the public key.  </t>
+encoding of the certificate's algorithm id, any parameters and the
+public key data).  In this memo the term "public key" will be an
+informal short-hand for the subjectPublicKeyInfo <!-- XXXWJH: move to
+a terminology section -->.  A selector field of
+"0" specifies the whole certificate.  A selector field of "1"
+specifies just the public key.  </t>
 
 <t>
 The matching type field specifies how the TLSA RR Certificate
 Association Data field is to be compared with the certificate or
-public key.  A value of "0" means exact match, the DER encoding of
-the certificate or public is given in the TLSA RR.  A non-zero value
-indicates that the content of the TLSA RR is a cryptographic digest
-of the certificate or public key.  In particular "1" means a SHA-256
-digest and "2" means a SHA-512 digest.  Of these, only SHA-256 is
-mandatory to implement.  Clients SHOULD implement SHA-512, but
+public key.  A value of "0" means exact match, the DER encoding of the
+certificate or public is given in the TLSA RR.  A "1" value means a
+SHA-256 digest and "2" means a SHA-512 digest.  Of these, only SHA-256
+is mandatory to implement.  Clients SHOULD implement SHA-512, but
 servers SHOULD NOT exclusively publish SHA-512 digests.  More
 strongly, unless a "second preimage" attack is found against SHA-256,
 servers should only publish SHA-256 digests.
 </t>
 
+<section title="Example TLSA record">
 <t>
 In the example TLSA record below:
 </t>
@@ -243,7 +252,7 @@ The certificate usage is "3", the selector is "1" and the matching type
 is "2".  The rest of the record is the certificate association data field,
 which is in this case the SHA-512 digest of the server public key.
 </t>
-
+</section><!-- Example TLSA record -->
 </section><!-- DANE TLSA record overview -->
 
 <section title="TLSA base domain and CNAMEs">
