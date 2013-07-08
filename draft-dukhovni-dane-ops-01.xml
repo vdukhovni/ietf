@@ -10,6 +10,7 @@
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
+<!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY RFC6962 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6962.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
@@ -57,7 +58,9 @@ This memo provides operational guidance to server operators to help
 ensure that clients will be able to authenticate a server's certificate
 chain via its published TLSA records.  Guidance is also provided to clients
 to choose combinations of TLSA record parameters that are sufficiently
-reliable to be usable for server authentication.
+reliable to be usable for server authentication.  Finally, guidance is
+given to protocol designers who wish to make use of TLSA records when
+using them to secure protocols using a TLS and TLSA combination. 
 </t>
 
 </abstract>
@@ -75,15 +78,18 @@ is defined in <xref target="RFC4033"/>, <xref target="RFC4034"/> and
 </t>
 
 <t>
-In the context of this memo channel security is assumed to be
-provided by TLS.  The Transport Layer Security (TLS) protocol
-provides communications privacy over the Internet.  Used without
-authentication, TLS provides protection only against eavesdropping.
-With authentication, TLS also provides protection against
-man-in-the-middle (MITM) attacks.  Since the publication of the TLS
-1.0 specification in <xref target="RFC2246"/>, two updates to the
-protocol have been published: TLS 1.1 <xref target="RFC4346"/> and
-TLS 1.2 <xref target="RFC5246"/>.
+In the context of this memo channel security is assumed to be provided
+by TLS or DTLS.  The Transport Layer Security (TLS) and Datagram
+Transport Layer Security (DTLS) protocols provides communications
+privacy over the Internet.  By convention, TLS will be used through
+this document and unless otherwise specified, the text applies equally
+as well to the DTLS protocol.  Used without authentication, TLS
+provides protection only against eavesdropping.  With authentication,
+TLS also provides protection against man-in-the-middle (MITM) attacks.
+Since the publication of the TLS 1.0 specification in <xref
+target="RFC2246"/>, two updates to the protocol have been published:
+TLS 1.1 <xref target="RFC4346"/> and TLS 1.2 <xref target="RFC5246"/>.
+The DTLS protocol was later documented in <xref target="RFC6347"/>.
 </t>
 
 <t>
@@ -834,6 +840,7 @@ option clients SHOULD perform PKIX validation per <xref target="RFC6698"/>.
 &RFC5246;
 &RFC5280;
 &RFC6125;
+&RFC6347;
 &RFC6698;
 &RFC6962;
 </references>
