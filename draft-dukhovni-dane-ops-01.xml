@@ -259,11 +259,12 @@ which is in this case the SHA-512 digest of the server public key.
 
 <t>
 The party responsible for creating TLSA records for a given service
-MUST ensure that at least one of these TLSA records will match
-either the server's default certificate chain if SNI is not employed
-on the server, or the server's certificate chain when the client
-signals the base domain of the TLSA RRset via SNI with a name type
-of "host_name" (see <xref target="RFC3546"/> Section 3.1).
+MUST ensure that at least one of these TLSA records will match the
+server's certificate chain.  If SNI is not employed, a certificate
+must match the server's default certificate chain.  If the SNI
+extension is sent by the client with a host_name (see <xref
+target="RFC3546"/> Section 3.1), the certificate presented by the
+server must match one of the published TLSA records.
 </t>
 
 <t>
@@ -288,30 +289,29 @@ signed zone with the actual TLSA records, the content of the TLSA
 RRset will be retrieved from the target zone.  This has no effect on
 the value of the base domain, which remains the original domain to
 which the client prefixed the port and protocol.
+<!-- XXXWJH: this contradicts what the -smtp draft says -->
 </t>
 
 <t>
 Note: Except with certificate usage "3", where name checks are not
-applicable, DANE aware clients SHOULD use the base domain of the
-TLSA RRset to verify that the client has reached the correct server
-by checking that the TLSA base domain is matched by one of the
-subject alternative names in the server certificate.  The commonName
-from the certificate subject DN may be used only when no subject
-alternative names are present.  Additional acceptable namse may
-be specified by protocol specific DANE RFCs.  For example, with
+applicable, DANE aware clients SHOULD use the base domain of the TLSA
+RRset to verify that the client has reached the correct server by
+checking that the TLSA base domain is matched by one of the
+subjectAltName (<xref target="RFC5280"/>) in the server certificate.
+The commonName from the certificate subject DN MAY be used only when
+no subject alternative names are present.  Additional acceptable names
+may be specified by protocol specific DANE RFCs.  For example, with
 SMTP both the destination domain name and the MX host name are
 acceptable in the server certificate.
 </t>
 
 <t>
-Since the server's ability to respond with the right certificate
-chain may be predicated on the TLS client providing the correct SNI
-information, DANE PKI aware clients SHOULD send the SNI extension
-with a host_name value of the base domain of the TLSA RRset (otherwise
-they risk failure to authenticate the server).  Since SNI is not
-available with SSLv2 or SSLv3, the server MUST support at least TLS
-1.0; ensuring this is the case is the responsibility of the creator
-of the server's TLSA records.
+Since the server's ability to respond with the right certificate chain
+may be predicated on the TLS client providing the correct SNI
+information, DANE PKI aware clients SHOULD send the SNI extension with
+a host_name value of the base domain of the TLSA RRset (otherwise they
+risk failure to authenticate the server).  The server MUST support at
+least TLS 1.0 and SHOULD support TLS 1.2.
 </t>
 
 <t>
@@ -349,6 +349,7 @@ dependent maximum nesting depths).
 </t>
 
 <t>
+<!-- XXXWJH: define in terminology provider -->
 When CNAMEs are employed the best place to seek DANE TLSA records
 is in the provider's domain, as the provider best knows which
 certificates are deployed on the server.  Therefore, DANE PKI clients
@@ -357,15 +358,15 @@ generally follow the CNAME hop-by-hop to its ultimate target host
 (noting at each step whether the CNAME is DNSSEC validated) and use
 the resulting target host as the base domain for TLSA lookups.
 Standards for DANE TLS for each application protocol are expected
-to specify where to locate TLSA RRs when the destination is an
-alias.
+to specify where to locate TLSA RRs when the destination is referred
+to by a CNAME.
 </t>
 
 <t>
 If CNAMEs were not followed, to support DANE validation the hosted
 domain would have to publish TLSA records that match the provider
 certificate chain.  Since the hosted domain may not administer
-the provider's server this imposes a difficult key management burden
+the provider's server, this imposes a difficult key management burden
 on the hosting provider and hosted customer even with SNI.
 </t>
 
@@ -373,6 +374,8 @@ on the hosting provider and hosted customer even with SNI.
 Accordingly, TLSA records SHOULD NOT be published for a base domain
 that is a CNAME.  Such TLSA records are not operationally robust,
 and SHOULD NOT be used by clients.
+<!-- XXXWJH: change to "only if you must" and warn about
+synchronization, down time issues and monitoring requirements -->
 </t>
 
 <t>
@@ -397,6 +400,7 @@ _25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
 </figure>
 
 <t>
+<!-- XXXWJH: genericize to new section -->
 Though CNAMEs are illegal on the right hand side of MX and SRV
 records, they are supported by some implementations.  In that case,
 if the MX or SRV host is a CNAME alias the client SHOULD "chase" the
@@ -437,6 +441,7 @@ be expected to perform <xref target="RFC5280"/> PKIX validation or
 </t>
 
 <t>
+<!-- XXXWJH: security vs robustness -->
 Clients using non-PKIX protocols MAY choose to treat any TLSA records
 with certificate usage "0" or "1" as unusable.  They may then choose to
 connect via unauthenticated mandatory TLS if no alternative
@@ -508,7 +513,7 @@ certificate or public key.
 With TLSA records that match the EE certificate, the TLS client has
 no difficulty matching the TLS record against the server certificate,
 as this certificate is always present in the TLS server certificate
-chain.  The TLS client can if necessary extract the public key from
+chain.  The TLS client can, if necessary, extract the public key from
 the server certificate, and can if necessary compute the appropriate
 digest.
 </t>
@@ -519,6 +524,8 @@ public key, a complication arises when the TA certificate is omitted
 from the server's certificate chain.  This can happen when the
 trust-anchor is a root certificate authority, as stated in section
 7.4.2 of <xref target="RFC2246"/>:
+<!-- XXXWJH: old reference; need to reference current TLS docs instead -->
+<!-- either 4346 or 5246 -->
 </t>
 
 <figure>
@@ -768,8 +775,8 @@ to DNSSEC security a few comments may be helpful to TLSA implementors.
 
 <t>
 With the existing public CA PKI, name constraints are rarely used, and
-every public root CA can issue certificates for any domain of its choice.
-With DNSSEC the situation is different.  Only the registrar of record
+public root CAs can issue certificates for any domain of its choice.
+With DNSSEC the situation is different. Only the registrar of record
 can update a domain's DS record in the registry parent zone, in some
 cases of course the registry is the sole registrar.  With gTLDs for
 which multiple registrars compete to provide domains in a single registry
@@ -804,9 +811,10 @@ with the entire domain becoming invalid.
 <section anchor="Acknowledgements" title="Acknowledgements">
 
 <t>
-Thanks to Tony Finch who finally prodded me into participating in
-DANE working group discussions.  Thanks to Paul Hoffman who motivated
-me to produce this memo and provided feedback on early drafts.
+Acknowledgments from Viktor: Thanks to Tony Finch who finally prodded
+me into participating in DANE working group discussions.  Thanks to
+Paul Hoffman who motivated me to produce this memo and provided
+feedback on early drafts.
 </t>
 
 </section><!-- Acknowledgements -->
