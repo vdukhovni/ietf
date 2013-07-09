@@ -255,6 +255,30 @@ which is in this case the SHA-512 digest of the server public key.
 </section><!-- Example TLSA record -->
 </section><!-- DANE TLSA record overview -->
 
+<section title="General DANE Guidelines">
+  <section title="DANE Record Size Guidelines">
+  </section>
+  <section title="Selector Matching Guidelines">
+  </section>
+  <section title="TLSA Base Domain and CNAMEs">
+  </section>
+  <section title="Interaction with Certificate Transparency">
+  </section>
+  <section title="Design Considerations for Protocols Using DANE">
+  </section>
+</section>
+
+<section title="Type Specific DANE Guidelines">
+  <section title="Type 3 Guidelines">
+  </section>
+  <section title="Type 2 Guidelines">
+  </section>
+  <section title="Type 1 Guidelines">
+  </section>
+  <section title="Type 0 Guidelines">
+  </section>
+</section>
+
 <section title="TLSA base domain and CNAMEs">
 
 <t>
