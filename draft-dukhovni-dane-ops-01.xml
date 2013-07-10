@@ -256,538 +256,521 @@ which is in this case the SHA-512 digest of the server public key.
 </section><!-- DANE TLSA record overview -->
 
 <section title="General DANE Guidelines">
-  <section title="DANE Record Size Guidelines">
+  <section title="DANE DNS Record Size Guidelines">
+    <t>
+      With any of the certificate usages described below server operators
+      should generally avoid publishing "TLSA ? 0 0" records as even a
+      single certificate is generally too large to be reliably delivered
+      via DNS.  Two full certificates may need to be published in the TLSA
+      RRset for certificate rollover.
+    </t>
+
+    <t>
+      While "TLSA ? 1 0" records that publish full public keys are generally
+      more compact, these too should be used with caution, for example
+      two 2048-bit RSA keys require more than 512 bytes of DNS data even
+      without the accompanying RRSIG records, and thus don't fit into the
+      default 512-byte limit for DNS UDP replies.  Servers SHOULD publish
+      the certificate or key digest via DNS, with the complete key or
+      certificate communicated in band during the TLS handshake.
+    </t>
   </section>
   <section title="Selector Matching Guidelines">
   </section>
+  <section title="Certificate Naming Check Conventions">
+    <t>
+      The party responsible for creating TLSA records for a given service
+      MUST ensure that at least one of these TLSA records will match the
+      server's certificate chain.  If SNI is not employed, a certificate
+      must match the server's default certificate chain.  If the SNI
+      extension is sent by the client with a host_name (see <xref
+      target="RFC3546"/> Section 3.1), the certificate presented by the
+      server must match one of the published TLSA records.
+    </t>
+
+    <t>
+      When, for example, the TLSA RRset is published at
+    </t>
+    <figure>
+      <artwork>
+        _25._tcp.mail.example.com
+      </artwork>
+    </figure>
+    <t>
+      the base domain is mail.example.com.  At least one of the TLSA records
+      in the RRset MUST match the server certificate chain, provided the
+      client TLS hanshake included the SNI extension with a host_name of
+      mail.example.com.
+    </t>
+
+    <t>
+      Note: when the TLSA RRset query domain (base domain plus port and protocol
+      prefixes) resolves to a DNSSEC validated CNAME pointing to a DNSSEC
+      signed zone with the actual TLSA records, the content of the TLSA
+      RRset will be retrieved from the target zone.  This has no effect on
+      the value of the base domain, which remains the original domain to
+      which the client prefixed the port and protocol.
+      <!-- XXXWJH: this contradicts what the -smtp draft says -->
+    </t>
+
+    <t>
+      Note: Except with certificate usage "3", where name checks are not
+      applicable (see Section <xref target="type3" />), DANE aware clients
+      SHOULD use the base domain of the TLSA RRset to verify that the client
+      has reached the correct server by checking that the TLSA base domain
+      is matched by one of the subjectAltName (<xref target="RFC5280"/>) in
+      the server certificate.  The commonName from the certificate subject
+      DN MAY be used only when no subject alternative names are present.
+      Additional acceptable names may be specified by protocol specific DANE
+      RFCs.  For example, with SMTP both the destination domain name and the
+      MX host name are acceptable in the server certificate.
+    </t>
+
+    <t>
+      Since the server's ability to respond with the right certificate chain
+      may be predicated on the TLS client providing the correct SNI
+      information, DANE PKI aware clients SHOULD send the SNI extension with
+      a host_name value of the base domain of the TLSA RRset (otherwise they
+      risk failure to authenticate the server).  The server MUST support at
+      least TLS 1.0 and SHOULD support TLS 1.2.
+    </t>
+
+    <t>
+      Complications arise when TLSA records for a service are created by
+      someone other than the server operator.  In this situation the
+      server operator and TLSA record creator must cooperate to ensure
+      that TLSA records don't fall out of step with the server certificate
+      configuration.
+    </t>
+
+    <t>
+      When the server operator is a hosting provider, ideally the application
+      protocol allows the hosted customer to direct clients to the hosting
+      provider's servers.  This way, the associated TLSA records will be
+      found in the hosting provider's DNSSEC zone, thus avoiding the
+      complexity of bilateral coordination of server certificate configuration
+      and TLSA record management.
+    </t>
+
+    <t>
+      For example, with SMTP, the customer's MX records can be pointed
+      at the provider's MX hosts.  When the customer's DNS zone is signed,
+      the hostnames in that domain's MX records can be securely used as
+      the base names for TLSA records managed by the hosting provider.
+    </t>
+
+  </section>
   <section title="TLSA Base Domain and CNAMEs">
+    <t>
+      When the protocol does not support service location indirection via
+      MX, SRV or similar DNS records, the service may be redirected via
+      a CNAME.  A CNAME is a more blunt instrument for this purpose, since
+      unlike an MX or SRV record it remaps the origin domain to the target
+      domain for all protocols.  Also Unlike MX or SRV records CNAME records
+      may chain (though clients will generally impose implementation
+      dependent maximum nesting depths).
+    </t>
+
+    <t>
+      <!-- XXXWJH: define in terminology provider -->
+      When CNAMEs are employed the best place to seek DANE TLSA records
+      is in the provider's domain, as the provider best knows which
+      certificates are deployed on the server.  Therefore, DANE PKI clients
+      connecting to a server whose DNS name is a CNAME alias SHOULD
+      generally follow the CNAME hop-by-hop to its ultimate target host
+      (noting at each step whether the CNAME is DNSSEC validated) and use
+      the resulting target host as the base domain for TLSA lookups.
+      Standards for DANE TLS for each application protocol are expected
+      to specify where to locate TLSA RRs when the destination is referred
+      to by a CNAME.
+    </t>
+
+    <t>
+      If CNAMEs were not followed, to support DANE validation the hosted
+      domain would have to publish TLSA records that match the provider
+      certificate chain.  Since the hosted domain may not administer
+      the provider's server, this imposes a difficult key management burden
+      on the hosting provider and hosted customer even with SNI.
+    </t>
+
+    <t>
+      Accordingly, TLSA records SHOULD NOT be published for a base domain
+      that is a CNAME.  Such TLSA records are not operationally robust,
+      and SHOULD NOT be used by clients.
+      <!-- XXXWJH: change to "only if you must" and warn about
+	   synchronization, down time issues and monitoring requirements -->
+    </t>
+
+    <t>
+      It may be tempting to publish CNAMEs in the hosted domain pointing
+      to the provider's TLSA RRset.  This only works when the provider's
+      TLSA RRs specify certificate usage 3.  Otherwise, a client that
+      used the alias name (from the hosted rather than the provider's
+      domain) as the base domain to obtain the TLSA RRset would look for
+      the hosted domain in the server certificate when performing name
+      checks, and would generally fail to authenticate the server except
+      in the rare cases when the server's certificate does include the
+      hosted domain.
+    </t>
+
+    <figure>
+      <artwork>
+	; TLSA RRs aliased to provider, but the base domain is the hosted
+	; domain.  Likely to fail name check unless provider usage is "3".
+	;
+	_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
+      </artwork>
+    </figure>
+
+    <t>
+      <!-- XXXWJH: genericize to new section -->
+      Though CNAMEs are illegal on the right hand side of MX and SRV
+      records, they are supported by some implementations.  In that case,
+      if the MX or SRV host is a CNAME alias the client SHOULD "chase" the
+      CNAME and SHOULD use the target hostname as the base domain for
+      TLSA records as well as the host_name in SNI.
+    </t>
   </section>
   <section title="Interaction with Certificate Transparency">
+    <t>
+      <xref target="RFC6962"/> Certificate Transparency or CT for short,
+      defines an approach to mitigate the risk of rogue or compromised
+      public CAs issuing unauthorized certificates.  In this section we
+      clarify the interaction of CT and DANE.  We observe that CT applies
+      only to public CAs, and only when they are free to issue unauthorized
+      certificates for a domain.  If the CA is not a public CA, or DANE
+      TLSA RRs constrain the end-entity certificate to a fixed public
+      key, there is no role for CT, and clients SHOULD NOT apply CT checks.
+    </t>
+
+    <t>
+      When a server is authenticated via a DANE TLSA RR with certificate
+      usage "1" or "3" (that is an end-entity certificate association),
+      the domain owner has unambiguously specified the certificate
+      associated with the given service.  Even if a rogue CA were able
+      to issue an unauthorized end-entity certificate that binds a public
+      key to a name in that domain, barring "second preimage" attacks on
+      SHA-256 or SHA-512 any such certificate would not match the TLSA
+      record and would be rejected.
+    </t>
+
+    <t>
+      Therefore, when a TLS client authenticates the TLS server via a
+      TLSA certificate association with usage "1" or "3", CT checks SHOULD
+      NOT be performed.  Publication of the server certificate or public
+      key (digest) in a DNSSEC signed zone by the domain owner assures
+      the client that the certificate is not an unauthorized certificate
+      issued by a rogue CA without the domain owner's consent.
+    </t>
+
+    <t>
+      When a server is authenticated via a DANE TLSA RR with certificate
+      usage "2" and the server certificate does not chain to a known
+      public root CA, CT cannot apply (CT logs only accept chains that
+      start with a known root).  Since certificate usage "2" is generally
+      intended to support non-PKIX trust anchors, by far the simplest client
+      implementation strategy is not perform CT checks with usage "2".
+      A server operator that wants CT checks can publish TLSA RRs with
+      usage "0", or can obviate them with usage "1" or "3".  It is therefore
+      recommended that clients SHOULD NOT perform CT checks with usage "2".
+    </t>
+
+    <t>
+      CT checks are applicable with certificate usage "0" when the client
+      supports both DANE and CT and the trusted PKIX root issuer is a known
+      public root.
+    </t>
   </section>
   <section title="Design Considerations for Protocols Using DANE">
+    <section title="Design Considerations for non-PKIX Protocols">
+      <t>
+	For some application protocols the existing public CA PKI is
+	not viable.  For these (non-PKIX) protocols servers SHOULD NOT
+	suggest publishing TLSA records with certificate usage "0" or
+	"1", as clients cannot be expected to perform <xref
+	target="RFC5280"/> PKIX validation or <xref target="RFC6125"/>
+	identity verification.
+      </t>
+
+      <t>
+	<!-- XXXWJH: security vs robustness -->
+	Clients using non-PKIX protocols MAY choose to treat any TLSA records
+	with certificate usage "0" or "1" as unusable.  They may then choose to
+	connect via unauthenticated mandatory TLS if no alternative
+	authentication mechanisms are available.
+      </t>
+
+      <t>
+	If despite this recommendation servers for non-PKIX protocols do
+	publish TLSA records with certificate usage "0" or "1", clients
+	should make use of these to the fullest extent possible.
+      </t>
+
+      <section title="Certificate usage 1">
+
+	<t>
+	  With certificate usage "1" such clients SHOULD ignore the PKIX
+	  validation requirement, and authenticate the server per the content
+	  of the TLSA record alone.  Since some servers may rely on SNI to
+	  select the correct certificate, the client SHOULD use the SNI
+	  extension to signal the base domain of the TLSA RRset.
+	</t>
+
+      </section><!-- Certificate usage 1 -->
+
+      <section title="Certificate usage 0">
+
+	<t>
+	  With certificate usage "0" the usability of the TLSA records depends
+	  on its matching type.
+	</t>
+
+	<t>
+	  If the matching type is "0" the TLSA record contains the full
+	  certificate or full public key of the trusted certificate authority.
+	  In this case the client has all the information it needs to match
+	  the server trust-chain to the TLSA record.  The client SHOULD in
+	  this case ignore the PKIX validation requirement, and authenticate
+	  the server via its DANE TLSA records alone (sending SNI with the
+	  base domain as usual).  The base domain of the TLSA records will
+	  be used in name checks. 
+	</t>
+
+	<t>
+	  If the matching type is not "0", the TLSA record contains only a
+	  digest of the trust certificate authority certificate or public
+	  key.  The full certificate may not be included in the server's
+	  certificate chain and the client may not be able to match the server
+	  trust chain against the TLSA record.  See <xref target="d0"/> for
+	  a more complete discussion of this case.  The client cannot reliably
+	  authenticate the server in this case and SHOULD treat the TLSA
+	  record as unusable.
+	</t>
+
+	<t>
+	  If the client is configured with a set of trusted CAs believed to
+	  be sufficiently complete to authenticate all the servers with which
+	  it expects to communicate, then it MAY elect to honor certificate
+	  usage "0" TLSA records that publish digests of the trusted CA
+	  certificate or public key.
+	</t>
+
+      </section><!-- Certificate usage 0 -->
+
+
+    </section>
   </section>
+  <section title="TLSA records and trust anchor digests">
+    <t>
+      With TLSA records that match the EE certificate, the TLS client has
+      no difficulty matching the TLS record against the server certificate,
+      as this certificate is always present in the TLS server certificate
+      chain.  The TLS client can, if necessary, extract the public key from
+      the server certificate, and can if necessary compute the appropriate
+      digest.
+    </t>
+
+    <t>
+      With DANE TLSA records that match the digest of TA certificate or
+      public key, a complication arises when the TA certificate is omitted
+      from the server's certificate chain.  This can happen when the
+      trust-anchor is a root certificate authority, as stated in section
+      7.4.2 of <xref target="RFC2246"/>:
+      <!-- XXXWJH: old reference; need to reference current TLS docs instead -->
+      <!-- either 4346 or 5246 -->
+    </t>
+
+    <figure>
+      <artwork>
+	The sender's certificate must come first in the list.
+	Each following certificate must directly certify the one
+	preceding it.  Because certificate validation requires
+	that root keys be distributed independently, the
+	self-signed certificate which specifies the root
+	certificate authority may optionally be omitted from the
+	chain, under the assumption that the remote end must
+	already possess it in order to validate it in any case.
+      </artwork>
+    </figure>
+
+    <t>
+      This means that TLSA records that match a TA certificate or public
+      key digest are not directly sufficient to validate the peer certificate
+      chain.  If no matching certificate is found in the server's certificate
+      chain, the chain may be signed by an omitted root CA whose digest
+      matches the TLSA record.  We will consider each trust-anchor
+      certificate usage in turn.
+    </t>
+
+    <section anchor="d0" title="Trust anchor digests with certificate usage 0">
+
+      <t>
+	In this case, from the server's perspective, the omission of the root
+	CA seems reasonable, since in addition to authentication via DANE
+	TLSA records the client is expected to perform <xref target="RFC5280"/>
+	PKIX validation of the server's trust chain and thus to already
+	have a copy of the omitted root certificate.
+      </t>
+
+      <t>
+	From the client's perspective the situation is more nuanced.  Despite
+	the server's indicated preference for PKIX validation the client
+	may not posess (or may not fully trust) a complete set of public
+	root CAs.  This is especially likely in protocols where the existing
+	public CA PKI is not applicable.  If it is likely that a client
+	lacks a sufficiently complete list of trusted CAs, and that a
+	non-negligible number of servers publish certificate usage 0 TLSA
+	records with digests of omitted root CAs, then such a client SHOULD
+	treat such TLSA records as "unusable".  Simply ignoring PKIX
+	validation is not an option, since the client will also be unable
+	to match the TLSA record.  The client will then typically fall back
+	to unauthenticated TLS, as by assumption PKIX is also not an option
+	(see <xref target="I-D.ietf-dane-srv"/>).
+      </t>
+
+    </section><!-- Trust anchor digests with certificate usage 0 -->
+
+    <section title="Trust anchor digests with certificate usage 2">
+
+      <t>
+	Here there is no expectation that the client is pre-configured with
+	the trust anchor certificate.  With certificate usage "2" clients rely
+	on the TLSA records alone, but with a matching type other than "0"
+	the TLSA records contain neither the full trust anchor certificate
+	nor the full public key.  If the server's certificate chain does
+	not contain the trust-anchor certificate, most clients will be
+	unable to authenticate the server.
+      </t>
+
+      <t>
+	Therefore, whoever creates TLSA records with certificate usage "2"
+	and a non-zero matching type MUST ensure that the corresponding
+	server is configured to include the associated trust anchor certificate
+	in its TLS handshake certificate chain even if that certificate is
+	a self-signed root CA and would have been optional in the context
+	of the existing public CA PKI.
+      </t>
+
+      <t>
+	Since servers are expected to always provide usage "2" trust
+	anchor certificates (either via DNS or else via the TLS hanshake),
+	clients SHOULD fully support this certificate usage.  Clients MAY
+	choose to treat it as unusable if experience proves that servers
+	don't consistently live up to their obligations.
+      </t>
+
+    </section><!-- Trust anchor digests with certificate usage 2 -->
+
+  </section><!-- Trust anchor digests -->
+
+  <section title="Trust anchor public keys">
+
+    <t>
+      TLSA records with certificate usage "0" or "2", selector "1" and a
+      matching type of "0" publish the full public key of a trust anchor
+      via DNS.  In section 6.1.1 of <xref target="RFC5280"/> the
+      definition of a trust anchor consists of the following four parts:
+    </t>
+
+    <t><list style="numbers">
+      <t>the trusted issuer name,</t>
+      <t>the trusted public key algorithm,</t>
+      <t>the trusted public key, and</t>
+      <t>optionally, the trusted public key parameters associated with the public key.</t>
+    </list></t>
+
+    <t>
+      Items 2&ndash;4 are precisely the contents of the subjectPublicKeyInfo
+      published in the TLSA record, but the issuer name is not included
+      in the public key.
+    </t>
+
+    <t>
+      With certificate usage "0" when the client is able to perform PKIX
+      validation, the client can construct a complete PKIX trust chain
+      and thus has access to the trust anchor name.  So in that case the
+      client can verify that the server certificate chain is issued by a
+      trust anchor that matches the TLSA record.
+    </t>
+
+    <t>
+      With certificate usage "2" or with certificate usage "0" for a
+      non-PKIX protocol, the client may not have the missing trust anchor
+      certificate, and cannot generally verify whether a particular
+      certificate chain is "issued by" the trust anchor described in the
+      TLSA record.  If the server certificate chain includes a CA certificate
+      whose public key matches the TLSA record, the client can match that
+      CA as the intended issuer.  Otherwise, the client can only check
+      that the topmost certificate in the server's chain is "signed by"
+      by the trust anchor public key in the TLSA record.
+    </t>
+
+    <t>
+      Since trust chain validation via bare public keys rather than trusted
+      CA certificates may be difficult to implement in existing TLS
+      applications, servers MUST include the trust anchor certificate in
+      their certificate chain when the certificate usage is "2".  With
+      non-PKIX protocols servers SHOULD avoid publishing TLSA records
+      with certificate usage "0", but if they do, they SHOULD include any
+      trust anchor certificates in the TLS certificate chain.
+    </t>
+
+    <t>
+      If none of the server's certificate chain elements match a public
+      key specified in full in a TLSA record, clients SHOULD attempt to
+      check whether the topmost certificate in the chain is signed by the
+      provided public key, and if so consider the server trust chain valid,
+      with authentication complete if name checks are also successful.
+    </t>
+
+  </section><!-- Trust anchor public keys -->
+
 </section>
 
 <section title="Type Specific DANE Guidelines">
-  <section title="Type 3 Guidelines">
+  <section title="Type 3 Guidelines" anchor="type3">
   </section>
-  <section title="Type 2 Guidelines">
+  <section title="Type 2 Guidelines" anchor="type2">
   </section>
-  <section title="Type 1 Guidelines">
+  <section title="Type 1 Guidelines" anchor="type1">
   </section>
-  <section title="Type 0 Guidelines">
+  <section title="Type 0 Guidelines" anchor="type0">
+    <t>
+      TLSA certificate usage "0" allows a domain to publish constraints
+      on the set of certificate authorities trusted to issue certificates
+      for its TLS servers.  It is expected that clients will only accept
+      trust chains which contain a match for one of the published TLSA
+      records.  This is simple for TLSA certificate usage "1" where the
+      PKIX trust chain always contains the leaf server certificate.
+      The situation for certificate usage "0" is more subtle.
+    </t>
+
+    <t>
+      It may often be the case the server domain publishes trust in a
+      particular public root CA, expecting that clients will then only
+      accept chains anchored at that root.  It is however possible that
+      the client's set of trusted certificates includes some intermediate
+      CAs, either with or without the corresponding root CA.  When a
+      client construct a trust chain leading from a trusted intermediate
+      CA to the server leaf certificate, such a chain may omit any trusted
+      roots published in the server's TLSA records.
+    </t>
+
+    <t>
+      If the omitted root is also trusted, the client may erroneously reject
+      the server chain, if it fails to determine that the shorter chain it
+      constructed extends to a longer trusted chain that matches the TLSA
+      records.  This means that a client SHOULD not always stop extending
+      the chain when the first locally trusted certificate is found.  If
+      no TLSA records have matched any of the elements of the chain, it
+      MUST build attempt to build a longer chain if the trusted certificate
+      found is not self-issued, in the hope that a certificate closer to
+      the root may in fact match the server's TLSA records.
+    </t>
   </section>
 </section>
 
-<section title="TLSA base domain and CNAMEs">
-
-<t>
-The party responsible for creating TLSA records for a given service
-MUST ensure that at least one of these TLSA records will match the
-server's certificate chain.  If SNI is not employed, a certificate
-must match the server's default certificate chain.  If the SNI
-extension is sent by the client with a host_name (see <xref
-target="RFC3546"/> Section 3.1), the certificate presented by the
-server must match one of the published TLSA records.
-</t>
-
-<t>
-When, for example, the TLSA RRset is published at
-</t>
-<figure>
-<artwork>
-        _25._tcp.mail.example.com
-</artwork>
-</figure>
-<t>
-the base domain is mail.example.com.  At least one of the TLSA records
-in the RRset MUST match the server certificate chain, provided the
-client TLS hanshake included the SNI extension with a host_name of
-mail.example.com.
-</t>
-
-<t>
-Note: when the TLSA RRset query domain (base domain plus port and protocol
-prefixes) resolves to a DNSSEC validated CNAME pointing to a DNSSEC
-signed zone with the actual TLSA records, the content of the TLSA
-RRset will be retrieved from the target zone.  This has no effect on
-the value of the base domain, which remains the original domain to
-which the client prefixed the port and protocol.
-<!-- XXXWJH: this contradicts what the -smtp draft says -->
-</t>
-
-<t>
-Note: Except with certificate usage "3", where name checks are not
-applicable, DANE aware clients SHOULD use the base domain of the TLSA
-RRset to verify that the client has reached the correct server by
-checking that the TLSA base domain is matched by one of the
-subjectAltName (<xref target="RFC5280"/>) in the server certificate.
-The commonName from the certificate subject DN MAY be used only when
-no subject alternative names are present.  Additional acceptable names
-may be specified by protocol specific DANE RFCs.  For example, with
-SMTP both the destination domain name and the MX host name are
-acceptable in the server certificate.
-</t>
-
-<t>
-Since the server's ability to respond with the right certificate chain
-may be predicated on the TLS client providing the correct SNI
-information, DANE PKI aware clients SHOULD send the SNI extension with
-a host_name value of the base domain of the TLSA RRset (otherwise they
-risk failure to authenticate the server).  The server MUST support at
-least TLS 1.0 and SHOULD support TLS 1.2.
-</t>
-
-<t>
-Complications arise when TLSA records for a service are created by
-someone other than the server operator.  In this situation the
-server operator and TLSA record creator must cooperate to ensure
-that TLSA records don't fall out of step with the server certificate
-configuration.
-</t>
-
-<t>
-When the server operator is a hosting provider, ideally the application
-protocol allows the hosted customer to direct clients to the hosting
-provider's servers.  This way, the associated TLSA records will be
-found in the hosting provider's DNSSEC zone, thus avoiding the
-complexity of bilateral coordination of server certificate configuration
-and TLSA record management.
-</t>
-
-<t>
-For example, with SMTP, the customer's MX records can be pointed
-at the provider's MX hosts.  When the customer's DNS zone is signed,
-the hostnames in that domain's MX records can be securely used as
-the base names for TLSA records managed by the hosting provider.
-</t>
-
-<t>
-When the protocol does not support service location indirection via
-MX, SRV or similar DNS records, the service may be redirected via
-a CNAME.  A CNAME is a more blunt instrument for this purpose, since
-unlike an MX or SRV record it remaps the origin domain to the target
-domain for all protocols.  Also Unlike MX or SRV records CNAME records
-may chain (though clients will generally impose implementation
-dependent maximum nesting depths).
-</t>
-
-<t>
-<!-- XXXWJH: define in terminology provider -->
-When CNAMEs are employed the best place to seek DANE TLSA records
-is in the provider's domain, as the provider best knows which
-certificates are deployed on the server.  Therefore, DANE PKI clients
-connecting to a server whose DNS name is a CNAME alias SHOULD
-generally follow the CNAME hop-by-hop to its ultimate target host
-(noting at each step whether the CNAME is DNSSEC validated) and use
-the resulting target host as the base domain for TLSA lookups.
-Standards for DANE TLS for each application protocol are expected
-to specify where to locate TLSA RRs when the destination is referred
-to by a CNAME.
-</t>
-
-<t>
-If CNAMEs were not followed, to support DANE validation the hosted
-domain would have to publish TLSA records that match the provider
-certificate chain.  Since the hosted domain may not administer
-the provider's server, this imposes a difficult key management burden
-on the hosting provider and hosted customer even with SNI.
-</t>
-
-<t>
-Accordingly, TLSA records SHOULD NOT be published for a base domain
-that is a CNAME.  Such TLSA records are not operationally robust,
-and SHOULD NOT be used by clients.
-<!-- XXXWJH: change to "only if you must" and warn about
-synchronization, down time issues and monitoring requirements -->
-</t>
-
-<t>
-It may be tempting to publish CNAMEs in the hosted domain pointing
-to the provider's TLSA RRset.  This only works when the provider's
-TLSA RRs specify certificate usage 3.  Otherwise, a client that
-used the alias name (from the hosted rather than the provider's
-domain) as the base domain to obtain the TLSA RRset would look for
-the hosted domain in the server certificate when performing name
-checks, and would generally fail to authenticate the server except
-in the rare cases when the server's certificate does include the
-hosted domain.
-</t>
-
-<figure>
-<artwork>
-; TLSA RRs aliased to provider, but the base domain is the hosted
-; domain.  Likely to fail name check unless provider usage is "3".
-;
-_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
-</artwork>
-</figure>
-
-<t>
-<!-- XXXWJH: genericize to new section -->
-Though CNAMEs are illegal on the right hand side of MX and SRV
-records, they are supported by some implementations.  In that case,
-if the MX or SRV host is a CNAME alias the client SHOULD "chase" the
-CNAME and SHOULD use the target hostname as the base domain for
-TLSA records as well as the host_name in SNI.
-</t>
-
-</section><!-- TLSA base domain and CNAMEs -->
-
-<section title="TLSA record usability">
-
-<t>
-With any of the certificate usages described below server operators
-should generally avoid publishing "TLSA ? 0 0" records as even a
-single certificate is generally too large to be reliably delivered
-via DNS.  Two full certificates may need to be published in the TLSA
-RRset for certificate rollover.
-</t>
-
-<t>
-While "TLSA ? 1 0" records that publish full public keys are generally
-more compact, these too should be used with caution, for example
-two 2048-bit RSA keys require more than 512 bytes of DNS data even
-without the accompanying RRSIG records, and thus don't fit into the
-default 512-byte limit for DNS UDP replies.  Servers SHOULD publish
-the certificate or key digest via DNS, with the complete key or
-certificate communicated in band during the TLS handshake.
-</t>
-
-<section title="Non-PKIX application protocols">
-
-<t>
-For some application protocols the existing public CA PKI is not
-viable.  For these (non-PKIX) protocols servers SHOULD NOT publish
-TLSA records with certificate usage "0" or "1", as clients cannot
-be expected to perform <xref target="RFC5280"/> PKIX validation or
-<xref target="RFC6125"/> identity verification.
-</t>
-
-<t>
-<!-- XXXWJH: security vs robustness -->
-Clients using non-PKIX protocols MAY choose to treat any TLSA records
-with certificate usage "0" or "1" as unusable.  They may then choose to
-connect via unauthenticated mandatory TLS if no alternative
-authentication mechanisms are available.
-</t>
-
-<t>
-If despite this recommendation servers for non-PKIX protocols do
-publish TLSA records with certificate usage "0" or "1", clients
-should make use of these to the fullest extent possible.
-</t>
-
-<section title="Certificate usage 1">
-
-<t>
-With certificate usage "1" such clients SHOULD ignore the PKIX
-validation requirement, and authenticate the server per the content
-of the TLSA record alone.  Since some servers may rely on SNI to
-select the correct certificate, the client SHOULD use the SNI
-extension to signal the base domain of the TLSA RRset.
-</t>
-
-</section><!-- Certificate usage 1 -->
-
-<section title="Certificate usage 0">
-
-<t>
-With certificate usage "0" the usability of the TLSA records depends
-on its matching type.
-</t>
-
-<t>
-If the matching type is "0" the TLSA record contains the full
-certificate or full public key of the trusted certificate authority.
-In this case the client has all the information it needs to match
-the server trust-chain to the TLSA record.  The client SHOULD in
-this case ignore the PKIX validation requirement, and authenticate
-the server via its DANE TLSA records alone (sending SNI with the
-base domain as usual).  The base domain of the TLSA records will
-be used in name checks. 
-</t>
-
-<t>
-If the matching type is not "0", the TLSA record contains only a
-digest of the trust certificate authority certificate or public
-key.  The full certificate may not be included in the server's
-certificate chain and the client may not be able to match the server
-trust chain against the TLSA record.  See <xref target="d0"/> for
-a more complete discussion of this case.  The client cannot reliably
-authenticate the server in this case and SHOULD treat the TLSA
-record as unusable.
-</t>
-
-<t>
-If the client is configured with a set of trusted CAs believed to
-be sufficiently complete to authenticate all the servers with which
-it expects to communicate, then it MAY elect to honor certificate
-usage "0" TLSA records that publish digests of the trusted CA
-certificate or public key.
-</t>
-
-</section><!-- Certificate usage 0 -->
-
-</section><!-- Non-PKIX application protocols -->
-
-<section title="TLSA records and trust anchor digests">
-
-<t>
-With TLSA records that match the EE certificate, the TLS client has
-no difficulty matching the TLS record against the server certificate,
-as this certificate is always present in the TLS server certificate
-chain.  The TLS client can, if necessary, extract the public key from
-the server certificate, and can if necessary compute the appropriate
-digest.
-</t>
-
-<t>
-With DANE TLSA records that match the digest of TA certificate or
-public key, a complication arises when the TA certificate is omitted
-from the server's certificate chain.  This can happen when the
-trust-anchor is a root certificate authority, as stated in section
-7.4.2 of <xref target="RFC2246"/>:
-<!-- XXXWJH: old reference; need to reference current TLS docs instead -->
-<!-- either 4346 or 5246 -->
-</t>
-
-<figure>
-<artwork>
-        The sender's certificate must come first in the list.
-        Each following certificate must directly certify the one
-        preceding it.  Because certificate validation requires
-        that root keys be distributed independently, the
-        self-signed certificate which specifies the root
-        certificate authority may optionally be omitted from the
-        chain, under the assumption that the remote end must
-        already possess it in order to validate it in any case.
-</artwork>
-</figure>
-
-<t>
-This means that TLSA records that match a TA certificate or public
-key digest are not directly sufficient to validate the peer certificate
-chain.  If no matching certificate is found in the server's certificate
-chain, the chain may be signed by an omitted root CA whose digest
-matches the TLSA record.  We will consider each trust-anchor
-certificate usage in turn.
-</t>
-
-<section anchor="d0" title="Trust anchor digests with certificate usage 0">
-
-<t>
-In this case, from the server's perspective, the omission of the root
-CA seems reasonable, since in addition to authentication via DANE
-TLSA records the client is expected to perform <xref target="RFC5280"/>
-PKIX validation of the server's trust chain and thus to already
-have a copy of the omitted root certificate.
-</t>
-
-<t>
-From the client's perspective the situation is more nuanced.  Despite
-the server's indicated preference for PKIX validation the client
-may not posess (or may not fully trust) a complete set of public
-root CAs.  This is especially likely in protocols where the existing
-public CA PKI is not applicable.  If it is likely that a client
-lacks a sufficiently complete list of trusted CAs, and that a
-non-negligible number of servers publish certificate usage 0 TLSA
-records with digests of omitted root CAs, then such a client SHOULD
-treat such TLSA records as "unusable".  Simply ignoring PKIX
-validation is not an option, since the client will also be unable
-to match the TLSA record.  The client will then typically fall back
-to unauthenticated TLS, as by assumption PKIX is also not an option
-(see <xref target="I-D.ietf-dane-srv"/>).
-</t>
-
-</section><!-- Trust anchor digests with certificate usage 0 -->
-
-<section title="Trust anchor digests with certificate usage 2">
-
-<t>
-Here there is no expectation that the client is pre-configured with
-the trust anchor certificate.  With certificate usage "2" clients rely
-on the TLSA records alone, but with a matching type other than "0"
-the TLSA records contain neither the full trust anchor certificate
-nor the full public key.  If the server's certificate chain does
-not contain the trust-anchor certificate, most clients will be
-unable to authenticate the server.
-</t>
-
-<t>
-Therefore, whoever creates TLSA records with certificate usage "2"
-and a non-zero matching type MUST ensure that the corresponding
-server is configured to include the associated trust anchor certificate
-in its TLS handshake certificate chain even if that certificate is
-a self-signed root CA and would have been optional in the context
-of the existing public CA PKI.
-</t>
-
-<t>
-Since servers are expected to always provide usage "2" trust
-anchor certificates (either via DNS or else via the TLS hanshake),
-clients SHOULD fully support this certificate usage.  Clients MAY
-choose to treat it as unusable if experience proves that servers
-don't consistently live up to their obligations.
-</t>
-
-</section><!-- Trust anchor digests with certificate usage 2 -->
-
-</section><!-- Trust anchor digests -->
-
-<section title="Trust anchor public keys">
-
-<t>
-TLSA records with certificate usage "0" or "2", selector "1" and a
-matching type of "0" publish the full public key of a trust anchor
-via DNS.  In section 6.1.1 of <xref target="RFC5280"/> the
-definition of a trust anchor consists of the following four parts:
-</t>
-
-<t><list style="numbers">
-<t>the trusted issuer name,</t>
-<t>the trusted public key algorithm,</t>
-<t>the trusted public key, and</t>
-<t>optionally, the trusted public key parameters associated with the public key.</t>
-</list></t>
-
-<t>
-Items 2&ndash;4 are precisely the contents of the subjectPublicKeyInfo
-published in the TLSA record, but the issuer name is not included
-in the public key.
-</t>
-
-<t>
-With certificate usage "0" when the client is able to perform PKIX
-validation, the client can construct a complete PKIX trust chain
-and thus has access to the trust anchor name.  So in that case the
-client can verify that the server certificate chain is issued by a
-trust anchor that matches the TLSA record.
-</t>
-
-<t>
-With certificate usage "2" or with certificate usage "0" for a
-non-PKIX protocol, the client may not have the missing trust anchor
-certificate, and cannot generally verify whether a particular
-certificate chain is "issued by" the trust anchor described in the
-TLSA record.  If the server certificate chain includes a CA certificate
-whose public key matches the TLSA record, the client can match that
-CA as the intended issuer.  Otherwise, the client can only check
-that the topmost certificate in the server's chain is "signed by"
-by the trust anchor public key in the TLSA record.
-</t>
-
-<t>
-Since trust chain validation via bare public keys rather than trusted
-CA certificates may be difficult to implement in existing TLS
-applications, servers MUST include the trust anchor certificate in
-their certificate chain when the certificate usage is "2".  With
-non-PKIX protocols servers SHOULD avoid publishing TLSA records
-with certificate usage "0", but if they do, they SHOULD include any
-trust anchor certificates in the TLS certificate chain.
-</t>
-
-<t>
-If none of the server's certificate chain elements match a public
-key specified in full in a TLSA record, clients SHOULD attempt to
-check whether the topmost certificate in the chain is signed by the
-provided public key, and if so consider the server trust chain valid,
-with authentication complete if name checks are also successful.
-</t>
-
-</section><!-- Trust anchor public keys -->
-
-<section title="Certificate usage 0 trust chains">
-
-<t>
-TLSA certificate usage "0" allows a domain to publish constraints
-on the set of certificate authorities trusted to issue certificates
-for its TLS servers.  It is expected that clients will only accept
-trust chains which contain a match for one of the published TLSA
-records.  This is simple for TLSA certificate usage "1" where the
-PKIX trust chain always contains the leaf server certificate.
-The situation for certificate usage "0" is more subtle.
-</t>
-
-<t>
-It may often be the case the server domain publishes trust in a
-particular public root CA, expecting that clients will then only
-accept chains anchored at that root.  It is however possible that
-the client's set of trusted certificates includes some intermediate
-CAs, either with or without the corresponding root CA.  When a
-client construct a trust chain leading from a trusted intermediate
-CA to the server leaf certificate, such a chain may omit any trusted
-roots published in the server's TLSA records.
-</t>
-
-<t>
-If the omitted root is also trusted, the client may erroneously reject
-the server chain, if it fails to determine that the shorter chain it
-constructed extends to a longer trusted chain that matches the TLSA
-records.  This means that a client SHOULD not always stop extending
-the chain when the first locally trusted certificate is found.  If
-no TLSA records have matched any of the elements of the chain, it
-MUST build attempt to build a longer chain if the trusted certificate
-found is not self-issued, in the hope that a certificate closer to
-the root may in fact match the server's TLSA records.
-</t>
-
-</section><!-- Certificate usage 0 trust chains -->
-
-</section><!-- TLSA record usability -->
-
-<section title="Certificate Transparency Interaction">
-
-<t>
-<xref target="RFC6962"/> Certificate Transparency or CT for short,
-defines an approach to mitigate the risk of rogue or compromised
-public CAs issuing unauthorized certificates.  In this section we
-clarify the interaction of CT and DANE.  We observe that CT applies
-only to public CAs, and only when they are free to issue unauthorized
-certificates for a domain.  If the CA is not a public CA, or DANE
-TLSA RRs constrain the end-entity certificate to a fixed public
-key, there is no role for CT, and clients SHOULD NOT apply CT checks.
-</t>
-
-<t>
-When a server is authenticated via a DANE TLSA RR with certificate
-usage "1" or "3" (that is an end-entity certificate association),
-the domain owner has unambiguously specified the certificate
-associated with the given service.  Even if a rogue CA were able
-to issue an unauthorized end-entity certificate that binds a public
-key to a name in that domain, barring "second preimage" attacks on
-SHA-256 or SHA-512 any such certificate would not match the TLSA
-record and would be rejected.
-</t>
-
-<t>
-Therefore, when a TLS client authenticates the TLS server via a
-TLSA certificate association with usage "1" or "3", CT checks SHOULD
-NOT be performed.  Publication of the server certificate or public
-key (digest) in a DNSSEC signed zone by the domain owner assures
-the client that the certificate is not an unauthorized certificate
-issued by a rogue CA without the domain owner's consent.
-</t>
-
-<t>
-When a server is authenticated via a DANE TLSA RR with certificate
-usage "2" and the server certificate does not chain to a known
-public root CA, CT cannot apply (CT logs only accept chains that
-start with a known root).  Since certificate usage "2" is generally
-intended to support non-PKIX trust anchors, by far the simplest client
-implementation strategy is not perform CT checks with usage "2".
-A server operator that wants CT checks can publish TLSA RRs with
-usage "0", or can obviate them with usage "1" or "3".  It is therefore
-recommended that clients SHOULD NOT perform CT checks with usage "2".
-</t>
-
-<t>
-CT checks are applicable with certificate usage "0" when the client
-supports both DANE and CT and the trusted PKIX root issuer is a known
-public root.
-</t>
-
-</section><!-- Certificate Transparency Interaction -->
+<!-- ************************************************************** -->
 
 <section title="Note on DNSSEC security">
 
