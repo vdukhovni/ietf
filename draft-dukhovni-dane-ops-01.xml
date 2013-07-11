@@ -383,7 +383,6 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      <!-- XXXWJH: define in terminology provider -->
       When CNAMEs are employed the best place to seek DANE TLSA records
       is in the MX Provider's domain, as the MX Provider best knows which
       certificates are deployed on the server.  Therefore, DANE PKI clients
