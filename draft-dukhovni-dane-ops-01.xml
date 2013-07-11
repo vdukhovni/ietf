@@ -134,6 +134,17 @@ target="RFC2119"/>.
 This memo is being discussed on the dane@ietf.org mailing list.
 </t>
 
+<t>The following terms are used throughout this document:</t>
+<list style="hanging">
+  <t hangText="MX Provider">
+    A company or organization that offers to host mail service for
+    another company or organization.  Frequently, MX Providers are
+    pointed for mail service using MX records and frequently accept
+    mail many customers.
+  </t>
+</list>
+
+
 </section><!-- Terminology -->
 
 </section><!-- Introduction -->
@@ -344,19 +355,19 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      When the server operator is a hosting provider, ideally the application
+      When the server operator is a MX Provider, ideally the application
       protocol allows the hosted customer to direct clients to the hosting
       provider's servers.  This way, the associated TLSA records will be
-      found in the hosting provider's DNSSEC zone, thus avoiding the
+      found in the MX Provider's DNSSEC zone, thus avoiding the
       complexity of bilateral coordination of server certificate configuration
       and TLSA record management.
     </t>
 
     <t>
       For example, with SMTP, the customer's MX records can be pointed
-      at the provider's MX hosts.  When the customer's DNS zone is signed,
+      at the MX Provider's MX hosts.  When the customer's DNS zone is signed,
       the hostnames in that domain's MX records can be securely used as
-      the base names for TLSA records managed by the hosting provider.
+      the base names for TLSA records managed by the MX Provider.
     </t>
 
   </section>
@@ -374,7 +385,7 @@ which is in this case the SHA-512 digest of the server public key.
     <t>
       <!-- XXXWJH: define in terminology provider -->
       When CNAMEs are employed the best place to seek DANE TLSA records
-      is in the provider's domain, as the provider best knows which
+      is in the MX Provider's domain, as the MX Provider best knows which
       certificates are deployed on the server.  Therefore, DANE PKI clients
       connecting to a server whose DNS name is a CNAME alias SHOULD
       generally follow the CNAME hop-by-hop to its ultimate target host
@@ -387,10 +398,10 @@ which is in this case the SHA-512 digest of the server public key.
 
     <t>
       If CNAMEs were not followed, to support DANE validation the hosted
-      domain would have to publish TLSA records that match the provider
+      domain would have to publish TLSA records that match the MX Provider
       certificate chain.  Since the hosted domain may not administer
-      the provider's server, this imposes a difficult key management burden
-      on the hosting provider and hosted customer even with SNI.
+      the MX Provider's server, this imposes a difficult key management burden
+      on the MX Provider and hosted customer even with SNI.
     </t>
 
     <t>
@@ -403,9 +414,9 @@ which is in this case the SHA-512 digest of the server public key.
 
     <t>
       It may be tempting to publish CNAMEs in the hosted domain pointing
-      to the provider's TLSA RRset.  This only works when the provider's
+      to the MX Provider's TLSA RRset.  This only works when the MX Provider's
       TLSA RRs specify certificate usage 3.  Otherwise, a client that
-      used the alias name (from the hosted rather than the provider's
+      used the alias name (from the hosted rather than the MX Provider's
       domain) as the base domain to obtain the TLSA RRset would look for
       the hosted domain in the server certificate when performing name
       checks, and would generally fail to authenticate the server except
@@ -415,8 +426,8 @@ which is in this case the SHA-512 digest of the server public key.
 
     <figure>
       <artwork>
-	; TLSA RRs aliased to provider, but the base domain is the hosted
-	; domain.  Likely to fail name check unless provider usage is "3".
+	; TLSA RRs aliased to MX Provider, but the base domain is the hosted
+	; domain.  Likely to fail name check unless MX Provider usage is "3".
 	;
 	_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
       </artwork>
