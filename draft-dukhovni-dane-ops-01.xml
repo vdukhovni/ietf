@@ -267,24 +267,53 @@ which is in this case the SHA-512 digest of the server public key.
 </section><!-- DANE TLSA record overview -->
 
 <section title="General DANE Guidelines">
+  <t>These guidelines provide guidance for using or designing
+  protocols for DANE, regardless of what type the TLSA record will
+  actually contain.</t>
   <section title="DANE DNS Record Size Guidelines">
     <t>
-      With any of the certificate usages described below server operators
-      should generally avoid publishing "TLSA ? 0 0" records as even a
-      single certificate is generally too large to be reliably delivered
-      via DNS.  Two full certificates may need to be published in the TLSA
-      RRset for certificate rollover.
+      Selecting a combination of TLSA parameters to use requires
+      careful thought.  One important consideration that must be
+      accounted for is the size of the resulting TLSA record based on
+      the parameters chosen.
     </t>
+    <section title="UDP and TCP Considerations">
 
-    <t>
-      While "TLSA ? 1 0" records that publish full public keys are generally
-      more compact, these too should be used with caution, for example
-      two 2048-bit RSA keys require more than 512 bytes of DNS data even
-      without the accompanying RRSIG records, and thus don't fit into the
-      default 512-byte limit for DNS UDP replies.  Servers SHOULD publish
-      the certificate or key digest via DNS, with the complete key or
-      certificate communicated in band during the TLS handshake.
-    </t>
+      <t>
+	Deployments SHOULD avoid TLSA record sizes that cause UDP
+	fragmentation within the networks to be used.
+      </t>
+      <t>
+	Although TCP is a viable
+	alternative technologically and would provide the ability to
+	transfer larger DNS records between clients and servers, it is
+	not yet widely deployed or permitted through many firewalls.
+	TCP must be expected to be deployed on all the DNS servers and
+	DNS clients for it to be a truly viable large-record solution.
+      </t>
+    </section>
+    <section title= "Packet Size Considerations for TLSA Parameters">
+      <t>
+	Server operators SHOULD NOT generally publish "TLSA * 0 0"
+	records, as even a single certificate is generally too large
+	to be reliably delivered via DNS without TCP being widely
+	available.  Furthermore, two full certificates may need to be
+	published in the TLSA RRset for certificate rollover.
+      </t>
+
+      <t>
+	While "TLSA * 1 0" records, which publish full public keys
+	without the full X.509 wrapping, are generally more compact,
+	these too should be used with caution.  For example, two
+	2048-bit RSA keys require more than 512 bytes of DNS data even
+	without the accompanying RRSIG records, and thus don't fit
+	into a 512-byte DNS packet, and many firewalls today still
+	drop DNS packets greater than 512 bytes in size.  Servers
+	SHOULD publish the certificate or key digests within TLSA
+	records instead.  The complete certificate should be
+	transmitted to the client in band during the TLS handshake.
+      </t>
+    </section>
   </section>
   <section title="Selector Matching Guidelines">
   </section>
