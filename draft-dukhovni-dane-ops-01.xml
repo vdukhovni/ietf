@@ -419,19 +419,19 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      <!-- XXXWJH: bookmark -->
-      When the server operator is an Service Provider, ideally the application
-      protocol allows the hosted customer to direct clients to the hosting
-      provider's servers.  This way, the associated TLSA records will be
-      found in the Service Provider's DNSSEC zone, thus avoiding the
-      complexity of bilateral coordination of server certificate configuration
-      and TLSA record management.
+      Ideally, the TLSA Publisher and the Service Provider should be
+      the same entity.  If a TLSA record must be published in the
+      client's base domain, CNAME records can be easily used to point
+      at the real TLSA record in the Service Provider's zone.  Having
+      the master TLSA record in the Service Provider's zone avoids the
+      complexity of bilateral coordination of server certificate
+      configuration and TLSA record management.
     </t>
 
     <t>
       For example, with SMTP, the customer's MX records can be pointed
       at the Service Provider's MX hosts.  When the customer's DNS zone is signed,
-      the hostnames in that domain's MX records can be securely used as
+      the MX records can be securely used as
       the base names for TLSA records managed by the Service Provider.
     </t>
 
