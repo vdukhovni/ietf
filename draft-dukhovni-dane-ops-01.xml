@@ -136,7 +136,7 @@ target="RFC2119"/>.
 This memo is being discussed on the dane@ietf.org mailing list.
 </t>
 
-<t>The following terms are used throughout this document:</t>
+<t>The following terms are used throughout this document:
 <list style="hanging">
   <t hangText="Service Provider">
     A company or organization that offers to host a service on behalf
@@ -148,10 +148,17 @@ This memo is being discussed on the dane@ietf.org mailing list.
     customers and must carefully manage TLS credentials offered to the
     clients to ensure name matching is handled easily by clients.
   </t>
+  <t hangText="Client Domain">
+    Clients that make use of a Service Provider will be referred to as
+    "Client Domains".
+  </t>
   <t hangText="TLSA Publisher">
     The entity responsible for publishing a TLSA record within a DNS
     zone.  This zone will be considered DNSSEC signed, unless
-    otherwise specified.
+    otherwise specified.  If the Client Domain is not outsourcing
+    their DNS service, the TLSA Publisher will be the client
+    themselves.  Otherwise the TLSA Publisher may be the outsourced
+    DNS service instead.
   </t>
   <t hangText="public key">
     In this memo the term "public key" will be an
@@ -170,7 +177,7 @@ This memo is being discussed on the dane@ietf.org mailing list.
     the client.
   </t>
 </list>
-
+</t>
 
 </section><!-- Terminology -->
 
@@ -380,6 +387,7 @@ which is in this case the SHA-512 digest of the server public key.
     <t>
       <!-- XXXWJH: this contradicts what the -smtp draft says -->
       <!-- XXXWJH: fixme based on discussions with Viktor -->
+      <!-- XXXWJH: move to section below about CNAMEs or remove -->
       Note: when the TLSA RRset query domain (base domain plus port and protocol
       prefixes) resolves to a DNSSEC validated CNAME pointing to a DNSSEC
       signed zone with the actual TLSA records, the content of the TLSA
@@ -409,7 +417,8 @@ which is in this case the SHA-512 digest of the server public key.
       RRset (otherwise they risk failure to authenticate the server).
     </t>
   </section>
-  <section title="Service Provider and TLSA Publisher Synchronization">
+  <section title="Service Provider and TLSA Publisher Synchronization"
+	   anchor="sync">
     <t>
       Complications arise when the TLSA Publisher is not the same
       entity as the Service Provider.  In this situation, the TLSA
@@ -422,10 +431,11 @@ which is in this case the SHA-512 digest of the server public key.
       Ideally, the TLSA Publisher and the Service Provider should be
       the same entity.  If a TLSA record must be published in the
       client's base domain, CNAME records can be easily used to point
-      at the real TLSA record in the Service Provider's zone.  Having
-      the master TLSA record in the Service Provider's zone avoids the
-      complexity of bilateral coordination of server certificate
-      configuration and TLSA record management.
+      at the real TLSA record in the Service Provider's zone assuming
+      type 3 TLSA records are in use (see Section <xref target="cname"
+      />) .  Having the master TLSA record in the Service Provider's
+      zone avoids the complexity of bilateral coordination of server
+      certificate configuration and TLSA record management.
     </t>
 
     <t>
@@ -436,62 +446,65 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
   </section>
-  <section title="TLSA Base Domain and CNAMEs">
+  <section title="TLSA Base Domain and CNAMEs" anchor="cname">
     <t>
       When the protocol does not support service location indirection via
       MX, SRV or similar DNS records, the service may be redirected via
       a CNAME.  A CNAME is a more blunt instrument for this purpose, since
-      unlike an MX or SRV record it remaps the origin domain to the target
-      domain for all protocols.  Also Unlike MX or SRV records CNAME records
+      unlike an MX or SRV record, it remaps the origin domain to the target
+      domain for all protocols.  Also Unlike MX or SRV records, CNAME records
       may chain (though clients will generally impose implementation
       dependent maximum nesting depths).
     </t>
 
     <t>
-      When CNAMEs are employed the best place to seek DANE TLSA records
-      is in the Service Provider's domain, as the Service Provider best knows which
-      certificates are deployed on the server.  Therefore, DANE PKI clients
-      connecting to a server whose DNS name is a CNAME alias SHOULD
-      generally follow the CNAME hop-by-hop to its ultimate target host
+      When CNAMEs are employed, the best place to seek DANE TLSA records
+      is in the Service Provider's domain, as discussed in <xref
+      target="sync" />.  Therefore, DANE PKI clients
+      connecting to a server whose domain name is a CNAME alias SHOULD
+      follow the CNAME hop-by-hop to its ultimate target host
       (noting at each step whether the CNAME is DNSSEC validated) and use
       the resulting target host as the base domain for TLSA lookups.
-      Standards for DANE TLS for each application protocol are expected
-      to specify where to locate TLSA RRs when the destination is referred
-      to by a CNAME.
+      Standards defining how to use DANE anchored TLS for each
+      application protocol are expected to specify where to locate
+      TLSA RRs when the destination is referred to by a CNAME.
+      <!-- XXXWJH: discuss here about using the (preferred) last
+      record name or falling back to the (less preferred) first CNAME
+      as the base domain -->
     </t>
 
     <t>
-      If CNAMEs were not followed, to support DANE validation the hosted
-      domain would have to publish TLSA records that match the Service Provider
-      certificate chain.  Since the hosted domain may not administer
-      the Service Provider's server, this imposes a difficult key management burden
-      on the Service Provider and hosted customer even with SNI.
+      If CNAMEs were not followed, Client Domains would need to
+      publish TLSA records that match the Service Provider's
+      certificate chain or always use an entity that was both the
+      Service Provider and the TLSA publisher.  Having the TLSA base
+      domain be different than the Service Provider's domain imposes a
+      difficult key management burden on the Client Domain and the
+      Service Provider.
     </t>
 
     <t>
-      Accordingly, TLSA records SHOULD NOT be published for a base domain
-      that is a CNAME.  Such TLSA records are not operationally robust,
-      and SHOULD NOT be used by clients.
-      <!-- XXXWJH: change to "only if you must" and warn about
-	   synchronization, down time issues and monitoring requirements -->
+      It is possible to publish CNAMEs in the Client Domain pointing
+      to the Service Provider's TLSA RRset if the TLSA certificate
+      usage field is of type 3.  Otherwise, a client that used the
+      alias name (from the hosted rather than the Service Provider's
+      domain) as the base domain to obtain the TLSA RRset would look
+      for the hosted domain in the server certificate when performing
+      name checks, and would generally fail to authenticate the server
+      except in the rare cases when the server's certificate does
+      include the Client Domain.  SNI SHOULD be used to help perform
+      the right certificate selection by the server, although this
+      imposes a management burden on the TLS server that could be
+      avoided by ensuring the TLSA base domain is within the Service
+      Provider's control in the first place.
     </t>
 
-    <t>
-      It may be tempting to publish CNAMEs in the hosted domain pointing
-      to the Service Provider's TLSA RRset.  This only works when the Service Provider's
-      TLSA RRs specify certificate usage 3.  Otherwise, a client that
-      used the alias name (from the hosted rather than the Service Provider's
-      domain) as the base domain to obtain the TLSA RRset would look for
-      the hosted domain in the server certificate when performing name
-      checks, and would generally fail to authenticate the server except
-      in the rare cases when the server's certificate does include the
-      hosted domain.
-    </t>
-
+    <t>Example CNAME record for a TLSA domain:</t>
     <figure>
       <artwork>
-	; TLSA RRs aliased to Service Provider, but the base domain is the hosted
-	; domain.  Likely to fail name check unless Service Provider usage is "3".
+	; TLSA RRs aliased to Service Provider, but the base domain is
+	; the hosted domain.  Likely to fail name check unless Service
+	; Provider usage is "3".
 	;
 	_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
       </artwork>
