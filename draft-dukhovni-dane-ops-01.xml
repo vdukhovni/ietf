@@ -142,6 +142,27 @@ This memo is being discussed on the dane@ietf.org mailing list.
     pointed for mail service using MX records and frequently accept
     mail many customers.
   </t>
+  <t hangText="TLSA Publisher">
+    The entity responsible for publishing a TLSA record within a DNS
+    zone.  This zone will be considered DNSSEC signed, unless
+    otherwise specified.
+  </t>
+  <t hangText="public key">
+    In this memo the term "public key" will be an
+    informal short-hand for the subjectPublicKeyInfo from a PKIX
+    certificate.
+  </t>
+  <t hangText="SNI">
+    The "Server Name Indication", or SNI, describes the process by
+    which a TLS client requests to connect to a particular service
+    name for a TLS server (<xref target="RFC3546" />).  Without this
+    extension, a TLS server has no choice but to offer a PKIX
+    certificate with a default server name.  Servers that are expected
+    to host services for many clients need to present the correct
+    certificate for the correct client, and the SNI extension provides
+    a hint to the server which certificate should be transmitted to
+    the client.
+  </t>
 </list>
 
 
@@ -225,9 +246,7 @@ contain a given CA or EE certificate.
 The selector field specifies whether the TLSA RR matches the whole
 certificate or just its subjectPublicKeyInfo (i.e. an ASN.1 DER
 encoding of the certificate's algorithm id, any parameters and the
-public key data).  In this memo the term "public key" will be an
-informal short-hand for the subjectPublicKeyInfo <!-- XXXWJH: move to
-a terminology section -->.  A selector field of
+public key data).  A selector field of
 "0" specifies the whole certificate.  A selector field of "1"
 specifies just the public key.  </t>
 
@@ -319,13 +338,22 @@ which is in this case the SHA-512 digest of the server public key.
   </section>
   <section title="Certificate Naming Check Conventions">
     <t>
-      The party responsible for creating TLSA records for a given service
-      MUST ensure that at least one of these TLSA records will match the
-      server's certificate chain.  If SNI is not employed, a certificate
-      must match the server's default certificate chain.  If the SNI
-      extension is sent by the client with a host_name (see <xref
-      target="RFC3546"/> Section 3.1), the certificate presented by the
-      server must match one of the published TLSA records.
+      Certificates presented by a TLS server will contain either a
+      Common Name (CN) or subjectAltName (or both), according to <xref
+      target="RFC5280" />.  The server's hostname should be published
+      within these fields, ideally within the subjectAltName.  This
+      section discusses what must be done to match an expected name
+      against the name found within a certificate, if required.
+    </t>
+    <t>
+      The TLSA publisher for TLSA records for a given service MUST
+      ensure that at least one of these TLSA records will match the
+      server's certificate chain.  If SNI is not employed for a TLS
+      connection, the TLSA record must match the server's default
+      certificate.  If the SNI extension is sent by the client with a
+      host_name (see <xref target="RFC3546"/> Section 3.1), the TLSA
+      record must match the certificate presented by the server for
+      that host_name.
     </t>
 
     <t>
@@ -337,20 +365,21 @@ which is in this case the SHA-512 digest of the server public key.
       </artwork>
     </figure>
     <t>
-      the base domain is mail.example.com.  At least one of the TLSA records
-      in the RRset MUST match the server certificate chain, provided the
-      client TLS hanshake included the SNI extension with a host_name of
-      mail.example.com.
+      the TLSA base domain is mail.example.com.  At least one of the
+      TLSA records in the _25._tcp.mail.example.com RRset MUST match
+      the server certificate chain, provided the client TLS hanshake
+      included the SNI extension with a host_name of "mail.example.com".
     </t>
 
     <t>
+      <!-- XXXWJH: this contradicts what the -smtp draft says -->
+      <!-- XXXWJH: fixme based on discussions with Viktor -->
       Note: when the TLSA RRset query domain (base domain plus port and protocol
       prefixes) resolves to a DNSSEC validated CNAME pointing to a DNSSEC
       signed zone with the actual TLSA records, the content of the TLSA
       RRset will be retrieved from the target zone.  This has no effect on
       the value of the base domain, which remains the original domain to
       which the client prefixed the port and protocol.
-      <!-- XXXWJH: this contradicts what the -smtp draft says -->
     </t>
 
     <t>
