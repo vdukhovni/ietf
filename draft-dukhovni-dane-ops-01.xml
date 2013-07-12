@@ -90,6 +90,8 @@ Since the publication of the TLS 1.0 specification in <xref
 target="RFC2246"/>, two updates to the protocol have been published:
 TLS 1.1 <xref target="RFC4346"/> and TLS 1.2 <xref target="RFC5246"/>.
 The DTLS protocol was later documented in <xref target="RFC6347"/>.
+TLS clients that support DANE/TLSA MUST support at least TLS 1.0 and SHOULD
+support TLS 1.2.
 </t>
 
 <t>
@@ -401,8 +403,6 @@ which is in this case the SHA-512 digest of the server public key.
       information, DANE PKI aware clients SHOULD send the SNI
       extension with a host_name value of the base domain of the TLSA
       RRset (otherwise they risk failure to authenticate the server).
-      TLS clients and servers MUST support at least TLS 1.0 and SHOULD
-      support TLS 1.2.
     </t>
 
     <t>
