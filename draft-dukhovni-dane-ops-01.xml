@@ -384,7 +384,7 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      When the server operator is a MX Provider, ideally the application
+      When the server operator is an MX Provider, ideally the application
       protocol allows the hosted customer to direct clients to the hosting
       provider's servers.  This way, the associated TLSA records will be
       found in the MX Provider's DNSSEC zone, thus avoiding the
