@@ -396,23 +396,26 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      Since the server's ability to respond with the right certificate chain
-      may be predicated on the TLS client providing the correct SNI
-      information, DANE PKI aware clients SHOULD send the SNI extension with
-      a host_name value of the base domain of the TLSA RRset (otherwise they
-      risk failure to authenticate the server).  The server MUST support at
-      least TLS 1.0 and SHOULD support TLS 1.2.
+      Since the server's ability to respond with the right certificate
+      chain requires the TLS client to provide the correct SNI
+      information, DANE PKI aware clients SHOULD send the SNI
+      extension with a host_name value of the base domain of the TLSA
+      RRset (otherwise they risk failure to authenticate the server).
+      TLS clients and servers MUST support at least TLS 1.0 and SHOULD
+      support TLS 1.2.
     </t>
 
     <t>
-      Complications arise when TLSA records for a service are created by
-      someone other than the server operator.  In this situation the
-      server operator and TLSA record creator must cooperate to ensure
-      that TLSA records don't fall out of step with the server certificate
+      <!-- XXXWJH: doesn't belong in the "name" section -->
+      Complications arise when the TLSA Publisher is not the same
+      entitity as the MX Provider.  In this situation, the TLSA
+      Publisher and the MX Provider must cooperate to ensure that
+      TLSA records don't fall out of sync with the server certificate
       configuration.
     </t>
 
     <t>
+      <!-- XXXWJH: bookmark -->
       When the server operator is an MX Provider, ideally the application
       protocol allows the hosted customer to direct clients to the hosting
       provider's servers.  This way, the associated TLSA records will be
