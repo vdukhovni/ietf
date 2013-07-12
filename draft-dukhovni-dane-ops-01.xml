@@ -512,11 +512,12 @@ which is in this case the SHA-512 digest of the server public key.
 
     <t>
       <!-- XXXWJH: genericize to new section -->
-      Though CNAMEs are illegal on the right hand side of MX and SRV
-      records, they are supported by some implementations.  In that case,
-      if the MX or SRV host is a CNAME alias the client SHOULD "chase" the
-      CNAME and SHOULD use the target hostname as the base domain for
-      TLSA records as well as the host_name in SNI.
+      Though CNAMEs are illegal on the right hand side of most
+      indirection records, such as MX and SRV records, they are
+      supported by some implementations.  In this case, if the MX or
+      SRV host is a CNAME alias the client SHOULD "chase" the CNAME
+      and SHOULD use the target hostname as the base domain for TLSA
+      records as well as the host_name in SNI.
     </t>
   </section>
   <section title="Interaction with Certificate Transparency">
