@@ -538,7 +538,7 @@ which is in this case the SHA-512 digest of the server public key.
 
     <t>
       When a server is authenticated via a DANE TLSA RR with
-      TLSA TLSA Certificate Usage "1" or "3" (that is an end-entity certificate
+      TLSA Certificate Usage "1" or "3" (that is an end-entity certificate
       association), the domain owner has unambiguously specified the
       certificate associated with the given service.  Even if a rogue
       CA were able to issue an unauthorized end-entity certificate
@@ -558,7 +558,7 @@ which is in this case the SHA-512 digest of the server public key.
       When a server is authenticated via a DANE TLSA RR with TLSA
       usage "2" and the server certificate does not chain to a known
       public root CA, CT cannot apply (CT logs only accept chains that
-      start with a known root).  Since TLSA TLSA Certificate Usage "2" is generally
+      start with a known root).  Since TLSA Certificate Usage "2" is generally
       intended to support non-PKIX trust anchors, clients
       SHOULD NOT perform CT checks with usage "2" using unknown root CAs.
       A server operator that wants CT checks SHOULD publish TLSA RRs with
@@ -566,7 +566,7 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      CT checks remain applicable with TLSA TLSA Certificate Usage "0" when the client
+      CT checks remain applicable with TLSA Certificate Usage "0" when the client
       supports both DANE and CT and the trusted PKIX root issuer is a known
       public root.
     </t>
@@ -585,8 +585,8 @@ which is in this case the SHA-512 digest of the server public key.
       <t>
 	<!-- XXXWJH: security vs robustness -->
 	Protocols designed for non-PKIX use SHOULD choose to treat any
-	TLSA records with TLSA TLSA Certificate Usage "0" or "1" as unusable.  After
-	verifying that the only available TLSA TLSA Certificate Usage types are "0" or
+	TLSA records with TLSA Certificate Usage "0" or "1" as unusable.  After
+	verifying that the only available TLSA Certificate Usage types are "0" or
 	"1", protocol definitions MAY instruct clients to either
 	refuse to initiate a connection or to connect via
 	unauthenticated mandatory TLS if no alternative authentication
@@ -595,7 +595,7 @@ which is in this case the SHA-512 digest of the server public key.
 
       <t>
 	If non-PKIX protocols do allow for publication of TLSA records
-	with TLSA TLSA Certificate Usage "0" or "1", clients SHOULD make use of
+	with TLSA Certificate Usage "0" or "1", clients SHOULD make use of
 	the TLSA verification to the fullest extent possible.
       </t>
 
@@ -826,11 +826,11 @@ which is in this case the SHA-512 digest of the server public key.
   </section>
   <section title="Type 0 Guidelines" anchor="type0">
     <t>
-      TLSA TLSA Certificate Usage "0" allows a domain to publish constraints
+      TLSA Certificate Usage "0" allows a domain to publish constraints
       on the set of certificate authorities trusted to issue certificates
       for its TLS servers.  It is expected that clients will only accept
       trust chains which contain a match for one of the published TLSA
-      records.  This is simple for TLSA TLSA Certificate Usage "1" where the
+      records.  This is simple for TLSA Certificate Usage "1" where the
       PKIX trust chain always contains the leaf server certificate.
       The situation for TLSA Certificate Usage "0" is more subtle.
     </t>
