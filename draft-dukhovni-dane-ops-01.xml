@@ -176,6 +176,9 @@ This memo is being discussed on the dane@ietf.org mailing list.
     a hint to the server which certificate should be transmitted to
     the client.
   </t>
+  <!-- XXXWJH: need to define different server types and use them
+  consistently.  EG, "TLS Server" and "DNS Server" instead of just
+  "server" -->
 </list>
 </t>
 
@@ -569,7 +572,7 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
   </section>
   <section title="Design Considerations for Protocols Using DANE">
-    <section title="Design Considerations for non-PKIX Protocols">
+    <section title="Design Considerations for non-PKIX Protocols" anchor="nopki">
       <t>
 	For some application protocols, the existing public CA PKI may
 	not be viable.  For these (non-PKIX) protocols, servers SHOULD NOT
@@ -650,14 +653,14 @@ which is in this case the SHA-512 digest of the server public key.
       </section><!-- TLSA Certificate Usage 0 -->
     </section><!-- Design Considerations for non-PKIX Protocols -->
   </section><!-- Design Considerations for Protocols Using DANE -->
-  <section title="TLSA records and trust anchor digests">
+  <section title="TLSA Records and Trust Anchor Digests">
+    <!-- XXXWJH: this is somewhat duplicate information -->
     <t>
       With TLSA records that match the EE certificate, the TLS client has
       no difficulty matching the TLS record against the server certificate,
       as this certificate is always present in the TLS server certificate
       chain.  The TLS client can, if necessary, extract the public key from
-      the server certificate, and can if necessary compute the appropriate
-      digest.
+      the server certificate, and can compute the appropriate digest.
     </t>
 
     <t>
@@ -665,78 +668,79 @@ which is in this case the SHA-512 digest of the server public key.
       public key, a complication arises when the TA certificate is omitted
       from the server's certificate chain.  This can happen when the
       trust-anchor is a root certificate authority, as stated in section
-      7.4.2 of <xref target="RFC2246"/>:
-      <!-- XXXWJH: old reference; need to reference current TLS docs instead -->
-      <!-- either 4346 or 5246 -->
+      7.4.2 of <xref target="RFC5246"/>:
     </t>
 
     <figure>
       <artwork>
-	The sender's certificate must come first in the list.
-	Each following certificate must directly certify the one
-	preceding it.  Because certificate validation requires
-	that root keys be distributed independently, the
-	self-signed certificate which specifies the root
-	certificate authority may optionally be omitted from the
-	chain, under the assumption that the remote end must
-	already possess it in order to validate it in any case.
+      The sender's certificate MUST come first in the list.  Each
+      following certificate MUST directly certify the one preceding
+      it.  Because certificate validation requires that root keys be
+      distributed independently, the self-signed certificate that
+      specifies the root certificate authority MAY be omitted from the
+      chain, under the assumption that the remote end must already
+      possess it in order to validate it in any case.
       </artwork>
     </figure>
 
     <t>
       This means that TLSA records that match a TA certificate or public
-      key digest are not directly sufficient to validate the peer certificate
+      key digest are not entirely sufficient to validate the peer certificate
       chain.  If no matching certificate is found in the server's certificate
       chain, the chain may be signed by an omitted root CA whose digest
       matches the TLSA record.  We will consider each trust-anchor
       TLSA Certificate Usage in turn.
     </t>
 
-    <section anchor="d0" title="Trust anchor digests with TLSA Certificate Usage 0">
+    <section anchor="d0" title="Trust Anchor Digests With TLSA Certificate Usage 0">
 
       <t>
 	In this case, from the server's perspective, the omission of the root
 	CA seems reasonable, since in addition to authentication via DANE
-	TLSA records the client is expected to perform <xref target="RFC5280"/>
+	TLSA records, the client is expected to perform <xref target="RFC5280"/>
 	PKIX validation of the server's trust chain and thus to already
 	have a copy of the omitted root certificate.
       </t>
 
       <t>
 	From the client's perspective the situation is more nuanced.  Despite
-	the server's indicated preference for PKIX validation the client
+	the server's indicated preference for PKIX validation, the client
 	may not posess (or may not fully trust) a complete set of public
 	root CAs.  This is especially likely in protocols where the existing
-	public CA PKI is not applicable.  If it is likely that a client
+	public CA PKI is not applicable, as described in Section <xref
+	target="nopki" />.  If it is likely that a client
 	lacks a sufficiently complete list of trusted CAs, and that a
-	non-negligible number of servers publish TLSA Certificate Usage 0 TLSA
+	non-negligible number of DNS servers publish TLSA Certificate Usage 0 TLSA
 	records with digests of omitted root CAs, then such a client SHOULD
 	treat such TLSA records as "unusable".  Simply ignoring PKIX
 	validation is not an option, since the client will also be unable
-	to match the TLSA record.  The client will then typically fall back
-	to unauthenticated TLS, as by assumption PKIX is also not an option
-	(see <xref target="I-D.ietf-dane-srv"/>).
+	to match the TLSA record without position of the root
+	certificate.  The client MAY choose fall back
+	to unauthenticated TLS, if PKIX is also not an option
+	(see <xref target="I-D.ietf-dane-srv"/>) or refuse to initiate
+	a connection.
       </t>
 
     </section><!-- Trust anchor digests with TLSA Certificate Usage 0 -->
 
-    <section title="Trust anchor digests with TLSA Certificate Usage 2">
+    <section title="Trust Anchor Digests With TLSA Certificate Usage 2">
 
       <t>
-	Here there is no expectation that the client is pre-configured with
-	the trust anchor certificate.  With TLSA Certificate Usage "2" clients rely
-	on the TLSA records alone, but with a matching type other than "0"
+	With TLSA Certificate Usage "2", there is no expectation that the client is pre-configured with
+	the trust anchor certificate.  With TLSA Certificate Usage "2"
+	clients are expecting to rely
+	on the TLSA records alone.  But, with a matching type other than "0"
 	the TLSA records contain neither the full trust anchor certificate
-	nor the full public key.  If the server's certificate chain does
-	not contain the trust-anchor certificate, most clients will be
+	nor the full public key.  If the TLS server's certificate chain does
+	not contain the trust-anchor certificate, clients will be
 	unable to authenticate the server.
       </t>
 
       <t>
-	Therefore, whoever creates TLSA records with TLSA Certificate Usage "2"
-	and a non-zero matching type MUST ensure that the corresponding
+	TLSA Publishers that publish TLSA Certificate Usage "2"
+	with a non-zero matching type MUST ensure that the corresponding
 	server is configured to include the associated trust anchor certificate
-	in its TLS handshake certificate chain even if that certificate is
+	in its TLS handshake certificate chain, even if that certificate is
 	a self-signed root CA and would have been optional in the context
 	of the existing public CA PKI.
       </t>
@@ -776,16 +780,15 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      With TLSA Certificate Usage "0" when the client is able to perform PKIX
+      With TLSA Certificate Usage "0", when the client is able to perform PKIX
       validation, the client can construct a complete PKIX trust chain
-      and thus has access to the trust anchor name.  So in that case the
+      as it will have access to the trust anchor name.  So in that case, the
       client can verify that the server certificate chain is issued by a
       trust anchor that matches the TLSA record.
     </t>
 
     <t>
-      With TLSA Certificate Usage "2" or with TLSA Certificate Usage "0" for a
-      non-PKIX protocol, the client may not have the missing trust anchor
+      With TLSA Certificate Usage "2", the client may not have the missing trust anchor
       certificate, and cannot generally verify whether a particular
       certificate chain is "issued by" the trust anchor described in the
       TLSA record.  If the server certificate chain includes a CA certificate
@@ -798,16 +801,13 @@ which is in this case the SHA-512 digest of the server public key.
     <t>
       Since trust chain validation via bare public keys rather than trusted
       CA certificates may be difficult to implement in existing TLS
-      applications, servers MUST include the trust anchor certificate in
-      their certificate chain when the TLSA Certificate Usage is "2".  With
-      non-PKIX protocols servers SHOULD avoid publishing TLSA records
-      with TLSA Certificate Usage "0", but if they do, they SHOULD include any
-      trust anchor certificates in the TLS certificate chain.
+      applications, servers SHOULD include the trust anchor certificate in
+      their certificate chain when the TLSA Certificate Usage is "2".
     </t>
 
     <t>
       If none of the server's certificate chain elements match a public
-      key specified in full in a TLSA record, clients SHOULD attempt to
+      key specified in full (selector = 0, match type = 0) in a TLSA record, clients SHOULD attempt to
       check whether the topmost certificate in the chain is signed by the
       provided public key, and if so consider the server trust chain valid,
       with authentication complete if name checks are also successful.
