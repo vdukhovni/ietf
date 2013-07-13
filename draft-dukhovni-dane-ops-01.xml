@@ -867,38 +867,38 @@ which is in this case the SHA-512 digest of the server public key.
 <t>
 Clearly the security of the DANE TLSA PKI rests on the security of
 the underlying DNSSEC infrastructure.  While this memo is not a guide
-to DNSSEC security a few comments may be helpful to TLSA implementors.
+to DNSSEC security, a few comments may be helpful to TLSA implementors.
 </t>
 
 <t>
-With the existing public CA PKI, name constraints are rarely used, and
+With the existing public CA PKI, name constraints are rarely used and
 public root CAs can issue certificates for any domain of its choice.
-With DNSSEC the situation is different. Only the registrar of record
-can update a domain's DS record in the registry parent zone, in some
-cases of course the registry is the sole registrar.  With gTLDs for
-which multiple registrars compete to provide domains in a single registry
+With DNSSEC, the situation is different. Only the registrar of record
+can update a domain's DS record in the registry parent zone (in some
+cases, however, the registry is the sole registrar).  With gTLDs, for
+which multiple registrars compete to provide domains in a single registry,
 it is important to make sure that rogue registrars cannot easily initiate
 an unauthorized domain transfer, and thus take over DNSSEC for the domain.
-A registrar lock on one's domain may be a reasonable precaution for this
-reason.
+DNS Operators SHOULD use a registrar lock of their domains to offer some
+protection of this possibility.
 </t>
 
 <t>
-When the registrar is also the DNS operator for the domain, when using
-DNSSEC one needs to consider whether the registrar will allow orderly
-migration of the domain to another registrar or DNS operator in a way
-that will maintain DNSSEC integrity.  Discuss this with your registrar
-DNS operator before it is an emergency.
+When the registrar is also the DNS operator for the domain, one needs
+to consider whether the registrar will allow orderly migration of the
+domain to another registrar or DNS operator in a way that will
+maintain DNSSEC integrity.  TLSA Publishers SHOULD ensure their
+registrar publishes a suitable domain transfer policy.
 </t>
 
 <t>
 DNSSEC signed RRsets cannot be securely revoked before they expire.
-Plan accordingly and don't generate signatures with excessively
+Operators should plan accordingly and not generate signatures with excessively
 long duration.  For domains publishing high-value keys, a signature
-lifetime of a few days is reasonable, with the zone resigned every
-day or so.  For more mundane domains a good signature lifetime is
-a couple of weeks to a month, with the zone resigned every week or
-so.  Monitoring of the signature lifetime is important.  If the
+lifetime of a few days is reasonable, and the zone should be resigned every
+day.  For more domains with less critical data, a reasonable signature lifetime is
+a couple of weeks to a month, and the zone should be resigned every
+week. Monitoring of the signature lifetime is important.  If the
 zone is not resigned in a timely manner, one risks a major outage
 with the entire domain becoming invalid.
 </t>
