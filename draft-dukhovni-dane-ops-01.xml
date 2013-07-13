@@ -197,7 +197,7 @@ multiple TLSA RR types via combinations of the following 3 parameters:  </t>
 <list style='symbols'>
 
 <t>
-The certificate usage field.  Section 2.1.1 of <xref target="RFC6698"/>
+The TLSA Certificate Usage field.  Section 2.1.1 of <xref target="RFC6698"/>
 specifies 4 values ranging from 0 to 3.
 </t>
 
@@ -215,7 +215,7 @@ specifies 3 values ranging from 0 to 2.
 </t>
 
 <t>
-We may consider the certificate usage values 0 through 3 to be a
+We may consider the TLSA Certificate Usage values 0 through 3 to be a
 combination of two one-bit flags.  The low-bit chooses between
 trust-anchor (TA) and end-entity (EE) certificates.  The high bit
 chooses between public PKI issued and domain-issued certificates:
@@ -225,19 +225,19 @@ chooses between public PKI issued and domain-issued certificates:
 <list style="symbols">
 
 <t>
-When the low bit is set (certificate usages 1 and 3) the TLSA record
+When the low bit is set (TLSA Certificate Usages 1 and 3) the TLSA record
 matches an EE (server) certificate.
 </t>
 
 <t>
-When the low bit is not set (certificate usages 0 and 2) the TLSA
+When the low bit is not set (TLSA Certificate Usages 0 and 2) the TLSA
 record matches a trust-anchor (a certificate authority) that issued
 a certificate somewhere in the certificate chain the authenticates the
 final end-entity certificate.
 </t>
 
 <t>
-When the high bit is set (certificate usages 2 and 3) the server
+When the high bit is set (TLSA Certificate Usages 2 and 3) the server
 certificate chain is domain-issued and may be verified without
 reference to the existing public certificate authority PKI.  Trust is
 entirely placed on the content of the TLSA records obtained via
@@ -245,7 +245,7 @@ DNSSEC.
 </t>
 
 <t>
-When the high bit is not set (certificate usages 0 and 1) the TLSA
+When the high bit is not set (TLSA Certificate Usages 0 and 1) the TLSA
 record publishes a server policy stating that its certificate
 chain must pass PKIX validation <xref target="RFC5280"/>, with the
 DANE TLSA record used to constrain the server certificate chain to
@@ -291,7 +291,7 @@ _25._tcp.mail.example.com. IN TLSA 3 1 2 (
 </figure>
 
 <t>
-The certificate usage is "3", the selector is "1" and the matching type
+The TLSA Certificate Usage is "3", the selector is "1" and the matching type
 is "2".  The rest of the record is the certificate association data field,
 which is in this case the SHA-512 digest of the server public key.
 </t>
@@ -397,7 +397,7 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      Note: Except with certificate usage "3", where name checks are not
+      Note: Except with TLSA Certificate Usage "3", where name checks are not
       applicable (see Section <xref target="type3" />), DANE aware clients
       SHOULD use the base domain of the TLSA RRset to verify that the client
       has reached the correct server by checking that the TLSA base domain
@@ -535,7 +535,7 @@ which is in this case the SHA-512 digest of the server public key.
 
     <t>
       When a server is authenticated via a DANE TLSA RR with
-      TLSA usage "1" or "3" (that is an end-entity certificate
+      TLSA TLSA Certificate Usage "1" or "3" (that is an end-entity certificate
       association), the domain owner has unambiguously specified the
       certificate associated with the given service.  Even if a rogue
       CA were able to issue an unauthorized end-entity certificate
@@ -555,7 +555,7 @@ which is in this case the SHA-512 digest of the server public key.
       When a server is authenticated via a DANE TLSA RR with TLSA
       usage "2" and the server certificate does not chain to a known
       public root CA, CT cannot apply (CT logs only accept chains that
-      start with a known root).  Since TLSA usage "2" is generally
+      start with a known root).  Since TLSA TLSA Certificate Usage "2" is generally
       intended to support non-PKIX trust anchors, clients
       SHOULD NOT perform CT checks with usage "2" using unknown root CAs.
       A server operator that wants CT checks SHOULD publish TLSA RRs with
@@ -563,7 +563,7 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      CT checks remain applicable with TLSA usage "0" when the client
+      CT checks remain applicable with TLSA TLSA Certificate Usage "0" when the client
       supports both DANE and CT and the trusted PKIX root issuer is a known
       public root.
     </t>
@@ -571,9 +571,9 @@ which is in this case the SHA-512 digest of the server public key.
   <section title="Design Considerations for Protocols Using DANE">
     <section title="Design Considerations for non-PKIX Protocols">
       <t>
-	For some application protocols the existing public CA PKI is
-	not viable.  For these (non-PKIX) protocols servers SHOULD NOT
-	suggest publishing TLSA records with certificate usage "0" or
+	For some application protocols, the existing public CA PKI may
+	not be viable.  For these (non-PKIX) protocols, servers SHOULD NOT
+	suggest publishing TLSA records with TLSA Certificate Usage "0" or
 	"1", as clients cannot be expected to perform <xref
 	target="RFC5280"/> PKIX validation or <xref target="RFC6125"/>
 	identity verification.
@@ -581,46 +581,49 @@ which is in this case the SHA-512 digest of the server public key.
 
       <t>
 	<!-- XXXWJH: security vs robustness -->
-	Clients using non-PKIX protocols MAY choose to treat any TLSA records
-	with certificate usage "0" or "1" as unusable.  They may then choose to
-	connect via unauthenticated mandatory TLS if no alternative
-	authentication mechanisms are available.
+	Protocols designed for non-PKIX use SHOULD choose to treat any
+	TLSA records with TLSA TLSA Certificate Usage "0" or "1" as unusable.  After
+	verifying that the only available TLSA TLSA Certificate Usage types are "0" or
+	"1", protocol definitions MAY instruct clients to either
+	refuse to initiate a connection or to connect via
+	unauthenticated mandatory TLS if no alternative authentication
+	mechanisms are available.
       </t>
 
       <t>
-	If despite this recommendation servers for non-PKIX protocols do
-	publish TLSA records with certificate usage "0" or "1", clients
-	should make use of these to the fullest extent possible.
+	If non-PKIX protocols do allow for publication of TLSA records
+	with TLSA TLSA Certificate Usage "0" or "1", clients SHOULD make use of
+	the TLSA verification to the fullest extent possible.
       </t>
 
-      <section title="Certificate usage 1">
+      <section title="TLSA Certificate Usage 1">
 
 	<t>
-	  With certificate usage "1" such clients SHOULD ignore the PKIX
+	  With non-PKIX protocols, clients using TLSA Certificate Usage "1" records SHOULD ignore the PKIX
 	  validation requirement, and authenticate the server per the content
-	  of the TLSA record alone.  Since some servers may rely on SNI to
-	  select the correct certificate, the client SHOULD use the SNI
+	  of the TLSA record alone.  Since servers will hopefully rely on SNI to
+	  select the correct certificate for presentation, the client SHOULD use the SNI
 	  extension to signal the base domain of the TLSA RRset.
 	</t>
 
-      </section><!-- Certificate usage 1 -->
+      </section><!-- TLSA Certificate Usage 1 -->
 
-      <section title="Certificate usage 0">
+      <section title="TLSA Certificate Usage 0">
 
 	<t>
-	  With certificate usage "0" the usability of the TLSA records depends
+	  With TLSA Certificate Usage "0", the usability of the TLSA records depends
 	  on its matching type.
 	</t>
 
 	<t>
-	  If the matching type is "0" the TLSA record contains the full
+	  If the matching type is "0", the TLSA record contains the full
 	  certificate or full public key of the trusted certificate authority.
 	  In this case the client has all the information it needs to match
-	  the server trust-chain to the TLSA record.  The client SHOULD in
-	  this case ignore the PKIX validation requirement, and authenticate
+	  the server trust-chain to the TLSA record.  The client SHOULD, in
+	  this case, ignore the PKIX validation requirement and authenticate
 	  the server via its DANE TLSA records alone (sending SNI with the
-	  base domain as usual).  The base domain of the TLSA records will
-	  be used in name checks. 
+	  base domain as usual).  The client SHOULD use base domain of the TLSA records
+	  in certificate name checks. 
 	</t>
 
 	<t>
@@ -628,25 +631,25 @@ which is in this case the SHA-512 digest of the server public key.
 	  digest of the trust certificate authority certificate or public
 	  key.  The full certificate may not be included in the server's
 	  certificate chain and the client may not be able to match the server
-	  trust chain against the TLSA record.  See <xref target="d0"/> for
+	  trust chain against the TLSA record when a non-PKIX protocol
+	  is being used, as the client won't have a default CA trust
+	  list.  See <xref target="d0"/> for
 	  a more complete discussion of this case.  The client cannot reliably
 	  authenticate the server in this case and SHOULD treat the TLSA
 	  record as unusable.
 	</t>
 
 	<t>
-	  If the client is configured with a set of trusted CAs believed to
-	  be sufficiently complete to authenticate all the servers with which
-	  it expects to communicate, then it MAY elect to honor certificate
+	  If the client is configured with a set of trusted CAs that are believed to
+	  be sufficiently complete to authenticate all the servers 
+	  it expects to communicate with, then it MAY elect to honor certificate
 	  usage "0" TLSA records that publish digests of the trusted CA
 	  certificate or public key.
 	</t>
 
-      </section><!-- Certificate usage 0 -->
-
-
-    </section>
-  </section>
+      </section><!-- TLSA Certificate Usage 0 -->
+    </section><!-- Design Considerations for non-PKIX Protocols -->
+  </section><!-- Design Considerations for Protocols Using DANE -->
   <section title="TLSA records and trust anchor digests">
     <t>
       With TLSA records that match the EE certificate, the TLS client has
@@ -686,10 +689,10 @@ which is in this case the SHA-512 digest of the server public key.
       chain.  If no matching certificate is found in the server's certificate
       chain, the chain may be signed by an omitted root CA whose digest
       matches the TLSA record.  We will consider each trust-anchor
-      certificate usage in turn.
+      TLSA Certificate Usage in turn.
     </t>
 
-    <section anchor="d0" title="Trust anchor digests with certificate usage 0">
+    <section anchor="d0" title="Trust anchor digests with TLSA Certificate Usage 0">
 
       <t>
 	In this case, from the server's perspective, the omission of the root
@@ -706,7 +709,7 @@ which is in this case the SHA-512 digest of the server public key.
 	root CAs.  This is especially likely in protocols where the existing
 	public CA PKI is not applicable.  If it is likely that a client
 	lacks a sufficiently complete list of trusted CAs, and that a
-	non-negligible number of servers publish certificate usage 0 TLSA
+	non-negligible number of servers publish TLSA Certificate Usage 0 TLSA
 	records with digests of omitted root CAs, then such a client SHOULD
 	treat such TLSA records as "unusable".  Simply ignoring PKIX
 	validation is not an option, since the client will also be unable
@@ -715,13 +718,13 @@ which is in this case the SHA-512 digest of the server public key.
 	(see <xref target="I-D.ietf-dane-srv"/>).
       </t>
 
-    </section><!-- Trust anchor digests with certificate usage 0 -->
+    </section><!-- Trust anchor digests with TLSA Certificate Usage 0 -->
 
-    <section title="Trust anchor digests with certificate usage 2">
+    <section title="Trust anchor digests with TLSA Certificate Usage 2">
 
       <t>
 	Here there is no expectation that the client is pre-configured with
-	the trust anchor certificate.  With certificate usage "2" clients rely
+	the trust anchor certificate.  With TLSA Certificate Usage "2" clients rely
 	on the TLSA records alone, but with a matching type other than "0"
 	the TLSA records contain neither the full trust anchor certificate
 	nor the full public key.  If the server's certificate chain does
@@ -730,7 +733,7 @@ which is in this case the SHA-512 digest of the server public key.
       </t>
 
       <t>
-	Therefore, whoever creates TLSA records with certificate usage "2"
+	Therefore, whoever creates TLSA records with TLSA Certificate Usage "2"
 	and a non-zero matching type MUST ensure that the corresponding
 	server is configured to include the associated trust anchor certificate
 	in its TLS handshake certificate chain even if that certificate is
@@ -741,19 +744,19 @@ which is in this case the SHA-512 digest of the server public key.
       <t>
 	Since servers are expected to always provide usage "2" trust
 	anchor certificates (either via DNS or else via the TLS hanshake),
-	clients SHOULD fully support this certificate usage.  Clients MAY
+	clients SHOULD fully support this TLSA Certificate Usage.  Clients MAY
 	choose to treat it as unusable if experience proves that servers
 	don't consistently live up to their obligations.
       </t>
 
-    </section><!-- Trust anchor digests with certificate usage 2 -->
+    </section><!-- Trust anchor digests with TLSA Certificate Usage 2 -->
 
   </section><!-- Trust anchor digests -->
 
   <section title="Trust anchor public keys">
 
     <t>
-      TLSA records with certificate usage "0" or "2", selector "1" and a
+      TLSA records with TLSA Certificate Usage "0" or "2", selector "1" and a
       matching type of "0" publish the full public key of a trust anchor
       via DNS.  In section 6.1.1 of <xref target="RFC5280"/> the
       definition of a trust anchor consists of the following four parts:
@@ -773,7 +776,7 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      With certificate usage "0" when the client is able to perform PKIX
+      With TLSA Certificate Usage "0" when the client is able to perform PKIX
       validation, the client can construct a complete PKIX trust chain
       and thus has access to the trust anchor name.  So in that case the
       client can verify that the server certificate chain is issued by a
@@ -781,7 +784,7 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      With certificate usage "2" or with certificate usage "0" for a
+      With TLSA Certificate Usage "2" or with TLSA Certificate Usage "0" for a
       non-PKIX protocol, the client may not have the missing trust anchor
       certificate, and cannot generally verify whether a particular
       certificate chain is "issued by" the trust anchor described in the
@@ -796,9 +799,9 @@ which is in this case the SHA-512 digest of the server public key.
       Since trust chain validation via bare public keys rather than trusted
       CA certificates may be difficult to implement in existing TLS
       applications, servers MUST include the trust anchor certificate in
-      their certificate chain when the certificate usage is "2".  With
+      their certificate chain when the TLSA Certificate Usage is "2".  With
       non-PKIX protocols servers SHOULD avoid publishing TLSA records
-      with certificate usage "0", but if they do, they SHOULD include any
+      with TLSA Certificate Usage "0", but if they do, they SHOULD include any
       trust anchor certificates in the TLS certificate chain.
     </t>
 
@@ -823,13 +826,13 @@ which is in this case the SHA-512 digest of the server public key.
   </section>
   <section title="Type 0 Guidelines" anchor="type0">
     <t>
-      TLSA certificate usage "0" allows a domain to publish constraints
+      TLSA TLSA Certificate Usage "0" allows a domain to publish constraints
       on the set of certificate authorities trusted to issue certificates
       for its TLS servers.  It is expected that clients will only accept
       trust chains which contain a match for one of the published TLSA
-      records.  This is simple for TLSA certificate usage "1" where the
+      records.  This is simple for TLSA TLSA Certificate Usage "1" where the
       PKIX trust chain always contains the leaf server certificate.
-      The situation for certificate usage "0" is more subtle.
+      The situation for TLSA Certificate Usage "0" is more subtle.
     </t>
 
     <t>
