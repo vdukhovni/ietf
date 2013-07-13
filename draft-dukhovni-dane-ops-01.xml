@@ -515,7 +515,7 @@ which is in this case the SHA-512 digest of the server public key.
       Though CNAMEs are illegal on the right hand side of most
       indirection records, such as MX and SRV records, they are
       supported by some implementations.  In this case, if the MX or
-      SRV host is a CNAME alias the client SHOULD "chase" the CNAME
+      SRV host is a CNAME alias the client MAY "chase" the CNAME
       and SHOULD use the target hostname as the base domain for TLSA
       records as well as the host_name in SNI.
     </t>
@@ -524,8 +524,9 @@ which is in this case the SHA-512 digest of the server public key.
     <t>
       <xref target="RFC6962"/> Certificate Transparency or CT for short,
       defines an approach to mitigate the risk of rogue or compromised
-      public CAs issuing unauthorized certificates.  In this section we
-      clarify the interaction of CT and DANE.  We observe that CT applies
+      public CAs issuing unauthorized certificates.  This section
+      clarifies the interaction of CT and DANE.  CT is a protocol and
+      auditing system that applies
       only to public CAs, and only when they are free to issue unauthorized
       certificates for a domain.  If the CA is not a public CA, or DANE
       TLSA RRs constrain the end-entity certificate to a fixed public
@@ -533,39 +534,36 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      When a server is authenticated via a DANE TLSA RR with certificate
-      usage "1" or "3" (that is an end-entity certificate association),
-      the domain owner has unambiguously specified the certificate
-      associated with the given service.  Even if a rogue CA were able
-      to issue an unauthorized end-entity certificate that binds a public
-      key to a name in that domain, barring "second preimage" attacks on
-      SHA-256 or SHA-512 any such certificate would not match the TLSA
-      record and would be rejected.
+      When a server is authenticated via a DANE TLSA RR with
+      TLSA usage "1" or "3" (that is an end-entity certificate
+      association), the domain owner has unambiguously specified the
+      certificate associated with the given service.  Even if a rogue
+      CA were able to issue an unauthorized end-entity certificate
+      that binds a public key to a name in that domain, barring
+      "second preimage" attacks on the hashing algorithms in use, any
+      such certificate would not match the TLSA record and would be
+      rejected.  Therefore, when a TLS client authenticates the TLS
+      server via a TLSA certificate association with usage "1" or "3",
+      CT checks SHOULD NOT be performed.  Publication of the server
+      certificate or public key (digest) in a DNSSEC signed zone by
+      the domain owner assures the client that the certificate is not
+      an unauthorized certificate issued by a rogue CA without the
+      domain owner's consent.
     </t>
 
     <t>
-      Therefore, when a TLS client authenticates the TLS server via a
-      TLSA certificate association with usage "1" or "3", CT checks SHOULD
-      NOT be performed.  Publication of the server certificate or public
-      key (digest) in a DNSSEC signed zone by the domain owner assures
-      the client that the certificate is not an unauthorized certificate
-      issued by a rogue CA without the domain owner's consent.
-    </t>
-
-    <t>
-      When a server is authenticated via a DANE TLSA RR with certificate
+      When a server is authenticated via a DANE TLSA RR with TLSA
       usage "2" and the server certificate does not chain to a known
       public root CA, CT cannot apply (CT logs only accept chains that
-      start with a known root).  Since certificate usage "2" is generally
-      intended to support non-PKIX trust anchors, by far the simplest client
-      implementation strategy is not perform CT checks with usage "2".
-      A server operator that wants CT checks can publish TLSA RRs with
-      usage "0", or can obviate them with usage "1" or "3".  It is therefore
-      recommended that clients SHOULD NOT perform CT checks with usage "2".
+      start with a known root).  Since TLSA usage "2" is generally
+      intended to support non-PKIX trust anchors, clients
+      SHOULD NOT perform CT checks with usage "2" using unknown root CAs.
+      A server operator that wants CT checks SHOULD publish TLSA RRs with
+      usage "0", or can obviate them with usage "1" or "3".
     </t>
 
     <t>
-      CT checks are applicable with certificate usage "0" when the client
+      CT checks remain applicable with TLSA usage "0" when the client
       supports both DANE and CT and the trusted PKIX root issuer is a known
       public root.
     </t>
