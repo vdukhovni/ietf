@@ -6,6 +6,9 @@ HTML	= ${XML:%.xml=%.html}
 
 all: ${TXT} ${HTML}
 
+clean:
+	$(RM) *.html *.txt
+
 %.txt: %.xml
 	xml2rfc $<
 

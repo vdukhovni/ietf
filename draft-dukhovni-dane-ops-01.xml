@@ -235,7 +235,7 @@ matches an EE (server) certificate.
 <t>
 When the low bit is not set (TLSA Certificate Usages 0 and 2) the TLSA
 record matches a trust-anchor (a certificate authority) that issued
-a certificate somewhere in the certificate chain the authenticates the
+a certificate somewhere in the certificate chain that authenticates the
 final end-entity certificate.
 </t>
 
