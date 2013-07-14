@@ -138,7 +138,7 @@ This memo is being discussed on the dane@ietf.org mailing list.
 
 <t>The following terms are used throughout this document:
 <list style="hanging">
-  <t hangText="Service Provider">
+  <t hangText="Service Provider:">
     A company or organization that offers to host a service on behalf
     of a client.  The original domain name associated with the service
     is typically still within the control of the client, however, and
@@ -148,11 +148,11 @@ This memo is being discussed on the dane@ietf.org mailing list.
     customers and must carefully manage TLS credentials offered to the
     clients to ensure name matching is handled easily by clients.
   </t>
-  <t hangText="Client Domain">
+  <t hangText="Client Domain:">
     Clients that make use of a Service Provider will be referred to as
     "Client Domains".
   </t>
-  <t hangText="TLSA Publisher">
+  <t hangText="TLSA Publisher:">
     The entity responsible for publishing a TLSA record within a DNS
     zone.  This zone will be considered DNSSEC signed, unless
     otherwise specified.  If the Client Domain is not outsourcing
@@ -160,12 +160,12 @@ This memo is being discussed on the dane@ietf.org mailing list.
     themselves.  Otherwise the TLSA Publisher may be the outsourced
     DNS service instead.
   </t>
-  <t hangText="public key">
+  <t hangText="public key:">
     In this memo the term "public key" will be an
     informal short-hand for the subjectPublicKeyInfo from a PKIX
     certificate.
   </t>
-  <t hangText="SNI">
+  <t hangText="SNI:">
     The "Server Name Indication", or SNI, describes the process by
     which a TLS client requests to connect to a particular service
     name for a TLS server (<xref target="RFC3546" />).  Without this
