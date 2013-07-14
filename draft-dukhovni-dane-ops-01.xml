@@ -22,7 +22,7 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="info" docName="draft-dukhovni-dane-ops-01" ipr="trust200902" updates="6698">
+<rfc category="info" docName="draft-dukhovni-dane-ops-01" ipr="trust200902">
 
 <front>
 <title abbrev="DANE operations">DANE TLSA implementation and operational guidance</title>
@@ -42,7 +42,7 @@
           <code>95617</code>
           <country>US</country>
         </postal>
-        <email>hardaker@tislabs.com</email>
+        <email>ietf@hardakers.net</email>
       </address>
     </author>
 <date year="2013" />
@@ -138,7 +138,7 @@ This memo is being discussed on the dane@ietf.org mailing list.
 
 <t>The following terms are used throughout this document:
 <list style="hanging">
-  <t hangText="Service Provider">
+  <t hangText="Service Provider:">
     A company or organization that offers to host a service on behalf
     of a client.  The original domain name associated with the service
     is typically still within the control of the client, however, and
@@ -148,11 +148,11 @@ This memo is being discussed on the dane@ietf.org mailing list.
     customers and must carefully manage TLS credentials offered to the
     clients to ensure name matching is handled easily by clients.
   </t>
-  <t hangText="Client Domain">
+  <t hangText="Client Domain:">
     Clients that make use of a Service Provider will be referred to as
     "Client Domains".
   </t>
-  <t hangText="TLSA Publisher">
+  <t hangText="TLSA Publisher:">
     The entity responsible for publishing a TLSA record within a DNS
     zone.  This zone will be considered DNSSEC signed, unless
     otherwise specified.  If the Client Domain is not outsourcing
@@ -160,12 +160,12 @@ This memo is being discussed on the dane@ietf.org mailing list.
     themselves.  Otherwise the TLSA Publisher may be the outsourced
     DNS service instead.
   </t>
-  <t hangText="public key">
+  <t hangText="public key:">
     In this memo the term "public key" will be an
     informal short-hand for the subjectPublicKeyInfo from a PKIX
     certificate.
   </t>
-  <t hangText="SNI">
+  <t hangText="SNI:">
     The "Server Name Indication", or SNI, describes the process by
     which a TLS client requests to connect to a particular service
     name for a TLS server (<xref target="RFC3546" />).  Without this
@@ -867,38 +867,38 @@ which is in this case the SHA-512 digest of the server public key.
 <t>
 Clearly the security of the DANE TLSA PKI rests on the security of
 the underlying DNSSEC infrastructure.  While this memo is not a guide
-to DNSSEC security a few comments may be helpful to TLSA implementors.
+to DNSSEC security, a few comments may be helpful to TLSA implementors.
 </t>
 
 <t>
-With the existing public CA PKI, name constraints are rarely used, and
+With the existing public CA PKI, name constraints are rarely used and
 public root CAs can issue certificates for any domain of its choice.
-With DNSSEC the situation is different. Only the registrar of record
-can update a domain's DS record in the registry parent zone, in some
-cases of course the registry is the sole registrar.  With gTLDs for
-which multiple registrars compete to provide domains in a single registry
+With DNSSEC, the situation is different. Only the registrar of record
+can update a domain's DS record in the registry parent zone (in some
+cases, however, the registry is the sole registrar).  With gTLDs, for
+which multiple registrars compete to provide domains in a single registry,
 it is important to make sure that rogue registrars cannot easily initiate
 an unauthorized domain transfer, and thus take over DNSSEC for the domain.
-A registrar lock on one's domain may be a reasonable precaution for this
-reason.
+DNS Operators SHOULD use a registrar lock of their domains to offer some
+protection of this possibility.
 </t>
 
 <t>
-When the registrar is also the DNS operator for the domain, when using
-DNSSEC one needs to consider whether the registrar will allow orderly
-migration of the domain to another registrar or DNS operator in a way
-that will maintain DNSSEC integrity.  Discuss this with your registrar
-DNS operator before it is an emergency.
+When the registrar is also the DNS operator for the domain, one needs
+to consider whether the registrar will allow orderly migration of the
+domain to another registrar or DNS operator in a way that will
+maintain DNSSEC integrity.  TLSA Publishers SHOULD ensure their
+registrar publishes a suitable domain transfer policy.
 </t>
 
 <t>
 DNSSEC signed RRsets cannot be securely revoked before they expire.
-Plan accordingly and don't generate signatures with excessively
+Operators should plan accordingly and not generate signatures with excessively
 long duration.  For domains publishing high-value keys, a signature
-lifetime of a few days is reasonable, with the zone resigned every
-day or so.  For more mundane domains a good signature lifetime is
-a couple of weeks to a month, with the zone resigned every week or
-so.  Monitoring of the signature lifetime is important.  If the
+lifetime of a few days is reasonable, and the zone should be resigned every
+day.  For more domains with less critical data, a reasonable signature lifetime is
+a couple of weeks to a month, and the zone should be resigned every
+week. Monitoring of the signature lifetime is important.  If the
 zone is not resigned in a timely manner, one risks a major outage
 with the entire domain becoming invalid.
 </t>
