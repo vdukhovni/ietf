@@ -352,7 +352,7 @@ which is in this case the SHA-512 digest of the server public key.
   </section>
   <section title="Selector Matching Guidelines">
   </section>
-  <section title="Certificate Naming Check Conventions">
+  <section title="Certificate Name Check Conventions">
     <t>
       Certificates presented by a TLS server will contain either a
       Common Name (CN) or subjectAltName (or both), according to <xref
@@ -367,9 +367,9 @@ which is in this case the SHA-512 digest of the server public key.
       server's certificate chain.  If SNI is not employed for a TLS
       connection, the TLSA record must match the server's default
       certificate.  If the SNI extension is sent by the client with a
-      host_name (see <xref target="RFC3546"/> Section 3.1), the TLSA
-      record must match the certificate presented by the server for
-      that host_name.
+      host_name (see <xref target="RFC3546"/> Section 3.1) equal to the
+      base domain of the TLSA RRset, at least one TLSA record must match
+      the certificate presented by the server for that host_name.
     </t>
 
     <t>
