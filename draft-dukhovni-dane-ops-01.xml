@@ -359,8 +359,6 @@ which is in this case the SHA-256 digest of the server certificate.
       </t>
     </section>
   </section>
-  <section title="Selector Matching Guidelines">
-  </section>
   <section title="Certificate Name Check Conventions">
     <t>
       Certificates presented by a TLS server will contain either a
