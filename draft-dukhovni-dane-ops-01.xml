@@ -727,7 +727,7 @@ which is in this case the SHA-256 digest of the server certificate.
       <t>
 	From the client's perspective the situation is more nuanced.  Despite
 	the server's indicated preference for PKIX validation, the client
-	may not posess (or may not fully trust) a complete set of public
+	may not possess (or may not fully trust) a complete set of public
 	root CAs.  This is especially likely in protocols where the existing
 	public CA PKI is not applicable, as described in <xref target="nopki"/>.
 	If it is likely that a client
