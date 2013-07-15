@@ -577,7 +577,7 @@ to the fullest extent possible.
 found in <xref target="I-D.dukhovni-dane-ops" /> about "DANE DNS
 Record Size Guidelines".</t>
 
-<section title="Certificate usage 3">
+<section title="Certificate usage 3" anchor="cert3">
 
 <t>
 Since opportunistic DANE TLS will be used by non-interactive MTAs,
@@ -624,28 +624,32 @@ for multiple TLS services, it may be simpler to publish the issuing
 authority's public key as a trust-anchor for the certificate chains
 of all relevant services.  The TLSA RRs for each service issued by
 the same TA may then be CNAMEs to a common TLSA RRset that matches
-the TA.  In this case, the TLS handshake trust chain of each service
-SHOULD include the TA certificate, as SMTP clients cannot generally
+the TA.  In this case, the certificate chain presented in the TLS
+handshake of each service SHOULD include the TA certificate, as SMTP
+clients cannot generally
 be expected to have domain-issued trust-anchor certificates in their
-trusted certificate store.  The recommended record type in this
-case is either "2 1 1" or "2 0 1", which specifies the SHA-256 digest
-of the trust-anchor public key or certificate.  Two such TLSA RRs need
+trusted certificate store.  TLSA Publishers should publish either "2 1
+1" or "2 0 1" TLSA parameters, which specifies the SHA-256 digest
+of the trust-anchor public key or certificate.  As with regular
+certificate rollover discussed in <xref target="cert3" />,
+two such TLSA RRs need
 to be published to facilitate TA certificate rollover.
 </t>
 
 <t>
 The usability of "2 1 1" or "2 0 1" TLSA RRs with SMTP is not assured.
-If server operators emplying these RRs almost universally ensure that
+Unless server operators employing these RRs universally ensure that
 the corresponding TA certificate is included in the SMTP server's TLS
-handshake trust chain, then clients will enable support for these RRs.
+handshake trust chain, then clients MAY enable support for these RRs.
 If sufficiently many server administrators are negligent in deploying
-these RRs, SMTP clients may be hesitant to support them since mail
+these RRs, SMTP clients should be hesitant to support them, since mail
 delivery will not work to many destination domains if they do.  We
-encourage server operators to implement these RRs if appropriate to
-their organization, provided they do so with care.  Never forget
-to include trust-anchor certificates in server trust chains.
-We encourage SMTP client implementations to support these TLSA RRs
-by default, unless future experience proves our optimism unfounded.
+encourage server operators to implement these RRs, if appropriate, to
+their organization, provided they do so with care.  It is critical to
+never forget to include trust-anchor certificates in server trust chains.
+SMTP client implementations are encouraged to support these TLSA RRs
+by default, unless future experience proves optimism for publishing
+correct certificate chains unfounded.
 </t>
 
 <t>
