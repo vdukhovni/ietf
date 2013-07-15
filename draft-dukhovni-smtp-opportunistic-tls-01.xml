@@ -435,122 +435,18 @@ security protocol, clients will hopefully, over time, willingly
 choose to adopt it.
 </t>
 
-<!-- XXXWJH: the following few paragraphs (till 'end cut') can be
-     removed and a reference added to -ops: "Certificate Name Check Conventions" -->
-<t>
-The party responsible for creating TLSA records for a given service
-MUST ensure that at least one of these TLSA records will match
-either the server's default certificate chain if SNI is not employed
-on the server, or the server's certificate chain when the client
-signals the base domain of the TLSA RRset via SNI and a name type
-of "host_name" (<xref target="RFC3546"/> Section 3.1).
-</t>
+<t>SMTP over opportunistic TLS using DANE implementations and
+   publishers need to follow the guidance outlined in <xref
+   target="I-D.dukhovni-dane-ops" />'s "Certificate Name Check
+   Conventions", "Service Provider and TLSA Publisher
+   Synchronization" and "TLSA Base Domain and CNAMEs" sections.
 
 <t>
-When, for example, the TLSA RRset is published at _25._tcp.mail.example.com
-the base domain is mail.example.com.  At least one of the TLSA records
-in the RRset MUST match the server certificate chain, provided the
-SMTP client's TLS hanshake included the SNI extension with a domain
-of mail.example.com.
-</t>
-
-<t>
-Complications arise when TLSA records for a service are created by
-someone other than the server operator.  In this situation the
-server operator and TLSA record creator must cooperate to ensure
-that TLSA records don't fall out of step with the server certificate
-configuration.
-</t>
-
-<t>
-When the server operator is a hosting provider, the customer's MX
-records should contain the primary hostnames of the provider's SMTP
-servers.  This way, any associated TLSA records will be found in
-the hosting provider's DNSSEC zone, thus avoiding the complexity
-of bilateral coordination of server certificate configuration and
-TLSA record management.  If the customer's DNS zone is signed, the
-provider hostnames in customer domain's MX records can be securely
-used as the base names for locating TLSA records managed by the
-hosting provider.
-</t>
-
-<t>
-Redirection of SMTP service from one domain to another is usually
-accomplished via MX records (or perhaps SRV records in the case of
-submission).  Alternatively, the domain part of an email address
-may be a CNAME (see <xref target="RFC5321"/> Section 2.3.5).
-CNAMEs are a more blunt instrument for this purpose, since unlike
-MX or SRV records they remap the origin domain to the target domain for
-all protocols.  Also Unlike MX or SRV records CNAME records may
-chain (though clients will generally impose implementation dependent
-maximum nesting depths).
-</t>
-
-<t>
-Though CNAMEs are illegal on the right hand side of MX and SRV
-records, they are supported by some SMTP software.  They arise most
-frequently with submission clients or when an administrator configures
-an explicit next-hop destination host and that host happens to be
-an alias.  If the MX or SRV host is a CNAME alias from a customer's
-domain to a server in the provider's domain, the client SHOULD
-follow the CNAME and SHOULD use the target hostname as the base
-domain for TLSA records as well as the host_name in SNI.  
-</t>
-
-<t>
-Treating CNAMEs in MX hosts in the same manner as CNAMEs with non-MX
+Note: treating CNAMEs in MX hosts in the same manner as CNAMEs with non-MX
 destinations is consistent with <xref target="RFC5321"/> where non-MX
 destinations are considered equivalent to destinations with a single
 preference 0 MX record with the query domain identical to the MX host.
 </t>
-
-<t>
-When CNAMEs are employed the sensible place to seek DANE TLSA records
-is in the provider's domain, as the provider knows best which
-certificates are deployed on the server.  Therefore, clients
-implementing opportunistic DANE TLS when connecting to a server whose
-DNS name is a CNAME SHOULD follow the CNAME hop-by-hop to its
-ultimate target host (noting at each step whether the CNAME is
-DNSSEC validated) and use the resulting target host as the base
-domain for TLSA lookups.
-</t>
-
-<t>
-If CNAMEs were not followed, to support DANE validation the origin
-domain would have to publish TLSA records that match the server
-certificate chain.  Since the origin domain may not administer
-the server this imposes a difficult key management burden
-on the provider and customer even with SNI.
-</t>
-
-<t>
-Accordingly, TLSA records SHOULD NOT be published for a base domain
-that is a CNAME.  Such TLSA records may not reliably verify,
-and SHOULD NOT be used by opportunistic SMTP DANE TLS clients.
-</t>
-
-<t>
-It may be tempting to publish CNAMEs in the hosted domain pointing
-to the provider's TLSA RRset.  This only works when the provider's TLSA
-RRs specify certificate usage 3.  Otherwise, an SMTP client that
-used the alias name (from the hosted rather than the provider's domain)
-as the base domain to obtain the TLSA RRset would look for the
-hosted domain in the server certificate when performing name
-checks, and would generally fail to authenticate the server except
-in the rare cases when the server's certificate does include the
-hosted domain.
-</t>
-
-<figure>
-<artwork>
-; TLSA RRs aliased to provider, but the base domain is the hosted
-; domain.  Likely to fail name check unless provider usage is "3".
-;
-_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
-</artwork>
-</figure>
-
-<!-- XXXWJH: end cut -->
 
 </section><!-- TLSA record lookup -->
 </section><!-- TLS discovery -->
