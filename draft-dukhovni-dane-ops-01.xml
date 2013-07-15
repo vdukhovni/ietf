@@ -611,7 +611,7 @@ which is in this case the SHA-256 digest of the server certificate.
       <section title="TLSA Certificate Usage 1">
 
 	<t>
-	  With non-PKIX protocols, clients using TLSA Certificate Usage "1" records SHOULD ignore the PKIX
+	  With non-PKIX protocols, clients using TLSA Certificate Usage "1" records MAY ignore the PKIX
 	  validation requirement, and authenticate the server per the content
 	  of the TLSA record alone.  Since servers will hopefully rely on SNI to
 	  select the correct certificate for presentation, the client SHOULD use the SNI
@@ -623,7 +623,7 @@ which is in this case the SHA-256 digest of the server certificate.
       <section title="TLSA Certificate Usage 0">
 
 	<t>
-	  With TLSA Certificate Usage "0", the usability of the TLSA records depends
+	  With TLSA Certificate Usage "0" in non-PKIX protocols, the usability of the TLSA records depends
 	  on its matching type.
 	</t>
 
@@ -631,11 +631,10 @@ which is in this case the SHA-256 digest of the server certificate.
 	  If the matching type is "0", the TLSA record contains the full
 	  certificate or full public key of the trusted certificate authority.
 	  In this case the client has all the information it needs to match
-	  the server trust-chain to the TLSA record.  The client SHOULD, in
-	  this case, ignore the PKIX validation requirement and authenticate
+	  the server trust-chain to the TLSA record.  The client MAY ignore the PKIX validation requirement and authenticate
 	  the server via its DANE TLSA records alone (sending SNI with the
-	  base domain as usual).  The client SHOULD use base domain of the TLSA records
-	  in certificate name checks. 
+	  base domain as usual).  The client SHOULD use the base
+	  domain of the TLSA record(s) in certificate name checks. 
 	</t>
 
 	<t>
@@ -809,8 +808,8 @@ which is in this case the SHA-256 digest of the server certificate.
 
     <t>
       Since trust chain validation via bare public keys rather than trusted
-      CA certificates may be difficult to implement in existing TLS
-      applications, servers SHOULD include the trust anchor certificate in
+      CA certificates may be difficult to implement using existing TLS
+      libraries, servers SHOULD include the trust anchor certificate in
       their certificate chain when the TLSA Certificate Usage is "2".
     </t>
 
@@ -845,7 +844,7 @@ which is in this case the SHA-256 digest of the server certificate.
     </t>
 
     <t>
-      TLSA Publishers may publishes TLSA records for a
+      TLSA Publishers may publish TLSA records for a
       particular public root CA, expecting that clients will then only
       accept chains anchored at that root.  It is possible, however, that
       the client's set of trusted certificates includes some intermediate
