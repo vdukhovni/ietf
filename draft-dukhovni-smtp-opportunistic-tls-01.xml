@@ -78,6 +78,13 @@ its MX hosts.
 <middle>
 <section title="Introduction">
 
+<t>Lacking verified DNS and "Server Name Indication" (SNI), there has
+historically been no scalable way for SMTP server operators to provide
+certificates which match a trustable identifier.  It's only with the
+deployment of DNSSEC and DANE that authenticated TLS for SMTP to MX
+becomes possible between parties that have not already
+established an identity convention out-of-band.</t>
+
 <section title="Background">
 <t>
 The Domain Name System Security Extensions (DNSSEC) add data origin
