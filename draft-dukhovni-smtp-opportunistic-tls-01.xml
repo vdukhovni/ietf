@@ -863,22 +863,22 @@ client SHOULD fall back to legacy behavior.
 <section title="Mandatory TLS Security">
 
 <t>
-An MTA implementing this protocol for sending email to the internet
-at large may need a greater security assurance when sending email
-to selected destinations to which the sending organization sends
+An MTA implementing this protocol for sending email to Internet destinations
+may need a greater security assurance when sending email
+to selected destinations that to which the sending organization sends
 sensitive email and may have regulatory obligations to protect its
 content.  This protocol is not in conflict with this requirement,
-in fact it can often simplify authenticated delivery to such
+and in fact it can often simplify authenticated delivery to such
 destinations.
 </t>
 
 <t>
 Specifically, with domains that publish DANE TLSA records for their MX hosts
 a sending MTA can be configured to use the receiving domains's DANE TLSA
-records to authenticate the corresponding MX hosts, thereby obviating a
-complex manual provisioning process.  In anticipation of or in response to
-failure to obtain the expected TLSA records the sending system's
-administrator may choose from a menu of fallback options if supported by the
+records to authenticate the corresponding MX hosts, thereby obviating the
+complex manual provisioning process.  In anticipation of, or in response to,
+a failure to obtain the expected TLSA records, the sending system's
+administrator may choose from a selection of fallback options, if supported by the
 sending MTA:
 </t>
 
@@ -892,34 +892,36 @@ most likely a transient misconfiguration.
 </t>
 
 <t>
-Authenticate the peer via a manually configured certificate digest.  The
-digest may be a saved copy from a previous successful TLSA lookup, or may be
-obtained after a problem is detected and confirmed to be valid by some
-out-of-band mechanism.
+Authenticate the peer via a manually configured certificate digest.
+This may be obtained, for example, after a problem is detected and
+confirmed to be valid by some out-of-band mechanism.
 </t>
 
 <t>
 Authenticate the peer via the existing public CA PKI, if the peer server has
 usable CA issued certificates.  In many cases the sending MTA will need
-custom certificate name matching rules to match the destination's gateways.
+custom certificate name matching rules to match the destination's
+gateways.  And the sending server must explicitly configure policy for
+the destination to always require TLS to prevent MITM attacks.
 </t>
 
 <t>
-Send via unauthenticated mandatory TLS.  If the requirement is merely to
-always encrypt, and the possibility of MITM attacks is less of a concern
-than timely email delivery.
+Send via unauthenticated mandatory TLS.  This is useful if the
+requirement is merely to always encrypt transmissions to protect
+against only eavesdropping, and the possibility of MITM
+attacks is less of a concern than timely email delivery.
 </t>
 
 </list>
 </t>
 
 <t>
-It should be noted that barring administrator intervention email
+It should be noted that barring administrator intervention, email
 SHOULD be deferred when DNSSEC lookups fail, (as distinct from
 "secure" non-existence of TLSA records, or secure evidence that the
 domain is no longer signed).  In addition to configuring fallback
-strategies when TLSA records are unexpectedly absent administrators
-may in some cases need to disable DNSSEC lookups for a destination
+strategies when TLSA records are unexpectedly absent, administrators
+may, in hopefully rare cases, need to disable DNSSEC lookups for a destination
 to work around a DNSSEC outage.
 </t>
 
