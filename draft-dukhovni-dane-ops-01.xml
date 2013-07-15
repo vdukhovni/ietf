@@ -916,6 +916,9 @@ with the entire domain becoming invalid.
 
 <section anchor="Acknowledgements" title="Acknowledgements">
 
+<t>The authors would like to thank Phil Pennock for his comments and
+advice on this document.</t>
+
 <t>
 Acknowledgments from Viktor: Thanks to Tony Finch who finally prodded
 me into participating in DANE working group discussions.  Thanks to
