@@ -439,7 +439,7 @@ choose to adopt it.
    publishers need to follow the guidance outlined in <xref
    target="I-D.dukhovni-dane-ops" />'s "Certificate Name Check
    Conventions", "Service Provider and TLSA Publisher
-   Synchronization" and "TLSA Base Domain and CNAMEs" sections.
+   Synchronization" and "TLSA Base Domain and CNAMEs" sections.</t>
 
 <t>
 Note: treating CNAMEs in MX hosts in the same manner as CNAMEs with non-MX
