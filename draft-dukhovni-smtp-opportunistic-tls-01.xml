@@ -943,27 +943,24 @@ guided the Postfix DANE implementation to production quality.
 This protocol leverages DANE TLSA records to implement MITM resistant
 opportunistic channel security for SMTP.  For destination domains
 that sign their MX records and publish signed TLSA records for their
-MX hosts this protocol allows sending MTAs (and perhaps dynamically
+MX hosts, this protocol allows sending MTAs (and perhaps dynamically
 configured MUAs) to securely discover both the availability of TLS
 and how to authenticate the destination.
 </t>
 
 <t>
-This protocol does not aim to secure all SMTP traffic, that will
-not be practical until DNSSEC and DANE adoption are universal
-(universal SMTP TLS security via the existing public CA PKI is even
-less realistic).  The fact that it can be deployed incrementally
-is a feature, not a bug.  This protocol coexists and interoperates
-with the existing insecure Internet email backbone, if the protocol
-proves successful, a growing portion of email traffic will be
-protected over time.
+This protocol does not aim to secure all SMTP traffic, as that is
+not practical until DNSSEC and DANE adoption are universal.
+The incremental deployment provided by following this specification is
+a best possible path for securing SMTP.  This protocol coexists and interoperates
+with the existing insecure Internet email backbone.
 </t>
 
 <t>
-The protocol does not preclude existing non-opportunistic SMTP TLS security
-arrangements, these can continue as before, or may be used as fallback
-strategies when this protocol fails to locate the desired security
-parameters.
+The protocol does not preclude existing non-opportunistic SMTP TLS
+security arrangements, which can continue to be used as before via
+manual configuration and negotiated out-of-band key and
+TLS configuration exchanges.
 </t>
 
 </section><!-- Security Considerations -->
