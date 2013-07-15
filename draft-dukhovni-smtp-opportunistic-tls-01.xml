@@ -365,75 +365,75 @@ DANE TLS is applicable and if so the associated TLSA RRset base domain.
 
 </section><!-- MX resolution -->
 
-<section title="TLSA record lookup">
+<section title="tlsa record lookup">
 
 <t>
-When all the DNSSEC lookups, "CNAME", "MX", "A" or "AAAA", used to
-obtain a given TLSA base domain (one for each candidate MX host if
-multiple DNSSEC validated MX hosts were found) is "secure", and the
-SMTP client is configured for opportunistic DANE TLS, it SHOULD
-locate the TLSA RRset corresponding to this base domain.   If, for
-example, the base domain is "mail.example.com", the TLSA RRset is
-obtained via a DNSSEC query of the form:
+when all the dnssec lookups, "cname", "mx", "a" or "aaaa", used to
+obtain a given tlsa base domain (one for each candidate mx host if
+multiple dnssec validated mx hosts were found) is "secure", and the
+smtp client is configured for opportunistic dane tls, it should
+locate the tlsa rrset corresponding to this base domain.   if, for
+example, the base domain is "mail.example.com", the tlsa rrset is
+obtained via a dnssec query of the form:
 </t>
 
 <figure>
 <artwork>
-_25._tcp.mail.example.com. IN TLSA ?
+_25._tcp.mail.example.com. in tlsa ?
 </artwork>
 </figure>
 
 <t>
-Typically, the destination TCP port is 25, but this may be different
-with custom routes specified by the MTA administrator or when an
-MUA connects to a submission server on port 587.  The SMTP client
-MUST use the appropriate "_&lt;port&gt;" prefix in place of "_25"
-when the port number is not equal to 25.  The query response may
-be a CNAME (or a DNAME + CNAME combination), or the TLSA RRset.
-DNAME processing with DNSSEC can be done using standard DNAME
+typically, the destination tcp port is 25, but this may be different
+with custom routes specified by the mta administrator or when an
+mua connects to a submission server on port 587.  the smtp client
+must use the appropriate "_&lt;port&gt;" prefix in place of "_25"
+when the port number is not equal to 25.  the query response may
+be a cname (or a dname + cname combination), or the tlsa rrset.
+dname processing with dnssec can be done using standard dname
 resolution techniques and will not be
-discussed in detail here.  The SMTP client MUST check the security
+discussed in detail here.  the smtp client must check the security
 status of the response.
 </t>
 
 <t>
-If the response is "bogus", delivery via the host in question SHOULD
-NOT proceed, otherwise the SMTP client is vulnerable to man in the
-middle STARTTLS downgrade attacks.  If the response is "insecure",
-opportunistic DANE TLS is not applicable for the host in question,
-and the SMTP client SHOULD proceed with legacy opportunistic TLS.
-<!-- XXXWJH: there is no legacy opportunistic TLS; legacy TLS? -->
-If the response is "secure" and the record is a CNAME or DNAME,
-the SMTP client restarts the TLSA query at the target domain,
-following CNAMEs as appropriate.
+if the response is "bogus", delivery via the host in question should
+not proceed, otherwise the smtp client is vulnerable to man in the
+middle starttls downgrade attacks.  if the response is "insecure",
+opportunistic dane tls is not applicable for the host in question,
+and the smtp client should proceed with legacy opportunistic tls.
+<!-- xxxwjh: there is no legacy opportunistic tls; legacy tls? -->
+if the response is "secure" and the record is a cname or dname,
+the smtp client restarts the tlsa query at the target domain,
+following cnames as appropriate.
 </t>
 
 <t>
-If, after possible CNAME indirection, the response is "secure" and
-at least one TLSA record is found (even if not usable because it is
+if, after possible cname indirection, the response is "secure" and
+at least one tlsa record is found (even if not usable because it is
 unsupported by the implementation or administratively disabled) the
-next-hop host has committed to TLS support.  The SMTP client
-SHOULD NOT deliver mail via such a next-hop host unless a TLS session
-is negotiated via STARTTLS.  This avoids the man in the middle STARTTLS
+next-hop host has committed to tls support.  the smtp client
+should not deliver mail via such a next-hop host unless a tls session
+is negotiated via starttls.  this avoids the man in the middle starttls
 downgrade attacks.
 </t>
 
 <t>
-When usable TLSA records are available, a client SHOULD NOT deliver
-mail via a server that fails to match at least one TLSA record.  This
+when usable tlsa records are available, a client should not deliver
+mail via a server that fails to match at least one tlsa record.  this
 is not a "must" because clients may incrementally deploy opportunistic
-DANE TLS only for selected peer domains.  At times, clients may need
-to disable opportunistic DANE TLS for peers that fail to interoperate
-due to misconfiguration or software defects on either end.  For
-opportunistic DANE TLS to be robust (resistant to failures), servers
-MUST live up to the promises stated by the existence of the TLSA
+dane tls only for selected peer domains.  at times, clients may need
+to disable opportunistic dane tls for peers that fail to interoperate
+due to misconfiguration or software defects on either end.  for
+opportunistic dane tls to be robust (resistant to failures), servers
+must live up to the promises stated by the existence of the tlsa
 record, but it is not always possible to compel
-clients to use a security policy chosen by the server.  Given a robust
+clients to use a security policy chosen by the server.  given a robust
 security protocol, clients will hopefully, over time, willingly
 choose to adopt it.
 </t>
 
-<!-- XXXWJH: the following few paragraphs (till 'end cut') can be
+<!-- xxxwjh: the following few paragraphs (till 'end cut') can be
      removed and a reference added to -ops: "Certificate Name Check Conventions" -->
 <t>
 The party responsible for creating TLSA records for a given service
@@ -573,15 +573,15 @@ to the fullest extent possible.
 </t>
 
 <t>
-With any of the certificate usages described below server operators
-should generally avoid publishing "TLSA ? 0 0" records as even a
+With any of the certificate usages described below, server operators
+should generally avoid publishing "TLSA * 0 0" records as even a
 single certificate is generally too large to be reliably delivered
 via DNS.  Two full certificates may need to be published in the TLSA
 RRset for certificate rollover.
 </t>
 
 <t>
-While "TLSA ? 1 0" records that publish full public keys are generally
+While "TLSA * 1 0" records that publish full public keys are generally
 more compact, these too should be used with caution, for example
 two 2048-bit RSA keys require more than 512 bytes of DNS data, and
 thus don't fit into the default 512-byte limit for DNS UDP replies.
@@ -835,11 +835,11 @@ of the client and server.
 <section title="Opportunistic TLS for Submission">
 
 <t>
-Prior to <xref target="RFC6409"/> the SMTP submission protocol was
-poster child for PKIX TLS.  The MUA typically connects to one or
-sometimes a few submission servers explicitly configured by the
+Prior to <xref target="RFC6409"/>, the SMTP submission protocol was
+poster child for PKIX TLS.  The MUA typically connects to one or more 
+submission servers explicitly configured by the
 user.  There is no indirection via insecure MX records, and unlike
-the web brower no need to authenticate a large set of TLS servers.
+web browsers, there is no need to authenticate a large set of TLS servers.
 Once TLS is enabled for the desired submission server or servers,
 provided the server certificate is correctly maintained, the MUA
 is able to reliably use TLS to authenticate the submission server.
@@ -855,10 +855,10 @@ domain is not a robust solution.
 </t>
 
 <t>
-The protocol proposed in this memo can be used to opportunistically secure
+The protocol defined in this memo can also be used to opportunistically secure
 the submission service association.  If the email domain is DNSSEC signed,
 the SRV records are "secure" and the SRV host publishes secure TLSA records
-for submission, the MUA can safely auto-configure to authenticate the
+for submission, then the MUA can safely auto-configure to authenticate the
 submission server via DANE.  When DANE TLSA records are not available, the
 client SHOULD fall back to legacy behavior.
 </t>
