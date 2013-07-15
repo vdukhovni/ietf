@@ -18,6 +18,7 @@
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 <!ENTITY I-D.ietf-dane-smtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp.xml">
+<!ENTITY I-D.dukhovni-dane-ops SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.dukhovni-dane-ops.xml">
 ]>
 
 <!-- rfc xmlns:x="http://purl.org/net/xml2rfc/ext" category="exp" -->
@@ -572,23 +573,9 @@ with certificate usage "0" or "1", clients SHOULD make use of these
 to the fullest extent possible.
 </t>
 
-<t>
-With any of the certificate usages described below, server operators
-should generally avoid publishing "TLSA * 0 0" records as even a
-single certificate is generally too large to be reliably delivered
-via DNS.  Two full certificates may need to be published in the TLSA
-RRset for certificate rollover.
-</t>
-
-<t>
-While "TLSA * 1 0" records that publish full public keys are generally
-more compact, these too should be used with caution, for example
-two 2048-bit RSA keys require more than 512 bytes of DNS data, and
-thus don't fit into the default 512-byte limit for DNS UDP replies.
-Servers SHOULD publish the certificate or key digest via DNS, with
-the complete key or certificate communicated in band during the TLS
-handshake.
-</t>
+<t>TLSA Publishers should follow the TLSA publication size guidance
+found in <xref target="I-D.dukhovni-dane-ops" /> about "DANE DNS
+Record Size Guidelines".</t>
 
 <section title="Certificate usage 3">
 
