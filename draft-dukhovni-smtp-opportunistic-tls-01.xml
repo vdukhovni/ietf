@@ -665,13 +665,14 @@ authentication mechanisms are available.
 
 <t>
 SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "1".
-SMTP clients that implement this specification SHOULD ignore the
-PKIX validation requirement when they encounter certificate usage
-"1", and SHOULD authenticate the server per the content of the TLSA
-record alone.  That is, as with certificate usage "3", clients
-SHOULD NOT apply name checks, expiration checks, or process the
-server certificate content beyond possibly extracting its public
-key for matching against corresponding TLSA RRs.
+SMTP clients that implement this specification SHOULD ignore the PKIX
+validation requirement when they encounter certificate usage "1", and
+SHOULD authenticate the server per the content of the TLSA record
+alone.  That is, SMTP clients should treat certificate usage "1" as
+certificate usage "3"; clients SHOULD NOT apply name checks,
+expiration checks, or process the server certificate content beyond
+possibly extracting its public key for matching against corresponding
+TLSA RRs.
 </t>
 
 </section><!-- Certificate usage 1 -->
