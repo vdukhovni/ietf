@@ -369,7 +369,7 @@ which is in this case the SHA-256 digest of the server certificate.
       against the name found within a certificate, if required.
     </t>
     <t>
-      The TLSA publisher for TLSA records for a given service MUST
+      The TLSA Publisher for TLSA records for a given service MUST
       ensure that at least one of these TLSA records will match the
       server's certificate chain.  If SNI is not employed for a TLS
       connection, the TLSA record must match the server's default
@@ -395,31 +395,13 @@ which is in this case the SHA-256 digest of the server certificate.
     </t>
 
     <t>
-      <!--
-      XXXWJH: this contradicts what the -smtp draft says
-      XXXVD: I don't think it does, it describes:
-      	_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.org.
-      	_25._tcp.mail.example.org. IN TLSA 3 1 1 ...
-      NOT
-        mail.example.com. IN CNAME mail.example.org.
-      and just points out that this has no effect on the base-domain.
-      -->
-      Note: when the TLSA RRset query domain (base domain plus port and protocol
-      prefixes) resolves to a DNSSEC validated CNAME pointing to a DNSSEC
-      signed zone with the actual TLSA records, the content of the TLSA
-      RRset will be retrieved from the target zone.  This has no effect on
-      the value of the base domain, which remains the original domain to
-      which the client prefixed the port and protocol.
-    </t>
-
-    <t>
       Note: Except with TLSA Certificate Usage "3", where name checks are not
       applicable (see <xref target="type3" />), DANE aware clients
       SHOULD use the base domain of the TLSA RRset to verify that the client
       has reached the correct server by checking that the TLSA base domain
       is matched by one of the subjectAltName (<xref target="RFC5280"/>) in
       the server certificate.  The commonName from the certificate subject
-      DN MAY be used only when no subject alternative names are present.
+      DN MAY be used only when no subjectAltNames of type 'dns' are present.
       Additional acceptable names may be specified by protocol specific DANE
       RFCs.  For example, with SMTP both the destination domain name and the
       MX host name are acceptable in the server certificate.
@@ -524,8 +506,19 @@ which is in this case the SHA-256 digest of the server certificate.
 	; Provider usage is "3".
 	;
 	_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
+      	_25._tcp.mail.example.net. IN TLSA 3 1 1 ...
       </artwork>
     </figure>
+
+    <t>
+      Note: when the TLSA RRset query domain (base domain plus port and protocol
+      prefixes) resolves to a DNSSEC validated CNAME that points to a DNSSEC
+      signed zone with the actual TLSA records, as the above example
+      indicates, it has no effect on
+      the value of the base domain, which remains the original domain to
+      which the client prefixed the port and protocol.  In the example
+      above, the base domain is "mail.example.com" and not "mail.example.net".
+    </t>
 
     <t>
       <!-- XXXWJH: genericize to new section -->
