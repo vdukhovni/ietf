@@ -55,12 +55,12 @@
 
 <t>
 This memo provides operational guidance to server operators to help
-ensure that clients will be able to authenticate a server's certificate
-chain via its published TLSA records.  Guidance is also provided to clients
-to choose combinations of TLSA record parameters that are sufficiently
-reliable to be usable for server authentication.  Finally, guidance is
-given to protocol designers who wish to make use of TLSA records when
-using them to secure protocols using a TLS and TLSA combination. 
+ensure that clients will be able to authenticate a server's
+certificate chain via published TLSA records.  Guidance is also
+provided to clients for selecting reliable TLSA record parameters to
+use for server authentication.  Finally, guidance is given to protocol
+designers who wish to make use of TLSA records to secure protocols
+using a TLS and TLSA combination.
 </t>
 
 </abstract>
@@ -78,11 +78,11 @@ is defined in <xref target="RFC4033"/>, <xref target="RFC4034"/> and
 </t>
 
 <t>
-In the context of this memo channel security is assumed to be provided
+In the context of this memo, channel security is assumed to be provided
 by TLS or DTLS.  The Transport Layer Security (TLS) and Datagram
 Transport Layer Security (DTLS) protocols provide communications
-privacy over the Internet.  By convention, TLS will be used through
-this document and unless otherwise specified, the text applies equally
+privacy over the Internet.  By convention, "TLS" will be used through
+this document and, unless otherwise specified, the text applies equally
 as well to the DTLS protocol.  Used without authentication, TLS
 provides protection only against eavesdropping.  With authentication,
 TLS also provides protection against man-in-the-middle (MITM) attacks.
@@ -97,23 +97,24 @@ support the "Server Name Indication" extension of TLS.
 
 <t>
 As described in the introduction of <xref target="RFC6698"/>, TLS
-authentication via the existing public CA PKI suffers from an
+authentication via the existing public Certificate Authority (CA)
+Public Key Infrastructure (PKI) suffers from an
 over-abundance of trusted certificate authorities capable of issuing
 certificates for any domain of their choice.  DNS-Based Authentication
 of Named Entities (DANE) leverages the DNSSEC infrastructure to
 publish trusted keys and certificates for use with TLS via a new
 TLSA record type.  DNSSEC validated DANE TLSA records
-yield a new PKI designed to augment or replace the trust model of
+have created a new PKI designed to augment or replace the trust model of
 the existing public CA PKI.
 </t>
 
 <t>
-When a client goes to the trouble of authenticating a certificate
+When a TLS client goes to the trouble of authenticating a certificate
 presented by a TLS server, it should not continue to use the server in
 case of authentication failure or else authentication serves no
 purpose.  Consequently, if a client cannot reliably authenticate
-correctly configured legitimate servers via a particular combination
-of TLSA parameters, then the client SHOULD treat that combination of
+correctly configured, legitimate servers via a particular combination
+of TLSA parameters, then the client should treat that combination of
 parameters as unusable. <!-- XXXWJH: you don't say what to do if unusable;
 the next sentence implies "connect anyway", which based on our
 discussions of Type 0, is what I suspect you believe.  But I'd argue
@@ -121,7 +122,7 @@ it's very protocol dependent, and I don' think the average person will
 say "if too much is broken out there, just give up on security" -->
 Otherwise, the client risks routinely dropping connections to
 legitimate servers.  Servers publishing TLSA records MUST be
-configured in a manner that allows correctly configured clients to
+configured to allow correctly configured clients to
 successfully authenticate the server's TLS certificate.
 </t>
 
@@ -146,12 +147,12 @@ This memo is being discussed on the dane@ietf.org mailing list.
     the service provider is frequently referred to by a redirection
     resource record.  Example redirection records include MX, SRV, and
     CNAME.  Many times the Service Provider provides services for many
-    customers and must carefully manage TLS credentials offered to the
+    customers and must carefully manage TLS credentials offered to their
     clients to ensure name matching is handled easily by clients.
   </t>
   <t hangText="Client Domain:">
-    Clients that make use of a Service Provider will be referred to as
-    "Client Domains".
+    Clients that make use of a Service Provider to outsource their
+    services will be referred to as "Client Domains".
   </t>
   <t hangText="TLSA Publisher:">
     The entity responsible for publishing a TLSA record within a DNS
@@ -162,7 +163,7 @@ This memo is being discussed on the dane@ietf.org mailing list.
     DNS service instead.
   </t>
   <t hangText="public key:">
-    In this memo the term "public key" will be an
+    The term "public key" will be an
     informal short-hand for the subjectPublicKeyInfo from a PKIX
     certificate.
   </t>
@@ -170,8 +171,8 @@ This memo is being discussed on the dane@ietf.org mailing list.
     The "Server Name Indication", or SNI, describes the process by
     which a TLS client requests to connect to a particular service
     name for a TLS server (<xref target="RFC3546" />).  Without this
-    extension, a TLS server has no choice but to offer a PKIX
-    certificate with a default server name.  Servers that are expected
+    TLS extension, a TLS server has no choice but to offer a PKIX
+    certificate with a default server name.  Service Providers that are expected
     to host services for many clients need to present the correct
     certificate for the correct client, and the SNI extension provides
     a hint to the server which certificate should be transmitted to
@@ -221,7 +222,7 @@ specifies 3 values ranging from 0 to 2.
 <t>
 We may consider the TLSA Certificate Usage values 0 through 3 to be a
 combination of two one-bit flags.  The low-bit chooses between
-trust-anchor (TA) and end-entity (EE) certificates.  The high bit
+referencing trust-anchor (TA) and end-entity (EE) certificates.  The high bit
 chooses between public PKI issued and domain-issued certificates:
 </t>
 
@@ -253,7 +254,7 @@ When the high bit is not set (TLSA Certificate Usages 0 and 1) the TLSA
 record publishes a server policy stating that its certificate
 chain must pass PKIX validation <xref target="RFC5280"/>, with the
 DANE TLSA record used to constrain the server certificate chain to
-contain a given CA or EE certificate.
+contain the referenced CA or EE certificate.
 </t>
 
 </list>
