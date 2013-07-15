@@ -286,7 +286,7 @@ specifies just the public key.  </t>
 The matching type field specifies how the TLSA RR Certificate
 Association Data field is to be compared with the certificate or
 public key.  A value of "0" means exact match, the DER encoding of the
-certificate or public is given in the TLSA RR.  A "1" value means a
+certificate or public key is given in the TLSA RR.  A "1" value means a
 SHA-256 digest and "2" means a SHA-512 digest.  Of these, only SHA-256
 is mandatory to implement.  Clients SHOULD implement SHA-512, but
 servers SHOULD NOT exclusively publish SHA-512 digests.  Unless a "second
@@ -322,19 +322,18 @@ which is in this case the SHA-256 digest of the server certificate.
   <section title="DANE DNS Record Size Guidelines">
     <t>
       Selecting a combination of TLSA parameters to use requires
-      careful thought.  One important consideration that must be
-      accounted for is the size of the resulting TLSA record based on
+      careful thought.  One important consideration 
+      is the size of the resulting TLSA record based on
       the parameters chosen.
     </t>
     <section title="UDP and TCP Considerations">
 
       <t>
 	Deployments SHOULD avoid TLSA record sizes that cause UDP
-	fragmentation within the networks to be used.
+	fragmentation.
       </t>
       <t>
-	Although TCP is a viable
-	alternative technologically and would provide the ability to
+	Although DNS over TCP would provide the ability to
 	transfer larger DNS records between clients and servers, it is
 	not yet widely deployed or permitted through many firewalls.
 	TCP must be expected to be deployed on all the DNS servers and
@@ -343,7 +342,7 @@ which is in this case the SHA-256 digest of the server certificate.
     </section>
     <section title= "Packet Size Considerations for TLSA Parameters">
       <t>
-	Server operators SHOULD NOT generally publish "TLSA * 0 0"
+	Server operators SHOULD NOT publish "TLSA * 0 0"
 	records, as even a single certificate is generally too large
 	to be reliably delivered via DNS without TCP being widely
 	available.  Furthermore, two full certificates may need to be
@@ -358,8 +357,8 @@ which is in this case the SHA-256 digest of the server certificate.
 	without the accompanying RRSIG records, and thus don't fit
 	into a 512-byte DNS packet, and many firewalls today still
 	drop DNS packets greater than 512 bytes in size.  Servers
-	SHOULD publish the certificate or key digests within TLSA
-	records instead.  The complete certificate should be
+	SHOULD publish digests within TLSA
+	records instead.  The complete certificate should, instead, be
 	transmitted to the client in band during the TLS handshake.
       </t>
     </section>
