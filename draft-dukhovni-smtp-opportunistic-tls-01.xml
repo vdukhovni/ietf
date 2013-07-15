@@ -113,21 +113,23 @@ TLS 1.1 <xref target="RFC4346"/> and TLS 1.2 <xref target="RFC5246"/>.
 <section title="SMTP Channel Security">
 
 <t>
-SMTP is multi-hop store &amp; forward, while TLS security is
-hop-by-hop.  The number of hops from the sender to the recipient
-mailbox is rarely less than 3 and is often higher.  Some hops may
-be TLS protected, some may not.  The same SMTP TCP endpoint can
-serve both TLS and non-TLS clients, with TLS negotiated via the
-SMTP STARTTLS command (<xref target="RFC3207"/>).  MX RRs abstract
-hop destinations via DNS.  SMTP addresses are not transport addresses
-and are security agnostic.  Unlike HTTP, there is no URI scheme for
-email addresses to designate SMTP vs. SMTPS addresses.  </t>
+The Simple Mail Transport Protocol (SMTP) (<xref target="RFC5321" />)
+is multi-hop store &amp; forward, while TLS security is hop-by-hop.
+The number of hops from the sender's Mail User Agent to the recipient
+mailbox is rarely less than 2 and is often higher.  Some hops may be
+TLS protected, some may not.  The same SMTP TCP endpoint can serve
+both TLS and non-TLS clients, with TLS negotiated via the SMTP
+STARTTLS command (<xref target="RFC3207"/>).  MX RRs abstract hop
+destinations via DNS.  SMTP addresses are not transport addresses and
+are security agnostic.  Unlike HTTP, there is no URI scheme for email
+addresses to designate whether the SMTP server should be contacted
+with or without security.</t>
 
 <t>
-An MTA may need to forward a message to a particular email recipient
-&lt;user@example.com&gt;.  To deliver the message the MTA needs to
+A Mail Transport Agent (MTA) may need to forward a message to a particular email recipient
+&lt;user@example.com&gt;.  To deliver the message, the MTA needs to
 retrieve the MX hosts of example.com from DNS, and then deliver the
-message to one of these.  Absent DNSSEC, the MX lookup is vulnerable
+message to one of them.  Absent DNSSEC, the MX lookup is vulnerable
 to man-in-the-middle and cache poisoning attacks.  As a result,
 verifying MX host certificates without using DNSSEC is futile as
 the attacker can simply forge DNS replies and issue bogus MX records,
@@ -141,7 +143,7 @@ recipient domain that is obtained from the message envelope and is
 not subject to DNS reply forgery.  Unfortunately, this is impractical,
 as email for many domains is handled by third parties, which are
 not in a position to obtain certificates for all the domains they
-serve.  Deployment of SNI (see <xref target="RFC3546"/> Section
+serve.  Deployment of SNI (see <xref target="RFC6066"/> Section
 3.1) is no panacea, since the key management is operationally
 challenging at large scale unless the email service provider is
 also the domain's registrar and its certificate issuer; this is
@@ -165,13 +167,13 @@ email backbone.  Internet email requires contacting many new domains for
 which security configurations can not be established in advance.
 </t>
 
-<!-- WJH bookmark -->
 <t>
-Since with the existing public CA PKI neither the recipient domain,
-nor the MX hostname are suitable SMTP server authentication identities,
-large scale deployment of authenticated TLS based on this PKI is
+With the existing public Certificate Authority (CA) Public Key
+Infrastructure (PKI), neither the recipient domain,
+nor the MX hostname are suitable SMTP server authentication identities.
+Large scale deployment of authenticated TLS based on this PKI is
 not possible in the context of MTA to MTA SMTP.  SMTP secure channels
-authenticated via the public CA PKI are used by a handful of domains
+authenticated via the public CA PKI are rarely used and only between domains
 that make bilateral arrangements with their business partners.  At
 this time, MTA to MTA traffic between Internet connected organizations
 typically does not use TLS at all, or uses TLS opportunistically
@@ -180,39 +182,39 @@ eavesdropping.
 </t>
 
 <t>
-Note, the above does not apply to submission <xref target="RFC6409"/>,
+Note, the above does not apply to mail submission <xref target="RFC6409"/>,
 where a mail user agent is pre-configured to send all email to a
-fixed MSA.  Submission servers typically offer TLS and the MUA can
-be statically configured to use TLS with its chosen MSA.  The
+fixed Mail Submission Agent (MSA).
+Submission servers usually offer TLS and the Mail User Agent (MUA) can
+be statically configured to require TLS with its chosen MSA.  The
 situation changes when submission servers are configured dynamically
-via SRV records (see <xref target="RFC6186"/> Section 6, this is
-not yet widely deployed).  We'll discuss applications to submission
-via SRV records later in this memo.
+via SRV records (see <xref target="RFC6186"/> Section 6, although this is
+not yet widely deployed).  Applications to submission
+via SRV records will be discussed later in this memo.
 </t>
 
 <t>
 With little opportunity to use the existing public CA PKI, MX hosts
 that support STARTTLS often use self-signed or private-CA issued
-X.509 certificates.  They are generally not configured with a
+X.509 certificates.  They are rarely configured with a
 comprehensive list of trusted CAs and do not check CRLs or implement
-OCSP.  In essence they don't and can't use the existing public CA
+OCSP.  In essence, they don't and can't use the existing public CA
 PKI.  This is not simply a result of complacency on the part SMTP
 server administrators and MTA developers.  Nor is it just a result
-of the relative maturity of the SMTP infrastructure (as compared
-to the then young HTTP) when TLS was introduced.  Rather, as we've
-explained, the abstraction of the SMTP transport endpoint via DNS
+of the relative maturity of the SMTP infrastructure when TLS was
+introduced. Rather, the abstraction of the SMTP transport endpoint via DNS
 MX records, often across organization boundaries, limits the use
 of public CA PKI with SMTP to a small set of sender-configured peer
 domains.
 </t>
 
 <t>
-This does not mean that the Internet email backbone cannot benefit
+This does not mean, however, that the Internet email backbone cannot benefit
 from TLS.  The fact that transport security is not explicitly
 specified in either the recipient address or the MX record means
 that new protocols can furnish out-of-band information to SMTP,
-making it possible to discover both which peer domains support
-secure delivery via TLS and simultaneously how to verify the
+making it possible to simultaneously discover both which peer domains support
+secure delivery via TLS and how to verify the
 authenticity of the associated MX hosts.  The first such mechanism
 that can work an Internet scale is DANE TLSA, but use of DANE TLSA
 with MTA to MTA SMTP must be cognizant of the lack of any realistic
