@@ -80,8 +80,9 @@ is defined in <xref target="RFC4033"/>, <xref target="RFC4034"/> and
 <t>
 In the context of this memo, channel security is assumed to be provided
 by TLS or DTLS.  The Transport Layer Security (TLS) and Datagram
-Transport Layer Security (DTLS) protocols provide communications
-privacy over the Internet.  By convention, "TLS" will be used through
+Transport Layer Security (DTLS) protocols provide secured TCP and UDP
+communication
+over the Internet Protocol.  By convention, "TLS" will be used through
 this document and, unless otherwise specified, the text applies equally
 as well to the DTLS protocol.  Used without authentication, TLS
 provides protection only against eavesdropping.  With authentication,
