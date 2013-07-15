@@ -863,7 +863,7 @@ which is in this case the SHA-256 digest of the server certificate.
       accept chains anchored at that root.  It is possible, however, that
       the client's set of trusted certificates includes some intermediate
       CAs, either with or without the corresponding root CA.  When a
-      client construct a trust chain leading from a trusted intermediate
+      client constructs a trust chain leading from a trusted intermediate
       CA to the server leaf certificate, such a chain may omit any trusted
       roots published in the server's TLSA records.
     </t>
