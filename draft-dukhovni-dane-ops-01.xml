@@ -541,7 +541,8 @@ which is in this case the SHA-256 digest of the server certificate.
       supported by some implementations.  In this case, if the MX or
       SRV host is a CNAME alias the client MAY "chase" the CNAME
       and SHOULD use the target hostname as the base domain for TLSA
-      records as well as the host_name in SNI.
+      records as well as the host_name in SNI, provided the CNAME
+      RR is found to be "secure" at each step in the CNAME expansion.
     </t>
   </section>
   <section title="Interaction with Certificate Transparency">
