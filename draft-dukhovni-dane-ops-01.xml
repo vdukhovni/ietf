@@ -105,6 +105,8 @@ have created a new PKI designed to augment or replace the trust model of
 the existing public CA PKI.
 </t>
 
+<!-- XXXWJH: this is not introduction material; move to a later
+section -->
 <t>
 When a TLS client goes to the trouble of authenticating a certificate
 presented by a TLS server, it should not continue to use the server in
@@ -112,30 +114,16 @@ case of authentication failure or else authentication serves no
 purpose.  Consequently, if a client cannot reliably authenticate
 correctly configured, legitimate servers via a particular combination
 of TLSA parameters, then the client should treat that combination of
-parameters as unusable. <!--
-
-XXXWJH: you don't say what to do if unusable;
-the next sentence implies "connect anyway", which based on our
-discussions of Type 0, is what I suspect you believe.  But I'd argue
-it's very protocol dependent, and I don' think the average person will
-say "if too much is broken out there, just give up on security"
-
-XXXVD: The answer depends a lot on the application protocol.  With
-HTTPS, unusable => fail, because the destination URL mandates secure
-transport.  With SMTP, since we're WILLING TO DO PLAIN TEXT by
-default (barring out of band security parameters), yes unusable
-means go ahead.  Just like opportunistic TLS without DANE.
-This is however the application neutral BCP draft, so clients do
-whatever it is that they do when TLSA RRs are unusable.
-
-Do we want to spell this out in more detail here?
-
--->
-Otherwise, the client risks routinely dropping connections to
-legitimate servers.  Servers publishing TLSA records MUST be
-configured to allow correctly configured clients to
+parameters as unusable.  Otherwise, the client risks routinely
+dropping connections to legitimate servers.  Servers publishing TLSA
+records MUST be configured to allow correctly configured clients to
 successfully authenticate the server's TLS certificate.
 </t>
+
+<t>If a TLSA record is found as unusable because of a parameter
+combination, it is protocol specific as to whether the connection
+should be established anyway without security, with only TLS
+encryption and not authentication, or to refuse to connect entirely.</t>
 
 <section title="Terminology">
 <t>
