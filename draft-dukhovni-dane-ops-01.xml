@@ -421,7 +421,7 @@ which is in this case the SHA-256 digest of the server certificate.
 
     <t>
       Note: Except with TLSA Certificate Usage "3", where name checks are not
-      applicable (see Section <xref target="type3" />), DANE aware clients
+      applicable (see <xref target="type3" />), DANE aware clients
       SHOULD use the base domain of the TLSA RRset to verify that the client
       has reached the correct server by checking that the TLSA base domain
       is matched by one of the subjectAltName (<xref target="RFC5280"/>) in
@@ -455,8 +455,8 @@ which is in this case the SHA-256 digest of the server certificate.
       the same entity.  If a TLSA record must be published in the
       client's base domain, CNAME records can be easily used to point
       at the real TLSA record in the Service Provider's zone assuming
-      type 3 TLSA records are in use (see Section <xref target="cname"
-      />) .  Having the master TLSA record in the Service Provider's
+      type 3 TLSA records are in use (see <xref target="cname" />).
+      Having the master TLSA record in the Service Provider's
       zone avoids the complexity of bilateral coordination of server
       certificate configuration and TLSA record management.
     </t>
@@ -727,8 +727,8 @@ which is in this case the SHA-256 digest of the server certificate.
 	the server's indicated preference for PKIX validation, the client
 	may not posess (or may not fully trust) a complete set of public
 	root CAs.  This is especially likely in protocols where the existing
-	public CA PKI is not applicable, as described in Section <xref
-	target="nopki" />.  If it is likely that a client
+	public CA PKI is not applicable, as described in <xref target="nopki"/>.
+	If it is likely that a client
 	lacks a sufficiently complete list of trusted CAs, and that a
 	non-negligible number of DNS servers publish TLSA Certificate Usage 0 TLSA
 	records with digests of omitted root CAs, then such a client SHOULD
