@@ -289,9 +289,9 @@ public key.  A value of "0" means exact match, the DER encoding of the
 certificate or public is given in the TLSA RR.  A "1" value means a
 SHA-256 digest and "2" means a SHA-512 digest.  Of these, only SHA-256
 is mandatory to implement.  Clients SHOULD implement SHA-512, but
-servers SHOULD NOT exclusively publish SHA-512 digests.  More
-strongly, unless a "second preimage" attack is found against SHA-256,
-servers should only publish SHA-256 digests.
+servers SHOULD NOT exclusively publish SHA-512 digests.  Unless a "second
+preimage" attack is found against SHA-256, servers should only publish SHA-256
+digests.
 </t>
 
 <section title="Example TLSA record">
@@ -301,18 +301,16 @@ In the example TLSA record below:
 
 <figure>
 <artwork>
-_25._tcp.mail.example.com. IN TLSA 3 1 2 (
+_25._tcp.mail.example.com. IN TLSA 3 0 1 (
                               E8B54E0B4BAA815B06D3462D65FBC7C0
-                              CF556ECCF9F5303EBFBB77D022F834C0
-                              5DC75F17F9963DF8A572A5B9209CF1AB
-                              9DC14CD0C0C8393072D49365017553F8 )
+                              CF556ECCF9F5303EBFBB77D022F834C0 )
 </artwork>
 </figure>
 
 <t>
-The TLSA Certificate Usage is "3", the selector is "1" and the matching type
-is "2".  The rest of the record is the certificate association data field,
-which is in this case the SHA-512 digest of the server public key.
+The TLSA Certificate Usage is "3", the selector is "0" and the matching type
+is "1".  The rest of the record is the certificate association data field,
+which is in this case the SHA-256 digest of the server certificate.
 </t>
 </section><!-- Example TLSA record -->
 </section><!-- DANE TLSA record overview -->
