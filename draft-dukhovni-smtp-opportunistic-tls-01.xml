@@ -581,32 +581,33 @@ Record Size Guidelines".</t>
 
 <t>
 Since opportunistic DANE TLS will be used by non-interactive MTAs,
-with no user to "press OK" when authentication fails, reliability
-of peer authentication is paramount.  The recommended choice of
-TLSA record type for opportunistic DANE TLS is "3 1 1".  This record
-specifies the SHA-256 digest of the server's public key.
+with no user to "press OK" when authentication fails, reliability of
+peer authentication is paramount.  TLSA records published for SMTP
+servers SHOULD be "3 1 1" records to support opportunistic SMTP over
+TLS with DANE. This record specifies the SHA-256 digest of the
+server's public key.
 </t>
 
 <t>
 Authentication via certificate usage "3" TLSA records involves no
-certificate authority signature checks as no CA is explicitly
-trusted.  It also involves no server name checks, and thus does not
+certificate authority signature checks.
+It also involves no server name checks, and thus does not
 a impose any new requirements on the names contained in the server
-certificate (SNI not required when the TLSA record matches the
+certificate (SNI is not required when the TLSA record matches the
 public key of the server's default certificate).  It uses the SHA-256
 digest which all clients are obligated to support, and works across
-certificate renewals with the same key.  TLSA records for SMTP
-servers SHOULD typically be "3 1 1" records.
+certificate renewals with the same key.
 </t>
 
 <t>
-Two such records need to be published before updating the server's
+Two TLSA records will need to be published before updating a server's
 public key, one matching the currently deployed key and the other
 matching the new key scheduled to replace it.  Once sufficient time
-has elapsed for all caches to time out the previous TLSA RRset which
-contains only the old key the server may be reconfigured to use the
-new private key and associated public key certificate.  The zone
-signature validity time provides an upper bound on the time required).
+has elapsed for all DNS caches to time out the previous TLSA RRset, which
+contains only the old key, the server may be reconfigured to use the
+new private key and associated public key certificate.  The amount of
+time a server should wait before using a new key that is referenced by
+new TLSA records should be 2 * the TTL of the previously published TLSA records.
 Once the server is using a new key, the obsolete TLSA RR can be removed
 from DNS, leaving only the RR that matches the new key.
 </t>
