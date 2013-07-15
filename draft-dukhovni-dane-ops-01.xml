@@ -90,9 +90,6 @@ Since the publication of the TLS 1.0 specification in <xref
 target="RFC2246"/>, two updates to the protocol have been published:
 TLS 1.1 <xref target="RFC4346"/> and TLS 1.2 <xref target="RFC5246"/>.
 The DTLS protocol was later documented in <xref target="RFC6347"/>.
-TLS clients that support DANE/TLSA MUST support at least TLS 1.0 and
-SHOULD support TLS 1.2.  TLS clients and servers using DANE SHOULD
-support the "Server Name Indication" extension of TLS.
 </t>
 
 <t>
@@ -319,6 +316,11 @@ which is in this case the SHA-256 digest of the server certificate.
   <t>These guidelines provide guidance for using or designing
   protocols for DANE, regardless of what type the TLSA record will
   actually contain.</t>
+  <section title="TLS Requirements">
+    <t>TLS clients that support DANE/TLSA MUST support at least TLS 1.0 and
+    SHOULD support TLS 1.2.  TLS clients and servers using DANE SHOULD
+    support the "Server Name Indication" extension of TLS.</t>
+  </section>
   <section title="DANE DNS Record Size Guidelines">
     <t>
       Selecting a combination of TLSA parameters to use requires
