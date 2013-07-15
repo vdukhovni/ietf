@@ -141,7 +141,7 @@ This memo is being discussed on the dane@ietf.org mailing list.
 <list style="hanging">
   <t hangText="Service Provider:">
     A company or organization that offers to host a service on behalf
-    of a client.  The original domain name associated with the service
+    of a Client Domain.  The original domain name associated with the service
     is typically still within the control of the client, however, and
     the service provider is frequently referred to by a redirection
     resource record.  Example redirection records include MX, SRV, and
@@ -476,7 +476,7 @@ which is in this case the SHA-256 digest of the server certificate.
       It is possible to publish CNAMEs in the Client Domain pointing
       to the Service Provider's TLSA RRset if the TLSA certificate
       usage field is set to 3.  Otherwise, a client that used the
-      alias name (from the hosted rather than the Service Provider's
+      alias name (from the hosted domain rather than the Service Provider's
       domain) as the base domain to obtain the TLSA RRset would look
       for the hosted domain in the server certificate when performing
       name checks, and would generally fail to authenticate the server
@@ -519,6 +519,17 @@ which is in this case the SHA-256 digest of the server certificate.
       and SHOULD use the target hostname as the base domain for TLSA
       records as well as the host_name in SNI, provided the CNAME
       RR is found to be "secure" at each step in the CNAME expansion.
+    </t>
+  </section>
+  <section title="TLSA Base Name Priorities">
+    <t>There are multiple steps within a chaining DNS lookup process
+    that TLSA base names can be pulled from.  This section will
+    discuss what the preferred selection points are. TBD.
+    <list style="numbers">
+      <t>Final Domain Name</t>
+      <t>Redirect Name</t>
+      <t>Initial Name</t>
+    </list>
     </t>
   </section>
   <section title="Interaction with Certificate Transparency">
