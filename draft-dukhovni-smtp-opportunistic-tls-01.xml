@@ -110,7 +110,7 @@ TLS 1.1 <xref target="RFC4346"/> and TLS 1.2 <xref target="RFC5246"/>.
 
 </section><!-- Background -->
 
-<section title="SMTP Channel Security">
+<section title="SMTP Channel Security" anchor="channelsec">
 
 <t>
 The Simple Mail Transport Protocol (SMTP) (<xref target="RFC5321" />)
@@ -238,13 +238,14 @@ this document are to be interpreted as described in <xref target="RFC2119"/>.
 <section title="Hardening Opportunistic TLS">
 
 <t>
-This section describes opportunistic TLS security, where traffic
+This section describes opportunistic SMTP over TLS security, where traffic
 from DANE TLSA aware SMTP clients to domains that implement DANE
-TLSA records in accordance with this memo is secure, while traffic
-to other domains continues to be sent in the same manner as before.
-It is hoped that over time more domains will implement DNSSEC and
+TLSA records in accordance with this memo is secure.  Traffic
+to other domains continues to be sent in the same manner as before
+(either manually configured for security or unencrypted and unauthenticated).
+It is hoped that, over time, more domains will implement DNSSEC and
 publish DANE TLSA records for their MX hosts.  This will enable an
-incremental transition of the email backbobe to authenticated TLS
+incremental transition of the email backbone to authenticated TLS
 delivery.
 </t>
 
@@ -259,14 +260,15 @@ can successfully authenticate legitimate SMTP servers.
 <section title="TLS discovery">
 
 <t>
-As noted previously, opportunistic TLS with SMTP servers that
+As noted previously (<xref target="channelsec" />),
+opportunistic TLS with SMTP servers that
 advertise TLS support via STARTTLS is subject to a man in the middle
 downgrade attack.  Some SMTP servers erroneously advertise STARTTLS
 in default configurations that are not in fact TLS capable, and
 clients need to be prepared to retry plaintext delivery after
-STARTTLS fails.  Below we specify downgrade resistant mechanism for
+STARTTLS fails.  Downgrade resistant mechanisms for
 a server to advertise TLS support via DNSSEC validated DANE TLSA
-records.  DNSSEC validated TLSA records are unlikely to be published
+records are specified below.  DNSSEC validated TLSA records are unlikely to be published
 by default for servers that do not in fact support TLS, and thus
 clients can safely interpret their presence as a commitment by the
 server operator to implement STARTTLS.
@@ -275,16 +277,16 @@ server operator to implement STARTTLS.
 <t>
 SMTP is a store &amp; forward protocol.  An MTA that is not the
 final destination for a message recipient forwards the message one
-hop closer to the recipient's mailbox.  To do so it must determine
+hop closer to the recipient's mailbox.  To do so, it must determine
 the appropriate next-hop destination.  
 </t>
 
 <t>
 Typically, the next-hop destination defaults to the domain part of
-the recipient address which is then subject to MX resolution.  The
-next-hop destination may be configured by the MTA administrator to
+the recipient address, which is then subject to MX resolution.  The
+next-hop destination may also be configured by the MTA administrator to
 be a next-hop destination host (explicitly exempt from MX resolution),
-or a next-hop destination domain (subject to MX resolution) which
+or a next-hop destination domain (subject to MX resolution), which
 takes the place of the domain part of the recipient address.  In
 the language of <xref target="RFC5321"/> Section 5.1, we'll refer
 to this next-hop destination host or domain as "the initial name".
