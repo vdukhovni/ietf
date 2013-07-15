@@ -15,6 +15,7 @@
 <!ENTITY RFC6186 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6186.xml">
 <!ENTITY RFC6394 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6394.xml">
 <!ENTITY RFC6409 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6409.xml">
+<!ENTITY RFC6066 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6066.xml">
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 <!ENTITY I-D.ietf-dane-smtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp.xml">
@@ -985,7 +986,9 @@ parameters.
 &RFC6125;
 &RFC6186;
 &RFC6409;
+&RFC6066;
 &RFC6698;
+&I-D.dukhovni-dane-ops;
 </references>
 <!--
 <references title="Informative References">
