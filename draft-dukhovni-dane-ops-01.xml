@@ -510,7 +510,7 @@ which is in this case the SHA-256 digest of the server certificate.
     <t>
       It is possible to publish CNAMEs in the Client Domain pointing
       to the Service Provider's TLSA RRset if the TLSA certificate
-      usage field is of type 3.  Otherwise, a client that used the
+      usage field is set to 3.  Otherwise, a client that used the
       alias name (from the hosted rather than the Service Provider's
       domain) as the base domain to obtain the TLSA RRset would look
       for the hosted domain in the server certificate when performing
