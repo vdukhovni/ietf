@@ -683,19 +683,19 @@ TLSA RRs.
 SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "0".
 Since PKIX validation is not possible with opportunistic DANE TLS,
 SMTP clients SHOULD treat certificate usage "0" RRs as though they
-were certificate usage "2" RRs, but with certificate usage "0" the
+were certificate usage "2" RRs.  But, with certificate usage "0" the
 usability of the TLSA record depends more strongly on its matching
-type.  Name checks, key usage checks, ... apply identically to the
+type.  Name checks, key usage checks, etc, apply identically to the
 leaf certificate with TLSA usages "0" and "2".
 </t>
 
 <t>
-If the matching type is "0" (the server also avoid this matching
+If the matching type is "0" (the server should also avoid this matching
 type and should publish usage "3" or "2" public key or certificate
-digests) the TLSA record contains the full certificate or full
+digests), the TLSA record contains the full certificate or full
 public key of the trusted certificate authority.  In this case the
 client has all the information it needs to match the server trust-chain
-to the TLSA record.  The client SHOULD in this case ignore the PKIX
+to the TLSA record.  The client SHOULD ignore the PKIX
 validation requirement, and verify the server's trust chain via its DANE
 TLSA records only (name checks still apply as with usage "2").
 </t>
@@ -705,16 +705,17 @@ If the matching type is not "0", the TLSA record contains only a
 digest of the trust certificate authority certificate or public
 key.  The server operator publishing usage 0 TLSA records may expect
 that clients already have the issuing authority certificate on hand,
-and may omit it from the server's certificate chain.  As a result
+and may omit it from the server's certificate chain.  As a result,
 the client may not be able to match the server trust chain against
-the TLSA record.
+the TLSA record if it, in fact, does not have a copy of the
+certificate authority certificate or public key.
 </t>
 
 <t>
-SMTP clients that implement this specification SHOULD generally
+SMTP clients that implement this specification SHOULD
 treat TLSA records with certificate usage "0" and a digest matching
 type as unusable, but MAY be explicitly configured to support them
-when it is believed that the client posesses a sufficiently complete
+when it is believed that clients posses a sufficiently complete
 set of trusted public CA certificates.  This is most plausible with
 an MUA which only needs enough CA certificates to authenticate its
 preferred submission service.
