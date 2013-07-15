@@ -309,11 +309,11 @@ or "MX" lookup of the initial name yields a CNAME, we replace it
 with the resulting name as if it were the initial name and try the
 same lookup again with the new name.  MTAs typically support limited
 recursion in CNAME expansion so this replacement is performed
-recursively.  If initially or at any stage of recursion the response
-is "bogus" MX resolution fails with a temporary error.  Mail delivery
+recursively.  If initially, or at any stage of recursion, the response
+is "bogus", MX resolution fails with a temporary error.  Mail delivery
 SHOULD either be deferred or attempted via any alternative delivery
 channel configured by the MTA administrator (which may also employ
-opportunistic DANE TLS).  </t>
+opportunistic DANE TLS).</t>
 
 <t>
 If at any stage the response is "insecure", opportunistic DANE
@@ -353,9 +353,9 @@ the associated TLSA base domain determined as above.
 </t>
 
 <t>
-CNAMEs are not legal in the value domain of MX records, thus MTAs
-MAY skip over MX records in which the MX host is a CNAME.  There
-is some additional risk in that case that the MTA may fail to notice
+CNAMEs are not legal in the exchange field of MX records, thus MTAs
+MAY skip over MX records in which the MX exchange is a CNAME.  There
+is some additional risk, in this case, that the MTA may fail to notice
 that it is one of the MX hosts for the destination and that it must
 skip MX records with equal or worse (numerically higher precedence).
 If an MTA does allow CNAMEs to be used in MX records it SHOULD process
@@ -386,11 +386,12 @@ _25._tcp.mail.example.com. IN TLSA ?
 <t>
 Typically, the destination TCP port is 25, but this may be different
 with custom routes specified by the MTA administrator or when an
-MSA connects to a submission server on port 587.  The SMTP client
+MUA connects to a submission server on port 587.  The SMTP client
 MUST use the appropriate "_&lt;port&gt;" prefix in place of "_25"
 when the port number is not equal to 25.  The query response may
 be a CNAME (or a DNAME + CNAME combination), or the TLSA RRset.
-DNAME processing with DNSSEC is not SMTP-specific and will not be
+DNAME processing with DNSSEC can be done using standard DNAME
+resolution techniques and will not be
 discussed in detail here.  The SMTP client MUST check the security
 status of the response.
 </t>
@@ -401,39 +402,39 @@ NOT proceed, otherwise the SMTP client is vulnerable to man in the
 middle STARTTLS downgrade attacks.  If the response is "insecure",
 opportunistic DANE TLS is not applicable for the host in question,
 and the SMTP client SHOULD proceed with legacy opportunistic TLS.
+<!-- XXXWJH: there is no legacy opportunistic TLS; legacy TLS? -->
 If the response is "secure" and the record is a CNAME or DNAME,
-the SMTP client restarts the TLSA query at the target domain
-(CNAMES should not recurse, but the client MAY support CNAME recursion
-with a sensible depth limit).
+the SMTP client restarts the TLSA query at the target domain,
+following CNAMEs as appropriate.
 </t>
 
 <t>
 If, after possible CNAME indirection, the response is "secure" and
-at least one TLSA record is found (even if not usable, that is either
+at least one TLSA record is found (even if not usable because it is
 unsupported by the implementation or administratively disabled) the
 next-hop host has committed to TLS support.  The SMTP client
 SHOULD NOT deliver mail via such a next-hop host unless a TLS session
-is negotiated via STARTTLS.  This avoids man in the middle STARTTLS
+is negotiated via STARTTLS.  This avoids the man in the middle STARTTLS
 downgrade attacks.
 </t>
 
 <t>
 When usable TLSA records are available, a client SHOULD NOT deliver
-mail via a server that fails to match at least one TLSA record.
+mail via a server that fails to match at least one TLSA record.  This
+is not a "must" because clients may incrementally deploy opportunistic
+DANE TLS only for selected peer domains.  At times, clients may need
+to disable opportunistic DANE TLS for peers that fail to interoperate
+due to misconfiguration or software defects on either end.  For
+opportunistic DANE TLS to be robust (resistant to failures), servers
+MUST live up to the promises stated by the existence of the TLSA
+record, but it is not always possible to compel
+clients to use a security policy chosen by the server.  Given a robust
+security protocol, clients will hopefully, over time, willingly
+choose to adopt it.
 </t>
 
-<t>
-We say SHOULD not MUST in the case of the client, since clients may
-incrementally deploy opportunistic DANE TLS only for selected peer
-domains.  At times clients may need to disable opportunistic DANE
-TLS for peers that fail to interoperate due to misconfiguration or
-software defects on either end.  For opportunistc DANE TLS to be a
-robust protocol, servers MUST live up to their promises, but it is
-not possible to compel clients to use a security policy chosen by
-the server.  We expect that given a robust security protocol,
-clients will over time willingly choose to adopt it.
-</t>
-
+<!-- XXXWJH: the following few paragraphs (till 'end cut') can be
+     removed and a reference added to -ops: "Certificate Name Check Conventions" -->
 <t>
 The party responsible for creating TLSA records for a given service
 MUST ensure that at least one of these TLSA records will match
@@ -546,6 +547,8 @@ hosted domain.
 _25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
 </artwork>
 </figure>
+
+<!-- XXXWJH: end cut -->
 
 </section><!-- TLSA record lookup -->
 </section><!-- TLS discovery -->
