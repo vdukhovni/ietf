@@ -65,11 +65,10 @@
 This memo describes a protocol for opportunistic TLS
 security based on the DANE TLSA DNS record.  The design goal is an incremental
 transition of the Internet email backbone (MTA to MTA SMTP traffic)
-from today's unauthenticated and typically unencrypted connections
+from today's unauthenticated and unencrypted connections
 to TLS encrypted and authenticated delivery when the client is DANE
 TLSA aware and the server domain publishes DANE TLSA records for
-its MX hosts.  This protocol is being implemented by multiple MTA
-software packages.
+its MX hosts.
 </t> </abstract>
 
 </front>
@@ -87,27 +86,26 @@ is defined in <xref target="RFC4033"/>, <xref target="RFC4034"/> and
 
 <t>
 As described in the introduction of <xref target="RFC6698"/>, TLS
-authentication via the existing public CA PKI suffers from an
+authentication via the existing public Certificate Authority (CA)
+Public Key Infrastructure (PKI) suffers from an
 over-abundance of trusted certificate authorities capable of issuing
 certificates for any domain of their choice.  DNS-Based Authentication
 of Named Entities (DANE) leverages the DNSSEC infrastructure to
-publish trusted keys and certificates (or hashed references to them)
-for use with TLS via a new
+publish trusted keys and certificates for use with TLS via a new
 TLSA record type.  DNSSEC validated DANE TLSA records
-yield a new PKI designed to augment or replace the trust model of
+have created a new PKI designed to augment or replace the trust model of
 the existing public CA PKI.
 </t>
 
 <t>
-In the context of this memo channel security is assumed to be
-provided by TLS.  The Transport Layer Security (TLS) protocol
-provides communications privacy over the Internet.  Used without
-authentication, TLS provides protection only against eavesdropping.
-With authentication, TLS also provides protection against
-man-in-the-middle (MITM) attacks.  Since the publication of the TLS
-1.0 specification in <xref target="RFC2246"/>, two updates to the
-protocol have been published: TLS 1.1 <xref target="RFC4346"/> and
-TLS 1.2 <xref target="RFC5246"/>.
+In the context of this memo, channel security is assumed to be provided
+by TLS.  The Transport Layer Security (TLS) protocols provide secured
+TCP communication.  Used without authentication, TLS
+provides protection only against eavesdropping.  With authentication,
+TLS also provides protection against man-in-the-middle (MITM) attacks.
+Since the publication of the TLS 1.0 specification in <xref
+target="RFC2246"/>, two updates to the protocol have been published:
+TLS 1.1 <xref target="RFC4346"/> and TLS 1.2 <xref target="RFC5246"/>.
 </t>
 
 </section><!-- Background -->
