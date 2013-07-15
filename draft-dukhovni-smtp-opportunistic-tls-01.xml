@@ -651,7 +651,7 @@ destination overrides for the message recipient.
 </t>
 
 <t>
-Accepting certificates witih the next-hop domain in addition to the
+Accepting certificates with the next-hop domain in addition to the
 next-hop MX host allows a domain with multiple MX hosts to field a
 single certificate bearing the email domain name across all the MX
 hosts, this is also compatible with pre-DANE SMTP clients that are
@@ -687,7 +687,8 @@ chain.
 
 <t>
 If the server's TLSA RRset includes records with a matching type
-other than "0" (digest records), the SHA-256 digest of any
+indication a digest record (i.e., a value other than "0"),
+the SHA-256 digest of any
 object SHOULD be provided along with any other digest published,
 since clients may support only SHA-256.  Unless SHA-256 proves
 vulnerable to a "second preimage" attack, it should be the only
