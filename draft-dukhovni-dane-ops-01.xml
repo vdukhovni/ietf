@@ -404,9 +404,15 @@ which is in this case the SHA-512 digest of the server public key.
     </t>
 
     <t>
-      <!-- XXXWJH: this contradicts what the -smtp draft says -->
-      <!-- XXXWJH: fixme based on discussions with Viktor -->
-      <!-- XXXWJH: move to section below about CNAMEs or remove -->
+      <!--
+      XXXWJH: this contradicts what the -smtp draft says
+      XXXVD: I don't think it does, it describes:
+      	_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.org.
+      	_25._tcp.mail.example.org. IN TLSA 3 1 1 ...
+      NOT
+        mail.example.com. IN CNAME mail.example.org.
+      and just points out that this has no effect on the base-domain.
+      -->
       Note: when the TLSA RRset query domain (base domain plus port and protocol
       prefixes) resolves to a DNSSEC validated CNAME pointing to a DNSSEC
       signed zone with the actual TLSA records, the content of the TLSA
