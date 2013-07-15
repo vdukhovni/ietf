@@ -352,11 +352,7 @@ which is in this case the SHA-256 digest of the server certificate.
       <t>
 	While "TLSA * 1 0" records, which publish full public keys
 	without the full X.509 wrapping, are generally more compact,
-	these too should be used with caution.  For example, two
-	2048-bit RSA keys require more than 512 bytes of DNS data even
-	without the accompanying RRSIG records, and thus don't fit
-	into a 512-byte DNS packet, and many firewalls today still
-	drop DNS packets greater than 512 bytes in size.  Servers
+	these too should be used with caution.  Servers
 	SHOULD publish digests within TLSA
 	records instead.  The complete certificate should, instead, be
 	transmitted to the client in band during the TLS handshake.
