@@ -686,7 +686,7 @@ which is in this case the SHA-256 digest of the server certificate.
     </t>
 
     <t>
-      With DANE TLSA records that match the digest of TA certificate or
+      With DANE TLSA records that match the digest of a TA certificate or
       public key, a complication arises when the TA certificate is omitted
       from the server's certificate chain.  This can happen when the
       trust-anchor is a root certificate authority, as stated in section
