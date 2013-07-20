@@ -767,13 +767,12 @@ client SHOULD fall back to legacy behavior.
 <section title="Mandatory TLS Security">
 
 <t>
-An MTA implementing this protocol for sending email to Internet destinations
-may need a greater security assurance when sending email
-to selected destinations that to which the sending organization sends
-sensitive email and may have regulatory obligations to protect its
-content.  This protocol is not in conflict with this requirement,
-and in fact it can often simplify authenticated delivery to such
-destinations.
+An MTA implementing this protocol may require a stronger security
+assurance when sending email to selected destinations to which the
+sending organization sends sensitive email and may have regulatory
+obligations to protect its content.  This protocol is not in conflict
+with such a requirement, and in fact it can often simplify authenticated
+delivery to such destinations.
 </t>
 
 <t>
