@@ -325,40 +325,45 @@ channel configured by the MTA administrator (which may also employ
 opportunistic DANE TLS).</t>
 
 <t>
-If at any stage the response is "insecure", opportunistic DANE
-TLS is not applicable, and mail delivery SHOULD proceed with pre-DANE
+With a next-hop destination domain subject to MX resolution which has
+MX records, if at least one lookup in the (possibly empty) chain of
+CNAMEs leading to the MX RRset is "insecure", opportunistic DANE
+TLS is not applicable, and mail delivery may proceed with pre-DANE
 opportunistic TLS (subject to its various MITM attacks).
 </t>
 
 <t>
-If at each and every stage the respose is "secure", and the initial
-name is a next-hop host name not subject to MX resolution, the
-resulting final name becomes the next-hop destination and is the
-base domain for TLSA record lookup.
+With a next-hop destination host not subject to MX resolution or
+a domain with no MX records, if at least one lookup in the (possibly
+empty) chain of CNAMEs leading to the A or AAAA RRset is "insecure",
+the TLSA base domain is the initial next-hop name, and opportunistic
+DANE TLS is applicable only when a "secure" TLSA RRset is found
+at that base domain.
 </t>
 
 <t>
-If at each and every stage the respose is "secure", and the initial
-name is a next-hop domain subject to MX resolution, and no MX
-records are found, the resulting final name is the next-hop destination
-and is the base domain for TLSA record lookup.
+Otherwise, if at each and every stage of CNAME expansion the respose
+is "secure", and either the initial name is a next-hop host name
+not subject to MX resolution or no MX records are found, the resulting
+final name becomes the next-hop destination and is the base domain
+for TLSA record lookup.
 </t>
 
 <t>
-If at each and every stage the respose is "secure", and the initial
-name is a next-hop domain subject to MX resolution, and one or more
-MX records are found, the MX records MUST be sorted by preference.
-A better (numerically lower) MX preference for a host that does not
-support TLS MUST NOT be preempted by a worse (numerically higher)
-MX preference for a host that does support TLS.  In other words,
-avoiding delivery loops trumps any preference for channel security.
-</t>
-
-<t>
-In each delivery attempt via a candidate MX host, the MX host SHOULD
-be treated as though it were the initial next-hop destination host
-(which is, of course, not subject to further MX resolution) with
-the associated TLSA base domain determined as above.
+Finally, if at each and every stage the respose is "secure", and
+and one or more MX records are found, the MX records MUST be sorted
+by preference.  A better (numerically lower) MX preference for a
+host that does not support TLS MUST NOT be preempted by a worse
+(numerically higher) MX preference for a host that does support
+TLS.  In other words, avoiding delivery loops trumps any preference
+for channel security.  In each delivery attempt via a candidate MX
+host, the MX host MUST be treated as though it were the initial
+next-hop destination host (which is, of course, not subject to
+further MX resolution). The associated TLSA base domain is equal
+to the CNAME resolved MX exchange name if CNAME expansion of MX
+exchange names is supported and all CNAMEs encountered are "secure".
+Otherwise, the unexpanded name of the MX exchange is the TLSA base
+domain.
 </t>
 
 <t>
@@ -428,6 +433,15 @@ downgrade attacks.
 </t>
 
 <t>
+When no TLSA records are found at a CNAME-expanded initial name
+(insecure response or no records), the unexpanded initial name MUST
+be tried instead.  This supports clients of hosting providers where
+the provider zone is not DNSSEC validated, but the client has shared
+appropriate key material with the hosting provider to enable TLS
+via SNI.
+</t>
+
+<t>
 When usable TLSA records are available, a client SHOULD NOT deliver
 mail via a server that fails to match at least one TLSA record.  This
 is not a "must" because clients may incrementally deploy opportunistic
@@ -442,9 +456,9 @@ security protocol, clients will hopefully, over time, willingly
 choose to adopt it.
 </t>
 
-<t>SMTP over opportunistic TLS using DANE implementations and
-   publishers need to follow the guidance outlined in <xref
-   target="I-D.dukhovni-dane-ops" />'s "Certificate Name Check
+<t>SMTP clients employing opportunistic DANE TLS and TLSA record
+   publishers for SMTP servers need to follow the guidance outlined in <xref
+   target="I-D.dukhovni-dane-ops"/>'s "Certificate Name Check
    Conventions", "Service Provider and TLSA Publisher
    Synchronization" and "TLSA Base Domain and CNAMEs" sections.</t>
 
