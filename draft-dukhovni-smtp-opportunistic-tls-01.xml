@@ -141,7 +141,7 @@ retrieve the MX hosts of example.com from DNS, and then deliver the
 message to one of them.  Absent DNSSEC, the MX lookup is vulnerable
 to man-in-the-middle and cache poisoning attacks.  As a result,
 verifying MX host certificates without using DNSSEC is futile as
-the attacker can simply forge DNS replies and issue bogus MX records,
+the attacker can simply forge DNS replies with fake MX records,
 directing traffic to a server of his choice.
 </t>
 
