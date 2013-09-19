@@ -264,10 +264,11 @@ advertise TLS support via STARTTLS is subject to a man in the middle
 downgrade attack.  Some SMTP servers erroneously advertise STARTTLS
 in default configurations that are not in fact TLS capable, and
 clients need to be prepared to retry plaintext delivery after
-STARTTLS fails.  Downgrade resistant mechanisms for
-a server to advertise TLS support via DNSSEC validated DANE TLSA
-records are specified below.  DNSSEC validated TLSA records are unlikely to be published
-by default for servers that do not in fact support TLS, and thus
+STARTTLS fails.  A downgrade resistant mechanism for
+a server to advertise TLS support based on DANE TLSA
+records is specified below.  DNSSEC validated TLSA records are unlikely to
+be accidentally published
+for servers that do not in fact support TLS, and thus
 clients can safely interpret their presence as a commitment by the
 server operator to implement STARTTLS.
 </t>
@@ -284,7 +285,7 @@ Typically, the next-hop destination defaults to the domain part of
 the recipient address, which is then subject to MX resolution.  The
 next-hop destination may also be configured by the MTA administrator to
 be a next-hop destination host (explicitly exempt from MX resolution),
-or a next-hop destination domain (subject to MX resolution), which
+or a next-hop destination domain (subject to MX resolution) which
 takes the place of the domain part of the recipient address.  In
 the language of <xref target="RFC5321"/> Section 5.1, we'll refer
 to this next-hop destination host or domain as "the initial name".
@@ -295,7 +296,7 @@ to this next-hop destination host or domain as "the initial name".
 <t>
 If the initial name is a next-hop domain subject to MX resolution,
 a DNSSEC validated "MX" lookup is performed, to obtain the list of
-associated MX hosts.  If no MX records are found, or if if the
+associated MX hosts.  If no MX records are found, or if the
 initial name is a next-hop host not subject to MX resolution, it
 is resolved to one or more network addresses, by performing DNSSEC
 validated "A" and/or "AAAA" lookups.
@@ -331,15 +332,16 @@ at that base domain.
 </t>
 
 <t>
-Otherwise, if at each and every stage of CNAME expansion the respose
+Otherwise, if at each and every stage of CNAME expansion the DNS response
 is "secure", and either the initial name is a next-hop host name
 not subject to MX resolution or no MX records are found, the resulting
 final name becomes the next-hop destination and is the base domain
-for TLSA record lookup.
+for TLSA record lookup.  In summary, the TLSA base domain is the fully
+CNAME expanded name if that is "secure" and the initial name otherwise.
 </t>
 
 <t>
-Finally, if at each and every stage the respose is "secure", and
+Finally, if at each and every stage the DNS response is "secure", and
 and one or more MX records are found, the MX records MUST be sorted
 by preference.  A better (numerically lower) MX preference for a
 host that does not support TLS MUST NOT be preempted by a worse
@@ -373,7 +375,7 @@ DANE TLS is applicable and if so the associated TLSA RRset base domain.
 <t>
 When all the DNSSEC lookups, "CNAME", "MX", "A" or "AAAA", used to
 obtain a given TLSA base domain (one for each candidate MX host if
-multiple DNSSEC validated MX hosts were found) is "secure", and the
+multiple DNSSEC validated MX hosts were found) are "secure", and the
 SMTP client is configured for opportunistic DANE TLS, it SHOULD
 locate the TLSA RRset corresponding to this base domain.   If, for
 example, the base domain is "mail.example.com", the TLSA RRset is
@@ -404,11 +406,13 @@ If the response is "bogus", delivery via the host in question SHOULD
 NOT proceed, otherwise the SMTP client is vulnerable to man in the
 middle STARTTLS downgrade attacks.  If the response is "insecure",
 opportunistic DANE TLS is not applicable for the host in question,
-and the SMTP client SHOULD proceed with legacy opportunistic TLS.
+and the SMTP client SHOULD proceed with ordinary opportunistic TLS.
 <!-- XXXWJH: there is no legacy opportunistic TLS; legacy TLS? -->
+<!-- XXXVD: Actually there is, that's what MTAs do today. -->
 If the response is "secure" and the record is a CNAME or DNAME,
 the SMTP client restarts the TLSA query at the target domain,
-following CNAMEs as appropriate.
+following CNAMEs as appropriate (such CNAME expansion does not
+change the SMTP client's notion of the TLSA base domain).
 </t>
 
 <t>
@@ -417,7 +421,7 @@ at least one TLSA record is found (even if not usable because it is
 unsupported by the implementation or administratively disabled) the
 next-hop host has committed to TLS support.  The SMTP client
 SHOULD NOT deliver mail via such a next-hop host unless a TLS session
-is negotiated via STARTTLS.  This avoids the man in the middle STARTTLS
+is negotiated via STARTTLS.  This avoids man in the middle STARTTLS
 downgrade attacks.
 </t>
 
@@ -451,13 +455,6 @@ choose to adopt it.
    Conventions", "Service Provider and TLSA Publisher
    Synchronization" and "TLSA Base Domain and CNAMEs" sections.</t>
 
-<t>
-Note: treating CNAMEs in MX hosts in the same manner as CNAMEs with non-MX
-destinations is consistent with <xref target="RFC5321"/> where non-MX
-destinations are considered equivalent to destinations with a single
-preference 0 MX record with the query domain identical to the MX host.
-</t>
-
 </section><!-- TLSA record lookup -->
 </section><!-- TLS discovery -->
 
@@ -472,12 +469,16 @@ or submission servers that are to be found via SRV records SHOULD
 NOT include certificate usage "0" or "1", as in both cases SMTP
 clients cannot be expected to perform <xref target="RFC5280"/> PKIX
 validation or <xref target="RFC6125"/> identity verification.
+Clients MAY treat such TLSA records as unusable, and it is expected
+that many will.
 </t>
 
 <t>
-If despite this recommendation SMTP servers do publish TLSA records
-with certificate usage "0" or "1", clients SHOULD make use of these
-to the fullest extent possible.
+SMTP clients may also to the extent possible map these usages to
+the corresponding non-PKIX certificate usages (0 to 2 and 1 to 3).
+Servers publishing these certificate usages hoping to be protected
+by both the public CA PKI and by DNSSEC will typically be protected
+by neither.
 </t>
 
 <t>TLSA Publishers should follow the TLSA publication size guidance
@@ -499,7 +500,7 @@ server's public key.
 Authentication via certificate usage "3" TLSA records involves no
 certificate authority signature checks.
 It also involves no server name checks, and thus does not
-a impose any new requirements on the names contained in the server
+impose any new requirements on the names contained in the server
 certificate (SNI is not required when the TLSA record matches the
 public key of the server's default certificate).  It uses the SHA-256
 digest which all clients are obligated to support, and works across
@@ -514,7 +515,7 @@ has elapsed for all DNS caches to time out the previous TLSA RRset, which
 contains only the old key, the server may be reconfigured to use the
 new private key and associated public key certificate.  The amount of
 time a server should wait before using a new key that is referenced by
-new TLSA records should be 2 * the TTL of the previously published TLSA records.
+new TLSA records should be at least twice the TTL of the previously published TLSA records.
 Once the server is using a new key, the obsolete TLSA RR can be removed
 from DNS, leaving only the RR that matches the new key.
 </t>
@@ -536,8 +537,8 @@ handshake of each service SHOULD include the TA certificate, as SMTP
 clients cannot generally
 be expected to have domain-issued trust-anchor certificates in their
 trusted certificate store.  TLSA Publishers should publish either "2 1
-1" or "2 0 1" TLSA parameters, which specifies the SHA-256 digest
-of the trust-anchor public key or certificate.  As with regular
+1" or "2 0 1" TLSA parameters, which specify the SHA-256 digest
+of the trust-anchor public key or certificate respectively.  As with regular
 certificate rollover discussed in <xref target="cert3" />,
 two such TLSA RRs need
 to be published to facilitate TA certificate rollover.
@@ -545,25 +546,19 @@ to be published to facilitate TA certificate rollover.
 
 <t>
 The usability of "2 1 1" or "2 0 1" TLSA RRs with SMTP is not assured.
-Unless server operators employing these RRs universally ensure that
+If server operators employing these RRs universally ensure that
 the corresponding TA certificate is included in the SMTP server's TLS
-handshake trust chain, then clients MAY enable support for these RRs.
+handshake trust chain, clients can safely enable support for these RRs.
 If sufficiently many server administrators are negligent in deploying
-these RRs, SMTP clients should be hesitant to support them, since mail
+these RRs, SMTP clients will be hesitant to support them, since mail
 delivery will not work to many destination domains if they do.  We
-encourage server operators to implement these RRs, if appropriate, to
-their organization, provided they do so with care.  It is critical to
+encourage server operators to implement these RRs, if operationally
+they are a better fit for their organization, provided they do so with care.
+It is critical to
 never forget to include trust-anchor certificates in server trust chains.
-SMTP client implementations are encouraged to support these TLSA RRs
-by default, unless future experience proves optimism for publishing
-correct certificate chains unfounded.
-</t>
-
-<t>
-Clients employing opportunistic DANE TLS MAY choose to treat any
-TLSA records with certificate usage "0" as unusable.  They may then
-choose to connect via unauthenticated mandatory TLS if no alternative
-authentication mechanisms are available.
+SMTP client implementations are SHOULD support these TLSA RRs,
+unless our optimism that server operators will publish
+certificate chains that include the required TA certificate proves unfounded.
 </t>
 
 </section><!-- Certificate usage 2 -->
@@ -572,14 +567,12 @@ authentication mechanisms are available.
 
 <t>
 SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "1".
-SMTP clients that implement this specification SHOULD ignore the PKIX
+Clients MAY treat such TLSA records as unusable.  Alternatively,
+SMTP clients that implement this specification MAY ignore the PKIX
 validation requirement when they encounter certificate usage "1", and
-SHOULD authenticate the server per the content of the TLSA record
-alone.  That is, SMTP clients should treat certificate usage "1" as
-certificate usage "3"; clients SHOULD NOT apply name checks,
-expiration checks, or process the server certificate content beyond
-possibly extracting its public key for matching against corresponding
-TLSA RRs.
+authenticate the server per the content of the TLSA record
+alone.  That is, SMTP clients may treat certificate usage "1" as
+certificate usage "3".
 </t>
 
 </section><!-- Certificate usage 1 -->
@@ -588,12 +581,12 @@ TLSA RRs.
 
 <t>
 SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "0".
-Since PKIX validation is not possible with opportunistic DANE TLS,
-SMTP clients SHOULD treat certificate usage "0" RRs as though they
+Clients MAY treat such TLSA records as unusable.  Alternatively,
+since PKIX validation is not possible with opportunistic DANE TLS,
+SMTP clients MAY treat certificate usage "0" RRs as though they
 were certificate usage "2" RRs.  But, with certificate usage "0" the
 usability of the TLSA record depends more strongly on its matching
-type.  Name checks, key usage checks, etc, apply identically to the
-leaf certificate with TLSA usages "0" and "2".
+type.
 </t>
 
 <t>
@@ -642,15 +635,13 @@ middle attacks.
 </t>
 
 <t>
-With TLSA certificate usages "2" or "0" the TLSA base domain SHOULD
-be the domain the client looks for in the server certificate to
-check that it has reached the correct server, if the TLSA base domain
-was obtained indirectly via an MX lookup, the CNAME resolved name used
-in the MX lookup SHOULD also be accepted.  Barring CNAME expansion,
-this additional domain is typically the envelope recipient domain,
-but may be different when the client is an MUA sending all mail to
-a submission server, or an MTA configured with explicit next-hop
-destination overrides for the message recipient.
+To match a server via a TLSA record with certificate usage "2" the
+client MUST perform name checks to ensure that it has reached the
+correct server.  The SMTP client MUST accept the TLSA base domain
+as a valid DNS name in the server certificate.  If the TLSA base
+domain was obtained indirectly via an MX lookup, the initial query
+name used in the MX lookup or its CNAME resolved expansion if secure
+SHOULD also be accepted.
 </t>
 
 <t>
@@ -663,11 +654,11 @@ configured to look for the email domain name in server certificates.
 
 <t>
 The client MUST NOT perform certificate usage name checks with
-certificate usage "3" (or equivalently "1"), since with these the
+certificate usage "3", since with usage "3" the
 server is authenticated directly by matching the TLSA RRset to its
 certificate or public key without resort to any issuing authority.
 The certificate content is ignored except in so far as it is used
-to match the certificate with the TLSA RRset.
+to match the certificate or public key digest with the TLSA RRset.
 </t>
 
 <t>
@@ -707,7 +698,8 @@ clients, if the client sends no SNI extension, or sends an SNI
 extension for an unsupported domain the server MUST simply use its
 default certificate chain.  The client may be using unauthenticated
 opportunistic TLS and may not expect any particular certificate
-from the server.  </t>
+from the server.
+</t>
 
 <t>
 The client may even offer to use anonymous TLS ciphersuites
@@ -737,7 +729,7 @@ of the client and server.
 <section title="Opportunistic TLS for Submission">
 
 <t>
-Prior to <xref target="RFC6409"/>, the SMTP submission protocol was
+Prior to <xref target="RFC6409"/>, the SMTP submission protocol was a
 poster child for PKIX TLS.  The MUA typically connects to one or more 
 submission servers explicitly configured by the
 user.  There is no indirection via insecure MX records, and unlike
@@ -872,6 +864,19 @@ The protocol does not preclude existing non-opportunistic SMTP TLS
 security arrangements, which can continue to be used as before via
 manual configuration and negotiated out-of-band key and
 TLS configuration exchanges.
+</t>
+
+<t>
+Opportunistic SMTP TLS depends critically on DNSSEC for downgrade
+resistance and secure resolution of the destination name.  If DNSSEC
+is compromised it is not possible to fall back on the public CA PKI
+to prevent MITM attacks.  A successful breach of DNSSEC enables the
+attacker to publish TLSA usage 3 certificate associations and thereby
+bypass any security benefit the legitimate domain owner might hope to
+gain by publishing usage 0 or 1 TLSA RRs.  Given the typical lack of
+public CA PKI support in existing MTA deployments deprecating certificate
+usages 0 and 1 in this specifications improves interoperability without
+degrading security.
 </t>
 
 </section><!-- Security Considerations -->
