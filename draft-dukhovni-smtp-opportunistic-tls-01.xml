@@ -740,7 +740,7 @@ is able to reliably use TLS to authenticate the submission server.
 </t>
 
 <t>
-<xref target="RFC6409"/> aims to simplify the configuration of the MUA
+<xref target="RFC6186"/> aims to simplify the configuration of the MUA
 submission service by dynamically deriving the submission service from
 the user's email address.  This is done via SRV records, but at the cost
 of introducing the same TLS security problems faced by MTA to MTA SMTP.
