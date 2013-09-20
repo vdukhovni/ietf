@@ -376,7 +376,7 @@
 
   <meta name="dct.creator" content="Dukhovni, V. and W.H. Hardaker" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-dukhovni-smtp-opportunistic-tls-01" />
-  <meta name="dct.issued" scheme="ISO8601" content="2013-9-19" />
+  <meta name="dct.issued" scheme="ISO8601" content="2013-9-20" />
   <meta name="dct.abstract" content="This memo describes a protocol for opportunistic TLS security based on the DANE TLSA DNS record.  The protocol is downgrade resistant when the SMTP client supports DANE TLSA and the server domain publishes appropriate TLSA records for its MX hosts.  This enables an incremental transition of the Internet email backbone (MTA to MTA SMTP traffic) to TLS encrypted and authenticated delivery.  " />
   <meta name="description" content="This memo describes a protocol for opportunistic TLS security based on the DANE TLSA DNS record.  The protocol is downgrade resistant when the SMTP client supports DANE TLSA and the server domain publishes appropriate TLSA records for its MX hosts.  This enables an incremental transition of the Internet email backbone (MTA to MTA SMTP traffic) to TLS encrypted and authenticated delivery.  " />
 
@@ -400,12 +400,12 @@
   <td class="right">W.H. Hardaker</td>
 </tr>
 <tr>
-  <td class="left">Expires: March 23, 2014</td>
+  <td class="left">Expires: March 24, 2014</td>
   <td class="right">Parsons</td>
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">September 19, 2013</td>
+  <td class="right">September 20, 2013</td>
 </tr>
 
     	
@@ -425,7 +425,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on March 23, 2014.</p>
+<p>This Internet-Draft will expire on March 24, 2014.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -534,7 +534,7 @@ _25._tcp.mail.example.com. IN TLSA ?
 <p id="rfc.section.2.2.2.p.10">With opportunistic DANE TLS, both the TLS support implied by the presence of DANE TLSA records and the verification parameters necessary to authenticate the TLS peer are obtained together, therefore authentication via this protocol is expected to be less prone to connection failure caused by incompatible configuration of the client and server.  </p>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> Opportunistic TLS for Submission</h1>
 <p id="rfc.section.3.p.1">Prior to <a href="#RFC6409">[RFC6409]</a>, the SMTP submission protocol was a poster child for PKIX TLS.  The MUA typically connects to one or more submission servers explicitly configured by the user.  There is no indirection via insecure MX records, and unlike web browsers, there is no need to authenticate a large set of TLS servers.  Once TLS is enabled for the desired submission server or servers, provided the server certificate is correctly maintained, the MUA is able to reliably use TLS to authenticate the submission server.  </p>
-<p><a href="#RFC6409">[RFC6409]</a> aims to simplify the configuration of the MUA submission service by dynamically deriving the submission service from the user's email address.  This is done via SRV records, but at the cost of introducing the same TLS security problems faced by MTA to MTA SMTP.  Prompting the user when the SRV record domain is different from the email domain is not a robust solution.  </p>
+<p><a href="#RFC6186">[RFC6186]</a> aims to simplify the configuration of the MUA submission service by dynamically deriving the submission service from the user's email address.  This is done via SRV records, but at the cost of introducing the same TLS security problems faced by MTA to MTA SMTP.  Prompting the user when the SRV record domain is different from the email domain is not a robust solution.  </p>
 <p id="rfc.section.3.p.3">The protocol defined in this memo can also be used to opportunistically secure the submission service association.  If the email domain is DNSSEC signed, the SRV records are "secure" and the SRV host publishes secure TLSA records for submission, then the MUA can safely auto-configure to authenticate the submission server via DANE.  When DANE TLSA records are not available, the client SHOULD fall back to legacy behavior.  </p>
 <h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> Mandatory TLS Security</h1>
 <p id="rfc.section.4.p.1">An MTA implementing this protocol may require a stronger security assurance when sending email to selected destinations to which the sending organization sends sensitive email and may have regulatory obligations to protect its content.  This protocol is not in conflict with such a requirement, and in fact it can often simplify authenticated delivery to such destinations.  </p>
