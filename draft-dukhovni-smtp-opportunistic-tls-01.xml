@@ -762,6 +762,27 @@ submission server via DANE.  When DANE TLSA records are not available, the
 client SHOULD fall back to legacy behavior.
 </t>
 
+<t>
+Specifically, MUAs that dynamically determine the submission server
+via SRV records SHOULD support DNSSEC and DANE TLSA records. They
+SHOULD use TLSA records to authenticate the server.  The processing
+of usage 2 and 3 TLSA associations by an MUA is the same as by an
+MTA with SRV records replaced by corresponding MX records.
+</t>
+
+<t>
+Just as with port 25, SMTP submission servers SHOULD NOT publish
+usage 0 or 1 TLSA associations, and MUAs that support DANE TLSA are
+not expected to trust a full list of public CAs.  Server certificate
+subjectAltNames should include at least the server name.  When the
+server administrator is also authorized to obtain certificates for
+the email domain, the server certificate should also include the
+email domain name.  MUAs that are not able to support DNSSEC may
+then be able to authenticate the server domain.  If it is practical
+to field additional certificates for hosted domains, SNI may be
+used by the server to select the appropriate domain's certificate.
+</t>
+
 </section><!-- Opportunistic TLS for Submission -->
 
 <section title="Mandatory TLS Security">
