@@ -67,7 +67,7 @@
 This memo describes a protocol for opportunistic TLS security based
 on the DANE TLSA DNS record.  The protocol is downgrade resistant
 when the SMTP client supports DANE TLSA and the server domain
-publishes appropriate TLSA records for its MX hosts.  This enables
+publishes TLSA records for its MX hosts.  This enables
 an incremental transition of the Internet email backbone (MTA to
 MTA SMTP traffic) to TLS encrypted and authenticated delivery.
 </t> </abstract>
@@ -100,7 +100,7 @@ trusted certificate authorities capable of issuing certificates for
 any domain of their choice.  DNS-Based Authentication of Named
 Entities (DANE) leverages the DNSSEC infrastructure to publish
 trusted keys and certificates for use with TLS via a new TLSA record
-type.  With DANE the public CA PKI can be augmented or replaced by
+type.  With DANE, the public CA PKI can be augmented or replaced by
 DNSSEC validated TLSA records.
 </t>
 
@@ -133,15 +133,16 @@ server should be contacted with or without security.
 
 <t>
 A Mail Transport Agent (MTA) may need to forward a message to a
-particular email recipient &lt;user@example.com&gt;.  To deliver
-the message, the MTA needs to retrieve the MX hosts of example.com
-from DNS, and then deliver the message to one of them.  Absent
-DNSSEC, the MX lookup is vulnerable to man-in-the-middle and cache
-poisoning attacks.  As a result, secure verification of MX host
-certificates is not possible without DNSSEC, as an active attacker
-can forge DNS replies with fake MX records, directing traffic to a
-server of his choice.  A man-in-the-middle can also suppress the
-MX host's STARTTLS EHLO response.
+particular email recipient &lt;user@example.com&gt;.  To deliver the
+message, the MTA needs to retrieve the MX hosts of example.com from
+DNS, and then deliver the message to one of them.  Absent DNSSEC, the
+MX lookup is vulnerable to man-in-the-middle and cache poisoning
+attacks.  As a result, secure verification of MX host certificates is
+not possible without DNSSEC, as an active attacker can forge DNS
+replies with fake MX records, and can direct traffic to a server of
+their choice.  A man-in-the-middle can also suppress the MX host's
+STARTTLS EHLO response, convincing the client that communication over
+TLS is unavailable.
 </t>
 
 <t>
@@ -159,23 +160,23 @@ rarely the case for email.
 </t>
 
 <t>
-Since the recipient domain cannot be used as the SMTP server
-authentication identity, and without DNSSEC nor can the MX hostname,
+Since the recipient domain name cannot be used as the SMTP server
+authentication identity, nor can the MX hostname without DNSSEC,
 large scale deployment of authenticated TLS for SMTP requires secure DNS.
-At this time, with DNSSEC not yet widely deployed, MTA to MTA traffic
-between Internet connected organizations typically does not use TLS
-at all, or uses TLS opportunistically without authentication, for
-protection only against passive eavesdropping attacks.
+At this time, DNSSEC is not yet widely deployed and MTA to MTA traffic
+between Internet connected organizations rarely uses TLS
+at all, or simply uses TLS opportunistically without authentication
+and protects against only passive eavesdropping attacks.
 </t>
 
 <t>
-The exceptions are cases in which the sending MTA is statically
-configured to use TLS for mail sent to selected peer domains and
-configured with appropriate names (or content digests) to expect
-in the MX host certificates of those domains.  Such statically configured
-SMTP secure channels are used rarely and only between domains that
+The only exceptions are cases in which the sending MTA is statically
+configured to use TLS for mail sent to specific selected peer domains and
+is configured with appropriate names (or content digests) to expect
+in the presented MX host certificates of those domains.  Such statically configured
+SMTP secure channels are also used rarely, and only between domains that
 make bilateral arrangements with their business partners.  Internet
-email requires contacting many new domains for which security
+email, on the other hand, requires contacting many new domains for which security
 configurations can not be established in advance.
 </t>
 
@@ -337,7 +338,7 @@ is "secure", and either the initial name is a next-hop host name
 not subject to MX resolution or no MX records are found, the resulting
 final name becomes the next-hop destination and is the base domain
 for TLSA record lookup.  In summary, the TLSA base domain is the fully
-CNAME expanded name if that is "secure" and the initial name otherwise.
+CNAME expanded name that is "secure" or else is the initial name.
 </t>
 
 <t>
@@ -407,8 +408,6 @@ NOT proceed, otherwise the SMTP client is vulnerable to man in the
 middle STARTTLS downgrade attacks.  If the response is "insecure",
 opportunistic DANE TLS is not applicable for the host in question,
 and the SMTP client SHOULD proceed with ordinary opportunistic TLS.
-<!-- XXXWJH: there is no legacy opportunistic TLS; legacy TLS? -->
-<!-- XXXVD: Actually there is, that's what MTAs do today. -->
 If the response is "secure" and the record is a CNAME or DNAME,
 the SMTP client restarts the TLSA query at the target domain,
 following CNAMEs as appropriate (such CNAME expansion does not
@@ -469,8 +468,7 @@ or submission servers that are to be found via SRV records SHOULD
 NOT include certificate usage "0" or "1", as in both cases SMTP
 clients cannot be expected to perform <xref target="RFC5280"/> PKIX
 validation or <xref target="RFC6125"/> identity verification.
-Clients MAY treat such TLSA records as unusable, and it is expected
-that many will.
+Clients MAY treat such TLSA records as unusable.
 </t>
 
 <t>
@@ -551,14 +549,14 @@ the corresponding TA certificate is included in the SMTP server's TLS
 handshake trust chain, clients can safely enable support for these RRs.
 If sufficiently many server administrators are negligent in deploying
 these RRs, SMTP clients will be hesitant to support them, since mail
-delivery will not work to many destination domains if they do.  We
-encourage server operators to implement these RRs, if operationally
-they are a better fit for their organization, provided they do so with care.
+delivery will not work to many destination domains if they do.  Server
+operators are encouraged to implement these RRs, if they are operationally
+a better fit for their organization, provided they do so with care.
 It is critical to
 never forget to include trust-anchor certificates in server trust chains.
-SMTP client implementations are SHOULD support these TLSA RRs,
-unless our optimism that server operators will publish
-certificate chains that include the required TA certificate proves unfounded.
+SMTP client implementations SHOULD support these TLSA RRs,
+unless server operators fail publish
+certificate chains that include the required TA certificate.
 </t>
 
 </section><!-- Certificate usage 2 -->
@@ -566,6 +564,8 @@ certificate chains that include the required TA certificate proves unfounded.
 <section title="Certificate usage 1">
 
 <t>
+<!-- XXXWJH: I thought we agreed to simply state that usage of type 1
+or type 0 is undefined.  I really don't want to say they may map 1 to 3. -->
 SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "1".
 Clients MAY treat such TLSA records as unusable.  Alternatively,
 SMTP clients that implement this specification MAY ignore the PKIX
@@ -580,6 +580,8 @@ certificate usage "3".
 <section title="Certificate usage 0">
 
 <t>
+<!-- XXXWJH: DITTO: how about just the first sentence, followed by
+"usage is undefined" -->
 SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "0".
 Clients MAY treat such TLSA records as unusable.  Alternatively,
 since PKIX validation is not possible with opportunistic DANE TLS,
@@ -635,13 +637,16 @@ middle attacks.
 </t>
 
 <t>
-To match a server via a TLSA record with certificate usage "2" the
+To match a server via a TLSA record with certificate usage "2", the
 client MUST perform name checks to ensure that it has reached the
-correct server.  The SMTP client MUST accept the TLSA base domain
-as a valid DNS name in the server certificate.  If the TLSA base
-domain was obtained indirectly via an MX lookup, the initial query
-name used in the MX lookup or its CNAME resolved expansion if secure
-SHOULD also be accepted.
+correct server.  The SMTP client MUST accept the TLSA base domain as a
+valid DNS name in the server certificate.  Clients should also accept
+securely looked up TLSA base domain obtained indirectly via an MX
+lookup, or a CNAME resolved expansion.
+<!-- XXX: this part really needs a separate sentence "the initial
+     query name used in the MX lookup" -->
+<!-- XXXWJH: I think we need to specify an explicit order and make the
+     text clearer.  Maybe a numbered list -->
 </t>
 
 <t>
@@ -869,12 +874,12 @@ TLS configuration exchanges.
 <t>
 Opportunistic SMTP TLS depends critically on DNSSEC for downgrade
 resistance and secure resolution of the destination name.  If DNSSEC
-is compromised it is not possible to fall back on the public CA PKI
+is compromised, it is not possible to fall back on the public CA PKI
 to prevent MITM attacks.  A successful breach of DNSSEC enables the
-attacker to publish TLSA usage 3 certificate associations and thereby
+attacker to publish TLSA usage 3 certificate associations, and thereby
 bypass any security benefit the legitimate domain owner might hope to
-gain by publishing usage 0 or 1 TLSA RRs.  Given the typical lack of
-public CA PKI support in existing MTA deployments deprecating certificate
+gain by publishing usage 0 or 1 TLSA RRs.  Given the lack of
+public CA PKI support in existing MTA deployments, deprecating certificate
 usages 0 and 1 in this specifications improves interoperability without
 degrading security.
 </t>
