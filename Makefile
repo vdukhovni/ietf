@@ -1,5 +1,5 @@
 XML	= \
-	draft-dukhovni-dane-ops-01.xml \
+	draft-ietf-dane-ops-00.xml \
 	draft-dukhovni-smtp-opportunistic-tls-01.xml
 TXT	= ${XML:%.xml=%.txt}
 HTML	= ${XML:%.xml=%.html}
