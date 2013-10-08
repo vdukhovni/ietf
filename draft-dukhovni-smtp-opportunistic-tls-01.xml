@@ -38,10 +38,10 @@
 <front>
 <title>SMTP security via opportunistic DANE TLS</title>
 <author fullname="Viktor Dukhovni" initials="V." surname="Dukhovni">
-<organization>Unaffiliated</organization>
-<address>
-<email>ietf-dane@dukhovni.org</email>
-</address>
+    <organization>Unaffiliated</organization>
+    <address>
+    <email>ietf-dane@dukhovni.org</email>
+    </address>
 </author>
     <author initials="W.H." surname="Hardaker" fullname="Wes Hardaker">
       <organization>Parsons</organization>
