@@ -1,6 +1,6 @@
 XML	= \
 	draft-ietf-dane-ops-00.xml \
-	draft-ietf-dane-smtp-00.xml
+	draft-ietf-dane-smtp-with-dane-00.xml
 TXT	= ${XML:%.xml=%.txt}
 HTML	= ${XML:%.xml=%.html}
 
