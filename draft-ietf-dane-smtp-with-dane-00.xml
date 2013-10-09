@@ -561,69 +561,16 @@ certificate chains that include the required TA certificate.
 
 </section><!-- Certificate usage 2 -->
 
-<section title="Certificate usage 1">
+<section title="Certificate usages 0 and 1">
 
 <t>
-<!-- XXXWJH: I thought we agreed to simply state that usage of type 1
-or type 0 is undefined.  I really don't want to say they may map 1 to 3. -->
-SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "1".
-Clients MAY treat such TLSA records as unusable.  Alternatively,
-SMTP clients that implement this specification MAY ignore the PKIX
-validation requirement when they encounter certificate usage "1", and
-authenticate the server per the content of the TLSA record
-alone.  That is, SMTP clients may treat certificate usage "1" as
-certificate usage "3".
+SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "0" or
+"1".  SMTP client treatment of TLSA RRs with certificate usages "0" or "1"
+is undefined.  For example, clients MAY treat such TLSA records as
+unusable.
 </t>
 
-</section><!-- Certificate usage 1 -->
-
-<section title="Certificate usage 0">
-
-<t>
-<!-- XXXWJH: DITTO: how about just the first sentence, followed by
-"usage is undefined" -->
-SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "0".
-Clients MAY treat such TLSA records as unusable.  Alternatively,
-since PKIX validation is not possible with opportunistic DANE TLS,
-SMTP clients MAY treat certificate usage "0" RRs as though they
-were certificate usage "2" RRs.  But, with certificate usage "0" the
-usability of the TLSA record depends more strongly on its matching
-type.
-</t>
-
-<t>
-If the matching type is "0" (the server should also avoid this matching
-type and should publish usage "3" or "2" public key or certificate
-digests), the TLSA record contains the full certificate or full
-public key of the trusted certificate authority.  In this case the
-client has all the information it needs to match the server trust-chain
-to the TLSA record.  The client SHOULD ignore the PKIX
-validation requirement, and verify the server's trust chain via its DANE
-TLSA records only (name checks still apply as with usage "2").
-</t>
-
-<t>
-If the matching type is not "0", the TLSA record contains only a
-digest of the trust certificate authority certificate or public
-key.  The server operator publishing usage 0 TLSA records may expect
-that clients already have the issuing authority certificate on hand,
-and may omit it from the server's certificate chain.  As a result,
-the client may not be able to match the server trust chain against
-the TLSA record if it, in fact, does not have a copy of the
-certificate authority certificate or public key.
-</t>
-
-<t>
-SMTP clients that implement this specification SHOULD
-treat TLSA records with certificate usage "0" and a digest matching
-type as unusable, but MAY be explicitly configured to support them
-when it is believed that clients posses a sufficiently complete
-set of trusted public CA certificates.  This is most plausible with
-an MUA which only needs enough CA certificates to authenticate its
-preferred submission service.
-</t>
-
-</section><!-- Certificate usage 0 -->
+</section><!-- Certificate usages 0 and 1 -->
 
 </section><!-- TLSA certificate usages -->
 
