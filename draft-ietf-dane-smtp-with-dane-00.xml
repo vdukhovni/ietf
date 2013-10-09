@@ -328,8 +328,8 @@ With a next-hop destination host not subject to MX resolution or
 a domain with no MX records, if at least one lookup in the (possibly
 empty) chain of CNAMEs leading to the A or AAAA RRset is "insecure",
 the TLSA base domain is the initial next-hop name, and opportunistic
-DANE TLS is applicable only when a "secure" TLSA RRset is found
-at that base domain.
+DANE TLS is applicable only when a "secure" (DNSSEC validated) TLSA
+RRset is found at that base domain.
 </t>
 
 <t>
