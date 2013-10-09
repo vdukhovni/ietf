@@ -125,7 +125,7 @@ mailbox is rarely less than 2 and is often higher.  Some hops may
 be TLS protected, some may not.  The same SMTP TCP endpoint can
 serve both TLS and non-TLS clients, with TLS negotiated via the
 SMTP STARTTLS command (<xref target="RFC3207"/>).  DNS MX records
-abstract the next hop transport end-point.  SMTP addresses are not
+abstract the next-hop transport end-point.  SMTP addresses are not
 transport addresses and are security agnostic.  Unlike HTTP, there
 is no URI scheme for email addresses to designate whether the SMTP
 server should be contacted with or without security.
