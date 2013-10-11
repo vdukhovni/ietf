@@ -276,7 +276,13 @@ presence as a commitment by the server operator to implement STARTTLS.
 SMTP is a store &amp; forward protocol.  An MTA that is not the
 final destination for a message recipient forwards the message one
 hop closer to the recipient's mailbox.  To do so, it must determine
-the appropriate next-hop destination.  
+the appropriate next-hop destination, and locate one or more
+associated SMTP servers.  When DNSSEC validated TLSA records are
+available for a given next-hop SMTP server the TLS connection to
+that server will be downgrade resistant.  If the records in question
+are "usable" to authenticate the server, the connection will also be
+authenticated and thus immune to eavesdropping or tampering unless
+DNSSEC is compromised.
 </t>
 
 <t>
@@ -289,6 +295,74 @@ takes the place of the domain part of the recipient address.  In
 the language of <xref target="RFC5321"/> Section 5.1, we'll refer
 to this next-hop destination host or domain as "the initial name".
 </t>
+
+<t>
+Below we explain how to locate the SMTP servers and associated TLSA
+records for the next-hop destination by identifying the corresponding
+TLSA "base domain".
+</t>
+
+<section title="Non-MX destinations">
+
+<t>
+As mentioned above, the next-hop destination domain may in some
+cases be exempt from MX lookups.  In addition, MX lookups for
+the next-hop domain may yield no results.  In either case, the
+destination server for such a domain is determined by looking
+up the corresponding A or AAAA records.  We consider the following
+cases:
+</t>
+
+<t>
+<list style="numbers">
+
+<t>
+The next-hop destination domain is not a CNAME alias.  In this case
+the TLSA base domain is the next-hop domain.  The lookup key for
+the DNSSEC validated TLSA records is obtained by prepending service
+labels ("_&lt;port-number&gt;._tcp") in front of this base domain.
+</t>
+
+<t>
+The next-hop destination domain is a CNAME alias, but at least one
+of the CNAME RRs leading to the ultimate target of this alias (during
+recursive CNAME expansion) is "insecure".  In this case also the
+TLSA base domain is the original next-hop domain as above.
+</t>
+
+<t>
+The next-hop destination domain is a CNAME alias, and all the CNAME RRs
+leading to the ultimate target of this alias (during recursive CNAME
+expansion) are "secure" (DNSSEC validated).  If no "secure" TLSA
+RRs are found after prefixing the service labels to the CNAME-expanded
+next-hop domain, then the original next-hop domain is once again
+the TLSA base domain.
+</t>
+
+<t>
+The next-hop destination domain is a CNAME alias, and all the CNAME RRs
+leading to the ultimate target of this alias (during recursive CNAME
+expansion) are "secure" (DNSSEC validated).  If in addition "secure"
+TLSA RRs are found after prefixing the service labels to the
+CNAME-expanded next-hop domain, then the CNAME-expanded next-hop
+domain is taken as the TLSA base domain.  The original next-hop
+domain is (as explained below) used only as an alternative name in
+certificate peername verification if applicable.
+</t>
+
+</list>
+</t>
+
+<t>
+In summary the TLSA base domain is the original next-hop domain unless
+its full CNAME-expansion yields a secure target domain which publishes
+"secure" TLSA records for the SMTP service.  If no "secure" TLSA records
+are found at either the original next-hop domain or its secure CNAME
+expansion, then opportunistic DANE TLS does not apply for mail delivery
+to the non-MX destination in question.
+</t>
+
+</section><!-- Non-MX destinations -->
 
 <section title="MX resolution">
 
