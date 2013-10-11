@@ -259,19 +259,17 @@ can successfully authenticate legitimate SMTP servers.
 <section title="TLS discovery">
 
 <t>
-As noted previously (<xref target="channelsec" />),
-opportunistic TLS with SMTP servers that
-advertise TLS support via STARTTLS is subject to a man in the middle
-downgrade attack.  Some SMTP servers erroneously advertise STARTTLS
-in default configurations that are not in fact TLS capable, and
-clients need to be prepared to retry plaintext delivery after
-STARTTLS fails.  A downgrade resistant mechanism for
-a server to advertise TLS support based on DANE TLSA
-records is specified below.  DNSSEC validated TLSA records are unlikely to
-be accidentally published
-for servers that do not in fact support TLS, and thus
-clients can safely interpret their presence as a commitment by the
-server operator to implement STARTTLS.
+As noted previously (<xref target="channelsec" />), opportunistic
+TLS with SMTP servers that advertise TLS support via STARTTLS is
+subject to a man in the middle downgrade attack.  Some SMTP servers
+erroneously advertise STARTTLS in default configurations that are
+not in fact TLS capable, and clients need to be prepared to retry
+plaintext delivery after STARTTLS fails.  A downgrade resistant
+mechanism for a server to advertise TLS support based on DANE TLSA
+records is specified below.  DNSSEC validated TLSA records are
+unlikely to be accidentally published for servers that do not in
+fact support TLS, and thus clients can safely interpret their
+presence as a commitment by the server operator to implement STARTTLS.
 </t>
 
 <t>
@@ -547,12 +545,10 @@ certificate chains that include the required TA certificate.
 
 <t>
 SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "0"
-or "1".  (The same applies to submission servers that are to be
-found via SRV records).  In both cases SMTP clients cannot be
-expected to be configured with a suitably complete set of trusted
-public CAs.  Even with a full set of public CAs, SMTP clients cannot
-(without relying on DNSSEC for secure MX records) perform <xref
-target="RFC6125"/> server identity verification.
+or "1".  SMTP clients cannot be expected to be configured with a suitably
+complete set of trusted public CAs.  Even with a full set of public CAs,
+SMTP clients cannot (without relying on DNSSEC for secure MX records)
+perform <xref target="RFC6125"/> server identity verification.
 </t>
 
 <t>
