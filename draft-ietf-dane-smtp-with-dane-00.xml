@@ -315,15 +315,15 @@ up the corresponding A or AAAA records.
 <t>
 Following <xref target="RFC5321"/> Section 5.1, if the A or AAAA
 lookup of the initial name yields a CNAME, we replace it with the
-resulting name as if it were the initial name and try the same
-lookup again with the new name.  MTAs typically support limited
-recursion in CNAME expansion so this replacement is performed
-recursively.  If initially, or at any stage of recursion, the
-response is "bogus", address resolution fails with a temporary error.
-Mail delivery MUST either be deferred or attempted via any alternative
-delivery channel configured by the MTA administrator (which may
-also employ opportunistic DANE TLS).  We consider the following
-cases:
+resulting name as if it were the initial name and perform a lookup
+again using the new name.  This replacement is performed recursively,
+although MTAs typically support only limited recursion in CNAME
+expansion.  If initially, or at any stage of recursion, the response
+is DNSSEC "bogus", address resolution should fail with a temporary
+error.  Mail delivery MUST either be deferred or attempted via any
+alternative delivery channel configured by the MTA administrator
+(which may also employ opportunistic DANE TLS).  We consider the
+following cases:
 </t>
 
 <t>
