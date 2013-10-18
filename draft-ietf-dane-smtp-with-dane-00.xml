@@ -384,11 +384,11 @@ configured delivery mechanisms.
 
 <t>
 In this section we consider next-hop domains that are subject to MX
-resolution and have MX records.  When DANE TLS is applicable, the
-TLSA base domain will be associated with the MX host selected for
-message delivery.  Therefore, the MX host names must be determined
-securely, namely by performing a DNSSEC validated MX lookup to
-obtain the list of associated MX hosts.  If the MX RRset is "insecure",
+resolution and have MX records.  When DANE TLS is applicable, the TLSA
+base domain will be associated with the MX host selected for message
+delivery.  Therefore, the MX host names must be determined securely by
+performing a DNSSEC validated MX lookup to obtain the list of
+associated MX hosts.  If the MX RRset is "insecure" (but not "bogus"),
 DANE TLSA does not apply and mail delivery proceeds with pre-DANE
 opportunistic TLS (subject to its various MITM attacks).
 </t>
