@@ -418,25 +418,30 @@ consider the following cases:
 <t>
 <list style="hanging">
 
-<t hangText="Non-CNAME">
-The next-hop destination domain is not a CNAME alias, that is, it
-resolves directly to a set of DNSSEC validated ("secure") MX hosts.
-With each delivery attempt via a given MX host, the associated TLSA
-base domain is the CNAME-resolved MX exchange name if CNAME expansion
-of MX exchange names is supported by the MTA and all CNAMEs encountered
-are "secure".  Otherwise, the unexpanded name of the MX exchange
-is the TLSA base domain if secure TLSA records are found there after
-prefixing service labels.  The original next-hop domain is used
-only as an alternative name in certificate peername verification
-if applicable.
+<t hangText="Non-CNAME: ">
+<!-- XXXWJH: sentence beginning with "Otherwise" is problematic.  It
+talks about setting the TLSA base name *if* a TLSA record is found...
+But that's backwards, you need to decide what the base name is so that
+you can look up the TLSA record -->
+The next-hop destination domain is not a CNAME alias (it resolves
+directly to a set of DNSSEC validated ("secure") MX hosts).  With each
+delivery attempt via a given MX host, the associated TLSA base domain
+is the MX exchange name, after doing any needed CNAME-resolution of it
+if CNAME expansion of MX exchange names is supported by the MTA, and
+all CNAMEs encountered are "secure".  Otherwise, the unexpanded name
+of the MX exchange name is the TLSA base domain if secure TLSA records are
+found there after prefixing service labels.  The original next-hop
+domain SHOULD be used as a secondary alternative name in certificate peername
+verification if applicable.
 </t>
 
-<t hangText="Non-CNAME">
-The next-hop destination domain is a CNAME alias, and resolves
-via a chain of "secure" CNAME records to a final domain with "secure"
-MX records.  The TLSA base domain in this case is the same as above,
-but now both the initial domain and its CNAME-expansion are usable
-as alternative names in the peer certificate.
+<t hangText="Non-CNAME:">
+The next-hop destination domain is a CNAME alias, and resolves via a
+chain of "secure" CNAME records to a final domain with "secure" MX
+records.  The TLSA base domain in this case is the same as in the
+"Non-CNAME" case, but now both the initial domain and its
+CNAME-expansion are usable as alternative names in the peer
+certificate.
 </t>
 
 </list>
