@@ -454,7 +454,7 @@ If they do not, there is some additional risk, that the MTA may
 fail to notice that it is one of the MX hosts for the destination
 and that it must skip MX records with equal or worse (numerically
 higher precedence).  If an MTA does allow CNAMEs to be used in MX
-records it SHOULD process them recursively as described above to
+records, it SHOULD process them recursively as described above to
 determine the most appropriate TLSA RRset base domain.
 </t>
 
@@ -492,16 +492,17 @@ status of the response.
 </t>
 
 <t>
-If the response is "bogus", delivery via the host in question SHOULD
+If the response is "bogus", delivery via the host in question MUST
 NOT proceed, otherwise the SMTP client is vulnerable to man in the
 middle STARTTLS downgrade attacks.  If the response is "insecure",
 opportunistic DANE TLS is not applicable for the base domain in question.
-If there are no other candidate TLSA base domains (see above) the
+If there are no other candidate TLSA base domains (see above), the
 SMTP client SHOULD proceed with ordinary opportunistic TLS.  If the
 response is "secure" and the record is a CNAME or DNAME, the SMTP
 client restarts the TLSA query at the target domain, following
 CNAMEs as appropriate (such CNAME expansion does not change the
 SMTP client's notion of the TLSA base domain).
+<!-- XXXWJH: that last sentence sounds inconsistent -->
 </t>
 
 <t>
@@ -515,22 +516,23 @@ downgrade attacks.
 </t>
 
 <t>
-When no TLSA records are found at a CNAME-expanded name (insecure
-response or no records), the unexpanded name MUST be tried instead.
-This supports clients of hosting providers where the provider zone
-is not DNSSEC validated, but the client has shared appropriate key
+When no TLSA records are found at a CNAME-expanded name (due to an
+insecure response or a lack of TLSA records verified by DNSSEC's
+proof-of-non-existence), the unexpanded name MUST be tried instead.
+This supports clients of hosting providers where the provider's zone is
+not DNSSEC validated, but the client has shared appropriate key
 material with the hosting provider to enable TLS via SNI.
 </t>
 
 <t>
 SMTP clients may deploy opportunistic DANE TLS incrementally by
 enabling it only for selected sites, or may occasionally need to
-disable opportunistic DANE TLS for peers that fail to interoperate
-due to misconfiguration or software defects on either end.  Unless
-local policy makes opportunistic DANE TLS inapplicable for a particular
-destination, when usable TLSA records are available a client MUST
-NOT deliver mail via a server whose certificate chain fails to match
-at least one TLSA record. 
+disable opportunistic DANE TLS for peers that fail to interoperate due
+to misconfiguration or software defects on either end.  Unless local
+policy specifies that opportunistic DANE TLS is not to be used for a
+particular destination, client MUST NOT deliver mail via a server
+whose certificate chain fails to match at least one TLSA record when
+usable TLSA records are available.
 </t>
 
 <t>SMTP clients employing opportunistic DANE TLS and TLSA record
