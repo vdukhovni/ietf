@@ -665,17 +665,16 @@ client MUST perform name checks to ensure that it has reached the
 correct server.  In all cases the SMTP client MUST accept the TLSA
 base domain as a valid DNS name in the server certificate.
 
-<list style="symbols">
-<t>
-If the TLSA base domain was obtained indirectly via an MX lookup,
-that is, if it is the name of an MX host (possibly securely CNAME
-expanded), then the initial query name used in the MX lookup SHOULD
-be accepted in the peer certificate.  The CNAME-expanded initial
-query name SHOULD also be accepted if different from the initial
-query name.
+<list style="hanging">
+<t hangText="MX:">
+If the TLSA base domain was obtained indirectly via an MX lookup (it
+is the name of an MX exchange that may be securely CNAME
+expanded), then the initial query name used in the MX lookup SHOULD be
+accepted in the peer certificate.  The CNAME-expanded initial query
+name SHOULD also be accepted if different from the initial query name.
 </t>
 
-<t>
+<t hangText="Non-MX:">
 If no MX records were found and the TLSA base domain is the
 CNAME-expanded initial query name, then the initial query name
 SHOULD also be accepted.
