@@ -630,9 +630,9 @@ perform <xref target="RFC6125"/> server identity verification.
 </t>
 
 <t>
-SMTP client treatment of TLSA RRs with certificate usages "0" or
-"1" is undefined.  For example, clients MAY treat such TLSA records
-as unusable.
+SMTP client treatment of TLSA RRs with certificate usages "0" or "1"
+is undefined.  For example, clients MAY (will likely) treat such TLSA
+records as unusable.
 </t>
 
 </section><!-- Certificate usages 0 and 1 -->
