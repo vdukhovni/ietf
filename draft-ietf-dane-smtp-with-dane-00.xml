@@ -416,9 +416,9 @@ consider the following cases:
 </t>
 
 <t>
-<list style="numbers">
+<list style="hanging">
 
-<t>
+<t hangText="Non-CNAME">
 The next-hop destination domain is not a CNAME alias, that is, it
 resolves directly to a set of DNSSEC validated ("secure") MX hosts.
 With each delivery attempt via a given MX host, the associated TLSA
@@ -431,7 +431,7 @@ only as an alternative name in certificate peername verification
 if applicable.
 </t>
 
-<t>
+<t hangText="Non-CNAME">
 The next-hop destination domain is a CNAME alias, and resolves
 via a chain of "secure" CNAME records to a final domain with "secure"
 MX records.  The TLSA base domain in this case is the same as above,
