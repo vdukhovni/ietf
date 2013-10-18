@@ -367,12 +367,15 @@ certificate peername verification if applicable.
 </t>
 
 <t>
-In summary the TLSA base domain is the original next-hop domain
-unless its securely obtained full CNAME-expansion publishes DNSSEC
-validated TLSA records for the SMTP service.  When no "secure" TLSA
-records are found at either the securely CNAME expanded or original
-next-hop domain, then opportunistic DANE TLS does not apply for
-mail delivery to the non-MX destination in question.
+In summary, if it is possible to securely obtain the full,
+CNAME-expanded, DNSSEC-validated record for the SMTP service then
+that name is used as the TLSA base name.  If that is not possible,
+then the original next-hop domain is used as the TLSA base name.  When
+no "secure" TLSA records are found at either the securely CNAME
+expanded or original next-hop domain, then opportunistic DANE TLS does
+not apply for mail delivery to the non-MX destination in question.
+Mail delivery MUST be deferred, fail or fall back to other operator
+configured delivery mechanisms.
 </t>
 
 </section><!-- Non-MX destinations -->
