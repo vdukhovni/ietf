@@ -309,7 +309,20 @@ As mentioned above, the next-hop destination domain may in some
 cases be exempt from MX lookups.  In addition, MX lookups for
 the next-hop domain may yield no results.  In either case, the
 destination server for such a domain is determined by looking
-up the corresponding A or AAAA records.  We consider the following
+up the corresponding A or AAAA records.  
+</t>
+
+<t>
+Following <xref target="RFC5321"/> Section 5.1, if the A or AAAA
+lookup of the initial name yields a CNAME, we replace it with the
+resulting name as if it were the initial name and try the same
+lookup again with the new name.  MTAs typically support limited
+recursion in CNAME expansion so this replacement is performed
+recursively.  If initially, or at any stage of recursion, the
+response is "bogus", address resolution fails with a temporary error.
+Mail delivery MUST either be deferred or attempted via any alternative
+delivery channel configured by the MTA administrator (which may
+also employ opportunistic DANE TLS).  We consider the following
 cases:
 </t>
 
@@ -354,12 +367,12 @@ certificate peername verification if applicable.
 </t>
 
 <t>
-In summary the TLSA base domain is the original next-hop domain unless
-its full CNAME-expansion yields a secure target domain which publishes
-"secure" TLSA records for the SMTP service.  If no "secure" TLSA records
-are found at either the original next-hop domain or its secure CNAME
-expansion, then opportunistic DANE TLS does not apply for mail delivery
-to the non-MX destination in question.
+In summary the TLSA base domain is the original next-hop domain
+unless its securely obtained full CNAME-expansion publishes DNSSEC
+validated TLSA records for the SMTP service.  When no "secure" TLSA
+records are found at either the securely CNAME expanded or original
+next-hop domain, then opportunistic DANE TLS does not apply for
+mail delivery to the non-MX destination in question.
 </t>
 
 </section><!-- Non-MX destinations -->
@@ -367,78 +380,73 @@ to the non-MX destination in question.
 <section title="MX resolution">
 
 <t>
-If the initial name is a next-hop domain subject to MX resolution,
-a DNSSEC validated "MX" lookup is performed, to obtain the list of
-associated MX hosts.  If no MX records are found, or if the
-initial name is a next-hop host not subject to MX resolution, it
-is resolved to one or more network addresses, by performing DNSSEC
-validated "A" and/or "AAAA" lookups.
-</t>
-
-<t>
-Following <xref target="RFC5321"/> Section 5.1, if the "A", "AAAA"
-or "MX" lookup of the initial name yields a CNAME, we replace it
-with the resulting name as if it were the initial name and try the
-same lookup again with the new name.  MTAs typically support limited
-recursion in CNAME expansion so this replacement is performed
-recursively.  If initially, or at any stage of recursion, the response
-is "bogus", MX resolution fails with a temporary error.  Mail delivery
-SHOULD either be deferred or attempted via any alternative delivery
-channel configured by the MTA administrator (which may also employ
-opportunistic DANE TLS).</t>
-
-<t>
-With a next-hop destination domain subject to MX resolution which has
-MX records, if at least one lookup in the (possibly empty) chain of
-CNAMEs leading to the MX RRset is "insecure", opportunistic DANE
-TLS is not applicable, and mail delivery may proceed with pre-DANE
+In this section we consider next-hop domains that are subject to MX
+resolution and have MX records.  When DANE TLS is applicable, the
+TLSA base domain will be associated with the MX host selected for
+message delivery.  Therefore, the MX host names must be determined
+securely, namely by performing a DNSSEC validated MX lookup to
+obtain the list of associated MX hosts.  If the MX RRset is "insecure",
+DANE TLSA does not apply and mail delivery proceeds with pre-DANE
 opportunistic TLS (subject to its various MITM attacks).
 </t>
 
 <t>
-With a next-hop destination host not subject to MX resolution or
-a domain with no MX records, if at least one lookup in the (possibly
-empty) chain of CNAMEs leading to the A or AAAA RRset is "insecure",
-the TLSA base domain is the initial next-hop name, and opportunistic
-DANE TLS is applicable only when a "secure" (DNSSEC validated) TLSA
-RRset is found at that base domain.
+MX records MUST be sorted by preference; an MX host with a better
+preference and no TLSA records MUST NOT be preempted by a host with
+a worse MX preference that does support DANE TLSA.  In other words,
+avoiding delivery loops trumps any preference for channel security.
 </t>
 
 <t>
-Otherwise, if at each and every stage of CNAME expansion the DNS response
-is "secure", and either the initial name is a next-hop host name
-not subject to MX resolution or no MX records are found, the resulting
-final name becomes the next-hop destination and is the base domain
-for TLSA record lookup.  In summary, the TLSA base domain is the fully
-CNAME expanded name that is "secure" or else is the initial name.
+In accordance with <xref target="RFC5321"/> Section 5.1, if the MX
+lookup of the initial name yields a CNAME, we replace the initial
+name with the resulting name and perform the same lookup with the
+new name, as if it were the initial name.  MTAs typically support
+recursion in CNAME expansion, so this replacement is performed
+repeatedly until the ultimate non-CNAME domain is found (or the
+limit on the number of CNAMEs to examine is reached).  If at any
+stage of CNAME expansion the DNS result is "bogus", MX resolution
+fails with a temporary error.  In that case, mail delivery MUST
+either be deferred, or attempted via any alternative delivery channel
+configured by the MTA administrator.  We consider the following cases:
 </t>
 
 <t>
-Finally, if at each and every stage the DNS response is "secure", and
-and one or more MX records are found, the MX records MUST be sorted
-by preference.  A better (numerically lower) MX preference for a
-host that does not support TLS MUST NOT be preempted by a worse
-(numerically higher) MX preference for a host that does support
-TLS.  In other words, avoiding delivery loops trumps any preference
-for channel security.  In each delivery attempt via a candidate MX
-host, the MX host MUST be treated as though it were the initial
-next-hop destination host (which is, of course, not subject to
-further MX resolution). The associated TLSA base domain is equal
-to the CNAME resolved MX exchange name if CNAME expansion of MX
-exchange names is supported and all CNAMEs encountered are "secure".
-Otherwise, the unexpanded name of the MX exchange is the TLSA base
-domain.
+<list style="numbers">
+
+<t>
+The next-hop destination domain is not a CNAME alias, that is, it
+resolves directly to a set of DNSSEC validated ("secure") MX hosts.
+With each delivery attempt via a given MX host, the associated TLSA
+base domain is the CNAME-resolved MX exchange name if CNAME expansion
+of MX exchange names is supported by the MTA and all CNAMEs encountered
+are "secure".  Otherwise, the unexpanded name of the MX exchange
+is the TLSA base domain if secure TLSA records are found there after
+prefixing service labels.  The original next-hop domain is used
+only as an alternative name in certificate peername verification
+if applicable.
 </t>
 
 <t>
-CNAMEs are not legal in the exchange field of MX records, thus MTAs
-MAY skip over MX records in which the MX exchange is a CNAME.  There
-is some additional risk, in this case, that the MTA may fail to notice
-that it is one of the MX hosts for the destination and that it must
-skip MX records with equal or worse (numerically higher precedence).
-If an MTA does allow CNAMEs to be used in MX records it SHOULD process
-them recursively as described above to determine whether opportunistic
-DANE TLS is applicable and if so the associated TLSA RRset base domain.
+The next-hop destination domain is a CNAME alias, and resolves
+via a chain of "secure" CNAME records to a final domain with "secure"
+MX records.  The TLSA base domain in this case is the same as above,
+but now both the initial domain and its CNAME-expansion are usable
+as alternative names in the peer certificate.
+</t>
+
+</list>
+</t>
+
+<t>
+Note: CNAMEs are not legal in the exchange field of MX records,
+thus MTAs are not obligated to perform MX exchange CNAME expansion.
+If they do not, there is some additional risk, that the MTA may
+fail to notice that it is one of the MX hosts for the destination
+and that it must skip MX records with equal or worse (numerically
+higher precedence).  If an MTA does allow CNAMEs to be used in MX
+records it SHOULD process them recursively as described above to
+determine the most appropriate TLSA RRset base domain.
 </t>
 
 </section><!-- MX resolution -->
@@ -478,12 +486,13 @@ status of the response.
 If the response is "bogus", delivery via the host in question SHOULD
 NOT proceed, otherwise the SMTP client is vulnerable to man in the
 middle STARTTLS downgrade attacks.  If the response is "insecure",
-opportunistic DANE TLS is not applicable for the host in question,
-and the SMTP client SHOULD proceed with ordinary opportunistic TLS.
-If the response is "secure" and the record is a CNAME or DNAME,
-the SMTP client restarts the TLSA query at the target domain,
-following CNAMEs as appropriate (such CNAME expansion does not
-change the SMTP client's notion of the TLSA base domain).
+opportunistic DANE TLS is not applicable for the base domain in question.
+If there are no other candidate TLSA base domains (see above) the
+SMTP client SHOULD proceed with ordinary opportunistic TLS.  If the
+response is "secure" and the record is a CNAME or DNAME, the SMTP
+client restarts the TLSA query at the target domain, following
+CNAMEs as appropriate (such CNAME expansion does not change the
+SMTP client's notion of the TLSA base domain).
 </t>
 
 <t>
@@ -497,27 +506,22 @@ downgrade attacks.
 </t>
 
 <t>
-When no TLSA records are found at a CNAME-expanded initial name
-(insecure response or no records), the unexpanded initial name MUST
-be tried instead.  This supports clients of hosting providers where
-the provider zone is not DNSSEC validated, but the client has shared
-appropriate key material with the hosting provider to enable TLS
-via SNI.
+When no TLSA records are found at a CNAME-expanded name (insecure
+response or no records), the unexpanded name MUST be tried instead.
+This supports clients of hosting providers where the provider zone
+is not DNSSEC validated, but the client has shared appropriate key
+material with the hosting provider to enable TLS via SNI.
 </t>
 
 <t>
-When usable TLSA records are available, a client SHOULD NOT deliver
-mail via a server that fails to match at least one TLSA record.  This
-is not a "must" because clients may incrementally deploy opportunistic
-DANE TLS only for selected peer domains.  At times, clients may need
-to disable opportunistic DANE TLS for peers that fail to interoperate
-due to misconfiguration or software defects on either end.  For
-opportunistic DANE TLS to be robust (resistant to failures), servers
-MUST live up to the promises stated by the existence of the TLSA
-record, but it is not always possible to compel
-clients to use a security policy chosen by the server.  Given a robust
-security protocol, clients will hopefully, over time, willingly
-choose to adopt it.
+SMTP clients may deploy opportunistic DANE TLS incrementally by
+enabling it only for selected sites, or may occasionally need to
+disable opportunistic DANE TLS for peers that fail to interoperate
+due to misconfiguration or software defects on either end.  Unless
+local policy makes opportunistic DANE TLS inapplicable for a particular
+destination, when usable TLSA records are available a client MUST
+NOT deliver mail via a server whose certificate chain fails to match
+at least one TLSA record. 
 </t>
 
 <t>SMTP clients employing opportunistic DANE TLS and TLSA record
@@ -647,14 +651,26 @@ middle attacks.
 <t>
 To match a server via a TLSA record with certificate usage "2", the
 client MUST perform name checks to ensure that it has reached the
-correct server.  The SMTP client MUST accept the TLSA base domain as a
-valid DNS name in the server certificate.  Clients should also accept
-securely looked up TLSA base domain obtained indirectly via an MX
-lookup, or a CNAME resolved expansion.
-<!-- XXX: this part really needs a separate sentence "the initial
-     query name used in the MX lookup" -->
-<!-- XXXWJH: I think we need to specify an explicit order and make the
-     text clearer.  Maybe a numbered list -->
+correct server.  In all cases the SMTP client MUST accept the TLSA
+base domain as a valid DNS name in the server certificate.
+
+<list style="symbols">
+<t>
+If the TLSA base domain was obtained indirectly via an MX lookup,
+that is, if it is the name of an MX host (possibly securely CNAME
+expanded), then the initial query name used in the MX lookup SHOULD
+be accepted in the peer certificate.  The CNAME-expanded initial
+query name SHOULD also be accepted if different from the initial
+query name.
+</t>
+
+<t>
+If no MX records were found and the TLSA base domain is the
+CNAME-expanded initial query name, then the initial query name
+SHOULD also be accepted.
+</t>
+
+</list>
 </t>
 
 <t>
