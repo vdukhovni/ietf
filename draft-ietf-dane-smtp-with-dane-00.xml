@@ -19,7 +19,7 @@
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 <!ENTITY I-D.ietf-dane-smtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp.xml">
-<!ENTITY I-D.dukhovni-dane-ops SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.dukhovni-dane-ops.xml">
+<!ENTITY I-D.ietf-dane-ops SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-ops.xml">
 ]>
 
 <!-- rfc xmlns:x="http://purl.org/net/xml2rfc/ext" category="exp" -->
@@ -526,7 +526,7 @@ at least one TLSA record.
 
 <t>SMTP clients employing opportunistic DANE TLS and TLSA record
    publishers for SMTP servers need to follow the guidance outlined in <xref
-   target="I-D.dukhovni-dane-ops"/>'s "Certificate Name Check
+   target="I-D.ietf-dane-ops"/>'s "Certificate Name Check
    Conventions", "Service Provider and TLSA Publisher
    Synchronization" and "TLSA Base Domain and CNAMEs" sections.</t>
 
@@ -538,7 +538,7 @@ at least one TLSA record.
 <section title="TLSA certificate usages">
 
 <t>TLSA Publishers should follow the TLSA publication size guidance
-found in <xref target="I-D.dukhovni-dane-ops" /> about "DANE DNS
+found in <xref target="I-D.ietf-dane-ops" /> about "DANE DNS
 Record Size Guidelines".</t>
 
 <section title="Certificate usage 3" anchor="cert3">
@@ -955,7 +955,7 @@ degrading security.
 &RFC6409;
 &RFC6066;
 &RFC6698;
-&I-D.dukhovni-dane-ops;
+&I-D.ietf-dane-ops;
 </references>
 <!--
 <references title="Informative References">
