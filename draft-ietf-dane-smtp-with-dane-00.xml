@@ -278,11 +278,11 @@ final destination for a message recipient forwards the message one
 hop closer to the recipient's mailbox.  To do so, it must determine
 the appropriate next-hop destination, and locate one or more
 associated SMTP servers.  When DNSSEC validated TLSA records are
-available for a given next-hop SMTP server the TLS connection to
+available for a given next-hop SMTP server, the TLS connection to
 that server will be downgrade resistant.  If the records in question
 are "usable" to authenticate the server, the connection will also be
-authenticated and thus immune to eavesdropping or tampering unless
-DNSSEC is compromised.
+authenticated and thus immune to eavesdropping or tampering (unless
+DNSSEC itself is compromised).
 </t>
 
 <t>
