@@ -259,17 +259,17 @@ can successfully authenticate legitimate SMTP servers.
 <section title="TLS discovery">
 
 <t>
-As noted previously (<xref target="channelsec" />), opportunistic
-TLS with SMTP servers that advertise TLS support via STARTTLS is
-subject to a man in the middle downgrade attack.  Some SMTP servers
-erroneously advertise STARTTLS in default configurations that are
-not in fact TLS capable, and clients need to be prepared to retry
-plaintext delivery after STARTTLS fails.  A downgrade resistant
-mechanism for a server to advertise TLS support based on DANE TLSA
-records is specified below.  DNSSEC validated TLSA records are
-unlikely to be accidentally published for servers that do not in
-fact support TLS, and thus clients can safely interpret their
-presence as a commitment by the server operator to implement STARTTLS.
+As noted previously (<xref target="channelsec" />), opportunistic TLS
+with SMTP servers that advertise TLS support via STARTTLS is subject
+to a man in the middle downgrade attack.  Some SMTP servers
+erroneously advertise STARTTLS in default configurations that are not,
+in fact, TLS capable, and clients need to be prepared to retry
+plaintext delivery after STARTTLS fails.  This document specifies 
+a downgrade resistant mechanism that allows a server to advertise TLS
+support based on DANE TLSA records.  DNSSEC validated TLSA records are
+unlikely to be accidentally published for servers that do not in fact
+support TLS, and thus clients can safely interpret their presence as a
+commitment by the server operator to implement STARTTLS.
 </t>
 
 <t>
