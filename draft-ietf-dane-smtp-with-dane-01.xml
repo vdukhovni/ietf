@@ -297,12 +297,13 @@ takes the place of the domain part of the recipient address.
 </t>
 
 <t>
-The protocol in this memo is "opportunistic".  Absent "secure"
-(DNSSEC validated) TLSA records, mail delivery should generally
-fall back to pre-DANE opportunistic TLS.  The SMTP client may be
-configured to require DANE verified delivery for some or all
-destinations, in which case absent "secure" TLSA records delivery
-will be deferred.
+The protocol in this memo is "opportunistic"; it should be used
+whenever possible but communication should continue when it is not
+available.  Absent "secure" (DNSSEC validated) TLSA records, mail
+delivery should fall back to pre-DANE opportunistic TLS.  The SMTP
+client MAY be configured to require DANE verified delivery for some or
+all destinations, in which case mail delivery will be deferred when
+"secure" TLSA records are absent.
 </t>
 
 <t>
@@ -321,14 +322,14 @@ up the corresponding A or AAAA records.
 </t>
 
 <t>
-When "bogus" records are encountered either during CNAME expansion,
-or when retrieving the associated TLSA RRset, the SMTP client MUST
-proceed as if the next-hop domain were unreachable.  Delivery
-should either be deferred or may be attempted via any fallback
-next-hop (which may also employ opportunistic DANE TLS) configured
-by the SMTP client administrator.  Proceeding with the original
-next-hop despite "bogus" DNS responses would destroy protection
-against downgrade attacks.
+When "bogus" records are encountered either during CNAME expansion, or
+when retrieving the associated TLSA RRset, the SMTP client MUST
+proceed as if the next-hop domain were unreachable.  Delivery should
+either be deferred or may be attempted via any fallback next-hop
+configured by the SMTP client administrator.  Fallback next-hop
+destinations may also employ opportunistic DANE TLS.  Proceeding with
+the original next-hop despite "bogus" DNS responses would destroy
+protection against downgrade attacks.
 </t>
 
 <t>
