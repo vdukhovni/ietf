@@ -288,8 +288,8 @@ digest of the server certificate.
 
 <section title="General DANE Guidelines">
   <t>These guidelines provide guidance for using or designing
-  protocols for DANE, regardless of what type the TLSA record will
-  actually contain.</t>
+  protocols for DANE, regardless of what of TLSA record will
+  be used.</t>
   <section title="TLS Requirements">
     <t>TLS clients that support DANE/TLSA MUST support at least TLS 1.0 and
     SHOULD support TLS 1.2.  TLS clients and servers using DANE SHOULD
@@ -298,9 +298,9 @@ digest of the server certificate.
   <section title="DANE DNS Record Size Guidelines">
     <t>
       Selecting a combination of TLSA parameters to use requires
-      careful thought.  One important consideration 
-      is the size of the resulting TLSA record based on
-      the parameters chosen.
+      careful thought.  One important consideration to take into
+      account is the size of the resulting TLSA record after
+      its parameters are selected.
     </t>
     <section title="UDP and TCP Considerations">
 
@@ -309,34 +309,47 @@ digest of the server certificate.
 	fragmentation.
       </t>
       <t>
-	Although DNS over TCP would provide the ability to
-	transfer larger DNS records between clients and servers, it is
-	not universally deployed and may be blocked by some firewalls.
-	Clients that request DNS records via UDP may only failover to
-	TCP upon receipt of a truncated response.  UDP responses in
-	excess of the MTU may be generated without truncation, but may
-	fail to be delivered when intermediate network equipment does
-	not fully support UDP fragments.  Thus requests for large RRsets
-	will in some cases time out without a TCP retry.
+	Although DNS over TCP would provide the ability to transfer
+	larger DNS records between clients and servers, it is not
+	universally deployed and is still blocked by some firewalls.
+	Clients that request DNS records via UDP typically only
+	use TCP upon receipt of a truncated response in TCP.
+        <!-- WJH: recommend removal of the rest of this; I don't think
+        it's needed and barely scratches the surface of the problem
+        space and is thus incomplete.  All we really want to say is
+        "don't use UDP because it casues problems, and the above does
+        that already"  -->
+        <!-- UDP responses in excess
+	of the MTU may be generated without truncation, but may fail
+	to be delivered when intermediate network equipment does not
+	fully support UDP fragmentation.  Thus, requests for large
+	RRsets may time out without a TCP retry. -->
       </t>
     </section>
     <section title= "Packet Size Considerations for TLSA Parameters">
       <t>
-	Server operators SHOULD NOT publish "TLSA * 0 0"
-	records, as even a single certificate is generally too large
-	to be reliably delivered via DNS without TCP being widely
-	available.  Furthermore, two full certificates may need to be
-	published in the TLSA RRset for certificate rollover.
+	Server operators SHOULD NOT publish TLSA records using both a
+        TLSA Selector of Cert(0) and a TLSA Matching Type of Full(0),
+        as even a single certificate is generally too large to be
+        reliably delivered via DNS over UDP.  Furthermore, two TLSA
+        records containing full certificates may need to be published
+        in during certificate rollover.
       </t>
 
       <t>
-	While "TLSA * 1 0" records, which publish full public keys
-	without the full X.509 wrapping, are generally more compact,
-	these too should be used with caution.  Servers
-	SHOULD publish digests within TLSA
-	records instead.  The complete certificate should, instead, be
-	transmitted to the client in band during the TLS handshake.
+	While TLSA records using a TLSA Selector of SPKI(1) and a TLSA
+	Matching Type of Full(0) publish full public keys without the
+	full X.509 wrapping, are generally more compact, these too
+	should be used with caution as they are still larger than
+	necessary.  Instead, servers SHOULD make use of the
+	digest-based TLSA Matching Types within TLSA records instead.
+	The complete certificate should, instead, be transmitted to
+	the client in-band during the TLS handshake.
       </t>
+
+      <t>In summary, the use of a TLSA Matching Type of Full(0) is NOT
+      RECOMMENDED and the use of SHA-256(1) and SHA-512(2), instead,
+      are encouraged.
     </section>
   </section>
   <section title="Certificate Name Check Conventions">
