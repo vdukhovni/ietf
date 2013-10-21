@@ -606,98 +606,115 @@ digest of the server certificate.
     When a TLS client goes to the trouble of authenticating a certificate
     presented by a TLS server, it should not continue to use the server in
     case of authentication failure or else authentication serves no
-    purpose.  Consequently, if a client cannot reliably authenticate
+    purpose.
+    <!-- XXXWJH: this is not the same as the above and makes no sense:
+    Consequently, if a client cannot reliably authenticate
     correctly configured, legitimate servers via a particular combination
     of TLSA parameters, then the client should treat that combination of
     parameters as unusable.  Otherwise, the client risks routinely
-    dropping connections to legitimate servers.  Servers publishing TLSA
+    dropping connections to legitimate servers.
+
+    Added sentences to the bottom of the "if all" next paragraph in
+    attempt to explain this. 
+    -->
+    Servers publishing TLSA
     records MUST be configured to allow correctly configured clients to
     successfully authenticate the server's TLS certificate.
     </t>
 
     <t>
-    If all the TLSA records for a service are found unusable (possibly due
-    to unsupported parameter combinations), it is application protocol
-    specific as to whether the connection should be established anyway
-    without TLS security, with only TLS encryption and not authentication,
-    or whether to refuse to connect entirely.
+    If all the TLSA records for a service are found unusable (possibly
+    due to unsupported parameter combinations), it is application
+    protocol specific as to whether the connection should be
+    established anyway without relying on TLS security, with only TLS
+    encryption but not authentication, or whether to refuse to connect
+    entirely.  Protocols must choose whether to prioritize security or
+    robustness.  Refusing to connect in the case of unusable
+    parameters is clearly the better option if transport security is
+    critical, but some protocols may value operational robustness when
+    transport security is merely a "nice to have" rather than a requirement.
     </t>
 
     <section title="Design Considerations for non-PKIX Protocols" anchor="nopki">
       <t>
 	For some application protocols, the existing public CA PKI may
-	not be viable.  For these (non-PKIX) protocols, servers SHOULD NOT
-	suggest publishing TLSA records with TLSA Certificate Usage "0" or
-	"1", as clients cannot be expected to perform <xref
+	not be viable (such as with SMTP over TLS).  For these (non-PKIX)
+	protocols, protocol documents SHOULD NOT suggest publishing
+	TLSA records with TLSA Certificate Usage PKIX-CA(0) or
+	PKIX-EE(1), as clients cannot be expected to perform <xref
 	target="RFC5280"/> PKIX validation or <xref target="RFC6125"/>
 	identity verification.
       </t>
 
       <t>
-	<!-- XXXWJH: security vs robustness -->
 	Protocols designed for non-PKIX use SHOULD choose to treat any
-	TLSA records with TLSA Certificate Usage "0" or "1" as unusable.  After
-	verifying that the only available TLSA Certificate Usage types are "0" or
-	"1", protocol definitions MAY instruct clients to either
-	refuse to initiate a connection or to connect via
-	unauthenticated mandatory TLS if no alternative authentication
+	TLSA records with TLSA Certificate Usage PKIX-CA(0) or
+	PKIX-EE(1) as unusable.  After verifying that the only
+	available TLSA Certificate Usage types are PKIX-CA(0) or
+	PKIX-EE(1), protocol specifications MAY instruct clients to
+	either refuse to initiate a connection or to connect via
+	unauthenticated TLS if no alternative authentication
 	mechanisms are available.
       </t>
 
       <t>
 	If non-PKIX protocols do allow for publication of TLSA records
-	with TLSA Certificate Usage "0" or "1", clients SHOULD make use of
-	the TLSA verification to the fullest extent possible.
+	with TLSA Certificate Usage PKIX-CA(0) or PKIX-EE(1), clients
+	SHOULD make use of the TLSA verification to the fullest extent
+	possible.
       </t>
 
-      <section title="TLSA Certificate Usage 1">
+      <section title="TLSA Certificate Usage PKIX-EE(1)">
 
 	<t>
-	  With non-PKIX protocols, clients using TLSA Certificate Usage "1" records MAY ignore the PKIX
-	  validation requirement, and authenticate the server per the content
-	  of the TLSA record alone.  Since servers will hopefully rely on SNI to
-	  select the correct certificate for presentation, the client SHOULD use the SNI
-	  extension to signal the base domain of the TLSA RRset.
+	  With non-PKIX protocols, clients using TLSA Certificate
+	  Usage PKIX-EE(1) records MAY ignore the PKIX validation
+	  requirement, and authenticate the server per the content of
+	  the TLSA record alone.  Since servers will hopefully rely on
+	  SNI to select the correct certificate for presentation, the
+	  client SHOULD use the SNI extension to signal the base
+	  domain of the TLSA RRset.
 	</t>
 
       </section><!-- TLSA Certificate Usage 1 -->
 
-      <section title="TLSA Certificate Usage 0">
+      <section title="TLSA Certificate Usage PKIX-CA(0)">
 
 	<t>
-	  With TLSA Certificate Usage "0" in non-PKIX protocols, the usability of the TLSA records depends
-	  on its matching type.
+	  With TLSA Certificate Usage PKIX-CA(0) in non-PKIX
+	  protocols, the usability of the TLSA records depends on its
+	  matching type.
 	</t>
 
 	<t>
-	  If the matching type is "0", the TLSA record contains the full
-	  certificate or full public key of the trusted certificate authority.
-	  In this case the client has all the information it needs to match
-	  the server trust-chain to the TLSA record.  The client MAY ignore the PKIX validation requirement and authenticate
-	  the server via its DANE TLSA records alone (sending SNI with the
-	  base domain as usual).  The client SHOULD use the base
-	  domain of the TLSA record(s) in certificate name checks. 
+	  If the matching type is Full(0), the client has all the
+	  information it needs to match the server trust-chain to the
+	  TLSA record.  The client MAY ignore the PKIX validation
+	  requirement and authenticate the server via its DANE TLSA
+	  records alone (sending SNI with the base domain as usual).
+	  The client SHOULD use the base domain of the TLSA record(s)
+	  in certificate name checks.
 	</t>
 
 	<t>
-	  If the matching type is not "0", the TLSA record contains only a
-	  digest of the trust certificate authority certificate or public
-	  key.  The full certificate may not be included in the server's
-	  certificate chain and the client may not be able to match the server
-	  trust chain against the TLSA record when a non-PKIX protocol
-	  is being used, as the client won't have a default CA trust
-	  list.  See <xref target="d0"/> for
-	  a more complete discussion of this case.  The client cannot reliably
-	  authenticate the server in this case and SHOULD treat the TLSA
-	  record as unusable.
+	  If the matching type is not Full(0), the TLSA record
+	  contains only a digest of the trust certificate authority
+	  certificate or public key.  The full certificate may not be
+	  included in the server's certificate chain and the client
+	  may not be able to match the server trust chain against the
+	  TLSA record when a non-PKIX protocol is being used, as the
+	  client won't have the needed CA trust list.  See <xref
+	  target="d0"/> for a more complete discussion of this case.
+	  The client cannot reliably authenticate the server in this
+	  case and SHOULD treat the TLSA record as unusable.
 	</t>
 
 	<t>
-	  If the client is configured with a set of trusted CAs that are believed to
-	  be sufficiently complete to authenticate all the servers 
-	  it expects to communicate with, then it MAY elect to honor certificate
-	  usage "0" TLSA records that publish digests of the trusted CA
-	  certificate or public key.
+	  If the client is configured with a set of trusted CAs that
+	  are believed to be sufficiently complete to authenticate all
+	  the servers it expects to communicate with, then it MAY
+	  elect to honor certificate usage PKIX-CA(0) TLSA records that
+	  publish digests of the trusted CA certificate or public key.
 	</t>
 
       </section><!-- TLSA Certificate Usage 0 -->
