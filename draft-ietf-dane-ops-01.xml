@@ -448,14 +448,16 @@ digest of the server certificate.
       TLSA record be removed.</t>
   </section>
   <section title="TLSA Base Domain and CNAMEs" anchor="cname">
+    <!-- XXXWJH: this section needs a lot of work -->
     <t>
-      When the protocol does not support service location indirection via
-      MX, SRV or similar DNS records, the service may be redirected via
-      a CNAME.  A CNAME is a more blunt instrument for this purpose, since
-      unlike an MX or SRV record, it remaps the origin domain to the target
-      domain for all protocols.  Also Unlike MX or SRV records, CNAME records
-      may chain (though clients will generally impose implementation
-      dependent maximum nesting depths).
+      When the protocol does not support service location indirection
+      via MX, SRV or similar DNS records, the service may be
+      redirected via a CNAME.  A CNAME is a more blunt instrument for
+      this purpose, since unlike an MX or SRV record, it remaps the
+      origin domain to the target domain for all protocols, not just a
+      singular one.  Also Unlike MX or SRV records, CNAME records may
+      chain (though DNS resolving implementations will generally
+      impose an implementation dependent maximum nesting depth).
     </t>
 
     <t>
@@ -465,17 +467,26 @@ digest of the server certificate.
       connecting to a server whose domain name is a CNAME alias SHOULD
       follow the CNAME hop-by-hop to its ultimate target host
       (noting at each step whether the CNAME is DNSSEC validated) and use
-      the resulting target host as the base domain for TLSA lookups.
-      Standards defining how to use DANE anchored TLS for each
-      application protocol are expected to specify where to locate
-      TLSA RRs when the destination is referred to by a CNAME.
-      <!-- XXXWJH: discuss here about using the (preferred) last
-      record name or falling back to the (less preferred) first CNAME
-      as the base domain -->
+      the final target host as the base domain for TLSA lookups.
     </t>
 
     <t>
-      If CNAMEs were not followed, Client Domains would need to
+      Implementations failing to find a TLSA record using a base name
+      of the final target of a CNAME expansion MAY choose to issue a
+      TLSA query using the original destination name.  I.e, the
+      preferred tlsa base name would derived for the most-expanded
+      name, and failing that would be the initial query name.
+    </t>
+
+    <t>
+      Protocol-specific TLSA specifications may provide additional
+      guidance or restrictions when following CNAME expansions.
+    </t>
+
+    <section title="Redirecting TLSA lookups in the Client Domain">
+
+    <t>
+      If CNAMEs are not followed, Client Domains will need to
       publish TLSA records that match the Service Provider's
       certificate chain or always use an entity that was both the
       Service Provider and the TLSA publisher.  Having the TLSA base
@@ -485,19 +496,20 @@ digest of the server certificate.
     </t>
 
     <t>
-      It is possible to publish CNAMEs in the Client Domain pointing
-      to the Service Provider's TLSA RRset if the TLSA certificate
-      usage field is set to 3.  Otherwise, a client that used the
-      alias name (from the hosted domain rather than the Service Provider's
-      domain) as the base domain to obtain the TLSA RRset would look
-      for the hosted domain in the server certificate when performing
-      name checks, and would generally fail to authenticate the server
-      except in the rare cases when the server's certificate does
-      include the Client Domain.  SNI SHOULD be used to help perform
-      the right certificate selection by the server, although this
-      imposes a management burden on the TLS server that could be
-      avoided by ensuring the TLSA base domain is within the Service
-      Provider's control in the first place.
+      Fortunately, it is possible to publish CNAMEs in the Client
+      Domain pointing to the Service Provider's TLSA RRset if the TLSA
+      certificate usage field is set to DANE-EE(3).  Otherwise, a
+      client that used the alias name (from the hosted domain rather
+      than the Service Provider's domain) as the base domain to obtain
+      the TLSA RRset would look for the hosted domain in the server
+      certificate when performing name checks, and would generally
+      fail to authenticate the server except in the rare cases when
+      the server's certificate does include the Client Domain.  SNI
+      SHOULD be used to help perform the right certificate selection
+      by the server, although this imposes a management burden on the
+      TLS server that could be avoided by ensuring the TLSA base
+      domain is within the Service Provider's control in the first
+      place.
     </t>
 
     <t>Example CNAME record for a TLSA domain:</t>
@@ -523,13 +535,12 @@ digest of the server certificate.
     </t>
 
     <t>
-      <!-- XXXWJH: genericize to new section -->
       Though CNAMEs are illegal on the right hand side of most
       indirection records, such as MX and SRV records, they are
-      supported by some implementations.  In this case, if the MX or
-      SRV host is a CNAME alias the client MAY "chase" the CNAME
-      and SHOULD use the target hostname as the base domain for TLSA
-      records as well as the host_name in SNI, provided the CNAME
+      supported by some implementations.  For example, if the MX or
+      SRV host is a CNAME alias, some implementations may "chase" the
+      CNAME.  They SHOULD use the target hostname as the base domain for
+      TLSA records as well as the host_name in SNI, provided the CNAME
       RR is found to be "secure" at each step in the CNAME expansion.
     </t>
   </section>
