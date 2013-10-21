@@ -82,7 +82,7 @@ In the context of this memo, channel security is assumed to be provided
 by TLS or DTLS.  The Transport Layer Security (TLS) and Datagram
 Transport Layer Security (DTLS) protocols provide secured TCP and UDP
 communication
-over the Internet Protocol.  By convention, "TLS" will be used through
+over the Internet Protocol.  By convention, "TLS" will be used throughout
 this document and, unless otherwise specified, the text applies equally
 as well to the DTLS protocol.  Used without authentication, TLS
 provides protection only against eavesdropping.  With authentication,
@@ -96,14 +96,14 @@ The DTLS protocol was later documented in <xref target="RFC6347"/>.
 <t>
 As described in the introduction of <xref target="RFC6698"/>, TLS
 authentication via the existing public Certificate Authority (CA)
-Public Key Infrastructure (PKI) suffers from an
-over-abundance of trusted certificate authorities capable of issuing
-certificates for any domain of their choice.  DNS-Based Authentication
-of Named Entities (DANE) leverages the DNSSEC infrastructure to
-publish trusted keys and certificates for use with TLS via a new
-TLSA record type.  DNSSEC validated DANE TLSA records
-have created a new PKI designed to augment or replace the trust model of
-the existing public CA PKI.
+Public Key Infrastructure (PKI) suffers from an over-abundance of
+trusted certificate authorities capable of issuing certificates for
+any domain of their choice.  DNS-Based Authentication of Named
+Entities (DANE) leverages the DNSSEC infrastructure to publish trusted
+keys and certificates of end-entities or certificate-authorities for use
+with TLS via a new TLSA record type.  DNSSEC validated DANE TLSA
+records have created a new PKI designed to augment or replace the
+trust model of the existing public CA PKI.
 </t>
 
 <section title="Terminology">
@@ -114,21 +114,18 @@ this document are to be interpreted as described in <xref
 target="RFC2119"/>.
 </t>
 
-<t>
-This memo is being discussed on the dane@ietf.org mailing list.
-</t>
-
 <t>The following terms are used throughout this document:
 <list style="hanging">
   <t hangText="Service Provider:">
     A company or organization that offers to host a service on behalf
-    of a Client Domain.  The original domain name associated with the service
-    is typically still within the control of the client, however, and
+    of a Client Domain.  The original domain name associated with the
+    service is typically still within the control of the client and
     the service provider is frequently referred to by a redirection
     resource record.  Example redirection records include MX, SRV, and
-    CNAME.  Many times the Service Provider provides services for many
-    customers and must carefully manage TLS credentials offered to their
-    clients to ensure name matching is handled easily by clients.
+    CNAME.  Many times, the Service Provider provides services for
+    many customers and must carefully manage any TLS credentials
+    offered to connecting applications to ensure name matching is
+    handled easily by the applications.
   </t>
   <t hangText="Client Domain:">
     Clients that make use of a Service Provider to outsource their
@@ -136,31 +133,28 @@ This memo is being discussed on the dane@ietf.org mailing list.
   </t>
   <t hangText="TLSA Publisher:">
     The entity responsible for publishing a TLSA record within a DNS
-    zone.  This zone will be considered DNSSEC signed, unless
-    otherwise specified.  If the Client Domain is not outsourcing
-    their DNS service, the TLSA Publisher will be the client
-    themselves.  Otherwise the TLSA Publisher may be the outsourced
-    DNS service instead.
+    zone.  This zone will be considered DNSSEC signed and validatable
+    to a trust anchor, unless otherwise specified.  If the Client
+    Domain is not outsourcing their DNS service, the TLSA Publisher
+    will be the client themselves.  Otherwise the TLSA Publisher may
+    be the outsourced DNS service instead.
   </t>
   <t hangText="public key:">
     The term "public key" will be an
-    informal short-hand for the subjectPublicKeyInfo from a PKIX
+    informal short-hand for the subjectPublicKeyInfo component of a PKIX
     certificate.
   </t>
   <t hangText="SNI:">
     The "Server Name Indication", or SNI, describes the process by
     which a TLS client requests to connect to a particular service
-    name for a TLS server (<xref target="RFC3546" />).  Without this
+    name of a TLS server (<xref target="RFC3546" />).  Without this
     TLS extension, a TLS server has no choice but to offer a PKIX
-    certificate with a default server name.  Service Providers that are expected
-    to host services for many clients need to present the correct
-    certificate for the correct client, and the SNI extension provides
-    a hint to the server which certificate should be transmitted to
-    the client.
+    certificate with a default list of server names.  Service
+    Providers that are expected to host services for many clients need
+    to present the correct certificate for the correct client, and the
+    SNI extension provides a hint to the server which certificate
+    should be transmitted to the client.
   </t>
-  <!-- XXXWJH: need to define different server types and use them
-  consistently.  EG, "TLS Server" and "DNS Server" instead of just
-  "server" -->
 </list>
 </t>
 
