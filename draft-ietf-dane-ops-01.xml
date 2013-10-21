@@ -278,8 +278,8 @@ _25._tcp.mail.example.com. IN TLSA 3 0 1 (
 </figure>
 
 <t>
-The TLSA Certificate Usage is "3" (DANE-EE), the selector is "0"
-(Cert) and the matching type is "1" (SHA2-256).  The rest of the record is the
+The TLSA Certificate Usage is DANE-EE(3), the selector is Cert(0)
+(Cert) and the matching type is SHA2-256(1).  The rest of the record is the
 certificate association data field, which is in this case the SHA-256
 digest of the server certificate.
 </t>
@@ -349,7 +349,7 @@ digest of the server certificate.
 
       <t>In summary, the use of a TLSA Matching Type of Full(0) is NOT
       RECOMMENDED and the use of SHA-256(1) and SHA-512(2), instead,
-      are encouraged.
+      are encouraged.</t>
     </section>
   </section>
   <section title="Certificate Name Check Conventions">
@@ -543,6 +543,7 @@ digest of the server certificate.
       TLSA records as well as the host_name in SNI, provided the CNAME
       RR is found to be "secure" at each step in the CNAME expansion.
     </t>
+  </section> <!-- Redirecting TLSA lookups in the Client Domain -->
   </section>
   <section title="TLSA Base Name Priorities">
     <t>There are multiple steps within a chaining DNS lookup process
@@ -599,6 +600,7 @@ digest of the server certificate.
       A server operator that wants to perform CT checks should use
       TLSA RRs with usage PKIX-CA(0) and use a known, trusted public
       PKIX root issuer.
+    </t>
   </section>
   <section title="Design Considerations for Protocols Using DANE">
 
@@ -760,7 +762,10 @@ digest of the server certificate.
     </t>
 
     <section anchor="d0" title="Trust Anchor Digests With TLSA Certificate Usage 0">
-
+      <!-- XXXWJH: need drop much of this, IMHO. We don't need to talk
+      about *valid* usage 0 when PKIX is expected to be deployed.
+      We're not in the previous section where we were talking about
+      protocols that can't use 0/1 -->
       <t>
 	In this case, from the server's perspective, the omission of the root
 	CA seems reasonable, since in addition to authentication via DANE
@@ -777,7 +782,7 @@ digest of the server certificate.
 	public CA PKI is not applicable, as described in <xref target="nopki"/>.
 	If it is likely that a client
 	lacks a sufficiently complete list of trusted CAs, and that a
-	non-negligible number of DNS servers publish TLSA Certificate Usage 0 TLSA
+	non-negligible number of DNS servers publish TLSA Certificate Usage PKIX-CA(0) TLSA
 	records with digests of omitted root CAs, then such a client SHOULD
 	treat such TLSA records as "unusable".  Simply ignoring PKIX
 	validation is not an option, since the client will also be unable
@@ -793,10 +798,10 @@ digest of the server certificate.
     <section title="Trust Anchor Digests With TLSA Certificate Usage 2">
 
       <t>
-	With TLSA Certificate Usage "2", there is no expectation that the client is pre-configured with
-	the trust anchor certificate.  With TLSA Certificate Usage "2"
+	With TLSA Certificate Usage DANE-CA(2), there is no expectation that the client is pre-configured with
+	the trust anchor certificate.  With TLSA Certificate Usage DANE-CA(2)
 	clients are expecting to rely
-	on the TLSA records alone.  But, with a matching type other than "0"
+	on the TLSA records alone.  But, with a matching type other than PKIX-CA(0)
 	the TLSA records contain neither the full trust anchor certificate
 	nor the full public key.  If the TLS server's certificate chain does
 	not contain the trust-anchor certificate, clients will be
@@ -804,7 +809,7 @@ digest of the server certificate.
       </t>
 
       <t>
-	TLSA Publishers that publish TLSA Certificate Usage "2"
+	TLSA Publishers that publish TLSA Certificate Usage DANE-CA(2)
 	with a non-zero matching type MUST ensure that the corresponding
 	server is configured to include the associated trust anchor certificate
 	in its TLS handshake certificate chain, even if that certificate is
@@ -813,7 +818,7 @@ digest of the server certificate.
       </t>
 
       <t>
-	Since servers are expected to always provide usage "2" trust
+	Since servers are expected to always provide usage DANE-CA(2) trust
 	anchor certificates (either via DNS or else via the TLS hanshake),
 	clients SHOULD fully support this TLSA Certificate Usage.  Clients MAY
 	choose to treat it as unusable if experience proves that servers
@@ -827,10 +832,11 @@ digest of the server certificate.
   <section title="Trust anchor public keys">
 
     <t>
-      TLSA records with TLSA Certificate Usage "0" or "2", selector "1" and a
-      matching type of "0" publish the full public key of a trust anchor
-      via DNS.  In section 6.1.1 of <xref target="RFC5280"/> the
-      definition of a trust anchor consists of the following four parts:
+      TLSA records with TLSA Certificate Usage PKIX-CA(0) or
+      DANE-CA(2), selector SPKI(1) and a matching type of Full(0)
+      publish the full public key of a trust anchor via DNS.  In
+      section 6.1.1 of <xref target="RFC5280"/> the definition of a
+      trust anchor consists of the following four parts:
     </t>
 
     <t><list style="numbers">
@@ -847,7 +853,7 @@ digest of the server certificate.
     </t>
 
     <t>
-      With TLSA Certificate Usage "0", when the client is able to perform PKIX
+      With TLSA Certificate Usage PKIX-CA(0), when the client is able to perform PKIX
       validation, the client can construct a complete PKIX trust chain
       as it will have access to the trust anchor name.  So in that case, the
       client can verify that the server certificate chain is issued by a
@@ -855,7 +861,7 @@ digest of the server certificate.
     </t>
 
     <t>
-      With TLSA Certificate Usage "2", the client may not have the missing trust anchor
+      With TLSA Certificate Usage DANE-CA(2), the client may not have the missing trust anchor
       certificate, and cannot generally verify whether a particular
       certificate chain is "issued by" the trust anchor described in the
       TLSA record.  If the server certificate chain includes a CA certificate
@@ -869,15 +875,17 @@ digest of the server certificate.
       Since trust chain validation via bare public keys rather than trusted
       CA certificates may be difficult to implement using existing TLS
       libraries, servers SHOULD include the trust anchor certificate in
-      their certificate chain when the TLSA Certificate Usage is "2".
+      their certificate chain when the TLSA Certificate Usage is DANE-CA(2).
     </t>
 
     <t>
-      If none of the server's certificate chain elements match a public
-      key specified in full (selector = 0, match type = 0) in a TLSA record, clients SHOULD attempt to
-      check whether the topmost certificate in the chain is signed by the
-      provided public key, and if so consider the server trust chain valid,
-      with authentication complete if name checks are also successful.
+      If none of the server's certificate chain elements match a
+      public key specified in full (selector = Cert(0), match type =
+      Full(0)) in a TLSA record, clients SHOULD attempt to check
+      whether the topmost certificate in the chain is signed by the
+      provided public key, and if so consider the server trust chain
+      valid, with authentication complete if name checks are also
+      successful.
     </t>
 
   </section><!-- Trust anchor public keys -->
@@ -893,13 +901,13 @@ digest of the server certificate.
   </section>
   <section title="Type 0 Guidelines" anchor="type0">
     <t>
-      TLSA Certificate Usage "0" allows a domain to publish constraints
+      TLSA Certificate Usage PKIX-CA(0) allows a domain to publish constraints
       on the set of certificate authorities trusted to issue certificates
       for its TLS servers.  It is expected that clients will only accept
       trust chains which contain a match for one of the published TLSA
-      records.  This is simple for TLSA Certificate Usage "1" where the
+      records.  This is simple for TLSA Certificate Usage PKIX-EE(1) where the
       PKIX trust chain always contains the leaf server certificate.
-      The situation for TLSA Certificate Usage "0" is more subtle.
+      The situation for TLSA Certificate Usage PKIX-CA(0) is more subtle.
     </t>
 
     <t>
