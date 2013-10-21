@@ -106,26 +106,6 @@ have created a new PKI designed to augment or replace the trust model of
 the existing public CA PKI.
 </t>
 
-<!-- XXXWJH: this is not introduction material; move to a later
-section -->
-<t>
-When a TLS client goes to the trouble of authenticating a certificate
-presented by a TLS server, it should not continue to use the server in
-case of authentication failure or else authentication serves no
-purpose.  Consequently, if a client cannot reliably authenticate
-correctly configured, legitimate servers via a particular combination
-of TLSA parameters, then the client should treat that combination of
-parameters as unusable.  Otherwise, the client risks routinely
-dropping connections to legitimate servers.  Servers publishing TLSA
-records MUST be configured to allow correctly configured clients to
-successfully authenticate the server's TLS certificate.
-</t>
-
-<t>If a TLSA record is found as unusable because of a parameter
-combination, it is protocol specific as to whether the connection
-should be established anyway without security, with only TLS
-encryption and not authentication, or to refuse to connect entirely.</t>
-
 <section title="Terminology">
 <t>
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -326,9 +306,13 @@ which is in this case the SHA-256 digest of the server certificate.
       <t>
 	Although DNS over TCP would provide the ability to
 	transfer larger DNS records between clients and servers, it is
-	not yet widely deployed or permitted through many firewalls.
-	TCP must be expected to be deployed on all the DNS servers and
-	DNS clients for it to be a truly viable large-record solution.
+	not universally deployed and may be blocked by some firewalls.
+	Clients that request DNS records via UDP may only failover to
+	TCP upon receipt of a truncated response.  UDP responses in
+	excess of the MTU may be generated without truncation, but may
+	fail to be delivered when intermediate network equipment does
+	not fully support UDP fragments.  Thus requests for large RRsets
+	will in some cases time out without a TCP retry.
       </t>
     </section>
     <section title= "Packet Size Considerations for TLSA Parameters">
@@ -386,16 +370,18 @@ which is in this case the SHA-256 digest of the server certificate.
     </t>
 
     <t>
-      Note: Except with TLSA Certificate Usage "3", where name checks are not
-      applicable (see <xref target="type3" />), DANE aware clients
-      SHOULD use the base domain of the TLSA RRset to verify that the client
-      has reached the correct server by checking that the TLSA base domain
-      is matched by one of the subjectAltName (<xref target="RFC5280"/>) in
-      the server certificate.  The commonName from the certificate subject
-      DN MAY be used only when no subjectAltNames of type 'dns' are present.
-      Additional acceptable names may be specified by protocol specific DANE
-      RFCs.  For example, with SMTP both the destination domain name and the
-      MX host name are acceptable in the server certificate.
+      Note: Except with TLSA Certificate Usage "3", where name
+      checks are not applicable (see <xref target="type3" />), DANE
+      aware clients SHOULD use the base domain of the TLSA RRset
+      to verify that the client has reached the correct server by
+      checking that the TLSA base domain is matched by one of the
+      subjectAltName (<xref target="RFC5280"/>) values in the server
+      certificate.  The commonName from the certificate subject DN
+      MAY be used only when no subjectAltNames of type 'dns' are
+      present.  Additional acceptable names may be specified by
+      protocol specific DANE RFCs.  For example, with SMTP both the
+      destination domain name and the MX host name are acceptable
+      in the server certificate.
     </t>
 
     <t>
@@ -582,6 +568,28 @@ which is in this case the SHA-256 digest of the server certificate.
     </t>
   </section>
   <section title="Design Considerations for Protocols Using DANE">
+
+    <t>
+    When a TLS client goes to the trouble of authenticating a certificate
+    presented by a TLS server, it should not continue to use the server in
+    case of authentication failure or else authentication serves no
+    purpose.  Consequently, if a client cannot reliably authenticate
+    correctly configured, legitimate servers via a particular combination
+    of TLSA parameters, then the client should treat that combination of
+    parameters as unusable.  Otherwise, the client risks routinely
+    dropping connections to legitimate servers.  Servers publishing TLSA
+    records MUST be configured to allow correctly configured clients to
+    successfully authenticate the server's TLS certificate.
+    </t>
+
+    <t>
+    If all the TLSA records for a service are found unusable (possibly due
+    to unsupported parameter combinations), it is application protocol
+    specific as to whether the connection should be established anyway
+    without TLS security, with only TLS encryption and not authentication,
+    or whether to refuse to connect entirely.
+    </t>
+
     <section title="Design Considerations for non-PKIX Protocols" anchor="nopki">
       <t>
 	For some application protocols, the existing public CA PKI may
