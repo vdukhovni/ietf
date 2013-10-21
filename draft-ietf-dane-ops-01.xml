@@ -413,29 +413,39 @@ digest of the server certificate.
       Complications arise when the TLSA Publisher is not the same
       entity as the Service Provider.  In this situation, the TLSA
       Publisher and the Service Provider must cooperate to ensure that
-      TLSA records don't fall out of sync with the server certificate
-      configuration.
+      TLSA records published by the TLSA Publisher don't fall out of
+      sync with the server certificate configuration used by the
+      Service Provider.
     </t>
 
     <t>
       Ideally, the TLSA Publisher and the Service Provider should be
       the same entity.  If a TLSA record must be published in the
-      client's base domain, CNAME records can be easily used to point
-      at the real TLSA record in the Service Provider's zone assuming
-      certificate usage 3 TLSA records are published by the Service Provider
-      (see <xref target="cname"/>).
-      Having the master TLSA record in the Service Provider's
-      zone avoids the complexity of bilateral coordination of server
-      certificate configuration and TLSA record management.
+      Client Domain's base domain, CNAME records can easily point at
+      the real TLSA record in the Service Provider's zone assuming
+      TLSA Certificate Usage DANE-EE(3) TLSA records are published by
+      the Service Provider (see <xref target="cname"/>).  Having the
+      master TLSA record in the Service Provider's zone avoids the
+      complexity of bilateral coordination of server certificate
+      configuration and TLSA record management.
     </t>
 
     <t>
-      For example, with SMTP, the customer's MX records can be pointed
-      at the Service Provider's MX hosts.  When the customer's DNS zone is signed,
-      the MX records can be securely used as
-      the base names for TLSA records managed by the Service Provider.
+      For example, with SMTP, the Client Domain's MX record's exchange
+      name can point directly at the Service Provider's SMTP hosts.
+      When the Client Domain's DNS zone is signed, the MX record's
+      exchange name can be securely used as the base name for TLSA
+      records that are published and managed by the Service Provider.
     </t>
 
+    <t>If directly pointing at the Service Provider's domain is not
+      possible, then care must be taken during a Service Provider's
+      certificate rollover.  Before a Service Provider publishes a new
+      certificate, it should make that certificate available to all of
+      its Client Domains and the Client Domains should publish a new
+      TLSA record in advance of the certificate usage date.  Only once
+      the new certificate is in place and in-use globally may the older
+      TLSA record be removed.</t>
   </section>
   <section title="TLSA Base Domain and CNAMEs" anchor="cname">
     <t>
