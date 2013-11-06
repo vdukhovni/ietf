@@ -120,7 +120,7 @@ attacks.
 <section title="SMTP Channel Security" anchor="channelsec">
 
 <t>
-The Simple Mail Transport Protocol (SMTP) (<xref target="RFC5321"
+The Simple Mail Transfer Protocol (SMTP) (<xref target="RFC5321"
 />) is multi-hop store &amp; forward, while TLS security is hop-by-hop.
 The number of hops from the sender's Mail User Agent to the recipient
 mailbox is rarely less than 2 and is often higher.  Some hops may
