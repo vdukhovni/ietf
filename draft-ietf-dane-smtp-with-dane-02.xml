@@ -859,14 +859,32 @@ usage and selector.
 </t>
 
 <t>
+Records with a matching type of "0", that publish the verbatim
+object value play no role in digest algorithm agility.  They neither
+preempt the processing of records that employ digests, nor are they
+ignored in the presence of any digest records.
+</t>
+
+<t>
 Therefore, server operators MUST ensure that for any given usage
-and selector, ALL objects with certificate association data
-with that usage and selector that are published with a digest
-matching type (matching other that "0") are published with the
-SAME SET of digests (non-zero matching types).  In other words,
-for each usage and selector, the records with a non-zero matching
-types will be a cross-product of a set of underlying objects and
-a fixed set of digests that apply uniformly to all the objects.
+and selector, ALL objects with certificate association data with
+that usage and selector that are published with a digest matching
+type are published with the SAME SET of digests (non-zero matching
+types).  In other words, for each usage and selector, the records
+with non-zero matching types will be a cross-product of a set of
+underlying objects and a fixed set of digests that apply uniformly
+to all the objects.
+</t>
+
+<t>
+SMTP clients SHOULD use digest algorithm agility when processing
+the DANE TLSA records of an SMTP server.  Algorithm agility is
+to be applied after first discarding any unusable or malformed
+records (unsupported digest algorithm, or incorrect digest length).
+Thus, for each usage and selector, the client SHOULD only process
+any usable records with a matching type of "0" and any usable records
+whose digest is the strongest among usable records with the same
+usage and selector.
 </t>
 
 <t>
