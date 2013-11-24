@@ -72,39 +72,38 @@ protocols using a TLS and TLSA combination.
 <section title="Introduction">
 
 <t>
-The Domain Name System Security Extensions (DNSSEC) add data origin
-authentication and data integrity to the Domain Name System.  DNSSEC
-is defined in <xref target="RFC4033"/>, <xref target="RFC4034"/> and
-<xref target="RFC4035"/>.
+Section 2 of <xref target="RFC6698"/> specifies a new "TLSA" DNS resource
+record which associates with a TLS transport endpoint the corresponding
+trusted leaf or issuing authority certificates or public keys.  DNSSEC
+validated DANE TLSA records can be used to augment or replace the trust
+model of the existing public CA PKI.
 </t>
 
 <t>
-In the context of this memo, channel security is assumed to be provided
-by TLS or DTLS.  The Transport Layer Security (TLS) and Datagram
-Transport Layer Security (DTLS) protocols provide secured TCP and UDP
-communication
+<xref target="RFC6698"/> defines 24 combinations of TLSA record parameters.
+Additional complexity arises when the TLS transport endpoint is obtained
+indirectly via SRV, MX and CNAME records or other mechanisms that map an
+abstract service domain to a concrete server domain.  With service
+indirection there are multiple potential places for clients to find the
+relevant TLSA records.  Service indirection is often used to implement
+"virtual hosting", where a single service provider transport endpoint
+simultaneously supports multiple hosted domains.  With services that employ
+TLS, such hosting arrangements may require the service provider to employ
+multiple pairs of private keys and certificates with TLS clients signalling
+the desired domain via SNI (<xref target="RFC3546" /> section 3.1).  This
+memo provides operational guidelines intended to maximize interoperability
+between DANE TLS clients and servers.
+</t>
+
+<t>
+In the context of this memo, channel security is assumed to be provided by
+TLS or DTLS.  The Transport Layer Security (TLS) and Datagram Transport
+Layer Security (DTLS) protocols provide secured TCP and UDP communication
 over the Internet Protocol.  By convention, "TLS" will be used throughout
-this document and, unless otherwise specified, the text applies equally
-as well to the DTLS protocol.  Used without authentication, TLS
-provides protection only against eavesdropping.  With authentication,
-TLS also provides protection against man-in-the-middle (MITM) attacks.
-Since the publication of the TLS 1.0 specification in <xref
-target="RFC2246"/>, two updates to the protocol have been published:
-TLS 1.1 <xref target="RFC4346"/> and TLS 1.2 <xref target="RFC5246"/>.
-The DTLS protocol was later documented in <xref target="RFC6347"/>.
-</t>
-
-<t>
-As described in the introduction of <xref target="RFC6698"/>, TLS
-authentication via the existing public Certificate Authority (CA)
-Public Key Infrastructure (PKI) suffers from an over-abundance of
-trusted certificate authorities capable of issuing certificates for
-any domain of their choice.  DNS-Based Authentication of Named
-Entities (DANE) leverages the DNSSEC infrastructure to publish trusted
-keys and certificates of end-entities or certificate-authorities for use
-with TLS via a new TLSA record type.  DNSSEC validated DANE TLSA
-records have created a new PKI designed to augment or replace the
-trust model of the existing public CA PKI.
+this document and, unless otherwise specified, the text applies equally as
+well to the DTLS protocol.  Used without authentication, TLS provides
+protection only against eavesdropping.  With authentication, TLS also
+provides protection against man-in-the-middle (MITM) attacks.
 </t>
 
 <section title="Terminology">
