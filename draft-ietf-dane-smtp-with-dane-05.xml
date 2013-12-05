@@ -130,9 +130,9 @@ may not.  The same SMTP TCP endpoint can serve both TLS and non-TLS
 clients, with TLS negotiated via the SMTP STARTTLS command (<xref
 target="RFC3207"/>).  DNS MX records abstract the next-hop transport
 end-point by allowing network administrators to specify a set of
-target addresses SMTP traffic should be delivered to for a given
+target addresses where SMTP traffic should be delivered to for a given
 domain.  SMTP addresses are not transport addresses and are security
-agnostic.  Unlike the Hypertext Transfer Protocol (HTTP) and its
+agnostic, for unlike the Hypertext Transfer Protocol (HTTP) and its
 corresponding secured version, HTTPS, there is no URI scheme for email
 addresses to designate whether the SMTP server should be contacted
 with or without security.
@@ -142,22 +142,24 @@ with or without security.
 A Mail Transport Agent (MTA) may need to forward a message to a
 particular email recipient &lt;user@example.com&gt;.  To deliver the
 message, the MTA needs to retrieve the MX hosts of example.com from
-DNS, and then deliver the message to one of them.  Absent DNSSEC, the
-MX lookup is vulnerable to man-in-the-middle and cache poisoning
-attacks.  An active attacker can forge DNS replies with fake MX
-records, and can direct traffic to a server of his choice.  Therefore,
-secure verification of MX host certificates is not possible without
-DNSSEC.  A man in the middle can also suppress the MX host's STARTTLS
-EHLO response, convincing the client that communication over TLS
-is unavailable.
+the DNS, and then deliver the message to one of them.  Absent DNSSEC,
+the MX lookup is vulnerable to man-in-the-middle and DNS cache
+poisoning attacks.  An active attacker can forge DNS replies with fake
+MX records, and can direct traffic to a server of their choice.  Since
+the MX server name can be potentially compromised and since
+certificate naming checks are based on the MX name, secure
+verification of MX host TLS certificates are not possible without
+DNSSEC.  Furthermore, a man in the middle can also suppress the MX
+host's STARTTLS EHLO response, convincing the client that
+communication over TLS is unavailable.
 </t>
 
 <t>
 One might try to harden STARTTLS with SMTP against DNS attacks by
 requiring each MX host to posess an X.509 certificate for the
-recipient domain that is obtained from the message envelope and is
+recipient domain that is obtained from the SMTP message envelope, which is
 not subject to DNS reply forgery.  Unfortunately, this is impractical,
-as email for many domains is handled by third parties, which are
+as email for many domains is handled by third parties that are
 not in a position to obtain certificates for all the domains they
 serve.  Deployment of SNI (see <xref target="RFC6066"/> Section
 3.1) is no panacea, since SNI key management is operationally
