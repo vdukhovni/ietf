@@ -96,19 +96,19 @@ is defined in <xref target="RFC4033"/>, <xref target="RFC4034"/> and
 </t>
 
 <t>
-As described in the introduction of <xref target="RFC6698"/>, TLS
-authentication via the existing public Certificate Authority (CA)
-Public Key Infrastructure (PKI) suffers from an over-abundance of
-trusted certificate authorities capable of issuing certificates for
-any domain of their choice.  DNS-Based Authentication of Named
-Entities (DANE) leverages the DNSSEC infrastructure to publish
-trusted keys and certificates for use with TLS via a new TLSA record
-type.  With DANE, the public CA PKI can be augmented or replaced by
-DNSSEC validated TLSA records.
+As described in the introduction of DNS-Based Authentication of Named
+Entities (DANE) <xref target="RFC6698"/>, TLS authentication via the
+existing public Certificate Authority (CA) Public Key Infrastructure
+(PKI) suffers from an over-abundance of trusted certificate
+authorities capable of issuing certificates for any domain of their
+choice.  DANE leverages the DNSSEC infrastructure to publish trusted
+keys and certificates for use with TLS via a new TLSA record type.
+With DANE, the public CA PKI can be augmented or replaced by DNSSEC
+validated TLSA records.
 </t>
 
 <t>
-The Transport Layer Security (TLS <xref target="RFC5246"/>) protocol
+The Transport Layer Security (TLS) <xref target="RFC5246"/> protocol
 enables secure TCP communication.  In the context of this memo,
 channel security is assumed to be provided by TLS.  Used without
 authentication, TLS protects only against eavesdropping.  With
@@ -121,17 +121,21 @@ attacks.
 <section title="SMTP Channel Security" anchor="channelsec">
 
 <t>
-The Simple Mail Transfer Protocol (SMTP) (<xref target="RFC5321"
-/>) is multi-hop store &amp; forward, while TLS security is hop-by-hop.
-The number of hops from the sender's Mail User Agent to the recipient
-mailbox is rarely less than 2 and is often higher.  Some hops may
-be TLS protected, some may not.  The same SMTP TCP endpoint can
-serve both TLS and non-TLS clients, with TLS negotiated via the
-SMTP STARTTLS command (<xref target="RFC3207"/>).  DNS MX records
-abstract the next-hop transport end-point.  SMTP addresses are not
-transport addresses and are security agnostic.  Unlike HTTP, there
-is no URI scheme for email addresses to designate whether the SMTP
-server should be contacted with or without security.
+The Simple Mail Transfer Protocol (SMTP) (<xref target="RFC5321" />)
+is a multi-hop store &amp; forward protocol, while TLS security
+protects traffic on a hop-by-hop basis.  The number of hops from the
+sender's Mail User Agent (MUA) to the recipient mailbox is rarely less
+than 2 and is often higher.  Some hops may be TLS protected, and some
+may not.  The same SMTP TCP endpoint can serve both TLS and non-TLS
+clients, with TLS negotiated via the SMTP STARTTLS command (<xref
+target="RFC3207"/>).  DNS MX records abstract the next-hop transport
+end-point by allowing network administrators to specify a set of
+target addresses SMTP traffic should be delivered to for a given
+domain.  SMTP addresses are not transport addresses and are security
+agnostic.  Unlike the Hypertext Transfer Protocol (HTTP) and its
+corresponding secured version, HTTPS, there is no URI scheme for email
+addresses to designate whether the SMTP server should be contacted
+with or without security.
 </t>
 
 <t>
