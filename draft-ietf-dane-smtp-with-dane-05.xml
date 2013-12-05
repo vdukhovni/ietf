@@ -2,6 +2,7 @@
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC2246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2246.xml">
+<!ENTITY RFC2560 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2560.xml">
 <!ENTITY RFC3207 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3207.xml">
 <!ENTITY RFC3546 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3546.xml">
 <!ENTITY RFC4033 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4033.xml">
@@ -170,49 +171,56 @@ case for email.
 
 <t>
 Since the recipient domain name cannot be used as the SMTP server
-authentication identity, and neither can the MX hostname without DNSSEC,
-large scale deployment of authenticated TLS for SMTP requires secure DNS.
-At this time, DNSSEC is not yet widely deployed and MTA to MTA traffic
-between Internet connected organizations rarely uses TLS
-at all, or simply uses TLS opportunistically without authentication
-and protects against only passive eavesdropping attacks.
+authentication identity, and neither can the MX hostname without
+DNSSEC, large scale deployment of authenticated TLS for SMTP requires
+that the DNS is secure.  At this time, DNSSEC is not yet widely
+deployed and MTA to MTA traffic between Internet connected
+organizations rarely uses TLS at all, or simply uses TLS
+opportunistically without authentication, which only protects against
+passive eavesdropping attacks.
 </t>
 
 <t>
 The exceptions are cases in which the sending MTA is statically
-configured to use TLS for mail sent to specific selected peer domains and
-is configured with appropriate subject names (or content digests) to expect
-in the presented MX host certificates of those domains.  Such statically configured
-SMTP secure channels are used rarely, generally between domains that
-make bilateral arrangements with their business partners.  Internet
-email, on the other hand, requires contacting many new domains for which security
-configurations can not be established in advance.
+configured to use TLS for mail sent to specific selected peer domains
+and is configured with appropriate subject names (or content digests)
+to expect in the presented host certificates of MX servers for those
+domains.  Such statically configured SMTP secure channels are used
+rarely (generally only between domains that make bilateral
+arrangements with their business partners).  Internet email, on the
+other hand, requires regularly contacting new domains for which
+security configurations can not be established in advance.
 </t>
 
 <t>
 Note, the above does not apply to mail submission <xref target="RFC6409"/>,
-where a mail user agent is pre-configured to send all email to a
+where a mail user agent is pre-configured to send its outgoing email to a
 fixed Mail Submission Agent (MSA).  Submission servers usually offer
 TLS and the Mail User Agent (MUA) can be statically configured to
-require TLS with its chosen MSA.  The situation changes when
+require TLS with its chosen MSA.  The situation changes, however, when
 submission servers are configured dynamically via SRV records (see
 <xref target="RFC6186"/> Section 6).  Applications to submission
-via SRV records will be discussed later in this memo.
+via SRV records will be discussed later in this memo. <!-- XXXWJH: or
+another ID -->
 </t>
 
 <t>
 With little opportunity to use TLS authentication, MX hosts that
 support STARTTLS often use self-signed or private CA issued X.509
 certificates.  Sending systems are rarely configured with a
-comprehensive list of trusted CAs and do not check CRLs or implement
-OCSP.  In essence, they don't and can't rely on the existing public
-CA PKI.  This is not a result of complacency on the part
-SMTP server administrators and MTA developers.  Nor is it just a
-consequence of the relative maturity of the SMTP infrastructure at the
-time that TLS was introduced.  Rather, the abstraction of the SMTP transport
+comprehensive list of trusted CAs and do not check Certificate
+Revocation Lists (CRLs) <xref target="RFC5280" />or implement the
+Online Certificate Status Protocol (OCSP) <xref target="RFC2560" />.
+In essence, they don't, and in fact can't, rely on the existing public
+CA PKI.  This is not a result of complacency on the part SMTP server
+administrators and MTA developers.  Nor is it just a consequence of
+the relative maturity of the SMTP infrastructure at the time that TLS
+was introduced.  Rather, the abstraction of the SMTP transport
 endpoint via DNS MX records, often across organization boundaries,
 limits the use of public CA PKI with SMTP to a small set of
 sender-configured peer domains.
+<!-- XXXWJH: seems like a lot of repetition above; the same thing is
+stated in multiple ways -->
 </t>
 
 <t>
@@ -220,12 +228,10 @@ This does not mean, however, that the Internet email backbone cannot benefit
 from TLS.  The fact that transport security is not explicitly
 specified in either the recipient address or the MX record means
 that new protocols can furnish out-of-band information to SMTP,
-making it possible to simultaneously discover both which peer domains support
+making it possible to simultaneously discover which peer domains support
 secure delivery via TLS and how to verify the
-authenticity of the associated MX hosts.  The first such mechanism
-that can work an Internet scale is DANE TLSA, but use of DANE TLSA
-with MTA to MTA SMTP must be cognizant of the lack of any realistic
-role for the existing public CA PKI.
+authenticity of the associated MX hosts.  This document defines how
+DANE TLSA records are used to accomplish these goals.
 </t>
 
 </section><!-- SMTP Channel Security -->
@@ -1137,6 +1143,7 @@ degrading security.
 </references>
 <!--
 <references title="Informative References">
+&RFC2560;
 &RFC6394;
 &I-D.ietf-dane-srv;
 &I-D.ietf-dane-smtp;
