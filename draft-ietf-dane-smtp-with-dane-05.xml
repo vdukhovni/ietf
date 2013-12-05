@@ -64,12 +64,13 @@
 <keyword>SMTP</keyword>
 
 <abstract> <t>
-This memo describes a protocol for opportunistic TLS security based
-on the DANE TLSA DNS record.  The protocol is downgrade resistant
-when the SMTP client supports DANE TLSA and the server domain
-publishes TLSA records for its MX hosts.  This enables
-an incremental transition of the Internet email backbone (MTA to
-MTA SMTP traffic) to TLS encrypted and authenticated delivery.
+This memo describes a protocol for opportunistic Transport Layer
+Security (TLS) based on the DANE TLSA DNS record.  The protocol is
+downgrade resistant when the Simple Mail Transfer Protocol (SMTP)
+client supports the usage of DANE TLSA records and the server domain
+publishes TLSA records for its Mail Exchange (MX) hosts.  This enables
+an incremental transition of the Internet email backbone to TLS
+encrypted and authenticated delivery.
 </t> </abstract>
 
 </front>
