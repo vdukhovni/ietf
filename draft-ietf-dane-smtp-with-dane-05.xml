@@ -252,21 +252,22 @@ this document are to be interpreted as described in <xref target="RFC2119"/>.
 
 <t>
 This memo describes opportunistic SMTP over TLS security, where
-traffic from DANE TLSA aware SMTP clients to domains that implement
-DANE TLSA records in accordance with this memo is secure.  Traffic
-to other domains continues to be sent in the same manner as before
-(either manually configured for security or unauthenticated and
-often unencrypted).  It is hoped that, over time, more domains will
-implement DNSSEC and publish DANE TLSA records for their MX hosts.
-This will enable an incremental transition of the email backbone
-to authenticated TLS delivery.
+traffic from DANE TLSA aware SMTP clients to domains that publish DANE
+TLSA records in accordance with this memo is authenticated and
+encrypted.  Traffic from non-compliant clients and to domains that do
+not publish TLSA records will continue to be sent in the same manner
+as before (either manually configured for security or via
+unauthenticated and unencrypted SMTP over TCP).  This specification
+enables an incremental transition of the email backbone to
+authenticated TLS delivery, with increased global protection occurring
+as adoption increases.
 </t>
 
 <t>
 Since email addresses and MX hostnames (or submission SRV records)
 neither signal nor deny support for TLS by the receiving domain,
-it is possible to use DANE TLSA records to securely signal TLS
-support and simultaneously to provide the means by which SMTP clients
+the publication of DANE TLSA records both securely signals TLS
+support and provides the means by which SMTP clients
 can successfully authenticate legitimate SMTP servers.
 </t>
 
