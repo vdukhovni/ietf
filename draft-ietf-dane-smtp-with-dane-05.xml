@@ -421,9 +421,9 @@ peername verification, if applicable.
 In summary, if it is possible to securely obtain the full,
 CNAME-expanded, DNSSEC-validated address records for the non-MX
 next-hop domain then that name is the preferred TLSA base domain.
-If that is not possible, then the original next-hop domain is used
+If that is not possible, then the initial next-hop domain is used
 as the TLSA base domain.  When no "secure" TLSA records are found
-at either the CNAME expanded or original next-hop domain, then
+at either the CNAME expanded or initial next-hop domain, then
 opportunistic DANE TLS does not apply for mail delivery to the
 non-MX destination in question.
 </t>
