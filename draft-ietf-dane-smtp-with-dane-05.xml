@@ -279,12 +279,15 @@ with SMTP servers that advertise TLS support via STARTTLS is subject
 to a man in the middle downgrade attack.  Some SMTP servers
 erroneously advertise STARTTLS in default configurations that are not,
 in fact, TLS capable, and clients need to be prepared to retry
-plaintext delivery after STARTTLS fails.  This memo specifies 
-a downgrade resistant mechanism that allows a server to advertise TLS
+plaintext delivery after STARTTLS fails.  This memo specifies a
+downgrade resistant mechanism that allows a server to advertise TLS
 support based on DANE TLSA records.  DNSSEC validated TLSA records are
 unlikely to be accidentally published for servers that do not in fact
 support TLS, and thus clients can safely interpret their presence as a
-commitment by the server operator to implement STARTTLS.
+commitment by the server operator to implement STARTTLS.  Thus, if a
+SMTP client discovers a DNSSEC validated TLSA record for a SMTP host,
+the client SHOULD only connect to the server over properly
+authenticated TLS.
 </t>
 
 <t>
@@ -296,12 +299,16 @@ associated SMTP servers.  When DNSSEC validated TLSA records are
 available for a given next-hop SMTP server, the TLS connection to
 that server will be downgrade resistant.  If the records in question
 are "usable" (<xref target="RFC6698"/>, Section 4.1) to authenticate
-the server, the connection will also be authenticated and thus
+the server, the connection will also be authenticated and
 immune to eavesdropping or tampering (unless DNSSEC itself is
 compromised).
 </t>
 
 <t>
+<!-- XXXWJH: this is confusing; the word "destination" is too close to
+being synonymous with "transport address", and the following paragrapm
+really starts with talking about the domain part of the address but
+that's really only true for the beginning. -->
 Typically, the next-hop destination will be the domain part of
 the recipient address, which is then subject to MX resolution.  The
 next-hop destination may also be configured by the MTA administrator to
@@ -311,7 +318,7 @@ takes the place of the domain part of the recipient address.
 </t>
 
 <t>
-The protocol in this memo is "opportunistic"; it should be used
+The protocol in this memo is "opportunistic", meaning it should be used
 whenever possible but communication should continue when it is not
 available.  Absent "secure" (DNSSEC validated) TLSA records, mail
 delivery should fall back to pre-DANE opportunistic TLS.  The SMTP
@@ -321,8 +328,8 @@ all destinations, in which case mail delivery will be deferred when
 </t>
 
 <t>
-Below we explain how to determine for a given next-hop destination
-the associated SMTP servers, the TLSA base domain and TLSA records.
+How to determine the SMTP servers, the TLSA base domain and
+the TLSA records for a given next-hop destination is described below.
 </t>
 
 <section title="Non-MX destinations" anchor="non-mx">
