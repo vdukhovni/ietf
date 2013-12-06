@@ -335,22 +335,28 @@ the TLSA records for a given next-hop destination is described below.
 <section title="Non-MX destinations" anchor="non-mx">
 
 <t>
-As mentioned above, the next-hop destination domain may in some
-cases be exempt from MX lookups.  In addition, MX lookups for
-the next-hop domain may yield no results.  In either case, the
-destination server for such a domain is determined by looking
-up the corresponding A or AAAA records.  
+As mentioned above, the next-hop destination domain may in some cases
+be exempt from MX lookups, in which case the destination server for
+such a domain is determined by looking up the corresponding A or AAAA
+records for the externally-obtained transport address.  In addition,
+MX lookups for the next-hop domain may yield no results, in which case
+the destination server for such a domain is determined by looking up
+the corresponding A or AAAA records for domain name where no MX
+records were found.  This section describes the algorithm to use when
+searching for TLSA records when MX records don't exist or are
+explicitly not being used, as specified via configuration directives.
 </t>
 
 <t>
-When "bogus" records are encountered either during CNAME expansion, or
-when retrieving the associated TLSA RRset, the SMTP client MUST
-proceed as if the next-hop domain were unreachable.  Delivery should
-either be deferred or may be attempted via any fallback next-hop
-configured by the SMTP client administrator.  Fallback next-hop
-destinations may also employ opportunistic DANE TLS.  Proceeding with
-the original next-hop despite "bogus" DNS responses would destroy
-protection against downgrade attacks.
+When DNSSEC "bogus" records are encountered either during any DNS
+query being used to support mail delivery, including during CNAME
+expansion, or when retrieving the associated TLSA RRset, the SMTP
+client MUST proceed as if the next-hop domain were unreachable.
+Proceeding with the "bogus" next-hop would destroy protection against
+downgrade attacks.  Delivery should either be deferred or may be
+attempted via any fallback next-hop destination configured by the SMTP
+client administrator.  Fallback next-hop destinations may also employ
+opportunistic DANE TLS.
 </t>
 
 <t>
@@ -365,30 +371,36 @@ expansion.  We consider the following cases:
 <t>
 <list style="hanging">
 
+<!-- XXXWJH: "missing" is missing... -->
+
 <t hangText="Non-CNAME: ">
-The next-hop destination domain is not a CNAME alias.  The lookup
-key for the DNSSEC validated TLSA records is obtained by prepending
+The next-hop destination domain is not a CNAME alias.  The lookup key
+for the DNSSEC validated TLSA records is obtained by prepending
 service labels ("_&lt;port-number&gt;._tcp") to the initial next-hop
 destination domain.  If associated "secure" TLSA records are found
-(see <xref target="tlsa-lookup" />) the TLSA base domain is the
+(see <xref target="tlsa-lookup" />), then the TLSA base domain is the
 next-hop domain.  If no secure TLSA records are found, opportunistic
 DANE TLS is not applicable and mail delivery proceeds with pre-DANE
-opportunistic TLS.
-</t>
+opportunistic TLS.</t>
 
 <t hangText="Insecure CNAME: ">
-The next-hop destination domain is a CNAME alias, but at least one
-of the CNAME RRs leading to the ultimate target of this alias (during
-recursive CNAME expansion) is "insecure".  We treat this case just
-like the non-CNAME case above.
+The next-hop destination domain is a CNAME alias, but at least one of
+the CNAME RRs leading to the ultimate target of this alias (during
+recursive CNAME expansion) is "insecure".  This case is treated just
+like the non-CNAME case above, where a search is performed for a TLSA
+record using the initial name and, if found, use that as the TLSA
+base domain.
 </t>
 
 <t hangText="Secure CNAME, no TLSA: ">
-The next-hop destination domain is a CNAME alias, and all the CNAME RRs
-leading to the ultimate target of this alias (during recursive CNAME
-expansion) are "secure" (DNSSEC validated), but no "secure" TLSA
-RRs are found after prefixing the service labels to the CNAME-expanded
-next-hop domain.  This case is also treated just like the non-CNAME case.
+The next-hop destination domain is a CNAME alias, and all the CNAME
+RRs leading to the ultimate target of this alias (during recursive
+CNAME expansion) are "secure" (i.e., DNSSEC validated), but no
+"secure" TLSA RRs are found after prefixing the service labels to the
+CNAME-expanded next-hop domain.  This case is also treated just like
+the non-CNAME case, where a search is performed for a TLSA record
+using the initial name and, if found, use that as the TLSA base
+domain.
 </t>
 
 <t hangText="Secure CNAME, TLSA: ">
@@ -397,9 +409,9 @@ leading to the ultimate target of this alias (during recursive CNAME
 expansion) are "secure", and in addition "secure" TLSA RRs are found
 after prefixing the service labels to the CNAME-expanded next-hop
 domain.  In this case the CNAME-expanded next-hop domain is taken
-as the TLSA base domain.  The original next-hop domain is (see <xref
+as the TLSA base domain.  The initial next-hop domain is (see <xref
 target="matching" />) used only as an alternative name in certificate
-peername verification if applicable.
+peername verification, if applicable.
 </t>
 
 </list>
