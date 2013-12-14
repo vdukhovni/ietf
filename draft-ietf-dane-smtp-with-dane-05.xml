@@ -327,9 +327,22 @@ all destinations, in which case mail delivery will be deferred when
 "secure" TLSA records are absent.
 </t>
 
+
 <t>
-How to determine the SMTP servers, the TLSA base domain and
-the TLSA records for a given next-hop destination is described below.
+When DNSSEC "bogus" records are encountered either during any DNS
+query being used to support mail delivery, including during CNAME
+expansion, MX resolution, or when retrieving the appropriate TLSA
+RRset, the SMTP client MUST proceed as if the next-hop domain were
+unreachable.  Proceeding with the "bogus" next-hop would destroy
+protection against downgrade attacks.  Delivery should either be
+deferred or may be attempted via any fallback next-hop destination
+configured by the SMTP client administrator.  Fallback next-hop
+destinations may also employ opportunistic DANE TLS.
+</t>
+
+<t>
+How to determine the SMTP servers, the TLSA base domain and the TLSA
+records for a given next-hop destination is described below.
 </t>
 
 <section title="Non-MX destinations" anchor="non-mx">
@@ -345,18 +358,6 @@ the corresponding A or AAAA records for domain name where no MX
 records were found.  This section describes the algorithm to use when
 searching for TLSA records when MX records don't exist or are
 explicitly not being used, as specified via configuration directives.
-</t>
-
-<t>
-When DNSSEC "bogus" records are encountered either during any DNS
-query being used to support mail delivery, including during CNAME
-expansion, or when retrieving the associated TLSA RRset, the SMTP
-client MUST proceed as if the next-hop domain were unreachable.
-Proceeding with the "bogus" next-hop would destroy protection against
-downgrade attacks.  Delivery should either be deferred or may be
-attempted via any fallback next-hop destination configured by the SMTP
-client administrator.  Fallback next-hop destinations may also employ
-opportunistic DANE TLS.
 </t>
 
 <t>
@@ -433,28 +434,15 @@ non-MX destination in question.
 <section title="MX resolution" anchor="mx">
 
 <t>
-In this section we consider next-hop domains that are subject to
-MX resolution and have MX records.  When DANE TLS is applicable,
-the TLSA base domain will be associated with the MX host selected
+In this section we consider next-hop domains that are have MX records
+and are, thus, subject to MX resolution.  When DANE TLS is applicable,
+the TLSA base domain will be associated with the MX host name selected
 for message delivery.  Therefore, the MX host names must be determined
-securely by performing a DNSSEC validated MX lookup to obtain the
-list of associated MX hosts.  If the MX RRset is "insecure", DANE
-TLSA does not apply and mail delivery proceeds with pre-DANE
-opportunistic TLS (subject to its various MITM attacks and unecrypted
-transmission when STARTTLS is not supported by the destination).
-</t>
-
-<t>
-When "bogus" DNSSEC records are encountered during CNAME expansion
-of the next-hop domain or when processing the actual MX RRset, delivery
-MUST either
-be deferred, or MAY be attempted via any fallback next-hop (which
-may also employ opportunistic DANE TLS) configured by the SMTP
-client administrator.  Proceeding with the original next-hop despite
-"bogus" DNS responses would destroy protection against downgrade
-attacks.  When "bogus" DNSSEC records are encountered with CNAME
-expansion or TLSA RRset lookup for a particular MX host, delivery
-MUST proceed as if MX host in question were unreachable.
+securely by performing a DNSSEC validated MX lookup to obtain the list
+of associated MX exchange names.  If the MX RRset is "insecure", DANE
+TLSA does not apply, and mail delivery should proceed without DANE
+opportunistic TLS support (subject to its various MITM attacks and
+likely unauthenticated and unencrypted transmission).
 </t>
 
 <t>
