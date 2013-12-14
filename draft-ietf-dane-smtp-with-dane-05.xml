@@ -442,15 +442,15 @@ non-MX destination in question.
 <section title="MX resolution" anchor="mx">
 
 <t>
-In this section we consider next-hop domains that are have MX records
+In this section we consider next-hop domains that have MX records
 and are, thus, subject to MX resolution.  When DANE TLS is applicable,
 the TLSA base domain will be associated with the MX host name selected
 for message delivery.  Therefore, the MX host names must be determined
 securely by performing a DNSSEC validated MX lookup to obtain the list
 of associated MX exchange names.  If the MX RRset is "insecure", DANE
-TLSA does not apply, and mail delivery should proceed without DANE
-opportunistic TLS support (subject to its various MITM attacks and
-likely unauthenticated and unencrypted transmission).
+TLSA does not apply, and mail delivery should proceed with non-DANE
+opportunistic TLS (subject to its various MITM attacks and likely
+unauthenticated and unencrypted transmission).
 </t>
 
 <t>
