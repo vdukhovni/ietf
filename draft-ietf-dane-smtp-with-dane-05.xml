@@ -246,6 +246,14 @@ this document are to be interpreted as described in <xref target="RFC2119"/>.
 
 </section><!-- Terminology -->
 
+<t>
+The following terms or concepts are used through the document:
+
+<list>
+	<t>delayed delivery:  XXX describe</t>
+</list>
+</t>
+
 </section><!-- Introduction -->
 
 <section title="Hardening Opportunistic TLS">
