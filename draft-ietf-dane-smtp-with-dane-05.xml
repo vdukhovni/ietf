@@ -462,14 +462,14 @@ means insecure delivery.
 </t>
 
 <t>
+<!-- XXXWJH: need to modify this to include DNAME too -->
 In accordance with Section 5.1 of <xref target="RFC5321"/>, if the MX
 lookup of the initial name yields a CNAME, we replace the initial name
 with the resulting name and perform a new lookup with the new name.
 MTAs typically support recursion in CNAME expansion, so this
 replacement is performed repeatedly until the ultimate non-CNAME
-domain is found (or the limit on the number of CNAMEs to examine is
-reached).  If at any stage of CNAME expansion the DNS result is
-"bogus", MX resolution fails with a temporary error.  In that case,
+domain is found.  If at any stage of CNAME expansion the DNS result is
+"bogus", MX resolution fails and delivery is delayed.  In that case,
 mail delivery MUST either be deferred, or attempted via any
 alternative delivery channel configured by the MTA administrator.  We
 consider the following cases:
