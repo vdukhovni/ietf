@@ -638,13 +638,15 @@ DANE-based opportunistic TLS.</t>
 
 <t>
 Since opportunistic DANE TLS will be used by non-interactive MTAs,
-with no user to "press OK" when authentication fails, reliability of
-peer authentication is paramount.  TLSA records published for SMTP
-servers SHOULD be "3 1 1" records to support opportunistic SMTP over
-TLS with DANE.  This record specifies the SHA-256 digest of the
-server's public key.  Since all DANE implementations are required
-to support SHA-256, this record works for all clients and need not
-change across certificate renewals with the same key.
+with no users available that can "press OK or Cancel" when
+authentication fails, reliability of peer authentication is paramount.
+TLSA records published for SMTP servers SHOULD use TLSA records with a
+certificate usage of "3", a selector field of "1", and a matching type
+field of "1" to support opportunistic SMTP over TLS with DANE.  This
+record usage specifies the use of a SHA-256 digest of the server's
+public key.  Since all DANE implementations are required to support
+SHA-256, this record works for all clients and need not change across
+certificate renewals that reuse the same key.
 </t>
 
 <t>
@@ -653,23 +655,29 @@ simply checking that the server's leaf certificate matches the TLSA
 record.  Other than extracting the relevant certificate elements
 for comparison, no other use is made of the certificate content.
 Authentication via certificate usage "3" TLSA records involves
-no certificate authority signature checks.  It also involves no
+no certificate authority checks of any kind.  It also involves no
 server name checks, and thus does not impose any new requirements
 on the names contained in the server certificate (SNI is not required
-when the TLSA record matches server's default certificate).
+when the TLSA record matches server's default certificate).  Simply
+put, it is the easiest to implement of the DANE record types and is
+the least prone to implementation errors.
 </t>
 
+<!-- XXXWJH: this is generic to 1 and 3, and not type 3 specific;
+     should move to operational considerations and be prefaced by type
+     1/3 statement ? -->
 <t>
-Two TLSA records will need to be published before updating a server's
-public key, one matching the currently deployed key and the other
-matching the new key scheduled to replace it.  Once sufficient time
-has elapsed for all DNS caches to time out the previous TLSA RRset, which
-contains only the old key, the server may be reconfigured to use the
-new private key and associated public key certificate.  The amount of
-time a server should wait before using a new key that is referenced by
-new TLSA records should be at least twice the TTL of the previously published TLSA records.
-Once the server is using a new key, the obsolete TLSA RR can be removed
-from DNS, leaving only the RR that matches the new key.
+Two TLSA records will need to be simultaneously published before
+updating a server's public TLS key; one must match the currently
+deployed key and the other must match the new key scheduled to replace
+it.  Once sufficient time has elapsed for all DNS caches to time out
+the previous TLSA RRset (that contains only the old key), the TLS
+server may be reconfigured to use the new public/private key
+certificate pair.  The amount of time a server should wait before deploying a
+new key that is referenced by new TLSA records should be at least
+twice the TTL of the previously published TLSA records.  Once the
+server is using the new key, the obsolete TLSA RR can be removed from
+DNS, leaving only the TLSA record that matches the new key.
 </t>
 
 </section><!-- Certificate usage 3 -->
