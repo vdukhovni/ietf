@@ -1096,7 +1096,7 @@ production quality.
 
 </section><!-- Acknowledgements -->
 
-<section anchor"Operational" title="Operational Considerations">
+<section anchor="Operational" title="Operational Considerations">
 
 <t>
 SMTP clients may deploy opportunistic DANE TLS incrementally by
@@ -1116,6 +1116,7 @@ in <xref target="I-D.ietf-dane-ops"/>'s "Certificate Name Check
 Conventions", "Service Provider and TLSA Publisher Synchronization"
 and "TLSA Base Domain and CNAMEs" sections.
 </t>
+</section>
 
 <section anchor="Security" title="Security Considerations">
 
