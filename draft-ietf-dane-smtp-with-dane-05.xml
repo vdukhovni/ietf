@@ -249,11 +249,13 @@ this document are to be interpreted as described in <xref target="RFC2119"/>.
 <t>
 The following terms or concepts are used through the document:
 
-<list>
-	<t>delayed delivery:  XXX describe</t>
-	<t>original next hop destination: when an tempt to deliver mail is
+<list style="hanging">
+	<t hangText="delayed delivery:"  XXX describe</t>
+	<t hangText="original next hop destination:" when an tempt to deliver mail is
 	needed, the initial name used to start the DNS lookup process
-	is referred to as the "original next hop destination". 
+	is referred to as the "original next hop destination". </t>
+	<t hangText='"secure", "insecure", "bogus":'>DNSSEC validation
+	results, as defined in <xref target="RFC4035" />.
 </list>
 </t>
 
