@@ -244,21 +244,22 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 this document are to be interpreted as described in <xref target="RFC2119"/>.
 </t>
 
-</section><!-- Terminology -->
 
 <t>
 The following terms or concepts are used through the document:
-
+</t>
+<t>
 <list style="hanging">
-	<t hangText="delayed delivery:">XXX describe</t>
-	<t hangText="original next hop destination:"> when an tempt to deliver mail is
+	<t hangText="delayed delivery: ">XXX describe</t>
+	<t hangText="original next hop destination: "> when an tempt to deliver mail is
 	needed, the initial name used to start the DNS lookup process
 	is referred to as the "original next hop destination". </t>
-	<t hangText='"secure", "insecure", "bogus":'>DNSSEC validation
-	results, as defined in <xref target="RFC4035" /></t>.
+	<t hangText="secure, bogus, insecure: ">DNSSEC validation
+	results, as defined in <xref target="RFC4035" />.</t>
 </list>
 </t>
 
+</section><!-- Terminology -->
 </section><!-- Introduction -->
 
 <section title="Hardening Opportunistic TLS">
