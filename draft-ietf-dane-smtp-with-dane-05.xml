@@ -630,12 +630,6 @@ material with the hosting provider to enable TLS via SNI.
 
 <section title="TLSA certificate usages">
 
-<t>
-TLSA Publishers should follow the TLSA publication size guidance
-found in <xref target="I-D.ietf-dane-ops" /> about "DANE DNS Record
-Size Guidelines".
-</t>
-
 <section title="Certificate usage 3" anchor="cert3">
 
 <t>
@@ -1099,6 +1093,8 @@ production quality.
 
 <section anchor="Operational" title="Operational Considerations">
 
+<section anchor="opclients" title="Client Operational Considerations">
+
 <t>
 SMTP clients may deploy opportunistic DANE TLS incrementally by
 enabling it only for selected sites, or may occasionally need to
@@ -1117,6 +1113,17 @@ in <xref target="I-D.ietf-dane-ops"/>'s "Certificate Name Check
 Conventions", "Service Provider and TLSA Publisher Synchronization"
 and "TLSA Base Domain and CNAMEs" sections.
 </t>
+</section>
+
+<section anchor="oppublishers" title="Publisher Operational Considerations">
+
+<t>
+TLSA Publishers should follow the TLSA publication size guidance
+found in <xref target="I-D.ietf-dane-ops" /> about "DANE DNS Record
+Size Guidelines".
+</t>
+
+</section>
 </section>
 
 <section anchor="Security" title="Security Considerations">
