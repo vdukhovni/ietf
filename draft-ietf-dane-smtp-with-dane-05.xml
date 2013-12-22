@@ -628,6 +628,10 @@ material with the hosting provider to enable TLS via SNI.
 
 <section title="DANE authentication">
 
+<t>This section discusses some specific attributes of using the DANE
+protocol and TLSA record when making use of SMTP security with
+DANE-based opportunistic TLS.</t>
+
 <section title="TLSA certificate usages">
 
 <section title="Certificate usage 3" anchor="cert3">
