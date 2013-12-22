@@ -539,12 +539,12 @@ to determine the most appropriate TLSA RRset base domain.
 <section title="TLSA record lookup" anchor="tlsa-lookup">
 
 <t>
-Each TLSA base domain obtained above (for a non-MX destination, or
-for a particular MX exchange name of an MX destination), when prefixed with
-appropriate service labels leads to associated "secure" TLSA RRs
-(possibly via a chain of "secure" CNAME RRs).  If, for example, the
-base domain is "mail.example.com", the TLSA RRset is obtained via
-a DNSSEC query of the form:
+Each prefixed TLSA base domain obtained above (for a non-MX
+destination, or for a particular MX exchange name of an MX
+destination) should lead to associated "secure" TLSA RRs (possibly
+via a chain of "secure" CNAME RRs).  If, for example, the base domain
+is "mail.example.com", the TLSA RRset is obtained via a DNSSEC query
+of the form:
 </t>
 
 <figure>
@@ -554,64 +554,71 @@ _25._tcp.mail.example.com. IN TLSA ?
 </figure>
 
 <t>
-Typically, the destination TCP port is 25, but this may be different
-with custom routes specified by the MTA administrator or when an
-MUA connects to a submission server on port 587.  The SMTP client
-MUST use the appropriate "_&lt;port-number&gt;" prefix in place of "_25"
-when the port number is not equal to 25.  The query response may
-be a CNAME (or a DNAME + CNAME combination), or the TLSA RRset.  If
-the record is a CNAME or DNAME, the SMTP client restarts the TLSA
-query at the target domain, following CNAMEs as appropriate.
+For SMTP, the destination TCP port is typically 25, but this may be
+different with custom routes specified by the MTA administrator or
+when an MUA connects to a submission server on port 587.  The SMTP
+client MUST use the appropriate "_&lt;port-number&gt;" prefix in place
+of "_25".  The query response may be a CNAME (or a DNAME + CNAME
+combination), or the actual TLSA RRset.  If the record is a CNAME or
+DNAME, the SMTP client restarts the TLSA query at the target domain,
+following CNAMEs as appropriate and ensuring that the entire chain is
+"secure".  As above, if any "bogus" records are found, DNS resolution
+fails and delivery MUST be delayed.  Unlike above, however, when
+processing TLSA DNS resolution, if any "insecure" records are
+found, then delivery should proceed via pre-DANE opportunistic TLS or
+without any protection.
 </t>
 
 <t>
-CNAMEs encountered during TLSA record lookups can be used to share
-a single TLSA RRset specifying a common certificate authority or a
-common leaf certificate for multiple TLS services.  Such CNAME expansion
-does not change the SMTP client's notion of the TLSA base domain, thus
-when _25._tcp.mail.example.com is a CNAME the base domain remains
-mail.example.com and is still used in peer certificate name checks.  For
-example:
+CNAMEs encountered during TLSA record lookups can be used to reference
+a single authoritative TLSA RRset specifying a common certificate
+authority or a common end-entity certificate to be used with multiple
+TLS services.  Such CNAME expansion does not change the SMTP client's
+notion of the TLSA base domain; thus, when _25._tcp.mail.example.com
+is a CNAME, the base domain remains mail.example.com and is still the
+name used in peer certificate name checks.
+</t>
+
+<t>
+For example:
 </t>
 
 <figure>
 <artwork>
 example.com.                IN MX 0 mail.example.com.
 example.com.                IN MX 0 mail2.example.com.
-_25._tcp.mail.example.com.  IN CNAME 2.1.1._dane.example.com.
-_25._tcp.mail2.example.com. IN CNAME 2.1.1._dane.example.com.
-2.1.1._dane.example.com.    IN  TLSA 2 1 1 e3b0c44298fc1c14
-                                           9afbf4c8996fb924
-					   27ae41e4649b934c
-					   a495991b7852b855
+_25._tcp.mail.example.com.  IN CNAME tlsa211._dane.example.com.
+_25._tcp.mail2.example.com. IN CNAME tlsa211._dane.example.com.
+tlsa211._dane.example.com.  IN  TLSA 2 1 1 e3b0c44298fc1c14....
 </artwork>
 </figure>
 
 <t>
 Here, mail.example.com and mail2.example.com have certificates issued
 under a common trust-anchor, but each MX exchange name's TLSA base domain remains
-its hostname and MUST match the subject name (or subject alternative name)
-in its certificate.
+its SMTP hostname and that name MUST match the subject name (or subject alternative name)
+in its presented certificate.
 </t>
 
 
 <t>
-If, after possible CNAME indirection, at least one "secure" TLSA
-record is found (even if not usable because it is unsupported by
-the implementation or administratively disabled) the next-hop host
-has committed to TLS support.  The SMTP client SHOULD NOT deliver
-mail via such a next-hop host unless a TLS session is negotiated
-via STARTTLS.  This avoids man in the middle STARTTLS downgrade
-attacks.
+If, when conducting TLSA resolution (including possible CNAME
+indirection), at least one "secure" TLSA record is found (even if not
+usable because it is unsupported by the implementation or
+administratively disabled), then the next-hop host has signaled its
+commitment to providing TLS support.  The SMTP client SHOULD NOT
+deliver mail via this next-hop host unless a TLS session is negotiated
+via STARTTLS.  This is required to avoid the man in the middle
+STARTTLS downgrade attack.
 </t>
 
 <t>
-As noted previously (<xref target="non-mx" />, <xref target="mx" />),
+As noted previously (in Sections <xref target="non-mx" />, <xref target="mx" />),
 when no TLSA records are found at a CNAME-expanded name (due to an
-insecure response or a lack of TLSA records verified by DNSSEC's
+insecure response or when a lack of TLSA records has been verified by DNSSEC's
 proof-of-non-existence), the unexpanded name MUST be tried instead.
 This supports clients of hosting providers where the provider's zone is
-not DNSSEC validated, but the client has shared appropriate key
+cannot be validated with DNSSEC, but the client has shared appropriate key
 material with the hosting provider to enable TLS via SNI.
 </t>
 
@@ -1171,13 +1178,11 @@ degrading security.
 &RFC6698;
 &I-D.ietf-dane-ops;
 </references>
-<!--
 <references title="Informative References">
 &RFC2560;
 &RFC6394;
 &I-D.ietf-dane-srv;
 &I-D.ietf-dane-smtp;
 </references>
--->
 </back>
 </rfc>
