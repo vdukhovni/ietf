@@ -622,25 +622,6 @@ cannot be validated with DNSSEC, but the client has shared appropriate key
 material with the hosting provider to enable TLS via SNI.
 </t>
 
-<t>
-SMTP clients may deploy opportunistic DANE TLS incrementally by
-enabling it only for selected sites, or may occasionally need to
-disable opportunistic DANE TLS for peers that fail to interoperate due
-to misconfiguration or software defects on either end.  Unless local
-policy specifies that opportunistic DANE TLS is not to be used for a
-particular destination, client MUST NOT deliver mail via a server
-whose certificate chain fails to match at least one TLSA record when
-usable TLSA records are available.
-</t>
-
-<t>
-SMTP clients employing opportunistic DANE TLS and TLSA record
-publishers for SMTP servers need to follow the guidance outlined
-in <xref target="I-D.ietf-dane-ops"/>'s "Certificate Name Check
-Conventions", "Service Provider and TLSA Publisher Synchronization"
-and "TLSA Base Domain and CNAMEs" sections.
-</t>
-
 </section><!-- TLSA record lookup -->
 </section><!-- TLS discovery -->
 
@@ -1114,6 +1095,27 @@ production quality.
 </t>
 
 </section><!-- Acknowledgements -->
+
+<section anchor"Operational" title="Operational Considerations">
+
+<t>
+SMTP clients may deploy opportunistic DANE TLS incrementally by
+enabling it only for selected sites, or may occasionally need to
+disable opportunistic DANE TLS for peers that fail to interoperate due
+to misconfiguration or software defects on either end.  Unless local
+policy specifies that opportunistic DANE TLS is not to be used for a
+particular destination, client MUST NOT deliver mail via a server
+whose certificate chain fails to match at least one TLSA record when
+usable TLSA records are available.
+</t>
+
+<t>
+SMTP clients employing opportunistic DANE TLS and TLSA record
+publishers for SMTP servers need to follow the guidance outlined
+in <xref target="I-D.ietf-dane-ops"/>'s "Certificate Name Check
+Conventions", "Service Provider and TLSA Publisher Synchronization"
+and "TLSA Base Domain and CNAMEs" sections.
+</t>
 
 <section anchor="Security" title="Security Considerations">
 
