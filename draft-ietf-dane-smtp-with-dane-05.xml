@@ -251,6 +251,9 @@ The following terms or concepts are used through the document:
 
 <list>
 	<t>delayed delivery:  XXX describe</t>
+	<t>original next hop destination: when an tempt to deliver mail is
+	needed, the initial name used to start the DNS lookup process
+	is referred to as the "original next hop destination". 
 </list>
 </t>
 
@@ -472,8 +475,10 @@ replacement is performed repeatedly until the ultimate non-CNAME
 domain is found.  If at any stage of CNAME expansion the DNS result is
 "bogus", MX resolution fails and delivery is delayed.  In that case,
 mail delivery MUST either be deferred, or attempted via any
-alternative delivery channel configured by the MTA administrator.  We
-consider the following cases:
+alternative delivery channel configured by the MTA administrator.
+</t>
+<t>
+We consider the following cases when performing MX resolution:
 </t>
 
 <t>
@@ -481,44 +486,50 @@ consider the following cases:
 
 <t hangText="Non-CNAME: ">
 The next-hop destination domain is not a CNAME alias, that is, it
-resolves directly to a set of DNSSEC validated ("secure") MX hosts.
-With each MX host, if MX host CNAME expansion is supported by the
-MTA, and the full CNAME expansion of the MX host name is "secure",
-then the CNAME expanded MX host name is the TLSA base domain provided
-secure TLSA records are found there after prefixing service labels
-("_&lt;port-number&gt;._tcp").  Otherwise, the initial MX host name
-is the TLSA base domain provided secure TLSA records are found there
-after prefixing service labels.  With the MX hostname (or its CNAME
-expansion) as the TLSA base domain, the original next-hop domain
-SHOULD be used only in certificate name checks.  If no "secure"
-TLSA RRs are found, and no "bogus" records encountered, DANE TLSA
-is not applicable with the MX host in question and delivery proceeds
-as with pre-DANE opportunistic TLS.
+resolves directly to a set of DNSSEC validated ("secure") MX exchange
+names.  With each MX exchange name, if MX exchange name CNAME
+expansion is supported by the MTA, and the full CNAME expansion of the
+MX exchange name is "secure", then the CNAME expanded MX exchange name
+is the TLSA base domain provided secure TLSA records are found there,
+after adding the necessary prefix service labels
+("_&lt;port-number&gt;._tcp").  Otherwise, the initial MX exchange
+name is used as the TLSA base domain, provided that secure TLSA
+records are found after adding the necessary prefix service labels.
+With the MX exchange name (or its CNAME expansion) as the TLSA base
+domain, the original next-hop domain SHOULD be used only when
+performing certificate name matching checks.  If all of the required
+DNS resolutions to obtain the TLSA RRs do not result in "secure"
+answers, and no "bogus" records encountered, DANE TLSA is not
+applicable with the MX exchange name in question and delivery proceeds
+as with pre-DANE opportunistic TLS or without any protection.  If
+"bogus" records are encountered, DNS resolution fails and delivery
+MUST be delayed.
 </t>
 
 <t hangText="CNAME:">
-The next-hop destination domain is a CNAME alias, and resolves via
-a chain of "secure" CNAME records to a final domain with "secure"
-MX records.  The TLSA base domain for each MX host in this case is
-the same as in the "Non-CNAME" case above, but now both the initial
-domain and its CNAME-expansion are candidate names in certificate
-name checks.  If the CNAME chain contains "insecure" elements, DANE
-TLSA does not apply to the next-hop domain, and delivery proceeds
-via pre-DANE opportunistic TLS.
+The next-hop destination domain is a CNAME alias, and resolves via a
+chain of "secure" CNAME records to a final domain with "secure" MX
+records.  The TLSA base domain for each MX exchange name in this case
+is the same as in the "Non-CNAME" case above, but now both the initial
+domain and its CNAME-expansions are candidates for certificate naming
+checks.  If the CNAME chain contains any "insecure" elements, DANE TLSA
+does not apply to the next-hop domain, and delivery proceeds via
+pre-DANE opportunistic TLS or without any protection.
 </t>
 
 </list>
 </t>
 
 <t>
-Note: CNAMEs are not legal in the exchange field of MX records,
-thus MTAs are not obligated to perform MX exchange CNAME expansion.
-If an MTA does not perform CNAME expansion, there is potential risk,
-that the MTA may fail to notice that it is one of the MX hosts for
-the destination and that it must skip MX records with equal or worse
-(numerically higher precedence).  If an MTA does allow CNAMEs to
-be used in MX records, it SHOULD process them recursively as described
-above to determine the most appropriate TLSA RRset base domain.
+Note: CNAMEs are not legal in the exchange field of MX records (XXX:
+need a reference here), thus MTAs are not obligated to perform MX
+exchange name CNAME expansion.  If an MTA does not perform MX exchange
+name CNAME expansion, there is potential risk, that the MTA may fail
+to notice that it is one of the MX exchange names for the destination
+and that it must skip MX records with equal or worse (numerically
+higher precedence).  If an MTA does allow CNAMEs to be used in MX
+exchange names, it SHOULD process them recursively as described above
+to determine the most appropriate TLSA RRset base domain.
 </t>
 
 </section><!-- MX resolution -->
@@ -527,7 +538,7 @@ above to determine the most appropriate TLSA RRset base domain.
 
 <t>
 Each TLSA base domain obtained above (for a non-MX destination, or
-for a particular MX host of an MX destination), when prefixed with
+for a particular MX exchange name of an MX destination), when prefixed with
 appropriate service labels leads to associated "secure" TLSA RRs
 (possibly via a chain of "secure" CNAME RRs).  If, for example, the
 base domain is "mail.example.com", the TLSA RRset is obtained via
@@ -576,7 +587,7 @@ _25._tcp.mail2.example.com. IN CNAME 2.1.1._dane.example.com.
 
 <t>
 Here, mail.example.com and mail2.example.com have certificates issued
-under a common trust-anchor, but each MX host's TLSA base domain remains
+under a common trust-anchor, but each MX exchange name's TLSA base domain remains
 its hostname and MUST match the subject name (or subject alternative name)
 in its certificate.
 </t>
@@ -771,7 +782,7 @@ SHOULD also be accepted.
 
 <t>
 Accepting certificates with the next-hop domain in addition to the
-next-hop MX host allows a domain with multiple MX hosts to field a
+next-hop MX exchange name allows a domain with multiple MX exchange names to field a
 single certificate bearing the email domain name across all the MX
 hosts, this is also compatible with pre-DANE SMTP clients that are
 configured to look for the email domain name in server certificates.
@@ -828,7 +839,7 @@ from the server.
 
 <t>
 The SMTP client MAY include anonymous TLS ciphersuites in its SSL
-HELO.  MX hosts that receive email from the Internet MUST interoperate
+HELO.  MX exchange names that receive email from the Internet MUST interoperate
 with opportunistic TLS SMTP clients.  If they advertise support for
 STARTTLS in their SMTP EHLO response, they MUST NOT fail to complete
 the TLS handshake merely because the SMTP client offered some
@@ -1022,9 +1033,9 @@ delivery to such destinations.
 </t>
 
 <t>
-Specifically, with domains that publish DANE TLSA records for their MX hosts
+Specifically, with domains that publish DANE TLSA records for their MX exchange names
 a sending MTA can be configured to use the receiving domains's DANE TLSA
-records to authenticate the corresponding MX hosts, thereby obviating the
+records to authenticate the corresponding MX exchange names, thereby obviating the
 complex manual provisioning process.  In anticipation of, or in response to,
 a failure to obtain the expected TLSA records, the sending system's
 administrator may choose from a selection of fallback options, if supported by the
@@ -1101,7 +1112,7 @@ production quality.
 This protocol leverages DANE TLSA records to implement MITM resistant
 opportunistic channel security for SMTP.  For destination domains
 that sign their MX records and publish signed TLSA records for their
-MX hosts, this protocol allows sending MTAs (and perhaps dynamically
+MX exchange names, this protocol allows sending MTAs (and perhaps dynamically
 configured MUAs) to securely discover both the availability of TLS
 and how to authenticate the destination.
 </t>
