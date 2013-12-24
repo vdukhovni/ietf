@@ -65,13 +65,10 @@
 <keyword>SMTP</keyword>
 
 <abstract> <t>
-This memo describes a protocol for opportunistic Transport Layer
-Security (TLS) based on the DANE TLSA DNS record.  The protocol is
-downgrade resistant when the Simple Mail Transfer Protocol (SMTP)
-client supports the usage of DANE TLSA records and the server domain
-publishes TLSA records for its Mail Exchange (MX) hosts.  This enables
-an incremental transition of the Internet email backbone to TLS
-encrypted and authenticated delivery.
+This memo describes a downgrade resistant protocol for opportunistic
+SMTP transport security based on the DANE TLSA DNS record.  Adoption
+of this protocol enables an incremental transition of the Internet
+email backbone to TLS encrypted and authenticated SMTP.
 </t> </abstract>
 
 </front>
@@ -80,11 +77,10 @@ encrypted and authenticated delivery.
 <section title="Introduction">
 
 <t>
-Lacking verified DNS and "Server Name Indication" (SNI), there has
-historically been no scalable way for SMTP server operators to
-deploy certificates with a client-trusted subject name.  It's only
-with the deployment of DNSSEC and DANE that authenticated TLS for
-SMTP to MX becomes possible between parties that have not already
+There has historically been no scalable way for SMTP server operators
+to deploy certificates with a client-trusted subject name.  It is
+only with the deployment of DNSSEC and DANE that authenticated TLS
+for SMTP to MX becomes possible between parties that have not already
 established an identity convention out-of-band.
 </t>
 
@@ -103,13 +99,11 @@ existing public Certificate Authority (CA) Public Key Infrastructure
 (PKI) suffers from an over-abundance of trusted certificate
 authorities capable of issuing certificates for any domain of their
 choice.  DANE leverages the DNSSEC infrastructure to publish trusted
-keys and certificates for use with TLS via a new TLSA record type.
-With DANE, the public CA PKI can be augmented or replaced by DNSSEC
-validated TLSA records.
+keys and certificates for use with TLS via a new "TLSA" DNS record type.
 </t>
 
 <t>
-The Transport Layer Security (TLS) <xref target="RFC5246"/> protocol
+The Transport Layer Security (TLS <xref target="RFC5246"/>) protocol
 enables secure TCP communication.  In the context of this memo,
 channel security is assumed to be provided by TLS.  Used without
 authentication, TLS protects only against eavesdropping.  With
@@ -122,81 +116,99 @@ attacks.
 <section title="SMTP Channel Security" anchor="channelsec">
 
 <t>
-The Simple Mail Transfer Protocol (SMTP) (<xref target="RFC5321" />)
+The Simple Mail Transfer Protocol (SMTP <xref target="RFC5321" />)
 is a multi-hop store &amp; forward protocol, while TLS security
-protects traffic on a hop-by-hop basis.  The number of hops from the
-sender's Mail User Agent (MUA) to the recipient mailbox is rarely less
-than 2 and is often higher.  Some hops may be TLS protected, and some
-may not.  The same SMTP TCP endpoint can serve both TLS and non-TLS
-clients, with TLS negotiated via the SMTP STARTTLS command (<xref
+protects traffic on a hop-by-hop basis.  The number of hops from
+the sender's Mail User Agent (MUA) to the recipient mailbox is
+rarely less than 2 and is often higher.  Some hops may be TLS
+protected, and some may not.
+</t>
+
+<t>
+The same SMTP TCP endpoint can serve both TLS and non-TLS clients,
+with TLS negotiated via the SMTP STARTTLS command (<xref
 target="RFC3207"/>).  DNS MX records abstract the next-hop transport
 end-point by allowing network administrators to specify a set of
-target addresses where SMTP traffic should be delivered to for a given
-domain.  SMTP addresses are not transport addresses and are security
-agnostic, for unlike the Hypertext Transfer Protocol (HTTP) and its
+target servers to which SMTP traffic should be delivered for a given
+domain.
+</t>
+
+<t>
+SMTP recipient addresses are not transport addresses and are security
+agnostic.  Unlike the Hypertext Transfer Protocol (HTTP) and its
 corresponding secured version, HTTPS, there is no URI scheme for email
-addresses to designate whether the SMTP server should be contacted
-with or without security.
+addresses to designate whether communication with the SMTP server should
+be conducted via a plaintext or TLS encrypted channel.
 </t>
 
 <t>
 A Mail Transport Agent (MTA) may need to forward a message to a
-particular email recipient &lt;user@example.com&gt;.  To deliver the
-message, the MTA needs to retrieve the MX hosts of example.com from
-the DNS, and then deliver the message to one of them.  Absent DNSSEC,
-the MX lookup is vulnerable to man-in-the-middle and DNS cache
-poisoning attacks.  An active attacker can forge DNS replies with fake
-MX records, and can direct traffic to a server of their choice.  Since
-the MX server name can be potentially compromised and since
-certificate naming checks are based on the MX name, secure
-verification of MX host TLS certificates are not possible without
-DNSSEC.  Furthermore, a man in the middle can also suppress the MX
-host's STARTTLS EHLO response, convincing the client that
+particular email recipient &lt;user@example.com&gt;.  To deliver
+the message, the MTA needs to retrieve the MX hostnames of example.com
+from the DNS, and deliver the message to one of the named hosts.
+Absent DNSSEC, the MX lookup is vulnerable to man-in-the-middle and
+DNS cache poisoning attacks.  Active attackers can forge DNS
+replies with fake MX records, and can redirect email to servers
+of their choice.
+</t>
+
+<t>
+Since TLS is a protocol for securing communication between two
+transport layer endpoints, TLS clients should generally verify that
+the server's certificate binds the server's public key to the hostname
+used by the client to resolve the server's network address in DNS.
+</t>
+
+<t>
+Since, without DNSSEC, MX hostnames are subject to tampering, secure
+verification of MX host TLS certificates is not possible without
+DNSSEC.  And in any case, a man in the middle can also suppress the
+MX host's STARTTLS EHLO response, convincing the SMTP client that
 communication over TLS is unavailable.
 </t>
 
 <t>
 One might try to harden STARTTLS with SMTP against DNS attacks by
-requiring each MX host to posess an X.509 certificate for the
-recipient domain that is obtained from the SMTP message envelope, which is
+requiring each MX host to posess a certificate for the recipient
+domain which is obtained directly from the SMTP message envelope, and is
 not subject to DNS reply forgery.  Unfortunately, this is impractical,
-as email for many domains is handled by third parties that are
-not in a position to obtain certificates for all the domains they
-serve.  Deployment of SNI (see <xref target="RFC6066"/> Section
-3.1) is no panacea, since SNI key management is operationally
-challenging except when the email service provider is also the
-domain's registrar and its certificate issuer; this is rarely the
-case for email.
+as email for many domains is handled by third parties that are not
+in a position to obtain certificates for all the domains they serve.
+Deployment of SNI (see <xref target="RFC6066"/> Section 3.1) is no
+panacea, since SNI key management is operationally challenging
+except when the email service provider is also the domain's registrar
+and its certificate issuer; this is rarely the case for email.
 </t>
 
 <t>
 Since the recipient domain name cannot be used as the SMTP server
 authentication identity, and neither can the MX hostname without
 DNSSEC, large scale deployment of authenticated TLS for SMTP requires
-that the DNS is secure.  At this time, DNSSEC is not yet widely
-deployed and MTA to MTA traffic between Internet connected
-organizations rarely uses TLS at all, or simply uses TLS
-opportunistically without authentication, which only protects against
-passive eavesdropping attacks.
+that the DNS be secure.  At this time, DNSSEC is not yet widely
+deployed and MTA to MTA traffic between Internet connected organizations
+rarely uses TLS at all, or simply uses TLS opportunistically without
+authentication, which only protects against passive eavesdropping
+attacks.
 </t>
 
 <t>
-The exceptions are cases in which the sending MTA is statically
-configured to use TLS for mail sent to specific selected peer domains
-and is configured with appropriate subject names (or content digests)
-to expect in the presented host certificates of MX servers for those
+The exceptions are cases in which the sending MTA is explicitly
+configured to use TLS for mail sent to specifically selected peer
+domains.  In many cases this also requires configuration of appropriate
+subject names (or alternatively certificate content digests) to
+expect in the presented host certificates of MX hosts for those
 domains.  Such statically configured SMTP secure channels are used
-rarely (generally only between domains that make bilateral
-arrangements with their business partners).  Internet email, on the
-other hand, requires regularly contacting new domains for which
-security configurations can not be established in advance.
+rarely (generally only between domains that make bilateral arrangements
+with their business partners).  Internet email, on the other hand,
+requires regularly contacting new domains for which security
+configurations cannot be established in advance.
 </t>
 
 <t>
 Note, the above does not apply to mail submission <xref target="RFC6409"/>,
 where a mail user agent is pre-configured to send its outgoing email to a
 fixed Mail Submission Agent (MSA).  Submission servers usually offer
-TLS and the Mail User Agent (MUA) can be statically configured to
+TLS and the Mail User Agent (MUA) is often configured to
 require TLS with its chosen MSA.  The situation changes, however, when
 submission servers are configured dynamically via SRV records (see
 <xref target="RFC6186"/> Section 6).  Applications to submission
@@ -205,33 +217,24 @@ another ID -->
 </t>
 
 <t>
-With little opportunity to use TLS authentication, MX hosts that
-support STARTTLS often use self-signed or private CA issued X.509
-certificates.  Sending systems are rarely configured with a
-comprehensive list of trusted CAs and do not check Certificate
-Revocation Lists (CRLs) <xref target="RFC5280" />or implement the
-Online Certificate Status Protocol (OCSP) <xref target="RFC2560" />.
-In essence, they don't, and in fact can't, rely on the existing public
-CA PKI.  This is not a result of complacency on the part SMTP server
-administrators and MTA developers.  Nor is it just a consequence of
-the relative maturity of the SMTP infrastructure at the time that TLS
-was introduced.  Rather, the abstraction of the SMTP transport
-endpoint via DNS MX records, often across organization boundaries,
-limits the use of public CA PKI with SMTP to a small set of
-sender-configured peer domains.
-<!-- XXXWJH: seems like a lot of repetition above; the same thing is
-stated in multiple ways -->
+The abstraction of the SMTP transport endpoint via DNS MX records,
+often across organization boundaries, limits the use of public CA
+PKI with SMTP to a small set of sender-configured peer domains.
+With little opportunity to use TLS authentication, sending MTAs are
+rarely configured with a comprehensive list of trusted CAs.  MX
+hosts that support STARTTLS often use self-signed or private CA
+issued X.509 certificates.
 </t>
 
 <t>
-This does not mean, however, that the Internet email backbone cannot benefit
-from TLS.  The fact that transport security is not explicitly
+This does not mean, however, that the Internet email backbone cannot
+benefit from TLS.  The fact that transport security is not explicitly
 specified in either the recipient address or the MX record means
 that new protocols can furnish out-of-band information to SMTP,
-making it possible to simultaneously discover which peer domains support
-secure delivery via TLS and how to verify the
-authenticity of the associated MX hosts.  This document defines how
-DANE TLSA records are used to accomplish these goals.
+making it possible to simultaneously discover which peer domains
+support secure delivery via TLS and how to verify the authenticity
+of the associated MX hosts.  This document defines how DANE TLSA
+records are used to harden SMTP STARTTLS against MITM attacks.
 </t>
 
 </section><!-- SMTP Channel Security -->
@@ -250,12 +253,50 @@ The following terms or concepts are used through the document:
 </t>
 <t>
 <list style="hanging">
-	<t hangText="delayed delivery: ">XXX describe</t>
-	<t hangText="original next hop destination: "> when an tempt to deliver mail is
-	needed, the initial name used to start the DNS lookup process
-	is referred to as the "original next hop destination". </t>
-	<t hangText="secure, bogus, insecure: ">DNSSEC validation
-	results, as defined in <xref target="RFC4035" />.</t>
+
+    <t hangText="opportunistic DANE TLS:">
+    Best-effort use of DANE authenticated TLS, resistant to MITM
+    attacks for destinations with DNSSEC validated TLSA records.
+    For other destinations this is identical to opportunistic TLS
+    below.
+    </t>
+
+    <t hangText="opportunistic TLS:">
+    Pre-DANE Best-effort use of TLS vulnerable to DNS forgery and
+    STARTTLS downgrade attacks.  When a TLS encrypted communication
+    channel is not available, message transmission takes place in the
+    clear.  MX record indirection generally precludes authentication
+    even when TLS is available.
+    </t>
+
+    <t hangText="secure, bogus, insecure:"> DNSSEC validation
+    results, as defined in <xref target="RFC4035" />.</t>
+
+    <t hangText="MX hostname:">
+    The Mail Exchange domain name component of a DNS MX record.
+    Used to refer specifically to the DNS name, not the host that
+    bears that name.
+    </t>
+
+    <t hangText="MX host:">
+    An SMTP server whose name appears in an MX record for a particular
+    domain.  Used to refer specifically to the host itself, not its DNS
+    name.
+    </t>
+
+    <t hangText="delayed delivery:">
+    SMTP delivery is store &amp; forward.  When an MTA is unable forward
+    a message that may become deliverable later, the message is queued
+    and delivery is retried periodically.
+    </t>
+
+    <t hangText="original next hop destination: ">
+    The logical destination for mail delivery.  By default this is
+    the domain portion of the recipient address, but MTAs may be
+    configured to forward mail for some or all recipients via designated
+    relays.  The original next hop destination is, respectively, either
+    the recipient domain or the associated configured relay.
+    </t>
 </list>
 </t>
 
@@ -265,24 +306,24 @@ The following terms or concepts are used through the document:
 <section title="Hardening Opportunistic TLS">
 
 <t>
-This memo describes opportunistic SMTP over TLS security, where
-traffic from DANE TLSA aware SMTP clients to domains that publish DANE
+This specification enables an incremental transition of the email
+backbone to authenticated TLS delivery, with increased global
+protection occurring as adoption increases.  With opportunistic
+DANE TLS, traffic from SMTP clients to domains that publish DANE
 TLSA records in accordance with this memo is authenticated and
-encrypted.  Traffic from non-compliant clients and to domains that do
-not publish TLSA records will continue to be sent in the same manner
-as before (either manually configured for security or via
-unauthenticated and unencrypted SMTP over TCP).  This specification
-enables an incremental transition of the email backbone to
-authenticated TLS delivery, with increased global protection occurring
-as adoption increases.
+encrypted.  Traffic from non-compliant clients or to domains that
+do not publish TLSA records will continue to be sent in the same
+manner as before.  The alternatives include manually configured
+security, (pre-DANE) opportunistic TLS or just clear-text SMTP.
 </t>
 
 <t>
-Since email addresses and MX hostnames (or submission SRV records)
-neither signal nor deny support for TLS by the receiving domain,
-the publication of DANE TLSA records both securely signals TLS
-support and provides the means by which SMTP clients
-can successfully authenticate legitimate SMTP servers.
+Neither email addresses nor MX hostnames (or submission SRV records)
+signal support for TLS, or lack thereof, by the receiving domain.
+This information vaccuum makes it possible for the publication of
+DANE TLSA records to both securely signal TLS support and provides
+the means by which SMTP clients can successfully
+authenticate legitimate SMTP servers.
 </t>
 
 <section title="TLS discovery">
