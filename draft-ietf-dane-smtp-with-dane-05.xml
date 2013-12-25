@@ -12,6 +12,7 @@
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
 <!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
+<!ENTITY RFC5598 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5598.xml">
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
 <!ENTITY RFC6186 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6186.xml">
 <!ENTITY RFC6394 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6394.xml">
@@ -163,7 +164,7 @@ in DNS.
 <t>
 Since, without DNSSEC, MX hostnames are subject to tampering, secure
 verification of MX host TLS certificates is not possible without
-DNSSEC.  And in any case, a man in the middle can also suppress the
+DNSSEC.  And in any case, an MITM attacker can also suppress the
 MX host's STARTTLS EHLO response, convincing the SMTP client that
 communication over TLS is unavailable.
 </t>
@@ -295,6 +296,16 @@ The following terms or concepts are used through the document:
     relays.  The original next hop destination is, respectively, either
     the recipient domain or the associated configured relay.
     </t>
+
+    <t hangText="MTA: ">
+    Message Transfer Agent (<xref target="RFC5598" />, Section 4.3.2).
+    </t>
+    <t hangText="MSA: ">
+    Message Submission Agent (<xref target="RFC5598" />, Section 4.3.1).
+    </t>
+    <t hangText="MUA: ">
+    Message User Agent (<xref target="RFC5598" />, Section 4.2.1).
+    </t>
 </list>
 </t>
 
@@ -334,10 +345,10 @@ security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 <t>
 As noted previously (<xref target="channelsec" />), opportunistic
 TLS with SMTP servers that advertise TLS support via STARTTLS is
-subject to a man in the middle downgrade attack.  Also some SMTP
-servers that are not, in fact, TLS capable, erroneously advertise
-STARTTLS by default and clients need to be prepared to retry plaintext
-delivery after STARTTLS fails.
+subject to an MITM downgrade attack.  Also some SMTP servers that
+are not, in fact, TLS capable, erroneously advertise STARTTLS by
+default and clients need to be prepared to retry plaintext delivery
+after STARTTLS fails.
 </t>
 
 <t>
@@ -1229,6 +1240,7 @@ degrading security.
 </references>
 <references title="Informative References">
 &RFC2560;
+&RFC5598;
 &RFC6394;
 &I-D.ietf-dane-srv;
 &I-D.ietf-dane-smtp;
