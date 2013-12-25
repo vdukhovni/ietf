@@ -320,84 +320,71 @@ security, (pre-DANE) opportunistic TLS or just clear-text SMTP.
 <t>
 Neither email addresses nor MX hostnames (or submission SRV records)
 signal support for TLS, or lack thereof, by the receiving domain.
-This information vaccuum makes it possible for the publication of
-DANE TLSA records to both securely signal TLS support and provides
-the means by which SMTP clients can successfully
-authenticate legitimate SMTP servers.
+This non-specificity makes it possible for the publication of DANE
+TLSA records to securely signal TLS support and to publish the means
+by which SMTP clients can successfully authenticate legitimate SMTP
+servers.
 </t>
 
 <section title="TLS discovery">
 
 <t>
-As noted previously (<xref target="channelsec" />), opportunistic TLS
-with SMTP servers that advertise TLS support via STARTTLS is subject
-to a man in the middle downgrade attack.  Some SMTP servers
-erroneously advertise STARTTLS in default configurations that are not,
-in fact, TLS capable, and clients need to be prepared to retry
-plaintext delivery after STARTTLS fails.  This memo specifies a
-downgrade resistant mechanism that allows a server to advertise TLS
-support based on DANE TLSA records.  DNSSEC validated TLSA records are
-unlikely to be accidentally published for servers that do not in fact
-support TLS, and thus clients can safely interpret their presence as a
-commitment by the server operator to implement STARTTLS.  Thus, if a
-SMTP client discovers a DNSSEC validated TLSA record for a SMTP host,
-the client SHOULD only connect to the server over properly
-authenticated TLS.
+As noted previously (<xref target="channelsec" />), opportunistic
+TLS with SMTP servers that advertise TLS support via STARTTLS is
+subject to a man in the middle downgrade attack.  Also some SMTP
+servers that are not, in fact, TLS capable, erroneously advertise
+STARTTLS by default and clients need to be prepared to retry plaintext
+delivery after STARTTLS fails.
 </t>
 
 <t>
-SMTP is a store &amp; forward protocol.  An MTA that is not the
-final destination for a message recipient forwards the message one
-hop closer to the recipient's mailbox.  To do so, it must determine
-the appropriate next-hop destination, and locate one or more
-associated SMTP servers.  When DNSSEC validated TLSA records are
-available for a given next-hop SMTP server, the TLS connection to
-that server will be downgrade resistant.  If the records in question
-are "usable" (<xref target="RFC6698"/>, Section 4.1) to authenticate
-the server, the connection will also be authenticated and
-immune to eavesdropping or tampering (unless DNSSEC itself is
-compromised).
+This memo specifies a downgrade resistant mechanism to advertise
+TLS support based on DANE TLSA records.  DNSSEC validated TLSA
+records are unlikely to be accidentally published for servers that
+do not in fact support TLS, and thus clients can safely interpret
+their presence as a commitment by the server operator to implement
+STARTTLS.
 </t>
 
 <t>
-<!-- XXXWJH: this is confusing; the word "destination" is too close to
-being synonymous with "transport address", and the following paragrapm
-really starts with talking about the domain part of the address but
-that's really only true for the beginning. -->
-Typically, the next-hop destination will be the domain part of
-the recipient address, which is then subject to MX resolution.  The
-next-hop destination may also be configured by the MTA administrator to
-be a next-hop destination host (explicitly exempt from MX resolution),
-or a next-hop destination domain (subject to MX resolution) which
-takes the place of the domain part of the recipient address.
+Specifically, when an SMTP client locates DNSSEC validated TLSA
+records for an SMTP server, the client SHOULD NOT connect to the
+server without negotiating a TLS encrypted channel.  If these TLSA
+records are "usable" (<xref target="RFC6698"/>, Section 4.1) the
+client SHOULD authenticate the server.  With "usable" TLSA records
+the transmission of email from client to server resists eavesdropping
+and tampering so long as the server's DNSSEC records are not
+compromised.
 </t>
 
 <t>
-The protocol in this memo is "opportunistic", meaning it should be used
-whenever possible but communication should continue when it is not
-available.  Absent "secure" (DNSSEC validated) TLSA records, mail
-delivery should fall back to pre-DANE opportunistic TLS.  The SMTP
-client MAY be configured to require DANE verified delivery for some or
-all destinations, in which case mail delivery will be deferred when
-"secure" TLSA records are absent.
+In short, with opportunistic DANE TLS, TLS is required when securely
+signalled via DNSSEC.  Absent "secure" (DNSSEC validated) TLSA
+records, the SMTP client should employ pre-DANE opportunistic TLS.
+Some SMTP clients may be configured to require DANE verified delivery
+for some destinations, we will call this "mandatory DANE TLS".  With
+mandatory DANE TLS delivery proceeds only when "secure" TLSA records
+are used to establish an encrypted and authenticated TLS channel
+with the SMTP server.
 </t>
 
-
 <t>
-When DNSSEC "bogus" records are encountered either during any DNS
+When "bogus" DNSSEC records are encountered either during any DNS
 query being used to support mail delivery, including during CNAME
 expansion, MX resolution, or when retrieving the appropriate TLSA
 RRset, the SMTP client MUST proceed as if the next-hop domain were
 unreachable.  Proceeding with the "bogus" next-hop would destroy
 protection against downgrade attacks.  Delivery should either be
-deferred or may be attempted via any fallback next-hop destination
+delayed or may be attempted via any fallback next-hop destination
 configured by the SMTP client administrator.  Fallback next-hop
-destinations may also employ opportunistic DANE TLS.
+destinations may also employ opportunistic or mandatory DANE TLS.
 </t>
 
 <t>
-How to determine the SMTP servers, the TLSA base domain and the TLSA
-records for a given next-hop destination is described below.
+Below we explain how to locate the SMTP servers and the associated
+TLSA records for a given next-hop destination.  We also explain
+which name or names are to be used to in identity checks of the
+SMTP server certificate.
 </t>
 
 <section title="Non-MX destinations" anchor="non-mx">
