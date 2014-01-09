@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
-<!ENTITY RFC2246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2246.xml">
-<!ENTITY RFC3546 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3546.xml">
 <!ENTITY RFC4033 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4033.xml">
 <!ENTITY RFC4034 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4034.xml">
 <!ENTITY RFC4035 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4035.xml">
 <!ENTITY RFC4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
+<!ENTITY RFC6066 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6066.xml">
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
@@ -90,7 +89,7 @@ relevant TLSA records.  Service indirection is often used to implement
 simultaneously supports multiple hosted domains.  With services that employ
 TLS, such hosting arrangements may require the service provider to employ
 multiple pairs of private keys and certificates with TLS clients signalling
-the desired domain via SNI (<xref target="RFC3546" /> section 3.1).  This
+the desired domain via SNI (<xref target="RFC6066" /> section 3).  This
 memo provides operational guidelines intended to maximize interoperability
 between DANE TLS clients and servers.
 </t>
@@ -137,23 +136,20 @@ target="RFC2119"/>.
     to a trust anchor, unless otherwise specified.  If the Customer
     Domain is not outsourcing their DNS service, the TLSA Publisher
     will be the customer themselves.  Otherwise the TLSA Publisher may
-    be the outsourced DNS service instead.
+    be the operator of the outsourced DNS service.
   </t>
   <t hangText="public key:">
-    The term "public key" will be an
-    informal short-hand for the subjectPublicKeyInfo component of a PKIX
-    certificate.
+    The term "public key" will be an informal short-hand for the
+    subjectPublicKeyInfo component of a PKIX certificate.
   </t>
   <t hangText="SNI:">
-    The "Server Name Indication", or SNI, describes the process by
-    which a TLS client requests to connect to a particular service
-    name of a TLS server (<xref target="RFC3546" />).  Without this
-    TLS extension, a TLS server has no choice but to offer a PKIX
-    certificate with a default list of server names.  Service
-    Providers that are expected to host services for many customers need
-    to present the appropriate certificate to each client, and the
-    SNI extension provides a hint to the server which certificate
-    should be transmitted to the client.
+    The "Server Name Indication", or SNI, describes the TLS protocol
+    extension by which a TLS client requests to connect to a
+    particular service name of a TLS server (<xref target="RFC6066"
+    />).  Without this TLS extension, a TLS server has no choice
+    but to offer a PKIX certificate with a default list of server
+    names making it difficult to host multiple customer domains at
+    the same TLS service endpoint (secure virtual hosting).
   </t>
 </list>
 </t>
@@ -163,49 +159,46 @@ target="RFC2119"/>.
 </section><!-- Introduction -->
 
 <section title="DANE TLSA record overview">
-<!-- XXXWJH: This section is probably a bit long; we should just refer
-the reader to 6698 generally and don't necessarily need such a long
-overview.  That being said, I also find it useful.  I keep changing my
-mind over the years how much repeating is a good thing between RFCs. -->
 <t>
-<xref target="RFC6698"/> specifies a protocol for publishing TLS server
-certificate associations via DNSSEC.  The DANE TLSA specification defines
-multiple TLSA RR types via combinations of 3 numeric parameters.
-These integer values of these parameters were later given symbolic
-names in <xref target="I-D.ietf-dane-registry-acronyms" />.  These parameters
-are:</t>
+DANE TLSA <xref target="RFC6698"/> specifies a protocol for publishing
+TLS server certificate associations via DNSSEC.  The DANE TLSA
+specification defines multiple TLSA RR types via combinations of 3
+numeric parameters.  The numeric values of these parameters were
+later given symbolic names in <xref target="I-D.ietf-dane-registry-acronyms"/>. 
+These parameters are:
+</t>
 
 <t>
 <list style='symbols'>
 
 <t>
 The TLSA Certificate Usage field.  Section 2.1.1 of <xref target="RFC6698"/>
-specifies 4 values ranging from 0 to 3: PKIX-CA(0), PKIX-EE(1), DANE-TA(2),
-and DANE-EE(3).  There is an additional private-use value:
-PrivCert(255).  All other values are reserved for use by future specifications.
+specifies 4 values: PKIX-TA(0), PKIX-EE(1), DANE-TA(2), and DANE-EE(3).
+There is an additional private-use value: PrivCert(255).  All other
+values are reserved for use by future specifications.
 </t>
 
 <t>
 The selector field.  Section 2.1.2 of <xref target="RFC6698"/>
-specifies 2 values ranging from 0 to 1: Cert(0), SPKI(1).  There is an
-additional private-use value: PrivSel(255).  All other values are
-reserved for use by future specifications.
+specifies 2 values: Cert(0), SPKI(1).  There is an additional
+private-use value: PrivSel(255).  All other values are reserved for
+use by future specifications.
 </t>
 
 <t>
 The matching type field.  Section 2.1.3 of <xref target="RFC6698"/>
-specifies 3 values ranging from 0 to 2: Full(0), SHA2-256(1),
-SHA2-512(2) There is an additional private-use value: PrivMatch(255).
-All other values are reserved for use by future specifications.
+specifies 3 values: Full(0), SHA2-256(1), SHA2-512(2).  There is
+an additional private-use value: PrivMatch(255).  All other values
+are reserved for use by future specifications.
 </t>
 
 </list>
 </t>
 
 <t>
-We may consider the TLSA Certificate Usage values 0 through 3 to be a
-combination of two one-bit flags.  The low-bit chooses between
-referencing trust-anchor (TA) and end-entity (EE) certificates.  The high bit
+We may think of TLSA Certificate Usage values 0 through 3 to
+be a combination of two one-bit flags.  The low-bit chooses between
+trust-anchor (TA) and end-entity (EE) certificates.  The high bit
 chooses between public PKI issued and domain-issued certificates:
 </t>
 
@@ -214,20 +207,19 @@ chooses between public PKI issued and domain-issued certificates:
 
 <t>
 When the low bit is set (PKIX-EE(1) and DANE-EE(3)) the TLSA record
-matches an EE (server) certificate.
+matches an EE (commonly referred to as a leaf or server) certificate.
 </t>
 
 <t>
-When the low bit is not set (PKIX-CA(0) and DANE-TA(2)) the TLSA
+When the low bit is not set (PKIX-TA(0) and DANE-TA(2)) the TLSA
 record matches a trust-anchor (a certificate authority) that issued
-a certificate somewhere in the certificate chain that authenticates the
-final end-entity certificate.
+one of the certificates in the server certificate chain.
 </t>
 
 <t>
 When the high bit is set (DANE-TA(2) and DANE-EE(3)), the server
 certificate chain is domain-issued and may be verified without
-reference to any existing public certificate authority PKI.  Trust is
+reference to any pre-existing public certificate authority PKI.  Trust is
 entirely placed on the content of the TLSA records obtained via
 DNSSEC.
 </t>
@@ -254,13 +246,14 @@ algorithm id, any parameters and the public key data).
 The matching type field specifies how the TLSA RR Certificate
 Association Data field is to be compared with the certificate or
 public key.  A value of Full(0) means an exact match: the full DER
-encoding of the certificate or public key is given in the TLSA RR.  A
-SHA2-256(1) value means a SHA-256 digest of the certificate or public
-key, and likewise SHA-512(2) means a SHA-512 digest is used.  Of
-these, only SHA-256(1) is mandatory to implement.  Clients SHOULD
-implement SHA-512(2), but servers SHOULD NOT exclusively publish SHA-512(2)
-digests.  Unless a "second preimage" attack is found against SHA-256(1),
-servers should only publish SHA-256(1) digests.
+encoding of the certificate or public key is given in the TLSA RR.
+A value of SHA2-256(1) means that the association data matches the
+SHA-256 digest of the certificate or public key, and likewise
+SHA-512(2) means a SHA-512 digest is used.  Of the two digest
+algorithms, for now only SHA-256(1) is mandatory to implement.
+Clients SHOULD implement SHA-512(2), but servers SHOULD NOT exclusively
+publish SHA-512(2) digests.  
+<!-- XXX: Add reference to digest agility -->
 </t>
 
 <section title="Example TLSA record">
@@ -278,11 +271,12 @@ _25._tcp.mail.example.com. IN TLSA 3 0 1 (
 
 <t>
 The TLSA Certificate Usage is DANE-EE(3), the selector is Cert(0)
-(Cert) and the matching type is SHA2-256(1).  The rest of the record is the
-certificate association data field, which is in this case the SHA-256
+and the matching type is SHA2-256(1).  The rest of the record is the
+certificate association data field, which is in this case the SHA2-256
 digest of the server certificate.
 </t>
 </section><!-- Example TLSA record -->
+
 </section><!-- DANE TLSA record overview -->
 
 <section title="General DANE Guidelines">
@@ -367,7 +361,7 @@ digest of the server certificate.
       server's certificate chain.  If SNI is not employed for a TLS
       connection, the TLSA record must match the server's default
       certificate.  If the SNI extension is sent by the client with a
-      host_name (see <xref target="RFC3546"/> Section 3.1) equal to the
+      host_name (see <xref target="RFC6066"/> Section 3) equal to the
       base domain of the TLSA RRset, at least one TLSA record must match
       the certificate presented by the server for that host_name.
     </t>
@@ -513,14 +507,14 @@ digest of the server certificate.
 
     <t>Example CNAME record for a TLSA domain:</t>
     <figure>
-      <artwork>
-	; TLSA RRs aliased to Service Provider, but the base domain is
-	; the hosted domain.  Likely to fail name check unless Service
-	; Provider usage is "3".
-	;
-	_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
-      	_25._tcp.mail.example.net. IN TLSA 3 1 1 ...
-      </artwork>
+<artwork>
+; TLSA RRs aliased to Service Provider, but the base domain is
+; the hosted domain.  Likely to fail name check unless Service
+; Provider usage is "3".
+;
+_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
+_25._tcp.mail.example.net. IN TLSA 3 1 1 ...
+</artwork>
     </figure>
 
     <t>
@@ -1022,14 +1016,13 @@ option clients SHOULD perform PKIX validation per <xref target="RFC6698"/>.
 <back>
 <references title="Normative References">
 &RFC2119;
-&RFC2246;
-&RFC3546;
 &RFC4033;
 &RFC4034;
 &RFC4035;
 &RFC4346;
 &RFC5246;
 &RFC5280;
+&RFC6066;
 &RFC6125;
 &RFC6347;
 &RFC6698;
