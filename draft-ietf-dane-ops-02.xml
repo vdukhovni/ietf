@@ -23,7 +23,7 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="bcp" docName="draft-ietf-dane-ops-01" ipr="trust200902">
+<rfc category="bcp" docName="draft-ietf-dane-ops-02" ipr="trust200902">
 
 <front>
 <title abbrev="DANE operations">DANE TLSA implementation and operational guidance</title>
@@ -46,7 +46,7 @@
         <email>ietf@hardakers.net</email>
       </address>
     </author>
-<date year="2013" />
+<date month="January" year="2014" />
 <area>sec</area>
 <workgroup>DANE</workgroup>
 <keyword>DANE</keyword>
