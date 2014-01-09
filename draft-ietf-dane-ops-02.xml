@@ -55,7 +55,7 @@
 <abstract>
 
 <t>
-This memo provides operational guidance to server operators to help
+This memo provides guidance to server operators to help
 ensure that clients will be able to authenticate a server's
 certificate chain via published TLSA records.  Guidance is also
 provided to clients for selecting reliable TLSA record parameters and
@@ -100,7 +100,7 @@ In the context of this memo, channel security is assumed to be provided by
 TLS or DTLS.  The Transport Layer Security (TLS) and Datagram Transport
 Layer Security (DTLS) protocols provide secured TCP and UDP communication
 over the Internet Protocol.  By convention, "TLS" will be used throughout
-this document and, unless otherwise specified, the text applies equally as
+this document and, unless otherwise specified, the text applies equally
 well to the DTLS protocol.  Used without authentication, TLS provides
 protection only against eavesdropping.  With authentication, TLS also
 provides protection against man-in-the-middle (MITM) attacks.
@@ -118,25 +118,25 @@ target="RFC2119"/>.
 <list style="hanging">
   <t hangText="Service Provider:">
     A company or organization that offers to host a service on behalf
-    of a Client Domain.  The original domain name associated with the
-    service is typically still within the control of the client and
-    the service provider is frequently referred to by a redirection
+    of a Customer Domain.  The original domain name associated with the
+    service often remains under the control of the customer.  Connecting
+    applications are directed to the service provider via a redirection
     resource record.  Example redirection records include MX, SRV, and
-    CNAME.  Many times, the Service Provider provides services for
+    CNAME.  The Service Provider typically provides services for
     many customers and must carefully manage any TLS credentials
     offered to connecting applications to ensure name matching is
     handled easily by the applications.
   </t>
-  <t hangText="Client Domain:">
-    Clients that make use of a Service Provider to outsource their
-    services will be referred to as "Client Domains".
+  <t hangText="Customer Domain:">
+    Customers that make use of a Service Provider to outsource their
+    services will be referred to as "Customer Domains".
   </t>
   <t hangText="TLSA Publisher:">
     The entity responsible for publishing a TLSA record within a DNS
     zone.  This zone will be considered DNSSEC signed and validatable
-    to a trust anchor, unless otherwise specified.  If the Client
+    to a trust anchor, unless otherwise specified.  If the Customer
     Domain is not outsourcing their DNS service, the TLSA Publisher
-    will be the client themselves.  Otherwise the TLSA Publisher may
+    will be the customer themselves.  Otherwise the TLSA Publisher may
     be the outsourced DNS service instead.
   </t>
   <t hangText="public key:">
@@ -150,8 +150,8 @@ target="RFC2119"/>.
     name of a TLS server (<xref target="RFC3546" />).  Without this
     TLS extension, a TLS server has no choice but to offer a PKIX
     certificate with a default list of server names.  Service
-    Providers that are expected to host services for many clients need
-    to present the correct certificate for the correct client, and the
+    Providers that are expected to host services for many customers need
+    to present the appropriate certificate to each client, and the
     SNI extension provides a hint to the server which certificate
     should be transmitted to the client.
   </t>
@@ -420,7 +420,7 @@ digest of the server certificate.
     <t>
       Ideally, the TLSA Publisher and the Service Provider should be
       the same entity.  If a TLSA record must be published in the
-      Client Domain's base domain, CNAME records can easily point at
+      Customer Domain's base domain, CNAME records can easily point at
       the real TLSA record in the Service Provider's zone assuming
       TLSA Certificate Usage DANE-EE(3) TLSA records are published by
       the Service Provider (see <xref target="cname"/>).  Having the
@@ -430,9 +430,9 @@ digest of the server certificate.
     </t>
 
     <t>
-      For example, with SMTP, the Client Domain's MX record's exchange
+      For example, with SMTP, the Customer Domain's MX record's exchange
       name can point directly at the Service Provider's SMTP hosts.
-      When the Client Domain's DNS zone is signed, the MX record's
+      When the Customer Domain's DNS zone is signed, the MX record's
       exchange name can be securely used as the base name for TLSA
       records that are published and managed by the Service Provider.
     </t>
@@ -441,7 +441,7 @@ digest of the server certificate.
       possible, then care must be taken during a Service Provider's
       certificate rollover.  Before a Service Provider publishes a new
       certificate, it should make that certificate available to all of
-      its Client Domains and the Client Domains should publish a new
+      its Customer Domains and the Customer Domains should publish a new
       TLSA record in advance of the certificate usage date.  Only once
       the new certificate is in place and in-use globally may the older
       TLSA record be removed.</t>
@@ -482,28 +482,28 @@ digest of the server certificate.
       guidance or restrictions when following CNAME expansions.
     </t>
 
-    <section title="Redirecting TLSA lookups in the Client Domain">
+    <section title="Redirecting TLSA lookups in the Customer Domain">
 
     <t>
-      If CNAMEs are not followed, Client Domains will need to
+      If CNAMEs are not followed, Customer Domains will need to
       publish TLSA records that match the Service Provider's
       certificate chain or always use an entity that was both the
       Service Provider and the TLSA publisher.  Having the TLSA base
       domain be different than the Service Provider's domain imposes a
-      difficult key management burden on the Client Domain and the
+      difficult key management burden on the Customer Domain and the
       Service Provider.
     </t>
 
     <t>
-      Fortunately, it is possible to publish CNAMEs in the Client
+      Fortunately, it is possible to publish CNAMEs in the Customer
       Domain pointing to the Service Provider's TLSA RRset if the TLSA
       certificate usage field is set to DANE-EE(3).  Otherwise, a
-      client that used the alias name (from the hosted domain rather
+      TLS client that used the alias name (from the hosted domain rather
       than the Service Provider's domain) as the base domain to obtain
       the TLSA RRset would look for the hosted domain in the server
       certificate when performing name checks, and would generally
       fail to authenticate the server except in the rare cases when
-      the server's certificate does include the Client Domain.  SNI
+      the server's certificate does include the Customer Domain.  SNI
       SHOULD be used to help perform the right certificate selection
       by the server, although this imposes a management burden on the
       TLS server that could be avoided by ensuring the TLSA base
@@ -542,7 +542,7 @@ digest of the server certificate.
       TLSA records as well as the host_name in SNI, provided the CNAME
       RR is found to be "secure" at each step in the CNAME expansion.
     </t>
-  </section> <!-- Redirecting TLSA lookups in the Client Domain -->
+  </section> <!-- Redirecting TLSA lookups in the Customer Domain -->
   </section>
   <section title="TLSA Base Name Priorities">
     <t>There are multiple steps within a chaining DNS lookup process
@@ -581,7 +581,7 @@ digest of the server certificate.
       association with usage PKIX-EE(1) or DANE-EE(3), CT checks need
       not be performed.  Publication of the server certificate or
       public key (digest) in a TLSA record in a DNSSEC signed zone by
-      the domain owner assures the client that the certificate is not
+      the domain owner assures the TLS client that the certificate is not
       an unauthorized certificate issued by a rogue CA without the
       domain owner's consent.
     </t>
@@ -592,7 +592,7 @@ digest of the server certificate.
       known public root CA, CT cannot apply (CT logs only accept
       chains that start with a known, public root).  Since TLSA
       Certificate Usage DANE-CA(2) is generally intended to support
-      non-PKIX trust anchors, clients need not perform CT checks with
+      non-PKIX trust anchors, TLS clients need not perform CT checks with
       usage DANE-CA(2) using unknown root CAs.
     </t>
     <t>
@@ -642,7 +642,7 @@ digest of the server certificate.
 	not be viable (such as with SMTP over TLS).  For these (non-PKIX)
 	protocols, protocol documents SHOULD NOT suggest publishing
 	TLSA records with TLSA Certificate Usage PKIX-CA(0) or
-	PKIX-EE(1), as clients cannot be expected to perform <xref
+	PKIX-EE(1), as TLS clients cannot be expected to perform <xref
 	target="RFC5280"/> PKIX validation or <xref target="RFC6125"/>
 	identity verification.
       </t>
