@@ -169,28 +169,23 @@ These parameters are:
 </t>
 
 <t>
-<list style='symbols'>
+<list style='hanging'>
 
-<t>
-The TLSA Certificate Usage field.  Section 2.1.1 of <xref target="RFC6698"/>
-specifies 4 values: PKIX-TA(0), PKIX-EE(1), DANE-TA(2), and DANE-EE(3).
-There is an additional private-use value: PrivCert(255).  All other
-values are reserved for use by future specifications.
-</t>
+<t hangText="The TLSA Certificate Usage field:"> Section 2.1.1 of
+<xref target="RFC6698"/> specifies 4 values: PKIX-TA(0), PKIX-EE(1),
+DANE-TA(2), and DANE-EE(3).  There is an additional private-use
+value: PrivCert(255).  All other values are reserved for use by
+future specifications.  </t>
 
-<t>
-The selector field.  Section 2.1.2 of <xref target="RFC6698"/>
-specifies 2 values: Cert(0), SPKI(1).  There is an additional
-private-use value: PrivSel(255).  All other values are reserved for
-use by future specifications.
-</t>
+<t hangText="The selector field:"> Section 2.1.2 of <xref
+target="RFC6698"/> specifies 2 values: Cert(0), SPKI(1).  There is
+an additional private-use value: PrivSel(255).  All other values
+are reserved for use by future specifications.  </t>
 
-<t>
-The matching type field.  Section 2.1.3 of <xref target="RFC6698"/>
-specifies 3 values: Full(0), SHA2-256(1), SHA2-512(2).  There is
-an additional private-use value: PrivMatch(255).  All other values
-are reserved for use by future specifications.
-</t>
+<t hangText="The matching type field:"> Section 2.1.3 of <xref
+target="RFC6698"/> specifies 3 values: Full(0), SHA2-256(1),
+SHA2-512(2).  There is an additional private-use value: PrivMatch(255).
+All other values are reserved for use by future specifications.  </t>
 
 </list>
 </t>
@@ -263,9 +258,9 @@ In the example TLSA record below:
 
 <figure>
 <artwork>
-_25._tcp.mail.example.com. IN TLSA 3 0 1 (
-                              E8B54E0B4BAA815B06D3462D65FBC7C0
-                              CF556ECCF9F5303EBFBB77D022F834C0 )
+  _25._tcp.mail.example.com. IN TLSA 3 0 1 (
+                                E8B54E0B4BAA815B06D3462D65FBC7C0
+                                CF556ECCF9F5303EBFBB77D022F834C0 )
 </artwork>
 </figure>
 
@@ -334,36 +329,39 @@ digest of the server certificate.
 	Matching Type of Full(0) publish full public keys without the
 	full X.509 wrapping, are generally more compact, these too
 	should be used with caution as they are still larger than
-	necessary.  Instead, servers SHOULD make use of the
-	digest-based TLSA Matching Types within TLSA records instead.
-	The complete certificate should, instead, be transmitted to
-	the client in-band during the TLS handshake.
+	necessary.  Rather, servers SHOULD make use of the
+	digest-based TLSA Matching Types within TLSA records.
+	The complete corresponding certificate should, instead, be
+	transmitted to the client in-band during the TLS handshake.
       </t>
 
       <t>In summary, the use of a TLSA Matching Type of Full(0) is NOT
-      RECOMMENDED and the use of SHA-256(1) and SHA-512(2), instead,
-      are encouraged.</t>
+      RECOMMENDED and the use of SHA-256(1) and SHA-512(2) is strongly
+      preferred. </t>
     </section>
   </section>
   <section title="Certificate Name Check Conventions">
     <t>
-      Certificates presented by a TLS server will contain either a
-      Common Name (CN) or subjectAltName (or both).  The server's
-      "hostname" should be published within these fields, ideally
-      within the subjectAltName as usage of the Common Name field is
-      depreciated.  This section discusses what must steps must be
-      taken to match an expected name against the name found within a
-      certificate, if checking is required.
+      Certificates presented by a TLS server will generally contain
+      Common Name (CN) in the subject DN, a subjectAltName extension
+      (or both).  The server's DNS hostname should be published
+      within these elements, ideally within the subjectAltName as use
+      of the Common Name field for this purpose is deprecated.  This
+      section discusses what must steps must be taken to match an
+      expected name against the name found within a certificate,
+      when certificate name checks are required.
     </t>
     <t>
       The TLSA Publisher for TLSA records for a given service MUST
       ensure that at least one of these TLSA records will match the
-      server's certificate chain.  If SNI is not employed for a TLS
-      connection, the TLSA record must match the server's default
-      certificate.  If the SNI extension is sent by the client with a
-      host_name (see <xref target="RFC6066"/> Section 3) equal to the
-      base domain of the TLSA RRset, at least one TLSA record must match
-      the certificate presented by the server for that host_name.
+      server's certificate chain.  If SNI is not employed by the
+      server, at least one TLSA record must have "associated data"
+      that matches the server's default certificate.  When the SNI
+      extension is sent by the client with a HostName (see <xref
+      target="RFC6066"/> Section 3) equal to the base domain of the
+      TLSA RRset, at least one TLSA record must have an "associated
+      data" field that matches the resulting certificate chain presented
+      by the server.
     </t>
 
     <t>
@@ -372,7 +370,7 @@ digest of the server certificate.
       "mail.example.com".  At least one of the TLSA records in the
       _25._tcp.mail.example.com RRset MUST match the server
       certificate chain, provided the client TLS hanshake included the
-      SNI extension with a host_name of "mail.example.com".
+      SNI extension with a HostName of "mail.example.com".
     </t>
 
     <t>
@@ -385,7 +383,7 @@ digest of the server certificate.
       certificate.  The commonName from the certificate subject DN
       SHOULD only be used when no subjectAltNames of type 'dns' are
       present.  Additional acceptable names may be specified by
-      protocol specific DANE specifications.  For example, with SMTP
+      protocol specific DANE standards.  For example, with SMTP
       both the destination domain name and the MX host name are
       acceptable names to be found in the server certificate.
     </t>
@@ -394,12 +392,13 @@ digest of the server certificate.
       Since the server's ability to respond with the right certificate
       chain requires the TLS client to provide the correct SNI
       information, clients SHOULD send the SNI extension with a
-      host_name value of the base domain of the TLSA RRset.  Clients
+      HostName value of the base domain of the TLSA RRset.  Clients
       failing to transmit SNI information may be unable to properly
       authenticate the presented certificate due to certificate naming
       mismatches.
     </t>
   </section>
+
   <section title="Service Provider and TLSA Publisher Synchronization"
 	   anchor="sync">
     <t>
@@ -412,33 +411,45 @@ digest of the server certificate.
     </t>
 
     <t>
-      Ideally, the TLSA Publisher and the Service Provider should be
-      the same entity.  If a TLSA record must be published in the
-      Customer Domain's base domain, CNAME records can easily point at
-      the real TLSA record in the Service Provider's zone assuming
-      TLSA Certificate Usage DANE-EE(3) TLSA records are published by
-      the Service Provider (see <xref target="cname"/>).  Having the
-      master TLSA record in the Service Provider's zone avoids the
-      complexity of bilateral coordination of server certificate
-      configuration and TLSA record management.
+      Whenever possible, the TLSA Publisher and the Service Provider
+      should be the same entity.  When a TLSA record must be published
+      in the Customer Domain's DNS zone, CNAME records may be
+      employed to point at the real TLSA record in the Service
+      Provider's zone assuming TLSA Certificate Usage DANE-EE(3)
+      TLSA records are published by the Service Provider (see <xref
+      target="cname"/>).  This also works with TLSA Certificate
+      Usage DANE-TA(2), if the service provider internally issues
+      a certificate bearing the customer's domain name signed by
+      the service provider's trust-anchor domain-issued certificate
+      authority.  Having the master TLSA record in the Service
+      Provider's zone avoids the complexity of bilateral coordination
+      of server certificate configuration and TLSA record management.
     </t>
 
     <t>
-      For example, with SMTP, the Customer Domain's MX record's exchange
-      name can point directly at the Service Provider's SMTP hosts.
-      When the Customer Domain's DNS zone is signed, the MX record's
-      exchange name can be securely used as the base name for TLSA
-      records that are published and managed by the Service Provider.
+      For example, with SMTP, the Customer Domain's MX hostnames
+      can point directly at the Service Provider's SMTP hosts.  When
+      the Customer Domain's DNS zone is signed, the MX hostnames
+      can be securely used as the base names for TLSA records that
+      are published and managed by the Service Provider.
     </t>
 
-    <t>If directly pointing at the Service Provider's domain is not
-      possible, then care must be taken during a Service Provider's
-      certificate rollover.  Before a Service Provider publishes a new
-      certificate, it should make that certificate available to all of
-      its Customer Domains and the Customer Domains should publish a new
-      TLSA record in advance of the certificate usage date.  Only once
-      the new certificate is in place and in-use globally may the older
-      TLSA record be removed.</t>
+    <t>
+      If redirection to the Service Provider's domain (via MX or
+      SRV records or any similar mechanism) is not possible, and
+      aliasing of the TLSA record is not an option, then care must
+      be taken during a Service Provider's certificate rollover.
+      Before a Service Provider deploys a new certificate chain,
+      it must make the matching TLSA records available to all of
+      its Customer Domains.  The Customer Domains need to publish
+      an additional TLSA record matching the pending certificate
+      chain (in addition to TLSA records matching the currently
+      deployed certificate chain) in advance of the certificate
+      deployment date.  Once the old certificate chain is no longer
+      in use, its associated TLSA records that are no longer
+      applicable may be removed.
+    </t>
+
   </section>
   <section title="TLSA Base Domain and CNAMEs" anchor="cname">
     <!-- XXXWJH: this section needs a lot of work -->
@@ -508,12 +519,12 @@ digest of the server certificate.
     <t>Example CNAME record for a TLSA domain:</t>
     <figure>
 <artwork>
-; TLSA RRs aliased to Service Provider, but the base domain is
-; the hosted domain.  Likely to fail name check unless Service
-; Provider usage is "3".
-;
-_25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
-_25._tcp.mail.example.net. IN TLSA 3 1 1 ...
+  ; TLSA RRs aliased to Service Provider, but the base domain is
+  ; the hosted domain.  Likely to fail name check unless Service
+  ; Provider usage is "3".
+  ;
+  _25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
+  _25._tcp.mail.example.net. IN TLSA 3 1 1 ...
 </artwork>
     </figure>
 
@@ -533,7 +544,7 @@ _25._tcp.mail.example.net. IN TLSA 3 1 1 ...
       supported by some implementations.  For example, if the MX or
       SRV host is a CNAME alias, some implementations may "chase" the
       CNAME.  They SHOULD use the target hostname as the base domain for
-      TLSA records as well as the host_name in SNI, provided the CNAME
+      TLSA records as well as the HostName in SNI, provided the CNAME
       RR is found to be "secure" at each step in the CNAME expansion.
     </t>
   </section> <!-- Redirecting TLSA lookups in the Customer Domain -->
@@ -734,16 +745,16 @@ _25._tcp.mail.example.net. IN TLSA 3 1 1 ...
     </t>
 
     <figure>
-      <artwork>
-      The sender's certificate MUST come first in the list.  Each
-      following certificate MUST directly certify the one preceding
-      it.  Because certificate validation requires that root keys be
-      distributed independently, the self-signed certificate that
-      specifies the root certificate authority MAY be omitted from the
-      chain, under the assumption that the remote end must already
-      possess it in order to validate it in any case.
-      </artwork>
-    </figure>
+<artwork>
+  The sender's certificate MUST come first in the list.  Each
+  following certificate MUST directly certify the one preceding
+  it.  Because certificate validation requires that root keys be
+  distributed independently, the self-signed certificate that
+  specifies the root certificate authority MAY be omitted from the
+  chain, under the assumption that the remote end must already
+  possess it in order to validate it in any case.
+</artwork>
+      </figure>
 
     <t>
       This means that TLSA records that match a TA certificate or public
