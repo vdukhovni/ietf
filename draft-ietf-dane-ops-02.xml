@@ -427,74 +427,152 @@ digest of the server certificate.
 
     <t>
       Whenever possible, the TLSA Publisher and the Service Provider
-      should be the same entity.  When a TLSA record must be published
-      in the Customer Domain's DNS zone, CNAME records may be
-      employed to point at the real TLSA record in the Service
-      Provider's zone assuming TLSA Certificate Usage DANE-EE(3)
-      TLSA records are published by the Service Provider (see <xref
-      target="cname"/>).  This also works with TLSA Certificate
-      Usage DANE-TA(2), if the service provider internally issues
-      a certificate bearing the customer's domain name signed by
-      the service provider's trust-anchor domain-issued certificate
-      authority.  Having the master TLSA record in the Service
-      Provider's zone avoids the complexity of bilateral coordination
-      of server certificate configuration and TLSA record management.
+      should be the same entity.  Otherwise changes in the service
+      certificate chain must be carefully coordinated between the
+      parties involved.  Such coordination is difficult and outages
+      will result when the process fails.
     </t>
 
     <t>
-      For example, with SMTP, the Customer Domain's MX hostnames
-      can point directly at the Service Provider's SMTP hosts.  When
-      the Customer Domain's DNS zone is signed, the MX hostnames
-      can be securely used as the base names for TLSA records that
-      are published and managed by the Service Provider.
+      Even when the TLSA RRset must be published in the Customer
+      Domain's DNS zone, it possible to employ CNAME records (see
+      <xref target="cname"/>) to delegate the content of the TLSA
+      RRset to a domain operated by the Service Provider.  Having
+      the master TLSA record in the Service Provider's zone avoids
+      the complexity of bilateral coordination of server certificate
+      configuration and TLSA record management.  Certificate name
+      checks generally constrain the applicability of TLSA CNAMEs
+      across organizational boundaries to Certificate Usages
+      DANE-TA(3) and DANE-TA(2):
     </t>
+
+    <t>
+    <list style="hanging">
+
+    <t hangText="Certificate Usage DANE-EE(3):"> In this case the
+    service provider can publish a single TLSA RRset that matches
+    the server certificate or public key digest.  The same RRset
+    works for all Customer Domains because name checks do not apply
+    with DANE-EE(3) TLSA records.  A Customer domain can create a
+    CNAME record pointing to the TLSA RRset published by the Service
+    Provider.  </t>
+
+    <t hangText="Certificate Usage DANE-TA(2):"> When the Service
+    Provider operates a private certificate authority, the service
+    provider is free to issue a certificate bearing any customer's
+    domain name.  Without DANE, such certificate would not pass
+    trust verification, but with DANE, the customer's TLSA RRset
+    aliased to the provider's TLSA RRset can grant legitimacy to
+    the provider's CA for the service in question!  The Service
+    Provider can generate appropriate certificates for each customer
+    and use SNI to select the right certificate chain to present
+    to each client. </t>
+
+    </list>
+    </t>
+
+    <t>
+      Below are example DNS records that illustrate both of of the
+      above cases in the case of an HTTPS service whose clients all
+      support DANE TLS.
+    </t>
+
+<figure>
+<artwork>
+  ; Hosted web service redirected via a CNAME alias.
+  ; Associated TLSA RRset redirected via a CNAME alias.
+  ;
+  ; Single certificate at provider works for all Customer Domains
+  ;
+  www1.example.com. IN CNAME www311.example.net.
+  _443._tcp.www3.example.com. IN CNAME _443._tcp.www311.example.net.
+  _443._tcp.www311.example.net. IN TLSA 3 1 1 (
+				8A9A70596E869BED72C69D97A8895DFA
+				D86F300A343FECEFF19E89C27C896BC9 )
+  ;
+  ; CA at provider can issue certificates for each Customer Domain.
+  ;
+  www2.example.com. IN CNAME www201.example.net.
+  _443._tcp.www2.example.com. IN CNAME _443._tcp.www201.example.net.
+  _443._tcp.www201.example.net. IN TLSA 2 0 1 (
+				C164B2C3F36D068D42A6138E446152F5
+				68615F28C69BD96A73E354CAC88ED00C )
+</artwork>
+</figure>
+
+    <t>
+      With protocols that support explicit transport redirection
+      via DNS MX records, SRV records, or other similar records,
+      the TLSA base domain is based on the redirected transport
+      end-point, rather than the origin domain.  With SMTP for
+      example, when email service is hosted by a Service Provider,
+      the Customer Domain's MX hostnames will point at the Service
+      Provider's SMTP hosts.  When the Customer Domain's DNS zone
+      is signed, the MX hostnames can be securely used as the base
+      domains for TLSA records that are published and managed by the
+      Service Provider.  For example:
+    </t>
+
+<figure>
+<artwork>
+  ; Hosted SMTP service
+  ;
+  example.com. IN MX 0 mx1.example.net.
+  example.com. IN MX 0 mx2.example.net.
+  _25._tcp.mx1.example.net. IN TLSA 3 1 1 (
+				8A9A70596E869BED72C69D97A8895DFA
+				D86F300A343FECEFF19E89C27C896BC9 )
+  _25._tcp.mx2.example.net. IN TLSA 3 1 1 (
+				C164B2C3F36D068D42A6138E446152F5
+				68615F28C69BD96A73E354CAC88ED00C )
+</artwork>
+</figure>
 
     <t>
       If redirection to the Service Provider's domain (via MX or
       SRV records or any similar mechanism) is not possible, and
-      aliasing of the TLSA record is not an option, then care must
-      be taken during a Service Provider's certificate rollover.
-      Before a Service Provider deploys a new certificate chain,
-      it must make the matching TLSA records available to all of
-      its Customer Domains.  The Customer Domains need to publish
-      an additional TLSA record matching the pending certificate
-      chain (in addition to TLSA records matching the currently
-      deployed certificate chain) in advance of the certificate
-      deployment date.  Once the old certificate chain is no longer
-      in use, its associated TLSA records that are no longer
-      applicable may be removed.
+      aliasing of the TLSA record is not an option, then more complex
+      coordination between the Customer Domain and Service Provider
+      is required.  Either the Customer Domain periodically provides
+      private keys and a corresponding certificate chain to the
+      provider after making appropriate changes in its TLSA records,
+      or the Service Provider periodically generates the keys and
+      certificates and must wait for matching TLSA records to be
+      published by its Customer Domains before deploying newly
+      generated keys and certificate chains.
     </t>
 
   </section>
+
   <section title="TLSA Base Domain and CNAMEs" anchor="cname">
-    <!-- XXXWJH: this section needs a lot of work -->
+
     <t>
       When the protocol does not support service location indirection
       via MX, SRV or similar DNS records, the service may be
-      redirected via a CNAME.  A CNAME is a more blunt instrument for
-      this purpose, since unlike an MX or SRV record, it remaps the
-      origin domain to the target domain for all protocols, not just a
-      singular one.  Also Unlike MX or SRV records, CNAME records may
-      chain (though DNS resolving implementations will generally
-      impose an implementation dependent maximum nesting depth).
+      redirected via a CNAME.  A CNAME is a more blunt instrument
+      for this purpose, since unlike an MX or SRV record, it remaps
+      the origin domain to the target domain for all protocols.
     </t>
 
     <t>
-      When CNAMEs are employed, the best place to seek DANE TLSA records
-      is in the Service Provider's domain, as discussed in <xref
-      target="sync" />.  Therefore, DANE PKI clients
-      connecting to a server whose domain name is a CNAME alias SHOULD
-      follow the CNAME hop-by-hop to its ultimate target host
-      (noting at each step whether the CNAME is DNSSEC validated) and use
-      the final target host as the base domain for TLSA lookups.
+      The complexity of coordinating key rollover is largely
+      eliminated when DANE TLSA records are found in the Service
+      Provider's domain, as discussed in <xref target="sync" />.
+      Therefore, DANE TLS clients connecting to a server whose
+      domain name is a CNAME alias SHOULD, follow the CNAME hop-by-hop
+      to its ultimate target host (noting at each step whether the
+      CNAME is DNSSEC validated) and use the final target host as
+      the base domain for TLSA lookups.
     </t>
 
+    <!-- XXX: MAY or SHOULD? -->
     <t>
-      Implementations failing to find a TLSA record using a base name
-      of the final target of a CNAME expansion MAY choose to issue a
-      TLSA query using the original destination name.  I.e, the
-      preferred tlsa base name would derived for the most-expanded
-      name, and failing that would be the initial query name.
+      Implementations failing to find a TLSA record using a base
+      name of the final target of a CNAME expansion SHOULD issue a
+      TLSA query using the original destination name.  That is, the
+      preferred TLSA base domain should be derived from the
+      fully-expanded name, and failing that should be the initial
+      query name.
     </t>
 
     <t>
@@ -502,125 +580,65 @@ digest of the server certificate.
       guidance or restrictions when following CNAME expansions.
     </t>
 
-    <section title="Redirecting TLSA lookups in the Customer Domain">
-
-    <t>
-      If CNAMEs are not followed, Customer Domains will need to
-      publish TLSA records that match the Service Provider's
-      certificate chain or always use an entity that was both the
-      Service Provider and the TLSA publisher.  Having the TLSA base
-      domain be different than the Service Provider's domain imposes a
-      difficult key management burden on the Customer Domain and the
-      Service Provider.
-    </t>
-
-    <t>
-      Fortunately, it is possible to publish CNAMEs in the Customer
-      Domain pointing to the Service Provider's TLSA RRset if the TLSA
-      certificate usage field is set to DANE-EE(3).  Otherwise, a
-      TLS client that used the alias name (from the hosted domain rather
-      than the Service Provider's domain) as the base domain to obtain
-      the TLSA RRset would look for the hosted domain in the server
-      certificate when performing name checks, and would generally
-      fail to authenticate the server except in the rare cases when
-      the server's certificate does include the Customer Domain.  SNI
-      SHOULD be used to help perform the right certificate selection
-      by the server, although this imposes a management burden on the
-      TLS server that could be avoided by ensuring the TLSA base
-      domain is within the Service Provider's control in the first
-      place.
-    </t>
-
-    <t>Example CNAME record for a TLSA domain:</t>
-    <figure>
-<artwork>
-  ; TLSA RRs aliased to Service Provider, but the base domain is
-  ; the hosted domain.  Likely to fail name check unless Service
-  ; Provider usage is "3".
-  ;
-  _25._tcp.mail.example.com. IN CNAME _25._tcp.mail.example.net.
-  _25._tcp.mail.example.net. IN TLSA 3 1 1 ...
-</artwork>
-    </figure>
-
-    <t>
-      Note: when the TLSA RRset query domain (base domain plus port and protocol
-      prefixes) resolves to a DNSSEC validated CNAME that points to a DNSSEC
-      signed zone with the actual TLSA records, as the above example
-      indicates, it has no effect on
-      the value of the base domain, which remains the original domain to
-      which the client prefixed the port and protocol.  In the example
-      above, the base domain is "mail.example.com" and not "mail.example.net".
-    </t>
-
     <t>
       Though CNAMEs are illegal on the right hand side of most
       indirection records, such as MX and SRV records, they are
-      supported by some implementations.  For example, if the MX or
-      SRV host is a CNAME alias, some implementations may "chase" the
-      CNAME.  They SHOULD use the target hostname as the base domain for
-      TLSA records as well as the HostName in SNI, provided the CNAME
-      RR is found to be "secure" at each step in the CNAME expansion.
+      supported by some implementations.  For example, if the MX
+      or SRV host is a CNAME alias, some implementations may "chase"
+      the CNAME.  They SHOULD use the target hostname as the preferred
+      TLSA base domain as well as the HostName in SNI, provided the
+      CNAME RR is found to be "secure" at each step in the CNAME
+      expansion.
     </t>
-  </section> <!-- Redirecting TLSA lookups in the Customer Domain -->
+
   </section>
-  <section title="TLSA Base Name Priorities">
-    <t>There are multiple steps within a chaining DNS lookup process
-    that TLSA base names can be pulled from.  This section will
-    discuss what the preferred selection points are. TBD.
-    <list style="numbers">
-      <t>Final Domain Name</t>
-      <t>Redirect Name</t>
-      <t>Initial Name</t>
-    </list>
-    </t>
-  </section>
+
   <section title="Interaction with Certificate Transparency">
+
     <t>
-      <xref target="RFC6962"/> Certificate Transparency or CT for short,
-      defines an approach to mitigate the risk of rogue or compromised
-      public CAs issuing unauthorized certificates.  This section
-      clarifies the interaction of CT and DANE.  CT is a protocol and
-      auditing system that applies
-      only to public CAs, and only when they are free to issue unauthorized
-      certificates for a domain.  If the CA is not a public CA, or DANE
-      TLSA RRs constrain the end-entity certificate to a fixed public
-      key, there is no role for CT, and clients need not apply CT checks.
+      <xref target="RFC6962"/> Certificate Transparency or CT for
+      short, defines an approach to mitigate the risk of rogue or
+      compromised public CAs issuing unauthorized certificates.
+      This section clarifies the interaction of CT and DANE.  CT
+      is a protocol and auditing system that applies only to public
+      CAs, and only when they are free to issue unauthorized
+      certificates for a domain.  If the CA is not a public CA, or
+      a DANE-EE(3) TLSA RR directly specifies the end-entity
+      certificate, there is no role for CT, and clients need not
+      apply CT checks.
     </t>
 
     <t>
       When a server is authenticated via a DANE TLSA RR with TLSA
-      Certificate Usage PKIX-EE(1) or DANE-EE(3), the domain owner has
-      unambiguously specified the certificate associated with the
-      given service.  Even if a rogue CA were able to issue an
-      unauthorized end-entity certificate that binds a public key to a
-      name in that domain, barring "second preimage" attacks on the
-      hashing algorithms in use, any such certificate would not match
-      the TLSA record and would be rejected.  Therefore, when a TLS
-      client authenticates the TLS server via a TLSA certificate
-      association with usage PKIX-EE(1) or DANE-EE(3), CT checks need
-      not be performed.  Publication of the server certificate or
-      public key (digest) in a TLSA record in a DNSSEC signed zone by
-      the domain owner assures the TLS client that the certificate is not
-      an unauthorized certificate issued by a rogue CA without the
-      domain owner's consent.
+      Certificate Usage DANE-EE(3), the domain owner has directly
+      specified the certificate associated with the given service
+      without reference to any PKIX certificate authority.  Therefore,
+      when a TLS client authenticates the TLS server via a TLSA
+      certificate association with usage DANE-EE(3), CT checks SHOULD
+      NOT be performed.  Publication of the server certificate or
+      public key (digest) in a TLSA record in a DNSSEC signed zone
+      by the domain owner assures the TLS client that the certificate
+      is not an unauthorized certificate issued by a rogue CA without
+      the domain owner's consent.
     </t>
 
     <t>
       When a server is authenticated via a DANE TLSA RR with TLSA
-      usage DANE-CA(2) and the server certificate does not chain to a
-      known public root CA, CT cannot apply (CT logs only accept
-      chains that start with a known, public root).  Since TLSA
-      Certificate Usage DANE-CA(2) is generally intended to support
-      non-PKIX trust anchors, TLS clients need not perform CT checks with
-      usage DANE-CA(2) using unknown root CAs.
+      usage DANE-TA(2) and the server certificate does not chain
+      to a known public root CA, CT cannot apply (CT logs only
+      accept chains that start with a known, public root).  Since
+      TLSA Certificate Usage DANE-TA(2) is generally intended to
+      support non-PKIX trust anchors, TLS clients SHOULD NOT perform
+      CT checks with usage DANE-TA(2) using unknown root CAs.
     </t>
+
     <t>
-      A server operator that wants to perform CT checks should use
-      TLSA RRs with usage PKIX-CA(0) and use a known, trusted public
-      PKIX root issuer.
+      A server operator who wants clients to perform CT checks
+      should publish TLSA RRs with usage PKIX-TA(0) or PKIX-EE(1).
     </t>
+
   </section>
+
   <section title="Design Considerations for Protocols Using DANE">
 
     <t>
@@ -817,8 +835,8 @@ digest of the server certificate.
     <section title="Trust Anchor Digests With TLSA Certificate Usage 2">
 
       <t>
-	With TLSA Certificate Usage DANE-CA(2), there is no expectation that the client is pre-configured with
-	the trust anchor certificate.  With TLSA Certificate Usage DANE-CA(2)
+	With TLSA Certificate Usage DANE-TA(2), there is no expectation that the client is pre-configured with
+	the trust anchor certificate.  With TLSA Certificate Usage DANE-TA(2)
 	clients are expecting to rely
 	on the TLSA records alone.  But, with a matching type other than PKIX-CA(0)
 	the TLSA records contain neither the full trust anchor certificate
@@ -828,7 +846,7 @@ digest of the server certificate.
       </t>
 
       <t>
-	TLSA Publishers that publish TLSA Certificate Usage DANE-CA(2)
+	TLSA Publishers that publish TLSA Certificate Usage DANE-TA(2)
 	with a non-zero matching type MUST ensure that the corresponding
 	server is configured to include the associated trust anchor certificate
 	in its TLS handshake certificate chain, even if that certificate is
@@ -837,7 +855,7 @@ digest of the server certificate.
       </t>
 
       <t>
-	Since servers are expected to always provide usage DANE-CA(2) trust
+	Since servers are expected to always provide usage DANE-TA(2) trust
 	anchor certificates (either via DNS or else via the TLS hanshake),
 	clients SHOULD fully support this TLSA Certificate Usage.  Clients MAY
 	choose to treat it as unusable if experience proves that servers
@@ -852,7 +870,7 @@ digest of the server certificate.
 
     <t>
       TLSA records with TLSA Certificate Usage PKIX-CA(0) or
-      DANE-CA(2), selector SPKI(1) and a matching type of Full(0)
+      DANE-TA(2), selector SPKI(1) and a matching type of Full(0)
       publish the full public key of a trust anchor via DNS.  In
       section 6.1.1 of <xref target="RFC5280"/> the definition of a
       trust anchor consists of the following four parts:
@@ -880,7 +898,7 @@ digest of the server certificate.
     </t>
 
     <t>
-      With TLSA Certificate Usage DANE-CA(2), the client may not have the missing trust anchor
+      With TLSA Certificate Usage DANE-TA(2), the client may not have the missing trust anchor
       certificate, and cannot generally verify whether a particular
       certificate chain is "issued by" the trust anchor described in the
       TLSA record.  If the server certificate chain includes a CA certificate
@@ -894,7 +912,7 @@ digest of the server certificate.
       Since trust chain validation via bare public keys rather than trusted
       CA certificates may be difficult to implement using existing TLS
       libraries, servers SHOULD include the trust anchor certificate in
-      their certificate chain when the TLSA Certificate Usage is DANE-CA(2).
+      their certificate chain when the TLSA Certificate Usage is DANE-TA(2).
     </t>
 
     <t>
