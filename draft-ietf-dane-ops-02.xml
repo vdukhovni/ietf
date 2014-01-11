@@ -13,6 +13,7 @@
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY RFC6962 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6962.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
+<!ENTITY I-D.ietf-dane-smtp-with-dane SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp-with-dane.xml">
 <!ENTITY I-D.ietf-dane-registry-acronyms SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-registry-acronyms.xml">
 ]>
 <?rfc strict="yes" ?>
@@ -89,7 +90,7 @@ relevant TLSA records.  Service indirection is often used to implement
 simultaneously supports multiple hosted domains.  With services that employ
 TLS, such hosting arrangements may require the service provider to employ
 multiple pairs of private keys and certificates with TLS clients signalling
-the desired domain via SNI (<xref target="RFC6066" /> section 3).  This
+the desired domain via SNI (<xref target="RFC6066" />, section 3).  This
 memo provides operational guidelines intended to maximize interoperability
 between DANE TLS clients and servers.
 </t>
@@ -143,10 +144,10 @@ target="RFC2119"/>.
     subjectPublicKeyInfo component of a PKIX certificate.
   </t>
   <t hangText="SNI:">
-    The "Server Name Indication", or SNI, describes the TLS protocol
+    "Server Name Indication", or SNI, describes the TLS protocol
     extension by which a TLS client requests to connect to a
     particular service name of a TLS server (<xref target="RFC6066"
-    />).  Without this TLS extension, a TLS server has no choice
+    />, section 3).  Without this TLS extension, a TLS server has no choice
     but to offer a PKIX certificate with a default list of server
     names making it difficult to host multiple customer domains at
     the same TLS service endpoint (secure virtual hosting).
@@ -258,14 +259,14 @@ In the example TLSA record below:
 
 <figure>
 <artwork>
-  _25._tcp.mail.example.com. IN TLSA 3 0 1 (
+  _25._tcp.mail.example.com. IN TLSA 2 0 1 (
                                 E8B54E0B4BAA815B06D3462D65FBC7C0
                                 CF556ECCF9F5303EBFBB77D022F834C0 )
 </artwork>
 </figure>
 
 <t>
-The TLSA Certificate Usage is DANE-EE(3), the selector is Cert(0)
+The TLSA Certificate Usage is DANE-TA(2), the selector is Cert(0)
 and the matching type is SHA2-256(1).  The rest of the record is the
 certificate association data field, which is in this case the SHA2-256
 digest of the server certificate.
@@ -340,67 +341,81 @@ digest of the server certificate.
       preferred. </t>
     </section>
   </section>
+
   <section title="Certificate Name Check Conventions">
+
     <t>
       Certificates presented by a TLS server will generally contain
-      Common Name (CN) in the subject DN, a subjectAltName extension
-      (or both).  The server's DNS hostname should be published
-      within these elements, ideally within the subjectAltName as use
-      of the Common Name field for this purpose is deprecated.  This
-      section discusses what must steps must be taken to match an
-      expected name against the name found within a certificate,
-      when certificate name checks are required.
-    </t>
-    <t>
-      The TLSA Publisher for TLSA records for a given service MUST
-      ensure that at least one of these TLSA records will match the
-      server's certificate chain.  If SNI is not employed by the
-      server, at least one TLSA record must have "associated data"
-      that matches the server's default certificate.  When the SNI
-      extension is sent by the client with a HostName (see <xref
-      target="RFC6066"/> Section 3) equal to the base domain of the
-      TLSA RRset, at least one TLSA record must have an "associated
-      data" field that matches the resulting certificate chain presented
-      by the server.
+      a Common Name (CN) element in the subject distinguished name
+      (DN) and/or a subjectAltName (SAN) extension.  The server's
+      DNS hostname should be published within these elements, ideally
+      within the subjectAltName extension as use of the CN field
+      for this purpose is deprecated.  Name checks SHOULD ONLY
+      consider the subject CN when no SAN values of type 'dns' are
+      present.
     </t>
 
     <t>
-      When, for example, the TLSA RRset is published at
-      "_25._tcp.mail.example.com", the TLSA base domain is
-      "mail.example.com".  At least one of the TLSA records in the
-      _25._tcp.mail.example.com RRset MUST match the server
-      certificate chain, provided the client TLS hanshake included the
-      SNI extension with a HostName of "mail.example.com".
+      When a server hosts multiple domains at the same transport
+      endpoint, the server's ability to respond with the right
+      certificate chain is predicated on correct SNI information
+      from the client.  DANE clients MUST send the SNI extension
+      with a HostName value of the base domain of the TLSA RRset.
     </t>
 
     <t>
-      Note: Except with TLSA Certificate Usage DANE-EE(3), where name
+      Except with TLSA Certificate Usage DANE-EE(3), where name
       checks are not applicable (see <xref target="type3" />), DANE
-      aware clients SHOULD use the base domain of the TLSA RRset to
-      verify that the client has reached the correct server by
-      checking that the TLSA base domain is matched by one of the
-      subjectAltName (<xref target="RFC5280"/>) values in the server
-      certificate.  The commonName from the certificate subject DN
-      SHOULD only be used when no subjectAltNames of type 'dns' are
-      present.  Additional acceptable names may be specified by
-      protocol specific DANE standards.  For example, with SMTP
-      both the destination domain name and the MX host name are
-      acceptable names to be found in the server certificate.
+      clients MUST verify that the client has reached the correct
+      server by checking that the server name is listed in the
+      server certificate.  The server name used for this comparison
+      SHOULD be the base domain of the TLSA RRset.  Additional
+      acceptable names may be specified by protocol specific DANE
+      standards.  For example, with SMTP both the destination domain
+      name and the MX host name are acceptable names to be found
+      in the server certificate (see <xref
+      target="I-D.ietf-dane-smtp-with-dane"/>).
     </t>
 
     <t>
-      Since the server's ability to respond with the right certificate
-      chain requires the TLS client to provide the correct SNI
-      information, clients SHOULD send the SNI extension with a
-      HostName value of the base domain of the TLSA RRset.  Clients
-      failing to transmit SNI information may be unable to properly
-      authenticate the presented certificate due to certificate naming
-      mismatches.
+      It is the responsibility of the service operator in coordination
+      with the TLSA Publisher to ensure that at least one of the
+      TLSA records published for the service will match the server's
+      certificate chain (either the default chain or selected based
+      on the SNI information from the client).  With certificate
+      usage values other than DANE-EE(3) the server leaf (EE)
+      certificate MUST include the TLSA base domain as one of its
+      names, or else if other acceptable names are specified by a
+      protocol-specific DANE standard, one of those in place the
+      TLSA base domain.
     </t>
+
+    <t>
+      Given the DNSSEC validated DNS records below:
+    </t>
+
+<figure>
+<artwork>
+  example.com. IN MX 0 mail.example.com.
+  _25._tcp.mail.example.com. IN TLSA 2 0 1 (
+                                E8B54E0B4BAA815B06D3462D65FBC7C0
+                                CF556ECCF9F5303EBFBB77D022F834C0 )
+</artwork>
+</figure>
+
+    <t>
+      the TLSA base domain is "mail.example.com" and this MUST be the
+      HostName in the client's SNI extension.  The server certificate
+      chain MUST be signed by a trust-anchor with the above certificate
+      SHA2-256 digest.  One of the DNS names in the server certificate
+      MUST be either "mail.example.com" or "example.com".
+    </t>
+
   </section>
 
   <section title="Service Provider and TLSA Publisher Synchronization"
 	   anchor="sync">
+
     <t>
       Complications arise when the TLSA Publisher is not the same
       entity as the Service Provider.  In this situation, the TLSA
@@ -1040,8 +1055,9 @@ option clients SHOULD perform PKIX validation per <xref target="RFC6698"/>.
 &RFC6962;
 </references>
 <references title="Informative References">
-&I-D.ietf-dane-srv;
 &I-D.ietf-dane-registry-acronyms;
+&I-D.ietf-dane-smtp-with-dane;
+&I-D.ietf-dane-srv;
 </references>
 </back>
 </rfc>
