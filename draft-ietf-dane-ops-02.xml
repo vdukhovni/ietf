@@ -247,8 +247,12 @@ target="RFC2119"/>.
     key, and likewise SHA-512(2) means a SHA-512 digest is used.
     Of the two digest algorithms, for now only SHA-256(1) is mandatory
     to implement.  Clients SHOULD implement SHA-512(2), but servers
-    SHOULD NOT exclusively publish SHA-512(2) digests.  <!-- XXX:
-    Add reference to digest agility -->
+    SHOULD NOT exclusively publish SHA-512(2) digests.  A digest-agility
+    algorithm is proposed in section 2.3.3 of <xref
+    target="I-D.ietf-dane-smtp-with-dane"/> that SHOULD be used by
+    clients to decide how to process TLSA RRsets that employ multiple
+    digest algorithms.  Server operators MUST publish TLSA RRsets
+    that are compatible with digest-algorithm agility.
   </t>
 
   <section title="Example TLSA record">
