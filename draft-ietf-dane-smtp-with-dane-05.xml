@@ -824,7 +824,7 @@ Authentication via certificate usage "3" TLSA records involves
 no certificate authority signature checks.  It also involves no
 server name checks, and thus does not impose any new requirements
 on the names contained in the server certificate (SNI is not required
-when the TLSA record matches server's default certificate).
+when the TLSA record matches the server's default certificate).
 </t>
 
 <t>
@@ -861,10 +861,10 @@ Some domains may prefer to reduce the operational complexity of
 publishing unique TLSA RRs for each TLS service.  If the domain
 employs a common issuing certificate authority to create certificates
 for multiple TLS services, it may be simpler to publish the issuing
-authority's public key as a trust-anchor (TA) for the certificate
-chains of all relevant services.  The TLSA RRs for each service
-issued by the same TA may then be CNAMEs to a common TLSA RRset
-that matches the TA.
+authority as a trust-anchor (TA) for the certificate chains of all
+relevant services.  The TLSA RRs for each service issued by the
+same TA may then be CNAMEs to a common TLSA RRset that matches the
+TA.
 </t>
 
 <t>
