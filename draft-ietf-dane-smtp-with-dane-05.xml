@@ -82,7 +82,8 @@ There has historically been no scalable way for Simple Mail
 Transport Protocol (SMTP) server operators
 to deploy Transport Layer Security (TLS) using X.509 certificates with
 a client-trusted subject name.  It is
-only with the deployment of DNSSEC and DNS-Based Authentication of Named
+only with the deployment of Domain Name System Security Extensions
+(DNSSEC) and DNS-Based Authentication of Named
 Entities (DANE) that authenticated TLS
 for SMTP to MX becomes possible between parties that have not already
 established an identity convention out-of-band.
@@ -90,29 +91,31 @@ established an identity convention out-of-band.
 
 <section title="Background">
 <t>
-The Domain Name System Security Extensions (DNSSEC) add data origin
-authentication and data integrity to the Domain Name System.  DNSSEC
-is defined in <xref target="RFC4033"/>, <xref target="RFC4034"/> and
-<xref target="RFC4035"/>.
+The Domain Name System Security Extensions (DNSSEC) adds data origin
+authentication, data integrity and type non-existence proofs to the
+Domain Name System (DNS).  DNSSEC is defined in <xref
+target="RFC4033"/>, <xref target="RFC4034"/> and <xref
+target="RFC4035"/>.
 </t>
 
 <t>
-As described in the introduction of DNS-Based Authentication of Named
-Entities (DANE) <xref target="RFC6698"/>, TLS authentication via the
-existing public Certificate Authority (CA) Public Key Infrastructure
-(PKI) suffers from an over-abundance of trusted certificate
-authorities capable of issuing certificates for any domain of their
-choice.  DANE leverages the DNSSEC infrastructure to publish trusted
-keys and certificates for use with TLS via a new "TLSA" DNS record type.
+As described in the introduction of <xref target="RFC6698"/>, TLS
+authentication via the existing public Certificate Authority (CA)
+Public Key Infrastructure (PKI) suffers from an over-abundance of
+trusted certificate authorities capable of issuing certificates for
+any domain of their choice.  DANE leverages the DNSSEC infrastructure
+to publish trusted keys and Public-Key Infrastructure using X.509
+(PKIX) certificates for use with TLS via a new "TLSA" DNS record type.
 </t>
 
 <t>
-The Transport Layer Security (TLS <xref target="RFC5246"/>) protocol
+The Transport Layer Security (TLS) (<xref target="RFC5246"/>) protocol
 enables secure TCP communication.  In the context of this memo,
 channel security is assumed to be provided by TLS.  Used without
-authentication, TLS protects only against eavesdropping.  With
-authentication, TLS also protects against man-in-the-middle (MITM)
-attacks.
+authentication, TLS provides only privacy protection against
+eavesdropping attacks.  With
+authentication, TLS also provides data integrity protection to protect
+against man-in-the-middle (MITM) attacks.
 </t>
 
 </section><!-- Background -->
