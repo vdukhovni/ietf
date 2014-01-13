@@ -122,6 +122,8 @@ against man-in-the-middle (MITM) attacks.
 
 <section title="SMTP Channel Security" anchor="channelsec">
 
+<!-- XXXWJH-to-self: seems either too long or not linear enough -->
+
 <t>
 The Simple Mail Transfer Protocol (SMTP) <xref target="RFC5321" />
 is a multi-hop store &amp; forward protocol.  TLS' security
