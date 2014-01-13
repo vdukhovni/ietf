@@ -569,10 +569,10 @@ used in identity checks of the SMTP server certificate.
 
 <t>
 In this section we consider next-hop domains that are subject to
-MX resolution and have MX records.  The TLSA records and associated
-base domain will be derived separately for each MX hostname used
+MX resolution and have MX records.  The TLSA records and the associated
+base domain will be derived separately for each MX hostname to be used
 to attempt message delivery.  Clearly, if DANE TLS security is to
-apply to message delivery via any of the MX hosts, the MX hostnames
+apply to message delivery via any of the MX hosts, the MX records
 must be obtained securely via a DNSSEC validated MX lookup.
 </t>
 
@@ -599,14 +599,18 @@ domain is found.
 </t>
 
 <t>
+<!-- XXXWJH: or any CNAMEs in the middle! -->
 If, the final MX RRset is "insecure" (see <xref target="dnserr"/>),
 DANE TLS does not apply, and delivery proceeds via pre-DANE
-opportunistic TLS.  Otherwise, the MX RRset is "secure", and each
+opportunistic TLS.
+<!-- XXXWJH: my fingers want to put in a reference for bogus to dnserr -->
+<!-- XXXWJH: I can't parse the next sentence properly -->
+Otherwise, the MX RRset is "secure", and each
 MX hostname used to attempt message delivery is treated as an
 independent non-MX destination for opportunistic DANE TLS as described
-in <xref target="non-mx"/>.  When for a given MX hostname no TLSA
+in <xref target="non-mx"/>.  When, for a given MX exchange, no TLSA
 records are found, or only "insecure" TLSA records are found, DANE
-TLSA is not applicable with the MX hostname in question and delivery
+TLSA is not applicable with the MX host in question and delivery
 proceeds as with pre-DANE opportunistic TLS.
 </t>
 
