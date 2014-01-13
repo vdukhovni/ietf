@@ -147,7 +147,7 @@ SMTP recipient addresses are not transport addresses and are
 security-agnostic.  Unlike the Hypertext Transfer Protocol (HTTP)
 and its corresponding secured version, HTTPS, there is no URI scheme
 for email addresses to designate whether communication with the
-SMTP server should be conducted via a cleartext or TLS-encrypted
+SMTP server should be conducted via a plaintext or TLS-encrypted
 channel.
 </t>
 
@@ -338,7 +338,7 @@ The following terms or concepts are used through the document:
 
 <t>
 Neither email addresses nor MX hostnames (or submission SRV records)
-signal a requirement for either secure or cleartext transport.
+signal a requirement for either secure or plaintext transport.
 Therefore, SMTP transport security is of necessity generally
 opportunistic (barring manually configured exceptions).
 </t>
@@ -359,7 +359,7 @@ that publish "usable" DANE TLSA records in accordance with this
 memo is authenticated and encrypted.  Traffic from non-compliant
 clients or to domains that do not publish TLSA records will continue
 to be sent in the same manner as before, via manually configured
-security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
+security, (pre-DANE) opportunistic TLS or just plaintext SMTP.
 </t>
 
 <section title="DNS lookup errors and bogus responses" anchor="dnserr">
@@ -666,7 +666,7 @@ RRset is "secure" TLSA lookups are performed as described in <xref
 target="tlsa-lookup"/> with the input domain as the candidate TLSA
 base domain.  If no "secure" TLSA records are found, DANE TLS is
 not applicable and mail delivery proceeds with pre-DANE opportunistic
-TLS (which, being best-effort, degrades to cleartext delivery when
+TLS (which, being best-effort, degrades to plaintext delivery when
 STARTTLS is not available or the TLS handshake fails).
 </t>
 
