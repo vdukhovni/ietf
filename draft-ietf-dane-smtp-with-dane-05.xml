@@ -487,6 +487,9 @@ DNS queries succeed.  If any DNS failure occurs, the SMTP client MUST
 behave as described in this section.
 </t>
 
+<!-- XXXWJH: need to mention this is true for any type of lookup, including
+for TLSA records, A, MX, ... -->
+
 </section><!-- DNS lookup errors and bogus responses -->
 
 <section title="TLS discovery">
@@ -500,11 +503,14 @@ default and clients need to be prepared to retry plaintext delivery
 after STARTTLS fails.  In contrast, DNSSEC validated TLSA records
 are unlikely to be accidentally published for servers that do not
 support TLS, and thus clients can safely interpret their presence
-as a commitment by the server operator to implement STARTTLS.
+as a commitment by the server operator to implement TLS and STARTTLS.
 </t>
 
 <t>
-Specifically, when an SMTP client locates "secure" TLSA records for
+<!-- XXXWJH: define "secure".  Suggest using "DNSSEC secured" and
+define that term in terminology -->
+Specifically, when an SMTP client locates "secure" TLSA records, in
+accordance with the search algorithms specified in this memo, for
 an SMTP server, the client SHOULD NOT connect to the server without
 negotiating a TLS-encrypted channel.  Absent "secure" (DNSSEC
 validated) TLSA records, the SMTP client should employ pre-DANE
@@ -517,7 +523,7 @@ the server may not be authenticated when none the records are "usable".
 When at least one of then TLSA records is "usable" (<xref
 target="RFC6698"/>, Section 4.1) the client SHOULD authenticate the
 server.  With "usable" TLSA records the transmission of email from
-client to server resists eavesdropping and tampering so long as the
+client to server resists eavesdropping, interception and tampering so long as the
 server's DNSSEC records are not compromised.
 </t>
 
@@ -530,9 +536,9 @@ authenticated TLS channel with the SMTP server.
 </t>
 
 <t>
-A note about DNAME aliases.  A query for a domain name whose ancestor
+A note about DNAME aliases:  a query for a domain name whose ancestor
 domain is a DNAME alias returns the DNAME RR for the ancestor domain,
-along with a CNAME mapping the query domain to the corresponding
+along with a CNAME that maps the query domain to the corresponding
 sub-domain of the target domain of the DNAME alias.  Therefore,
 whenever we speak of CNAME aliases, we implicitly allow for the
 possibility that the alias in question is the result of an ancestor
@@ -546,6 +552,7 @@ part of the DNAME support logic is outside the MTA.
 </t>
 
 <t>
+<!-- XXXWJH: probably need to state when this occurs; eg, local policy -->
 When the original next-hop destination is an address literal, rather
 than a DNS domain, DANE TLS does not apply.  Delivery proceeds using
 any relevant security policy configured by the MTA administrator.
