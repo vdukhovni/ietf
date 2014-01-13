@@ -270,12 +270,17 @@ The following terms or concepts are used through the document:
 
     <t hangText="opportunistic DANE TLS:">
     Best-effort use of TLS, resistant to downgrade attacks for
-    destinations with DNSSEC-validated TLSA records.  For other
-    destinations this is identical to opportunistic TLS below.
+    destinations with DNSSEC-validated TLSA records.  When
+    opportunistic DANE TLS is determined to be unavailable, clients
+    should fall back to opportunistic TLS below.
+    <!-- XXXWJH: maybe consider use of something like 'opportunistic DANE
+    TLS requires DNSSEC, DANE, TLS, STARTTLS on the client side and
+    DNSSEC, TLS and STARTTLS and a published TLSA record on the server
+    side. -->
     </t>
 
     <t hangText="(pre-DANE) opportunistic TLS:">
-    Best-effort use of TLS vulnerable to DNS forgery and STARTTLS
+    Best-effort use of TLS that is likely vulnerable to DNS forgery and STARTTLS
     downgrade attacks.  When a TLS-encrypted communication channel
     is not available, message transmission takes place in the clear.
     MX record indirection generally precludes authentication even
@@ -295,12 +300,12 @@ The following terms or concepts are used through the document:
     </t>
 
     <t hangText="delayed delivery:">
-    SMTP delivery is store &amp; forward.  When an MTA is unable
+    SMTP delivery is a store &amp; forward protocol.  When an MTA is unable
     forward a message that may become deliverable later, the message
     is queued and delivery is retried periodically.  Some MTAs may
     be configured with a fallback next-hop destination that handles
-    messages that the MTA would otherwise queue and retry.  In this
-    case messages that would otherwise have to be delayed, may be
+    messages that the MTA would otherwise queue and retry.  In theses
+    cases, messages that would otherwise have to be delayed, may be
     sent to the fallback next-hop destination instead.  The fallback
     destination may itself be subject to opportunistic or mandatory DANE
     TLS as though it were the original message destination.
