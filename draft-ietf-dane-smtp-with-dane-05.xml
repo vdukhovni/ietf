@@ -334,21 +334,21 @@ The following terms or concepts are used through the document:
 </section><!-- Terminology -->
 </section><!-- Introduction -->
 
-<section title="Hardening Opportunistic TLS">
+<section title="Hardening (pre-DANE) Opportunistic TLS">
 
 <t>
 Neither email addresses nor MX hostnames (or submission SRV records)
 signal a requirement for either secure or cleartext transport.
 Therefore, SMTP transport security is of necessity generally
-(that is, barring manually configured exceptions) opportunistic.
+opportunistic (barring manually configured exceptions).
 </t>
 
 <t>
 This specification makes it possible for DANE TLSA records to
 securely signal TLS support and to publish the means by which SMTP
 clients can successfully authenticate legitimate SMTP servers.  This
-makes opportunistic TLS resistant to downgrade and MITM attacks,
-enabling an incremental transition of the email backbone to
+becomes opportunistic DANE TLS and is resistant to downgrade and MITM attacks,
+and enables an incremental transition of the email backbone to
 authenticated TLS delivery, with increased global protection as
 adoption increases.
 </t>
