@@ -65,7 +65,8 @@
 <abstract> <t>
 This memo describes a downgrade-resistant protocol for the Simple Mail
 Transport Protocol's (SMTP's) transport
-security based on the DANE TLSA DNS record.  Adoption of this
+security based on the DNS-Based Authentication of Named
+Entities (DANE) TLSA DNS record.  Adoption of this
 protocol enables an incremental transition of the Internet email
 backbone to one using Transport Layer Security (TLS) to encrypt and
 authenticate the SMTP traffic.
@@ -77,9 +78,12 @@ authenticate the SMTP traffic.
 <section title="Introduction">
 
 <t>
-There has historically been no scalable way for SMTP server operators
-to deploy certificates with a client-trusted subject name.  It is
-only with the deployment of DNSSEC and DANE that authenticated TLS
+There has historically been no scalable way for Simple Mail
+Transport Protocol (SMTP) server operators
+to deploy Transport Layer Security (TLS) using X.509 certificates with
+a client-trusted subject name.  It is
+only with the deployment of DNSSEC and DNS-Based Authentication of Named
+Entities (DANE) that authenticated TLS
 for SMTP to MX becomes possible between parties that have not already
 established an identity convention out-of-band.
 </t>
