@@ -63,10 +63,12 @@
 <keyword>SMTP</keyword>
 
 <abstract> <t>
-This memo describes a downgrade-resistant protocol for SMTP transport
+This memo describes a downgrade-resistant protocol for the Simple Mail
+Transport Protocol's (SMTP's) transport
 security based on the DANE TLSA DNS record.  Adoption of this
 protocol enables an incremental transition of the Internet email
-backbone to TLS-encrypted and authenticated SMTP.
+backbone to one using Transport Layer Security (TLS) to encrypt and
+authenticate the SMTP traffic.
 </t> </abstract>
 
 </front>
