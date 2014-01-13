@@ -364,13 +364,26 @@ security, (pre-DANE) opportunistic TLS or just plaintext SMTP.
 
 <section title="DNS lookup errors and bogus responses" anchor="dnserr">
 
+<!-- XXXWJH this section seems to lead to insecurity with respect to
+talking to a local resolver that may or may not be truly local.  Thus,
+if we are not requiring validation in the application itself (a huge
+mistake, IMHO) then you have to call out in the security section that
+this specification is still subject to attacks because of the use of
+external resolvers, system-local or not.  EG, many local resolv.conf
+files have both a local name server and a backup ISP server, and are
+suddenly subject to MITM all over again.  I'd argue this is actually
+very common. -->
+
 <t>
 To avoid much repetition in the text below, we will pause to explain
 the handling of "bogus" DNSSEC query responses.  These are not
 necessarily the result of a malicious actor; they can, for example,
-occur when network packets are corrupted in transit.  One may view
+occur when network packets are corrupted in transit.
+<!-- WJH: this downplays the importance of DNSSEC too much and casts
+     aside some important aspects the sentence leaves out (origin authentication): -->
+<!-- One may view
 DNSSEC as just a stronger data integrity mechanism than the usual
-UDP checksum.
+UDP checksum. -->
 </t>
 
 <t>
@@ -407,25 +420,27 @@ the resolver will not even return "bogus" replies to the MTA, rather
 these will generally be reported as lookup errors with a "ServFail"
 RCODE.
 </t>
-
+<!-- XXXWJH: transition needed -->
 <t>
 We emphasize that an "insecure" DNSSEC response is not a failure,
-rather the target DNS zone is not signed, and DNSSEC validation
+rather it indicates the target DNS zone is not signed or is not
+connected with the DNSSEC trust anchors being used, and DNSSEC validation
 is not applicable to records associated with the query domain.
 Insecure results may lead to degradation of channel security,
-but do not stand in the way of message delivery.
+but does not stand in the way of message delivery.
 </t>
 
 <t>
-When the DNS client's query encounters a CNAME alias, it should
-generally restart the query at the target of the alias, recursively
-up to some configured or implementation-dependent recursion depth
+When the DNS client receives a response containing a CNAME alias, it should
+generally restart the query at the target of the alias, and should do
+so recursively
+up to some configured or implementation-dependent recursion 
 limit.  If at any stage of recursive CNAME expansion a query fails,
 the lookup of the original requested records MUST be considered to
 have failed.  If at any stage of recursive expansion the response
 is "insecure", then it and all subsequent results, and in particular
-the final result, MUST be considered "insecure" regardless of the
-validation status of the corresponding query response.
+the final result, MUST be considered "insecure" regardless of whether
+the other responses received were deemed "secure".
 </t>
 
 <t>
@@ -435,6 +450,10 @@ though the client had received a "ServFail" response from its
 caching resolver.  And in turn a "ServFail" error is treated in
 the same way as any other error condition that neither returns the
 requested data, nor reports its non-existence.
+<!-- XXXWJH: this requires the security section call out that cache
+poisoning with bad data is an attack against the system, since the
+fall back to bogus is to back to opportunistic TLS and is thus a
+downgrade attack -->
 </t>
 
 <t>
@@ -445,6 +464,11 @@ example, the case when a "bogus" response is encountered during MX
 resolution.  When multiple SMTP server names are determined, but a
 DNS lookup failure prevents network address resolution for a given
 server, delivery may proceed via any remaining servers.
+<!-- XXXWJH: sort of alleviates the above concerns of mine, and sort of
+doesn't.   If you can attack the DNS record creating "bogus" for priority
+1 MX, and priority 2 MX doesn't contain TLSA records then it continues
+to 2? This attack needs to be spelled out in the security
+considerations -->
 </t>
 
 <t>
@@ -458,8 +482,8 @@ is delayed.
 </t>
 
 <t>
-In what follows, we will only describe what happens when all
-relevant DNS queries succeed.  If any fail, the SMTP client MUST
+In what follows, we will only describe what happens when all relevant
+DNS queries succeed.  If any DNS failure occurs, the SMTP client MUST
 behave as described in this section.
 </t>
 
