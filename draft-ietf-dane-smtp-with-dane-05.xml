@@ -939,7 +939,7 @@ locally trusted certificates when processing usage 2 TLSA records.
 
 <t>
 TLSA Publishers should publish either "2 1 1" or "2 0 1" TLSA
-parameters, which specify the SHA-256 digest of the trust anchor
+parameters, which specify the SHA2-256 digest of the trust anchor
 public key or certificate respectively.  As with leaf certificate
 rollover discussed in <xref target="cert3" />, two such TLSA RRs
 need to be published to facilitate TA certificate rollover.
