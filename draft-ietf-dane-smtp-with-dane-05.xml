@@ -375,26 +375,11 @@ security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 
 <section title="DNS lookup errors and bogus responses" anchor="dnserr">
 
-<!-- XXXWJH this section seems to lead to insecurity with respect to
-talking to a local resolver that may or may not be truly local.  Thus,
-if we are not requiring validation in the application itself (a huge
-mistake, IMHO) then you have to call out in the security section that
-this specification is still subject to attacks because of the use of
-external resolvers, system-local or not.  EG, many local resolv.conf
-files have both a local name server and a backup ISP server, and are
-suddenly subject to MITM all over again.  I'd argue this is actually
-very common. -->
-
 <t>
 To avoid much repetition in the text below, we will pause to explain
 the handling of "bogus" DNSSEC query responses.  These are not
 necessarily the result of a malicious actor; they can, for example,
 occur when network packets are corrupted in transit.
-<!-- WJH: this downplays the importance of DNSSEC too much and casts
-     aside some important aspects the sentence leaves out (origin authentication): -->
-<!-- One may view
-DNSSEC as just a stronger data integrity mechanism than the usual
-UDP checksum. -->
 </t>
 
 <t>
@@ -408,7 +393,8 @@ with relevant resource records in the answer section:
 
 <t>
 <list style="numbers">
-    <t> When a well-formed DNS response has an RCODE of "NoError"
+    <t> When a well-formed DNS response (with valid DNSSEC signatures
+    and NSEC or NSEC3 records as applicable) has an RCODE of "NoError"
     (<xref target="RFC6895"/> Section 2.3), but the answer count
     is zero; while the DNS client may not have obtained the data
     it was looking for, the response is not a DNS error condition.
@@ -416,7 +402,7 @@ with relevant resource records in the answer section:
     that records of the requested type do not exist. </t>
 
     <t> Similarly, when a well-formed DNS response has an RCODE of
-    "NXDomain", once again the DNS client learns not only that
+    "NXDomain" (either "insecure" or DNSSEC validated), once again the DNS client learns not only that
     records of the requested type do not exist, but also that the
     query domain does not exist.  </t>
 </list>
@@ -424,17 +410,19 @@ with relevant resource records in the answer section:
 
 <t>
 When the response is malformed, or has any RCODE other than "NoError"
-or "NXDOMAIN", the DNS lookup has failed.  Returning to DNSSEC, in
-many cases MTAs will delegate DNSSEC processing to a validating
-caching resolver running on the MTA machine, and in this configuration
+or "NXDOMAIN", the DNS lookup has failed.  Returning to DNSSEC, we note
+that MTAs may in fact delegate DNSSEC processing to a validating
+caching resolver running locally on the MTA machine, and in this configuration
 the resolver will not even return "bogus" replies to the MTA, rather
 these will generally be reported as lookup errors with a "ServFail"
-RCODE.
+RCODE.  This further illustrates the point of view that "bogus" replies
+are just lookup errors and should be treated in the same manner as other
+errors.
 </t>
-<!-- XXXWJH: transition needed -->
+
 <t>
-We emphasize that an "insecure" DNSSEC response is not a failure,
-rather it indicates the target DNS zone is not signed or is not
+In contrast to a "bogus" response, an "insecure" DNSSEC response is not a failure,
+rather it indicates that the target DNS zone is not signed or is not
 connected with the DNSSEC trust anchors being used, and DNSSEC validation
 is not applicable to records associated with the query domain.
 Insecure results may lead to degradation of channel security,
@@ -446,7 +434,9 @@ When the DNS client receives a response containing a CNAME alias, it should
 generally restart the query at the target of the alias, and should do
 so recursively
 up to some configured or implementation-dependent recursion 
-limit.  If at any stage of recursive CNAME expansion a query fails,
+limit.  This recursion is sometimes performed by the DNS nameserver which may
+return a chain of CNAME records in a single response.
+If at any stage of recursive CNAME expansion a query fails,
 the lookup of the original requested records MUST be considered to
 have failed.  If at any stage of recursive expansion the response
 is "insecure", then it and all subsequent results, and in particular
@@ -461,10 +451,6 @@ though the client had received a "ServFail" response from its
 caching resolver.  And in turn a "ServFail" error is treated in
 the same way as any other error condition that neither returns the
 requested data, nor reports its non-existence.
-<!-- XXXWJH: this requires the security section call out that cache
-poisoning with bad data is an attack against the system, since the
-fall back to bogus is to back to opportunistic TLS and is thus a
-downgrade attack -->
 </t>
 
 <t>
@@ -475,11 +461,13 @@ example, the case when a "bogus" response is encountered during MX
 resolution.  When multiple SMTP server names are determined, but a
 DNS lookup failure prevents network address resolution for a given
 server, delivery may proceed via any remaining servers.
-<!-- XXXWJH: sort of alleviates the above concerns of mine, and sort of
-doesn't.   If you can attack the DNS record creating "bogus" for priority
-1 MX, and priority 2 MX doesn't contain TLSA records then it continues
-to 2? This attack needs to be spelled out in the security
-considerations -->
+<!-- Forcing a client to a backup MX does not require "bogus" DNS
+replies, just RST the TCP session and the client will try the next
+MX host! There is little difference between a DNS lookup error and
+an error during delivery.  The main thing is to NOT fallback to
+opportunistic TLS due to "bogus" or other error replies.  Lookup
+errors make the destination (perhaps a single MX host) unreachable,
+never reachable at lower security -->
 </t>
 
 <t>
@@ -495,7 +483,11 @@ is delayed.
 <t>
 In what follows, we will only describe what happens when all relevant
 DNS queries succeed.  If any DNS failure occurs, the SMTP client MUST
-behave as described in this section.
+behave as described in this section, by skipping the problem MX host,
+or the problem destination.  Queries for candidate TLSA records are
+explicitly part of "all relevant DNS queries" and SMTP clients MUST
+NOT continue to connect to an MX host or destination whose TLSA record
+lookup fails.
 </t>
 
 <!-- XXXWJH: need to mention this is true for any type of lookup, including
@@ -520,14 +512,15 @@ as a commitment by the server operator to implement TLS and STARTTLS.
 <t>
 <!-- XXXWJH: define "secure".  Suggest using "DNSSEC secured" and
 define that term in terminology -->
-Specifically, when an SMTP client locates "secure" TLSA records, in
-accordance with the search algorithms specified in this memo, for
-an SMTP server, the client SHOULD NOT connect to the server without
-negotiating a TLS-encrypted channel.  Absent "secure" (DNSSEC
-validated) TLSA records, the SMTP client should employ pre-DANE
+Specifically, when an SMTP client locates "secure" (DNSSEC validated)
+TLSA records for an SMTP server in accordance with the search
+algorithms specified in this memo, the client SHOULD NOT connect
+to the server without negotiating a TLS-encrypted channel.  Absent
+"secure" TLSA records, the SMTP client should employ pre-DANE
 opportunistic TLS.  In other words, TLS encryption is required when
 securely signalled by the presence of DANE TLSA records, even though
-the server may not be authenticated when none the records are "usable".
+the server may not be authenticated when none the records are
+"usable".
 </t>
 
 <t>
@@ -581,7 +574,7 @@ used in identity checks of the SMTP server certificate.
 <t>
 In this section we consider next-hop domains that are subject to
 MX resolution and have MX records.  The TLSA records and the associated
-base domain will be derived separately for each MX hostname to be used
+base domain are derived separately for each MX hostname that is used
 to attempt message delivery.  Clearly, if DANE TLS security is to
 apply to message delivery via any of the MX hosts, the MX records
 must be obtained securely via a DNSSEC validated MX lookup.
@@ -610,19 +603,18 @@ domain is found.
 </t>
 
 <t>
-<!-- XXXWJH: or any CNAMEs in the middle! -->
-If, the final MX RRset is "insecure" (see <xref target="dnserr"/>),
-DANE TLS does not apply, and delivery proceeds via pre-DANE
-opportunistic TLS.
-<!-- XXXWJH: my fingers want to put in a reference for bogus to dnserr -->
-<!-- XXXWJH: I can't parse the next sentence properly -->
-Otherwise, the MX RRset is "secure", and each
-MX hostname used to attempt message delivery is treated as an
-independent non-MX destination for opportunistic DANE TLS as described
-in <xref target="non-mx"/>.  When, for a given MX exchange, no TLSA
+If, the MX RRset (or any CNAME leading to it) is "insecure" (see <xref target="dnserr"/>),
+DANE TLS does not apply, and delivery proceeds via pre-DANE opportunistic TLS.
+Otherwise, the MX RRset is "secure", and the SMTP client MUST treat each
+MX hostname as a separate
+non-MX destination for opportunistic DANE TLS as described
+in <xref target="non-mx"/>.  When, for a given MX hostname, no TLSA
 records are found, or only "insecure" TLSA records are found, DANE
 TLSA is not applicable with the MX host in question and delivery
-proceeds as with pre-DANE opportunistic TLS.
+proceeds to that host as with pre-DANE opportunistic TLS.  To avoid
+downgrade attacks, any errors during TLSA lookups MUST, as explained in
+<xref target="dnserr"/>, cause the MX host in question to be treated
+as unreachable.
 </t>
 
 </section><!-- MX resolution -->
