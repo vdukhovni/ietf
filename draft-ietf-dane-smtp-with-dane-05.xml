@@ -131,8 +131,8 @@ against man-in-the-middle (MITM) attacks.
 
 <t>
 The Simple Mail Transfer Protocol (SMTP) <xref target="RFC5321" />
-is a multi-hop store &amp; forward protocol.  TLS' security
-protects traffic only on a hop-by-hop basis.  The number of hops from
+is a single-hop protocol in a multi-hop store &amp; forward email routing
+process.  TLS encryption of SMTP protects email traffic only on a hop-by-hop basis.  The number of hops from
 the sender's Message User Agent (MUA) to the recipient mailbox is
 rarely less than 2 and is often higher.  Some hops may be protected by
 TLS, and some may not.
@@ -140,7 +140,7 @@ TLS, and some may not.
 
 <t>
 The same SMTP TCP endpoint can serve both TLS and non-TLS clients,
-with the usage of TLS negotiated via the SMTP STARTTLS command (<xref
+with the use of TLS negotiated via the SMTP STARTTLS command (<xref
 target="RFC3207"/>).  DNS Mail Exchange (MX) records abstract the next-hop transport
 endpoint by allowing network administrators to specify a set of
 target servers to which SMTP traffic should be directed for a given
@@ -148,11 +148,16 @@ domain.
 </t>
 
 <t>
+<!--
+plaintext is input about to be encrypted
+cleartext is data transmitted unencrypted
+http://blog.denimgroup.com/denim_group/2007/10/cleartext-vs-pl.html
+-->
 SMTP recipient addresses are not transport addresses and are
 security-agnostic.  Unlike the Hypertext Transfer Protocol (HTTP)
 and its corresponding secured version, HTTPS, there is no URI scheme
 for email addresses to designate whether communication with the
-SMTP server should be conducted via a plaintext or TLS-encrypted
+SMTP server should be conducted via a cleartext or TLS-encrypted
 channel.
 </t>
 
@@ -184,7 +189,7 @@ communication over TLS is unavailable.
 </t>
 
 <t>
-One might try to harden the usage of STARTTLS against DNS attacks by
+One might try to harden the use of STARTTLS against DNS attacks by
 requiring each MX host to possess a trusted certificate for the
 envelope recipient domain rather than the MX hostname.  Unfortunately,
 this is impractical, as email for many domains is handled by third
@@ -247,7 +252,7 @@ This does not mean, however, that the Internet email backbone cannot
 benefit from TLS.  The fact that transport security is not explicitly
 specified in either the recipient address or the MX record means
 that new protocols must be used to furnish out-of-band information to SMTP.
-New methods can make it possible to simultaneously discover which peer domains
+Such new protocols can make it possible to simultaneously discover which peer domains
 support secure delivery via TLS and how to verify the authenticity
 of the associated MX hosts.  This document defines how DANE TLSA
 records are used to harden SMTP STARTTLS against MITM attacks.
@@ -277,15 +282,16 @@ The following terms or concepts are used through the document:
     Best-effort use of TLS, resistant to downgrade attacks for
     destinations with DNSSEC-validated TLSA records.  When
     opportunistic DANE TLS is determined to be unavailable, clients
-    should fall back to opportunistic TLS below.
-    <!-- XXXWJH: maybe consider use of something like 'opportunistic DANE
-    TLS requires DNSSEC, DANE, TLS, STARTTLS on the client side and
-    DNSSEC, TLS and STARTTLS and a published TLSA record on the server
-    side. -->
+    should fall back to opportunistic TLS below.  Opportunistic DANE
+    TLS requires support for DNSSEC, DANE and STARTTLS on the client
+    side and STARTTLS plus a DNSSEC published TLSA record on the server
+    side.
+    <!-- I think we can assume that STARTTLS support implies TLS support, at
+    least above to keep the sentence less bloated. -->
     </t>
 
     <t hangText="(pre-DANE) opportunistic TLS:">
-    Best-effort use of TLS that is likely vulnerable to DNS forgery and STARTTLS
+    Best-effort use of TLS that is generally vulnerable to DNS forgery and STARTTLS
     downgrade attacks.  When a TLS-encrypted communication channel
     is not available, message transmission takes place in the clear.
     MX record indirection generally precludes authentication even
@@ -305,11 +311,11 @@ The following terms or concepts are used through the document:
     </t>
 
     <t hangText="delayed delivery:">
-    SMTP delivery is a store &amp; forward protocol.  When an MTA is unable
+    Email delivery is a multi-hop store &amp; forward process.  When an MTA is unable
     forward a message that may become deliverable later, the message
     is queued and delivery is retried periodically.  Some MTAs may
     be configured with a fallback next-hop destination that handles
-    messages that the MTA would otherwise queue and retry.  In theses
+    messages that the MTA would otherwise queue and retry.  In these
     cases, messages that would otherwise have to be delayed, may be
     sent to the fallback next-hop destination instead.  The fallback
     destination may itself be subject to opportunistic or mandatory DANE
@@ -343,7 +349,7 @@ The following terms or concepts are used through the document:
 
 <t>
 Neither email addresses nor MX hostnames (or submission SRV records)
-signal a requirement for either secure or plaintext transport.
+signal a requirement for either secure or cleartext transport.
 Therefore, SMTP transport security is of necessity generally
 opportunistic (barring manually configured exceptions).
 </t>
@@ -364,7 +370,7 @@ that publish "usable" DANE TLSA records in accordance with this
 memo is authenticated and encrypted.  Traffic from non-compliant
 clients or to domains that do not publish TLSA records will continue
 to be sent in the same manner as before, via manually configured
-security, (pre-DANE) opportunistic TLS or just plaintext SMTP.
+security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 </t>
 
 <section title="DNS lookup errors and bogus responses" anchor="dnserr">
@@ -504,7 +510,7 @@ As noted previously (<xref target="channelsec" />), opportunistic
 TLS with SMTP servers that advertise TLS support via STARTTLS is
 subject to an MITM downgrade attack.  Also some SMTP servers that
 are not, in fact, TLS capable, erroneously advertise STARTTLS by
-default and clients need to be prepared to retry plaintext delivery
+default and clients need to be prepared to retry cleartext delivery
 after STARTTLS fails.  In contrast, DNSSEC validated TLSA records
 are unlikely to be accidentally published for servers that do not
 support TLS, and thus clients can safely interpret their presence
@@ -706,7 +712,7 @@ RRset is "secure" TLSA lookups are performed as described in <xref
 target="tlsa-lookup"/> with the input domain as the candidate TLSA
 base domain.  If no "secure" TLSA records are found, DANE TLS is
 not applicable and mail delivery proceeds with pre-DANE opportunistic
-TLS (which, being best-effort, degrades to plaintext delivery when
+TLS (which, being best-effort, degrades to cleartext delivery when
 STARTTLS is not available or the TLS handshake fails).
 </t>
 
