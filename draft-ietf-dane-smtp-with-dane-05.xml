@@ -789,7 +789,7 @@ _25._tcp.mail.example.com. IN TLSA ?
 <t>
 TLSA record publishers may leverage CNAMEs to reference a single
 authoritative TLSA RRset specifying a common certificate authority
-or a common end-entity certificate to be used with multiple TLS
+or a common end entity certificate to be used with multiple TLS
 services.  Such CNAME expansion does not change the SMTP client's
 notion of the TLSA base domain; thus, when _25._tcp.mail.example.com
 is a CNAME, the base domain remains mail.example.com and is still
@@ -797,10 +797,10 @@ the name used in peer certificate name checks.
 </t>
 
 <t>
-Note, shared end-entity certificate associations expose the publishing
+Note, shared end entity certificate associations expose the publishing
 domain to substitution attacks, where an MITM attacker can reroute
-traffic to a different server that shares the same end-entity
-certificate.  Such shared end-entity records should be avoided
+traffic to a different server that shares the same end entity
+certificate.  Such shared end entity records should be avoided
 unless the servers in question are interchangeable.
 </t>
 
@@ -820,7 +820,7 @@ tlsa211._dane.example.com.  IN  TLSA 2 1 1 e3b0c44298fc1c14....
 
 <t>
 The MX hosts mail.example.com and mail2.example.com will be expected
-to have certificates issued under a common trust-anchor, but each
+to have certificates issued under a common trust anchor, but each
 MX hostname's TLSA base domain remains unchanged despite the above
 CNAME records.  Each MX host's certificate subject name (or one of
 the subject alternative names) is expected to match either the
@@ -901,7 +901,7 @@ new key.
 <t>
 TLSA records published for SMTP servers SHOULD, in most cases, be
 "3 1 1" records.  Such records have "certificate usage" 3, thus
-they are associated with the end-entity (i.e. SMTP server) certificate.
+they are associated with the end entity (i.e. SMTP server) certificate.
 The "selector" is 1, which indicates that the record describes the
 public key portion the server certificate.  Finally, the "matching
 type" is 1, which indicates that the "associated data" is the
@@ -920,7 +920,7 @@ Some domains may prefer to reduce the operational complexity of
 publishing unique TLSA RRs for each TLS service.  If the domain
 employs a common issuing certificate authority to create certificates
 for multiple TLS services, it may be simpler to publish the issuing
-authority as a trust-anchor (TA) for the certificate chains of all
+authority as a trust anchor (TA) for the certificate chains of all
 relevant services.  The TLSA RRs for each service issued by the
 same TA may then be CNAMEs to a common TLSA RRset that matches the
 TA.
@@ -931,7 +931,7 @@ SMTP servers that rely on certificate usage "2" TLSA records for
 TLS authentication MUST include the TA certificate as part of the
 certificate chain presented in the TLS handshake even when it is a
 self-signed root certificate.  SMTP clients cannot generally be
-expected to have domain-issued trust-anchor certificates in their
+expected to have domain-issued trust anchor certificates in their
 trusted certificate store.  Even when the TA happens to be in the
 trusted certificate store, many MTAs will not employ any of their
 locally trusted certificates when processing usage 2 TLSA records.
@@ -939,7 +939,7 @@ locally trusted certificates when processing usage 2 TLSA records.
 
 <t>
 TLSA Publishers should publish either "2 1 1" or "2 0 1" TLSA
-parameters, which specify the SHA-256 digest of the trust-anchor
+parameters, which specify the SHA-256 digest of the trust anchor
 public key or certificate respectively.  As with leaf certificate
 rollover discussed in <xref target="cert3" />, two such TLSA RRs
 need to be published to facilitate TA certificate rollover.
@@ -960,7 +960,7 @@ order to avoid mail delivery problems.
 Server operators are encouraged to implement these RRs, if they are
 operationally a better fit for their organization, provided they
 do so with care.  It is essential to not forget to always include
-trust-anchor certificates in server certificate chains.  SMTP client
+trust anchor certificates in server certificate chains.  SMTP client
 implementations SHOULD support these TLSA RRs, unless, despite the
 above warning, a non-trivial fraction of server operators fail to
 configure certificate chains that include the required TA certificate.
@@ -1338,7 +1338,7 @@ and "TLSA Base Domain and CNAMEs" sections.
 <section anchor="oppublishers" title="Publisher Operational Considerations">
 
 <t>
-SMTP servers that publish certificate usage 2 (trust-anchor)
+SMTP servers that publish certificate usage 2 (trust anchor)
 associations MUST include the TA certificate in their TLS server
 certificate chain even when that TA certificate is a self-signed
 root certificate.
