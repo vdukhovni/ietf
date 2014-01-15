@@ -62,14 +62,19 @@
 <keyword>TLSA</keyword>
 <keyword>SMTP</keyword>
 
+<!--
+We can leave "SMTP" in acronym form without expansion:
+<https://www.rfc-editor.org/rfc-style-guide/abbrev.expansion.txt>
+This helps to declutter the first sentence of the abstract, while
+abiding by the general requirement to define acronyms on first use.
+-->
 <abstract> <t>
-This memo describes a downgrade-resistant protocol for the Simple Mail
-Transport Protocol's (SMTP's) transport
-security based on the DNS-Based Authentication of Named
-Entities (DANE) TLSA DNS record.  Adoption of this
-protocol enables an incremental transition of the Internet email
-backbone to one using Transport Layer Security (TLS) to encrypt and
-authenticate the SMTP traffic.
+This memo describes a downgrade-resistant protocol for the SMTP
+transport security based on the DNS-Based Authentication of Named
+Entities (DANE) TLSA DNS record.  Adoption of this protocol enables
+an incremental transition of the Internet email backbone to one
+using Transport Layer Security (TLS) to encrypt and authenticate
+the SMTP traffic.
 </t> </abstract>
 
 </front>
@@ -85,7 +90,7 @@ a client-trusted subject name.  It is
 only with the deployment of Domain Name System Security Extensions
 (DNSSEC) and DNS-Based Authentication of Named
 Entities (DANE) that authenticated TLS
-for SMTP to MX becomes possible between parties that have not already
+for server to server SMTP becomes possible between parties that have not already
 established an identity convention out-of-band.
 </t>
 
@@ -101,11 +106,11 @@ target="RFC4035"/>.
 <t>
 As described in the introduction of <xref target="RFC6698"/>, TLS
 authentication via the existing public Certificate Authority (CA)
-Public Key Infrastructure (PKI) suffers from an over-abundance of
+PKI suffers from an over-abundance of
 trusted certificate authorities capable of issuing certificates for
 any domain of their choice.  DANE leverages the DNSSEC infrastructure
-to publish trusted keys and Public-Key Infrastructure using X.509
-(PKIX) certificates for use with TLS via a new "TLSA" DNS record type.
+to publish trusted public keys and certificates for use with TLS via a new
+"TLSA" DNS record type.
 </t>
 
 <t>
@@ -114,7 +119,7 @@ enables secure TCP communication.  In the context of this memo,
 channel security is assumed to be provided by TLS.  Used without
 authentication, TLS provides only privacy protection against
 eavesdropping attacks.  With
-authentication, TLS also provides data integrity protection to protect
+authentication, TLS also provides data integrity protection to guard
 against man-in-the-middle (MITM) attacks.
 </t>
 
