@@ -851,6 +851,60 @@ configuration of the client and server.
 
 <section title="TLSA certificate usages">
 
+<t>
+The DANE TLSA specification <xref target="RFC6698"/> defines multiple
+TLSA RR types via combinations of 3 numeric parameters.  The numeric
+values of these parameters were later given symbolic names in <xref
+target="I-D.ietf-dane-registry-acronyms"/>.  The rest of the TLSA
+record is the "certificate association data field", which specifies
+the full or digest value of a certificate or public key.  The
+parameters are:
+</t>
+
+<t>
+<list style='hanging'>
+
+<t hangText="The TLSA Certificate Usage field:"> Section 2.1.1 of <xref
+target="RFC6698"/> specifies 4 values: PKIX-TA(0), PKIX-EE(1), DANE-TA(2),
+and DANE-EE(3).  There is an additional private-use value: PrivCert(255).
+All other values are reserved for use by future specifications.  </t>
+
+<t hangText="The selector field:"> Section 2.1.2 of <xref
+target="RFC6698"/> specifies 2 values: Cert(0), SPKI(1).  There is
+an additional private-use value: PrivSel(255).  All other values are
+reserved for use by future specifications.  </t>
+
+<t hangText="The matching type field:"> Section 2.1.3 of <xref
+target="RFC6698"/> specifies 3 values: Full(0), SHA2-256(1), SHA2-512(2).
+There is an additional private-use value: PrivMatch(255).  All other
+values are reserved for use by future specifications.  </t>
+
+</list>
+</t>
+
+<t>
+We may think of TLSA Certificate Usage values 0 through 3 as a
+combination of two one-bit flags.  The low bit chooses between
+trust-anchor (TA) and end-entity (EE) certificates.  The high bit
+chooses between public PKI issued and domain-issued certificates.
+</t>
+
+<t>
+The selector field specifies whether the TLSA RR matches the whole
+certificate: Cert(0), or just its subjectPublicKeyInfo: SPKI(1).
+The subjectPublicKeyInfo is an ASN.1 DER encoding of the certificate's
+algorithm id, any parameters and the public key data.
+</t>
+
+<t>
+The matching type field specifies how the TLSA RR Certificate Association
+Data field is to be compared with the certificate or public key.  A value
+of Full(0) means an exact match: the full DER encoding of the certificate
+or public key is given in the TLSA RR.  A value of SHA2-256(1) means
+that the association data matches the SHA-256 digest of the certificate
+or public key, and likewise SHA-512(2) means a SHA-512 digest is used.
+</t>
+
 <section title="Certificate usage 3" anchor="cert3">
 
 <t>
@@ -889,7 +943,7 @@ TLSA records published for SMTP servers SHOULD, in most cases, be
 they are associated with the end entity (i.e. SMTP server) certificate.
 The "selector" is 1, which indicates that the record describes the
 public key portion the server certificate.  Finally, the "matching
-type" is 1, which indicates that the "associated data" is the
+type" is 1, which indicates that the "association data" is the
 SHA2-256 digest of the server's public key.  Since all DANE
 implementations are required to support SHA2-256, this record works
 for all clients and need not change across certificate renewals
