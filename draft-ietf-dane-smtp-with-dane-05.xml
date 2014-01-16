@@ -19,6 +19,7 @@
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 <!ENTITY I-D.ietf-dane-smtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp.xml">
 <!ENTITY I-D.ietf-dane-ops SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-ops.xml">
+<!ENTITY I-D.ietf-dane-registry-acronyms SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-registry-acronyms.xml">
 ]>
 
 <!-- rfc xmlns:x="http://purl.org/net/xml2rfc/ext" category="std" -->
@@ -1465,6 +1466,7 @@ with no adverse security consequences.
 &RFC6895;
 &I-D.ietf-dane-srv;
 &I-D.ietf-dane-smtp;
+&I-D.ietf-dane-registry-acronyms;
 </references>
 </back>
 </rfc>
