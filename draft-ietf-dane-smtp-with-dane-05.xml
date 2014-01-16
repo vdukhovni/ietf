@@ -62,12 +62,6 @@
 <keyword>TLSA</keyword>
 <keyword>SMTP</keyword>
 
-<!--
-We can leave "SMTP" in acronym form without expansion:
-<https://www.rfc-editor.org/rfc-style-guide/abbrev.expansion.txt>
-This helps to declutter the first sentence of the abstract, while
-abiding by the general requirement to define acronyms on first use.
--->
 <abstract> <t>
 This memo describes a downgrade-resistant protocol for the SMTP
 transport security based on the DNS-Based Authentication of Named
@@ -148,11 +142,6 @@ domain.
 </t>
 
 <t>
-<!--
-plaintext is input about to be encrypted
-cleartext is data transmitted unencrypted
-http://blog.denimgroup.com/denim_group/2007/10/cleartext-vs-pl.html
--->
 SMTP recipient addresses are not transport addresses and are
 security-agnostic.  Unlike the Hypertext Transfer Protocol (HTTP)
 and its corresponding secured version, HTTPS, there is no URI scheme
@@ -286,8 +275,6 @@ The following terms or concepts are used through the document:
     TLS requires support for DNSSEC, DANE and STARTTLS on the client
     side and STARTTLS plus a DNSSEC published TLSA record on the server
     side.
-    <!-- I think we can assume that STARTTLS support implies TLS support, at
-    least above to keep the sentence less bloated. -->
     </t>
 
     <t hangText="(pre-DANE) opportunistic TLS:">
