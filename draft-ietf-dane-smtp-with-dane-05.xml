@@ -264,7 +264,7 @@ The following terms or concepts are used through the document:
 <t>
 <list style="hanging">
 
-    <t hangText="secure, bogus, insecure:"> DNSSEC validation
+    <t hangText="secure, bogus, insecure, indeterminate:"> DNSSEC validation
     results, as defined in <xref target="RFC4035" />.</t>
 
     <t hangText="opportunistic DANE TLS:">
@@ -296,6 +296,16 @@ The following terms or concepts are used through the document:
     domain.  Used to refer specifically to the host itself, not its DNS
     name.
     </t>
+
+    <!-- XXXWJH: I think we need three actions to be defined here (one
+         of which is already next).  Then we can say through the rest
+         of the document at each step what the action should be.  The
+         three actions should be something like "delay delivery",
+         "connect only over authenticated and encrypted TLS" and
+         "connect over either encrypted TLS or over unprotected TCP".
+    With these in place we can rewrite the document again using these
+    terms.  And we can define things based on 4033 language when
+    talking about the appropriate stub resolver cases. -->
 
     <t hangText="delayed delivery:">
     Email delivery is a multi-hop store &amp; forward process.  When an MTA is unable
@@ -382,11 +392,20 @@ occur when network packets are corrupted in transit.
 <t>
 In this light, "bogus" replies are simply lookup failures, provided
 we carefully define what we mean by a DNS lookup failure (setting
-DNSSEC validation aside for the moment).  There are two important
+DNSSEC validation aside for the moment).
+<!-- XXXWJH: but you can't set DNSSEC asside for some of the things you're
+trying to determine here -->
+There are two important
 non-failure conditions we need to highlight in addition to the
 obvious case of the DNS client obtaining a well-formed response
 with relevant resource records in the answer section:
 </t>
+
+<!-- XXXWJH: the solution to this problem is to really use the common
+"validating security-aware stub resolver" and "non-validating
+security-aware stub resolver" terms from 4033 and to point at the text
+in 4035 4.9 and 4.9.3 for how to handle things; which contains a big
+caveat about the AD bit.  Don't repeat it here. -->
 
 <t>
 <list style="numbers">
@@ -397,6 +416,12 @@ with relevant resource records in the answer section:
     it was looking for, the response is not a DNS error condition.
     The DNS client has not been left without an answer; it learns
     that records of the requested type do not exist. </t>
+
+    <!-- XXXWJH: this text is very broken, because nxdomain with the
+    AD bit means something different than nxdomain without; only with
+    means (provably) "insecure" and the other means "indeterminate".
+    The definition below of "insecure" includes both "insecure" (drop
+    back to non-dane) and "indeterminate" (which should be "delay") -->
 
     <t> Similarly, when a well-formed DNS response has an RCODE of
     "NXDomain" (either "insecure" or DNSSEC validated), once again the DNS client learns not only that
@@ -473,6 +498,14 @@ then the SMTP client MUST treat that server as unreachable and MUST NOT
 deliver the message via that server.  If no servers are reachable, delivery
 is delayed.
 </t>
+
+<t>
+When "indeterminate" responses are received when looking up TLSA
+records, the MX server in question MUST be skipped, as it is not
+possible to determine if domain's owner intended to signal a
+requirement for using opportunistic DANE TLS or not.
+</t>
+
 
 <t>
 In what follows, we will only describe what happens when all relevant
