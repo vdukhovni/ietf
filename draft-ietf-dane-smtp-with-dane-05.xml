@@ -361,6 +361,16 @@ security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 </t>
 
 <section title="DNS lookup errors and bogus responses" anchor="dnserr">
+ 
+<!-- XXXWJH this section seems to lead to insecurity with respect to
+talking to a local resolver that may or may not be truly local.  Thus,
+if we are not requiring validation in the application itself (a huge
+mistake, IMHO) then you have to call out in the security section that
+this specification is still subject to attacks because of the use of
+external resolvers, system-local or not.  EG, many local resolv.conf
+files have both a local name server and a backup ISP server, and are
+suddenly subject to MITM all over again.  I'd argue this is actually
+very common. -->
 
 <t>
 To avoid much repetition in the text below, we will pause to explain
@@ -438,6 +448,10 @@ though the client had received a "ServFail" response from its
 caching resolver.  And in turn a "ServFail" error is treated in
 the same way as any other error condition that neither returns the
 requested data, nor reports its non-existence.
+<!-- XXXWJH: this requires the security section call out that cache
+poisoning with bad data is an attack against the system, since the
+fall back to bogus is to back to opportunistic TLS and is thus a
+downgrade attack -->
 </t>
 
 <t>
@@ -448,13 +462,6 @@ example, the case when a "bogus" response is encountered during MX
 resolution.  When multiple SMTP server names are determined, but a
 DNS lookup failure prevents network address resolution for a given
 server, delivery may proceed via any remaining servers.
-<!-- Forcing a client to a backup MX does not require "bogus" DNS
-replies, just RST the TCP session and the client will try the next
-MX host! There is little difference between a DNS lookup error and
-an error during delivery.  The main thing is to NOT fallback to
-opportunistic TLS due to "bogus" or other error replies.  Lookup
-errors make the destination (perhaps a single MX host) unreachable,
-never reachable at lower security -->
 </t>
 
 <t>
@@ -502,7 +509,7 @@ define that term in terminology -->
 Specifically, when an SMTP client locates "secure" (DNSSEC validated)
 TLSA records for an SMTP server in accordance with the search
 algorithms specified in this memo, the client SHOULD NOT connect
-to the server without negotiating a TLS-encrypted channel.  Absent
+to the server without negotiating a TLS encrypted and authenticated channel.  Absent
 "secure" TLSA records, the SMTP client should employ pre-DANE
 opportunistic TLS.  In other words, TLS encryption is required when
 securely signalled by the presence of DANE TLSA records, even though
