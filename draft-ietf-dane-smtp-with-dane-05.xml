@@ -441,7 +441,11 @@ caveat about the AD bit.  Don't repeat it here. -->
 
 <t>
 When the response is malformed, or has any RCODE other than "NoError"
-or "NXDOMAIN", the DNS lookup has failed.  Returning to DNSSEC, we note
+or "NXDOMAIN", the DNS lookup has failed and the MX host must be skipped.
+<!-- XXX: it is simply untrue to state this is and will always be true.
+more importantly, it's actually not needed in the first place -->
+<!--
+Returning to DNSSEC, we note
 that MTAs may in fact delegate DNSSEC processing to a validating
 caching resolver running locally on the MTA machine, and in this configuration
 the resolver will not even return "bogus" replies to the MTA, rather
@@ -449,6 +453,10 @@ these will generally be reported as lookup errors with a "ServFail"
 RCODE.  This further illustrates the point of view that "bogus" replies
 are just lookup errors and should be treated in the same manner as other
 errors.
+-->
+ServFail and "bogus" replies are just lookup errors and should be
+treated by skipping the MX host in question, or delaying delivery when
+no destination address or MX RRset has been found yet.
 </t>
 
 <t>
