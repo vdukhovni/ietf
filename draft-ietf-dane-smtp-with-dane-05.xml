@@ -267,6 +267,15 @@ The following terms or concepts are used through the document:
     <t hangText="secure, bogus, insecure, indeterminate:"> DNSSEC validation
     results, as defined in <xref target="RFC4035" />.</t>
 
+    <t hangText="Validating Security-Aware Stub Resolver and
+	    Non-Validating Security-Aware Stub Resolver:">
+	    Capabilities of the stub resolver in use as defined in
+	    <xref target="RFC4033" />; note that this
+	    specification requires the use of a Security-Aware Stub
+	    Resolver; Security-Oblivious stub-resolvers MUST NOT be
+	    used.
+    </t>
+
     <t hangText="opportunistic DANE TLS:">
     Best-effort use of TLS, resistant to downgrade attacks for
     destinations with DNSSEC-validated TLSA records.  When
@@ -467,16 +476,11 @@ the other responses received were deemed "secure".
 </t>
 
 <t>
-If the SMTP client is performing its own DNSSEC validation, and
-detects a "bogus" response, it is simplest to treat this case as
-though the client had received a "ServFail" response from its
-caching resolver.  And in turn a "ServFail" error is treated in
-the same way as any other error condition that neither returns the
-requested data, nor reports its non-existence.
-<!-- XXXWJH: this requires the security section call out that cache
-poisoning with bad data is an attack against the system, since the
-fall back to bogus is to back to opportunistic TLS and is thus a
-downgrade attack -->
+If the SMTP client receives a "ServFail" response from its
+stub-resolver, or receives a "bogus" response when using a validating
+security-aware stub resolver, then  the error is treated in the same way as
+any other error condition that fails to return the requested data:
+that MX host MUST be skipped.
 </t>
 
 <t>
