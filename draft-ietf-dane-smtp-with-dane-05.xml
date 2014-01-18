@@ -405,6 +405,7 @@ occur when network packets are corrupted in transit.
 In this light, "bogus" replies are simply lookup failures, provided
 we carefully define what we mean by a DNS lookup failure (setting
 DNSSEC validation aside for the moment).
+</t>
 
 <t>
 When the response is malformed, or has any RCODE other than "NoError"
@@ -421,7 +422,7 @@ connected with the DNSSEC trust anchors being used, and DNSSEC validation
 is not applicable to records associated with the query domain.
 Insecure results may lead to degradation of channel security,
 but does not stand in the way of message delivery.  See section <xref
-target="discovery"> for further details.
+target="discovery"/> for further details.
 </t>
 
 <t>
@@ -554,8 +555,8 @@ should be taken:
 resolvers MAY use the stub resolver's ability, if available, to signal
 dnssec status based on information it has learned from an upstream
 validating recursive resolver.  ServFail errors, for example, can be
-treated as 'bogus', as discussed in <xref target="dnserr">.  Section
-4.9, and Section 4.9.3 in particular, of <xref target="rfc4035">
+treated as 'bogus', as discussed in <xref target="dnserr"/>.  Section
+4.9, and Section 4.9.3 in particular, of <xref target="RFC4035"/>
 provides some information and guidance about the security of doing so.
 Note that Section 4.9 (and the rest of the RFC) does not discuss what
 indeterminate results mean.  For example, an NXDomain result code does
@@ -563,6 +564,8 @@ not in fact assuredly mean "insecure", but rather means
 "indeterminate" and maybe sometimes "insecure".  Because it can't be
 determined, it must be treated as a failure case and that MX host must
 be skipped.
+</t>
+
 <t>
 <!-- XXXWJH: define "secure".  Suggest using "DNSSEC secured" and
 define that term in terminology -->
