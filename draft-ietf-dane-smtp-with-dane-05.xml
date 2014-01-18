@@ -627,12 +627,14 @@ not in fact assuredly mean "insecure", but rather means
 <t>
 <!-- XXXWJH: define "secure".  Suggest using "DNSSEC secured" and
 define that term in terminology -->
+<!-- obsolete paragraph given the above list:
 Specifically, when an SMTP client locates "secure" (DNSSEC validated)
 TLSA records for an SMTP server in accordance with the search
 algorithms specified in this memo, the client SHOULD NOT connect
 to the server without negotiating a TLS authenticated and encrypted channel.
 With "insecure" TLSA records, the SMTP client should employ pre-DANE
 opportunistic TLS.
+-->
 <!-- XXXWJH: this sentence doesn't make sense after the above text : -->
 <!--
 In other words, TLS encryption is required when
@@ -643,7 +645,7 @@ the server may not be authenticated when none the records are
 </t>
 
 <t>
-When at least one of then TLSA records is "usable" (<xref
+When at least one of then "secure" TLSA records is "usable" (<xref
 target="RFC6698"/>, Section 4.1) the client SHOULD authenticate the
 server.  With "usable" TLSA records the transmission of email from
 client to server resists eavesdropping, interception and tampering so long as the
@@ -651,11 +653,13 @@ server's DNSSEC records are not compromised.
 </t>
 
 <t>
-An SMTP client may be configured to require DANE verified delivery
-for some destinations.  We will call such a configuration "mandatory
-DANE TLS".  With mandatory DANE TLS delivery proceeds only when
-"secure" TLSA records are used to establish an encrypted and
-authenticated TLS channel with the SMTP server.
+An SMTP client may be configured to require DANE verified delivery for
+some destinations.  We will call such a configuration "mandatory DANE
+TLS".  With mandatory DANE TLS, delivery proceeds only when "secure"
+TLSA records are used to establish an encrypted and authenticated TLS
+channel with the SMTP server.  Thus, proceeding with (pre-DANE)
+opportunistic TLS is never performed with this destination, nor is
+delivery over cleartext.
 </t>
 
 <t>
