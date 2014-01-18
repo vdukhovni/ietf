@@ -268,7 +268,10 @@ The following terms or concepts are used through the document:
     <t hangText="secure, bogus, insecure, indeterminate:"> DNSSEC
     validation results, as defined in <xref target="RFC4035" />.  Note
     that 'insecure' is also frequently referred to elsewhere as
-    "provably insecure".</t>
+    "provably insecure".  We will not distinguish between "insecure"
+    and "indeterminate" replies, in both cases unvalidated data for the
+    query domain is all that's available. In what follows when we say
+    "insecure", we mean either "insecure" or "indeterminate". </t>
 
     <t hangText="Validating Security-Aware Stub Resolver and
 	    Non-Validating Security-Aware Stub Resolver:">
