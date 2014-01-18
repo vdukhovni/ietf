@@ -539,83 +539,44 @@ support TLS, and thus clients can safely interpret their presence
 as a commitment by the server operator to implement TLS and STARTTLS.
 </t>
 
-<t>Specifically, this memo defines 3 actions to be taken after the
-search for a TLSA record returns results, empty results or an error
-signal, along with their DNSSEC validation status.  When a validating
-security-aware stub resolver returns its results, the following action
-should be taken:
+<t>Specifically, this memo defines four actions to be taken after the
+search for a TLSA record returns secure usable results, secure unusable
+results, insecure or no results or an error signal:
 
 <list style="hanging">
-	<t hangText="At least one TLSA record:">
-		If at least one TLSA record was returned with a corresponding
-		DNSSEC status:
-	<list style="hanging">
-		<t hangText="secure:">
-			A connection to the MTA MUST be made using authenticated and
-			encrypted TLS, using the techniques discussed in the rest of
-			this document.  Failures while making this connection MUST
-			result in falling back to the next MX host or delayed delivery.
-		</t>
+<t hangText="Secure TLSA RRset with at least usable record:"> A
+connection to the MTA MUST be made using authenticated and encrypted
+TLS, using the techniques discussed in the rest of this document.
+Failure to establish an authenticated TLS connection MUST result
+in falling back to the next MX host or delayed delivery.  </t>
 
-		<t hangText="insecure:">
-			A connection to the MTA SHOULD be made using (pre-DANE)
-			opportunistic TLS (i.e. encrypted TLS without authentication).
-		</t>
+<t hangText="Secure non-empty TLSA RRset with all records unusable:">
+A connection to the MTA MUST be made via TLS, but authentication
+is not required.  Failure to establish an encrypted TLS connection
+MUST result in falling back to the next MX host or delayed delivery.  </t>
 
-		<t hangText="bogus:">
-			This MUST result in falling back to the next MX host or
-			delayed delivery.
-		</t>
+<t hangText="Insecure or no-TLSA RRset:"> A connection to the MTA
+SHOULD be made using (pre-DANE) opportunistic TLS, this includes
+cleartext delivery when the remote SMTP server does not appear to
+support TLS, and optionally also fallback to cleartext when a TLS
+handshake fails.  </t>
 
-		<t hangText="indeterminate:">
-			In this case, TLSA records may have been found but the DNSSEC
-			status of these records can not be determined (i.e. it is
-			unclear if they are signed properly or not), then this MUST
-			result in falling back to the next MX host or delayed
-			delivery.
-		</t>
-	</list>
-	</t>
-
-	<t hangText="No TLSA records were returned:">
-		If no TLSA records were returned, the next step is still based
-		on the DNSSEC status of those missing results:
-	<list style="hanging">
-        <t hangText="secure:">
-	        DNSSEC's proof of non existence has shown that TLSA
-	        records do not exist, and a connection should be made
-	        using (pre-DANE) opportunistic TLS.
-        </t>
-        <t hangText="insecure:">
-	        A connection to the MTA SHOULD be made using (pre-DANE)
-	        opportunistic TLS (i.e. encrypted TLS without authentication).
-        </t>
-        <t hangText="bogus:">
-	        This MUST result in falling back to the next MX host or
-			delayed delivery.
-        </t>
-	    <t hangText="indeterminate:">
-		    This MUST result in falling back to the next MX host or
-		    delayed delivery.
-        </t>
-	</list>
-    </t>
+<t hangText="Any lookup error:"> Lookup errors include "bogus"
+replies as explained in <xref target="dnserr"/>.  This MUST result
+in falling back to the next MX host or delayed delivery.  </t>
 </list>
 </t>
 
-<t>Applications making use of non-validating security-aware stub
-resolvers MAY use the stub resolver's ability, if available, to signal
-dnssec status based on information it has learned from an upstream
-validating recursive resolver.  ServFail errors, for example, can be
-treated as 'bogus', as discussed in <xref target="dnserr"/>.  Section
-4.9, and Section 4.9.3 in particular, of <xref target="RFC4035"/>
-provides some information and guidance about the security of doing so.
-Note that Section 4.9 (and the rest of the RFC) does not discuss what
-indeterminate results mean.  For example, an NXDomain result code does
-not in fact assuredly mean "insecure", but rather means
-"indeterminate" and maybe sometimes "insecure".  Because it can't be
-determined, it must be treated as a failure case and that MX host must
-be skipped.
+<t>
+Applications making use of non-validating security-aware stub
+resolvers MAY use the stub resolver's ability, if available, to
+signal dnssec status based on information it has learned from an
+upstream validating recursive resolver.  Section 4.9.3 of <xref
+target="RFC4035"/> points out that "a security-aware stub resolver
+MUST NOT place any reliance on signature validation allegedly
+performed on its behalf, except when the security-aware stub resolver
+obtained the data in question from a trusted security-aware recursive
+name server via a secure channel".
 </t>
 
 <t>
