@@ -426,24 +426,53 @@ occur when network packets are corrupted in transit.
 <t>
 In this light, "bogus" replies are simply lookup failures, provided
 we carefully define what we mean by a DNS lookup failure (setting
-DNSSEC validation aside for the moment).
+DNSSEC validation aside for the moment).  There are two important
+non-failure conditions we need to highlight in addition to the
+obvious case of the DNS client obtaining a well-formed response
+with relevant resource records in the answer section:
+</t>
+
+<!-- XXXVD: I really do want to stress that "NOERROR" and "NXDOMAIN"
+are NOT lookup failures. -->
+<t>
+<list style="numbers">
+<t> When a well-formed DNS response (with valid DNSSEC signatures
+and NSEC or NSEC3 records as applicable) has an RCODE of "NoError"
+(<xref target="RFC6895"/> Section 2.3), but the answer count is
+zero; while the DNS client may not have obtained the data it was
+looking for, the response is not a DNS error condition.  The DNS
+client has not been left without an answer; it learns that records
+of the requested type do not exist. </t>
+
+<t> Similarly, when a well-formed DNS response has an RCODE of
+"NXDomain" (whether "insecure" or DNSSEC validated), once again the
+DNS client learns not only that records of the requested type do
+not exist, but also that the query domain does not exist.  </t>
+</list>
 </t>
 
 <t>
 When the response is malformed, or has any RCODE other than "NoError"
-or "NXDOMAIN", the DNS lookup has failed and the MX host must be skipped.
-ServFail and "bogus" replies are just lookup errors and should be
-treated by skipping the MX host in question, or delaying delivery when
-no destination address or MX RRset has been found yet.
+or "NXDOMAIN", the DNS lookup has failed.  Returning to DNSSEC, we
+note that some MTAs may choose to delegate DNSSEC processing
+exclusively to a validating recursive resolver which must be known
+to be local to the MTA machine.  In such a configuration the resolver
+will not return "bogus" replies to the MTA, rather these will be
+reported as lookup errors with a "ServFail" RCODE.  The foregoing
+is not a recommendation to use or not use such configurations,
+rather, it it is intended to explain the point of view that "bogus"
+replies are just lookup errors and MUST be treated in the same
+manner as all other DNS lookup errors.
 </t>
 
 <t>
-In contrast to a "bogus" response, an "insecure" DNSSEC response is not a failure,
+In contrast to a "bogus" response, an "insecure" (or equivalently
+"indeterminate") DNSSEC response is not a failure,
 rather it indicates that the target DNS zone is not signed or is not
 connected with the DNSSEC trust anchors being used, and DNSSEC validation
 is not applicable to records associated with the query domain.
 Insecure results may lead to degradation of channel security,
-but does not stand in the way of message delivery.  See section <xref
+but do not stand in the way of message delivery.  See section <xref
 target="discovery"/> for further details.
 </t>
 
@@ -465,7 +494,8 @@ When a DNS lookup failure (as defined above) prevents an SMTP client
 from determining which SMTP server or servers it should connect to,
 message delivery MUST be delayed.  This naturally includes, for
 example, the case when a "bogus" response is encountered during MX
-resolution.  When multiple SMTP server names are determined, but a
+resolution.  When multiple SMTP server names are determined via a
+successful MX lookup, but a
 DNS lookup failure prevents network address resolution for a given
 server, delivery may proceed via any remaining servers.
 </t>
