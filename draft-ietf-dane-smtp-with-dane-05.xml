@@ -395,7 +395,7 @@ security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 </t>
 
 <section title="DNS lookup errors and bogus responses" anchor="dnserr">
- 
+
 <!-- XXXWJH this section seems to lead to insecurity with respect to
 talking to a local resolver that may or may not be truly local.  Thus,
 if we are not requiring validation in the application itself (a huge
@@ -405,6 +405,16 @@ external resolvers, system-local or not.  EG, many local resolv.conf
 files have both a local name server and a backup ISP server, and are
 suddenly subject to MITM all over again.  I'd argue this is actually
 very common. -->
+<!-- XXXVD:
+Nothing here advocates trust in remote validating recursive nameservers.
+If an MTA administrator elects to delegate trust to a recursive validator,
+he MUST ensure that recursive validator is local and that no remote recursive
+nameservers are configured.  Whether such configurations are otherwise
+common is immaterial.
+Furthermore,  we're not even advocating this configuration, it is used to
+illustrate the equivalence of all lookup failures, be they "bogus" replies
+or other failures.
+-->
 
 <t>
 To avoid much repetition in the text below, we will pause to explain
