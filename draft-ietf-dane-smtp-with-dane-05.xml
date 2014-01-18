@@ -321,6 +321,15 @@ The following terms or concepts are used through the document:
     With these in place we can rewrite the document again using these
     terms.  And we can define things based on 4033 language when
     talking about the appropriate stub resolver cases. -->
+    <!-- XXXVD: Actually we have the following *four* choices:
+    	1.  Secure delivery via authenticated TLS
+	2.  Passive intercept protected delivery via unauthenticated, but
+	    required TLS.
+	3.  Opportunistic TLS.
+	4.  Delayed delivery.
+	Not yet sure whether we want to list them all here, some may be more
+	clear if defined in context.
+    -->
 
     <t hangText="delayed delivery:">
     Email delivery is a multi-hop store &amp; forward process.  When an MTA is unable
