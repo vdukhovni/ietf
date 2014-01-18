@@ -460,7 +460,7 @@ is delayed.
 
 <t>
 In what follows, we will only describe what happens when all relevant
-DNS queries have succeed.  If any DNS failure occurs, the SMTP client MUST
+DNS queries succeed.  If any DNS failure occurs, the SMTP client MUST
 behave as described in this section, by skipping the problem MX host,
 or the problem destination.  Queries for candidate TLSA records are
 explicitly part of "all relevant DNS queries" and SMTP clients MUST
@@ -587,7 +587,7 @@ the server may not be authenticated when none the records are
 </t>
 
 <t>
-When at least one of then "secure" TLSA records is "usable" (<xref
+When at least one of the "secure" TLSA records is "usable" (<xref
 target="RFC6698"/>, Section 4.1) the client SHOULD authenticate the
 server.  With "usable" TLSA records the transmission of email from
 client to server resists eavesdropping, interception and tampering so long as the
@@ -599,9 +599,8 @@ An SMTP client may be configured to require DANE verified delivery for
 some destinations.  We will call such a configuration "mandatory DANE
 TLS".  With mandatory DANE TLS, delivery proceeds only when "secure"
 TLSA records are used to establish an encrypted and authenticated TLS
-channel with the SMTP server.  Thus, proceeding with (pre-DANE)
-opportunistic TLS is never performed with this destination, nor is
-delivery over cleartext.
+channel with the SMTP server.  Neither cleartext nor unauthenticated
+TLS connections are used with mandatory DANE TLS destinations.
 </t>
 
 <t>
