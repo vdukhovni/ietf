@@ -598,6 +598,8 @@ delivery over cleartext.
 </t>
 
 <t>
+<!-- XXXWJH: hmm...  the stub resolver should take care of this; we
+should probably remove it (counter to what I've said before) -->
 A note about DNAME aliases:  a query for a domain name whose ancestor
 domain is a DNAME alias returns the DNAME RR for the ancestor domain,
 along with a CNAME that maps the query domain to the corresponding
