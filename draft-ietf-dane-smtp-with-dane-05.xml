@@ -523,10 +523,11 @@ should be taken:
 		</t>
 	</list>
 	</t>
+
 	<t hangText="No TLSA records were returned:">
 		If no TLSA records were returned, the next step is still based
 		on the DNSSEC status of those missing results:
-    <list style="hanging">
+	<list style="hanging">
         <t hangText="secure:">
 	        DNSSEC's proof of non existence has shown that TLSA
 	        records do not exist, and a connection should be made
@@ -544,7 +545,7 @@ should be taken:
 		    This MUST result in falling back to the next MX host or
 		    delayed delivery.
         </t>
-    </list>
+	</list>
     </t>
 </list>
 </t>
@@ -559,7 +560,9 @@ provides some information and guidance about the security of doing so.
 Note that Section 4.9 (and the rest of the RFC) does not discuss what
 indeterminate results mean.  For example, an NXDomain result code does
 not in fact assuredly mean "insecure", but rather means
-"indeterminate" and maybe sometimes "insecure".
+"indeterminate" and maybe sometimes "insecure".  Because it can't be
+determined, it must be treated as a failure case and that MX host must
+be skipped.
 <t>
 <!-- XXXWJH: define "secure".  Suggest using "DNSSEC secured" and
 define that term in terminology -->
