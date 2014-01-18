@@ -264,8 +264,10 @@ The following terms or concepts are used through the document:
 <t>
 <list style="hanging">
 
-    <t hangText="secure, bogus, insecure, indeterminate:"> DNSSEC validation
-    results, as defined in <xref target="RFC4035" />.</t>
+    <t hangText="secure, bogus, insecure, indeterminate:"> DNSSEC
+    validation results, as defined in <xref target="RFC4035" />.  Note
+    that 'insecure' is also frequently referred to elsewhere as
+    "provably insecure".</t>
 
     <t hangText="Validating Security-Aware Stub Resolver and
 	    Non-Validating Security-Aware Stub Resolver:">
@@ -548,18 +550,96 @@ support TLS, and thus clients can safely interpret their presence
 as a commitment by the server operator to implement TLS and STARTTLS.
 </t>
 
+<t>Specifically, this memo defines 3 actions to be taken after the
+search for a TLSA record returns results, empty results or an error
+signal, along with their DNSSEC validation status.  When a validating
+security-aware stub resolver returns its results, the following action
+should be taken:
+
+<list style="hanging">
+	<t hangText="At least one TLSA record:">
+		If at least one TLSA record was returned with a corresponding
+		DNSSEC status:
+	<list style="hanging">
+		<t hangText="secure:">
+			A connection to the MTA MUST be made using authenticated and
+			encrypted TLS, using the techniques discussed in the rest of
+			this document.  Failures while making this connection MUST
+			result in falling back to the next MX host or delayed delivery.
+		</t>
+
+		<t hangText="insecure:">
+			A connection to the MTA SHOULD be made using (pre-DANE)
+			opportunistic TLS (i.e. encrypted TLS without authentication).
+		</t>
+
+		<t hangText="bogus:">
+			This MUST result in falling back to the next MX host or
+			delayed delivery.
+		</t>
+
+		<t hangText="indeterminate:">
+			In this case, TLSA records may have been found but the DNSSEC
+			status of these records can not be determined (i.e. it is
+			unclear if they are signed properly or not), then this MUST
+			result in falling back to the next MX host or delayed
+			delivery.
+		</t>
+	</list>
+	</t>
+	<t hangText="No TLSA records were returned:">
+		If no TLSA records were returned, the next step is still based
+		on the DNSSEC status of those missing results:
+    <list style="hanging">
+        <t hangText="secure:">
+	        DNSSEC's proof of non existence has shown that TLSA
+	        records do not exist, and a connection should be made
+	        using (pre-DANE) opportunistic TLS.
+        </t>
+        <t hangText="insecure:">
+	        A connection to the MTA SHOULD be made using (pre-DANE)
+	        opportunistic TLS (i.e. encrypted TLS without authentication).
+        </t>
+        <t hangText="bogus:">
+	        This MUST result in falling back to the next MX host or
+			delayed delivery.
+        </t>
+	    <t hangText="indeterminate:">
+		    This MUST result in falling back to the next MX host or
+		    delayed delivery.
+        </t>
+    </list>
+    </t>
+</list>
+</t>
+
+<t>Applications making use of non-validating security-aware stub
+resolvers MAY use the stub resolver's ability, if available, to signal
+dnssec status based on information it has learned from an upstream
+validating recursive resolver.  ServFail errors, for example, can be
+treated as 'bogus', as discussed in <xref target="dnserr">.  Section
+4.9, and Section 4.9.3 in particular, of <xref target="rfc4035">
+provides some information and guidance about the security of doing so.
+Note that Section 4.9 (and the rest of the RFC) does not discuss what
+indeterminate results mean.  For example, an NXDomain result code does
+not in fact assuredly mean "insecure", but rather means
+"indeterminate" and maybe sometimes "insecure".
 <t>
 <!-- XXXWJH: define "secure".  Suggest using "DNSSEC secured" and
 define that term in terminology -->
 Specifically, when an SMTP client locates "secure" (DNSSEC validated)
 TLSA records for an SMTP server in accordance with the search
 algorithms specified in this memo, the client SHOULD NOT connect
-to the server without negotiating a TLS encrypted and authenticated channel.  Absent
-"secure" TLSA records, the SMTP client should employ pre-DANE
-opportunistic TLS.  In other words, TLS encryption is required when
+to the server without negotiating a TLS authenticated and encrypted channel.
+With "insecure" TLSA records, the SMTP client should employ pre-DANE
+opportunistic TLS.
+<!-- XXXWJH: this sentence doesn't make sense after the above text : -->
+<!--
+In other words, TLS encryption is required when
 securely signalled by the presence of DANE TLSA records, even though
 the server may not be authenticated when none the records are
 "usable".
+-->
 </t>
 
 <t>
