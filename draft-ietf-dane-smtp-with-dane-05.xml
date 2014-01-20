@@ -250,7 +250,7 @@ records are used to harden SMTP STARTTLS against MITM attacks.
 
 </section><!-- SMTP Channel Security -->
 
-<section title="Terminology">
+<section title="Terminology" anchor="terms">
 
 <t>
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -265,40 +265,31 @@ The following terms or concepts are used through the document:
 <t>
 <list style="hanging">
 
-    <t hangText="secure, bogus, insecure, indeterminate:"> DNSSEC
-    validation results, as defined in <xref target="RFC4035" />.  Note
-    that 'insecure' is also frequently referred to elsewhere as
-    "provably insecure".  We will not distinguish between "insecure"
-    and "indeterminate" replies, in both cases unvalidated data for the
-    query domain is all that's available. In what follows when we say
-    "insecure", we mean either "insecure" or "indeterminate". </t>
+    <t hangText="secure, bogus, insecure, indeterminate:">
+    DNSSEC validation results, as defined in Section 4.3 of <xref
+    target="RFC4035"/>.  </t>
 
     <t hangText="Validating Security-Aware Stub Resolver and
-	    Non-Validating Security-Aware Stub Resolver:">
-	    Capabilities of the stub resolver in use as defined in
-	    <xref target="RFC4033" />; note that this
-	    specification requires the use of a Security-Aware Stub
-	    Resolver; Security-Oblivious stub-resolvers MUST NOT be
-	    used.
-    </t>
+    Non-Validating Security-Aware Stub Resolver:">
+    Capabilities of the stub resolver in use as defined in <xref
+    target="RFC4033" />; note that this specification requires the
+    use of a Security-Aware Stub Resolver; Security-Oblivious
+    stub-resolvers MUST NOT be used.  </t>
 
     <t hangText="opportunistic DANE TLS:">
     Best-effort use of TLS, resistant to downgrade attacks for
-    destinations with DNSSEC-validated TLSA records.  When
-    opportunistic DANE TLS is determined to be unavailable, clients
-    should fall back to opportunistic TLS below.  Opportunistic DANE
-    TLS requires support for DNSSEC, DANE and STARTTLS on the client
-    side and STARTTLS plus a DNSSEC published TLSA record on the server
-    side.
-    </t>
+    destinations with DNSSEC-validated TLSA records.  When opportunistic
+    DANE TLS is determined to be unavailable, clients should fall
+    back to opportunistic TLS below.  Opportunistic DANE TLS requires
+    support for DNSSEC, DANE and STARTTLS on the client side and
+    STARTTLS plus a DNSSEC published TLSA record on the server side.  </t>
 
     <t hangText="(pre-DANE) opportunistic TLS:">
-    Best-effort use of TLS that is generally vulnerable to DNS forgery and STARTTLS
-    downgrade attacks.  When a TLS-encrypted communication channel
-    is not available, message transmission takes place in the clear.
-    MX record indirection generally precludes authentication even
-    when TLS is available.
-    </t>
+    Best-effort use of TLS that is generally vulnerable to DNS
+    forgery and STARTTLS downgrade attacks.  When a TLS-encrypted
+    communication channel is not available, message transmission
+    takes place in the clear.  MX record indirection generally
+    precludes authentication even when TLS is available.  </t>
 
     <t hangText="MX hostname:">
     The Mail Exchange domain name component of a DNS MX record.
@@ -332,34 +323,33 @@ The following terms or concepts are used through the document:
     -->
 
     <t hangText="delayed delivery:">
-    Email delivery is a multi-hop store &amp; forward process.  When an MTA is unable
-    forward a message that may become deliverable later, the message
-    is queued and delivery is retried periodically.  Some MTAs may
-    be configured with a fallback next-hop destination that handles
-    messages that the MTA would otherwise queue and retry.  In these
-    cases, messages that would otherwise have to be delayed, may be
-    sent to the fallback next-hop destination instead.  The fallback
-    destination may itself be subject to opportunistic or mandatory DANE
-    TLS as though it were the original message destination.
-    </t>
+    Email delivery is a multi-hop store &amp; forward process.  When
+    an MTA is unable forward a message that may become deliverable
+    later, the message is queued and delivery is retried periodically.
+    Some MTAs may be configured with a fallback next-hop destination
+    that handles messages that the MTA would otherwise queue and
+    retry.  In these cases, messages that would otherwise have to
+    be delayed, may be sent to the fallback next-hop destination
+    instead.  The fallback destination may itself be subject to
+    opportunistic or mandatory DANE TLS as though it were the
+    original message destination.  </t>
 
     <t hangText="original next hop destination: ">
     The logical destination for mail delivery.  By default this is
     the domain portion of the recipient address, but MTAs may be
-    configured to forward mail for some or all recipients via designated
-    relays.  The original next hop destination is, respectively, either
-    the recipient domain or the associated configured relay.
-    </t>
+    configured to forward mail for some or all recipients via
+    designated relays.  The original next hop destination is,
+    respectively, either the recipient domain or the associated
+    configured relay.  </t>
 
     <t hangText="MTA: ">
-    Message Transfer Agent (<xref target="RFC5598" />, Section 4.3.2).
-    </t>
+    Message Transfer Agent (<xref target="RFC5598" />, Section 4.3.2).  </t>
+
     <t hangText="MSA: ">
-    Message Submission Agent (<xref target="RFC5598" />, Section 4.3.1).
-    </t>
+    Message Submission Agent (<xref target="RFC5598" />, Section 4.3.1).  </t>
+
     <t hangText="MUA: ">
-    Message User Agent (<xref target="RFC5598" />, Section 4.2.1).
-    </t>
+    Message User Agent (<xref target="RFC5598" />, Section 4.2.1).  </t>
 </list>
 </t>
 
@@ -394,27 +384,102 @@ to be sent in the same manner as before, via manually configured
 security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 </t>
 
-<section title="DNS lookup errors and bogus responses" anchor="dnserr">
+<section title="DNS errors, bogus and indeterminate responses" anchor="dnserr">
 
-<!-- XXXWJH this section seems to lead to insecurity with respect to
-talking to a local resolver that may or may not be truly local.  Thus,
-if we are not requiring validation in the application itself (a huge
-mistake, IMHO) then you have to call out in the security section that
-this specification is still subject to attacks because of the use of
-external resolvers, system-local or not.  EG, many local resolv.conf
-files have both a local name server and a backup ISP server, and are
-suddenly subject to MITM all over again.  I'd argue this is actually
-very common. -->
-<!-- XXXVD:
-Nothing here advocates trust in remote validating recursive nameservers.
-If an MTA administrator elects to delegate trust to a recursive validator,
-he MUST ensure that recursive validator is local and that no remote recursive
-nameservers are configured.  Whether such configurations are otherwise
-common is immaterial.
-Furthermore,  we're not even advocating this configuration, it is used to
-illustrate the equivalence of all lookup failures, be they "bogus" replies
-or other failures.
--->
+<t>
+A DNS lookup may signal an error or a return definitive answer.
+When an answer is returned, its security status can take one of four
+possible values defined in Section 4.3 of <xref target="RFC4035"/>.
+In <xref target="RFC4035"/> the meaning of the "indeterminate" security
+status is:
+</t>
+<figure>
+<artwork>
+  An RRset for which the resolver is not able to determine whether
+  the RRset should be signed, as the resolver is not able to obtain
+  the necessary DNSSEC RRs.  This can occur when the security-aware
+  resolver is not able to contact security-aware name servers for
+  the relevant zones.
+</artwork>
+</figure>
+<t>
+unfortunately, the "indeterminate" security status has a conflicting
+definition in section 5 of <xref target="RFC4033"/>:
+</t>
+<figure>
+<artwork>
+  There is no trust anchor that would indicate that a specific
+  portion of the tree is secure.
+</artwork>
+</figure>
+<t>
+Accordingly, it is a priori not possible for RFC4033 "indeterminate"
+answers for the query domain to be validated.  SMTP clients following
+this specification need not distinguish between "insecure" and
+"indeterminate" in the second sense of <xref target="RFC4033"/>.
+Both "insecure" and RFC4033 "interminate" are handled identically,
+as in both cases unvalidated data for the query domain is all that
+is and can be available.  In what follows when we say "insecure",
+we include also DNS results for domains that lie in a portion of
+the DNS tree for which there is no applicable trust anchor.  With
+the DNS root zone signed, we expect that most SMTP clients will be
+configured with the trust anchor data for the root zone.  Therefore,
+RFC4033-style "indeterminate" domains will not exist for most SMTP
+clients.
+</t>
+
+<t>
+From here on, when we say "indeterminate", it is exclusively in the
+sense of <xref target="RFC4035"/>.  As noted in section 4.3 of <xref
+target="RFC4035"/> a security-aware DNS resolver MUST be able to
+determine whether a given non-error DNS response is "secure",
+"insecure", "bogus" or "indeterminate".  This creates a complication
+for non-validating security-aware stub resolvers.  There is not at
+this time a standard way to communicate a validation status of
+"indeterminate" from a validating nameserver to a non-validating
+stub resolver.
+</t>
+
+<t>
+Since an "indeterminate" security status is the result of a failure
+to either construct a trust chain to the target domain or to determine
+securely that no such chain exists, some validating recursive
+resolvers signal this via a DNS error code such as "ServFail".  The
+use of such validating resolvers by non-validating security aware
+stub resolvers is compatible with this specification.  If, on the
+other hand, the validating recursive resolver returns "indeterminate"
+results in a manner that is indistinguishable to the non-validating
+stub resolver from "insecure" results, the combination of non-validating
+stub resolver and validating recursive resolver is vulnerable to
+downgrade attacks and is not compatible with this specification.
+</t>
+
+<t>
+An MTA making use of a non-validating security-aware stub resolver
+MAY use the stub resolver's ability, if available, to signal DNSSEC
+validation status based on information the stub resolver has learned
+from an upstream validating recursive resolver.  In accordance with
+section 4.9.3 of <xref target="RFC4035"/>:
+</t>
+<figure>
+<artwork>
+  a security-aware stub resolver MUST NOT place any reliance on
+  signature validation allegedly performed on its behalf, except
+  when the security-aware stub resolver obtained the data in question
+  from a trusted security-aware recursive name server via a secure
+  channel.
+</artwork>
+</figure>
+<t>
+When a non-validating stub resolver is used, the MTA administrator
+MUST make sure that all upstream recursive resolvers are DNSSEC
+validating, a secure channel exists to each one and that each
+combination of the non-validating stub resolver with any of the
+configured validating recursive validating resolvers does not cause
+"indeterminate" results to be processed as either "secure" or
+"insecure".  "Indeterminate" results MUST be reported to the MTA
+as one of "indeterminate", "bogus" or an error condition.
+</t>
 
 <t>
 To avoid much repetition in the text below, we will pause to explain
@@ -424,90 +489,90 @@ occur when network packets are corrupted in transit.
 </t>
 
 <t>
-In this light, "bogus" replies are simply lookup failures, provided
-we carefully define what we mean by a DNS lookup failure (setting
-DNSSEC validation aside for the moment).  There are two important
-non-failure conditions we need to highlight in addition to the
-obvious case of the DNS client obtaining a well-formed response
-with relevant resource records in the answer section:
-</t>
+In this light, "bogus" replies are a form of lookup failure, provided
+we carefully define what we mean by a DNS lookup failure.  There
+are two important non-failure conditions we need to highlight in
+addition to the obvious case of the DNS client obtaining a well-formed
+response with relevant resource records in the answer section: </t>
 
-<!-- XXXVD: I really do want to stress that "NOERROR" and "NXDOMAIN"
-are NOT lookup failures. -->
 <t>
 <list style="numbers">
-<t> When a well-formed DNS response (with valid DNSSEC signatures
-and NSEC or NSEC3 records as applicable) has an RCODE of "NoError"
-(<xref target="RFC6895"/> Section 2.3), but the answer count is
-zero; while the DNS client may not have obtained the data it was
-looking for, the response is not a DNS error condition.  The DNS
-client has not been left without an answer; it learns that records
-of the requested type do not exist. </t>
+<t> When a DNSSEC response that with a validation status that is
+neither "bogus" nor "indeterminate" has an RCODE of "NoError" (<xref
+target="RFC6895"/> Section 2.3), but the answer count is zero; while
+the DNS client may not have obtained any data of the requested type,
+the response is not a DNS error condition.  The DNS client has not
+been left without an answer; it learns that records of the requested
+type do not exist. </t>
 
-<t> Similarly, when a well-formed DNS response has an RCODE of
-"NXDomain" (whether "insecure" or DNSSEC validated), once again the
-DNS client learns not only that records of the requested type do
-not exist, but also that the query domain does not exist.  </t>
+<t> Similarly, when a DNSSEC response that is neither "bogus" nor
+"indeterminate" has an RCODE of "NXDomain", once again the DNS
+client learns not only that records of the requested type do not
+exist, but also that the query domain does not exist.  </t>
 </list>
 </t>
 
 <t>
 When the response is malformed, or has any RCODE other than "NoError"
-or "NXDOMAIN", the DNS lookup has failed.  Returning to DNSSEC, we
-note that some MTAs may choose to delegate DNSSEC processing
-exclusively to a validating recursive resolver which must be known
-to be local to the MTA machine.  In such a configuration the resolver
-will not return "bogus" replies to the MTA, rather these will be
-reported as lookup errors with a "ServFail" RCODE.  The foregoing
-is not a recommendation to use or not use such configurations,
-rather, it it is intended to explain the point of view that "bogus"
-replies are just lookup errors and MUST be treated in the same
-manner as all other DNS lookup errors.
+or "NXDOMAIN", the DNS lookup has failed.  Returning to DNSSEC,
+when an MTA chooses to delegate DNSSEC validation to a validating
+recursive resolver it will not in practice see any "bogus" results.
+Rather, these will be reported as lookup errors with a "ServFail"
+RCODE.  The foregoing is not a recommendation to use or not use
+non-validating stub resolver configurations, rather, it it is
+intended to explain the point of view that "bogus" replies are just
+lookup errors and MUST be treated in the same manner as all other
+DNS lookup errors.  Similarly, a DANE SMTP client MUST treat all
+"indeterminate" results as lookup errors.
 </t>
 
 <t>
-In contrast to a "bogus" response, an "insecure" (or equivalently
-"indeterminate") DNSSEC response is not a failure,
-rather it indicates that the target DNS zone is not signed or is not
-connected with the DNSSEC trust anchors being used, and DNSSEC validation
-is not applicable to records associated with the query domain.
-Insecure results may lead to degradation of channel security,
-but do not stand in the way of message delivery.  See section <xref
-target="discovery"/> for further details.
+In contrast to a "bogus" or an "indeterminate" response, an "insecure"
+DNSSEC response is not an error, rather it indicates that the
+target DNS zone is not signed or is not connected with the DNSSEC
+trust anchors being used, and DNSSEC validation is not applicable
+to records associated with the query domain.  Insecure results may
+lead to degradation of channel security, but do not stand in the
+way of message delivery.  See section <xref target="discovery"/>
+for further details.
 </t>
 
 <t>
-When a stub resolver receives a response containing a CNAME alias, it
-will generally restart the query at the target of the alias, and
-should do so recursively up to some configured or
-implementation-dependent recursion limit.  If at any stage of
-recursive CNAME expansion a query fails, the stub resolvers lookup of
-the original requested records will result in a failure status being
-returned.  If at any stage of recursive expansion the response is
-"insecure", then it and all subsequent results, and in particular the
-final result, MUST be considered "insecure" regardless of whether the
-other responses received were deemed "secure".
+When a stub resolver receives a response containing a CNAME alias,
+it will generally restart the query at the target of the alias, and
+should do so recursively up to some configured or implementation-dependent
+recursion limit.  If at any stage of recursive CNAME expansion a
+query fails, the stub resolver's lookup of the original requested
+records will result in a failure status being returned.  If at any
+stage of recursive expansion the response is "insecure", then it
+and all subsequent results, and in particular the final result,
+MUST be considered "insecure" regardless of whether the other
+responses received were deemed "secure".  If at any stage of recursive
+expansion the validation status is "bogus" or "indeterminate", the
+resolution of the requested records MUST be considered to have
+failed.
 </t>
 
 <t>
-When a DNS lookup failure (as defined above) prevents an SMTP client
-from determining which SMTP server or servers it should connect to,
-message delivery MUST be delayed.  This naturally includes, for
-example, the case when a "bogus" response is encountered during MX
+When a DNS lookup failure (error or "bogus" or "indeterminate" as
+defined above) prevents an SMTP client from determining which SMTP
+server or servers it should connect to, message delivery MUST be
+delayed.  This naturally includes, for example, the case when a
+"bogus" or "indeterminate" response is encountered during MX
 resolution.  When multiple SMTP server names are determined via a
-successful MX lookup, but a
-DNS lookup failure prevents network address resolution for a given
-server, delivery may proceed via any remaining servers.
+successful MX lookup, but a DNS lookup failure prevents network
+address resolution for a given server, delivery may proceed via any
+remaining servers.
 </t>
 
 <t>
 When a particular SMTP server is selected as the delivery destination,
-a set of DNS lookups must be performed to determine
-the related TLSA records.  If any DNS queries used to locate TLSA records
-fail (be it due to "bogus" records, timeouts, malformed replies, etc.),
-then the SMTP client MUST treat that server as unreachable and MUST NOT
-deliver the message via that server.  If no servers are reachable, delivery
-is delayed.
+a set of DNS lookups must be performed to determine the related
+TLSA records.  If any DNS queries used to locate TLSA records fail
+(be it due to "bogus" or "indeterminate" records, timeouts, malformed
+replies, etc.), then the SMTP client MUST treat that server as
+unreachable and MUST NOT deliver the message via that server.  If
+no servers are reachable, delivery is delayed.
 </t>
 
 <t>
@@ -519,9 +584,6 @@ explicitly part of "all relevant DNS queries" and SMTP clients MUST
 NOT continue to connect to an MX host or destination whose TLSA record
 lookup fails.
 </t>
-
-<!-- XXXWJH: need to mention this is true for any type of lookup, including
-for TLSA records, A, MX, ... -->
 
 </section><!-- DNS lookup errors and bogus responses -->
 
@@ -566,18 +628,6 @@ handshake fails.  </t>
 replies as explained in <xref target="dnserr"/>.  This MUST result
 in falling back to the next MX host or delayed delivery.  </t>
 </list>
-</t>
-
-<t>
-Applications making use of non-validating security-aware stub
-resolvers MAY use the stub resolver's ability, if available, to
-signal dnssec status based on information it has learned from an
-upstream validating recursive resolver.  Section 4.9.3 of <xref
-target="RFC4035"/> points out that "a security-aware stub resolver
-MUST NOT place any reliance on signature validation allegedly
-performed on its behalf, except when the security-aware stub resolver
-obtained the data in question from a trusted security-aware recursive
-name server via a secure channel".
 </t>
 
 <t>
@@ -964,7 +1014,7 @@ values are reserved for use by future specifications.  </t>
 <t>
 We may think of TLSA Certificate Usage values 0 through 3 as a
 combination of two one-bit flags.  The low bit chooses between
-trust-anchor (TA) and end-entity (EE) certificates.  The high bit
+trust anchor (TA) and end entity (EE) certificates.  The high bit
 chooses between public PKI issued and domain-issued certificates.
 </t>
 
