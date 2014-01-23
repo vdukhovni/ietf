@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+<!ENTITY RFC1035 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1035.xml">
 <!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC3207 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3207.xml">
 <!ENTITY RFC4033 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4033.xml">
@@ -387,9 +388,9 @@ security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 <section title="DNS errors, bogus and indeterminate responses" anchor="dnserr">
 
 <t>
-A DNS lookup may signal an error or a return definitive answer.  When
-a security-aware resolver is being used, the security status of its
-security status can take one of four possible values defined in
+A DNS lookup may signal an error or return a definitive answer.  When
+a security-aware resolver is being used, the security status of a
+DNS RRset can take one of four possible values defined in
 Section 4.3 of <xref target="RFC4035"/>: "secure", "insecure", "bogus"
 and "indeterminate".  In <xref target="RFC4035"/> the meaning of the
 "indeterminate" security status is:
@@ -419,20 +420,24 @@ section 5 of <xref target="RFC4033"/> compared to the definition from
 </artwork>
 </figure>
 <t>
-The difference from these two seemingly conflicting definitions comes
-entirely from their context: in one case, validation is being
+<!-- XXXVD: I don't think I agree with the below, the difference is
+I think more fundamental. -->
+The difference between these two seemingly conflicting definitions comes
+arises from their context: in one case, validation is being
 performed by the resolver itself (<xref target="RFC4033"/>) and in the
 other case the resolver may or may not be validating the results
-itself (<xref target="RFC4035"/>).  It is not possible for validating
+itself (<xref target="RFC4035"/>).  It is not possible for a validating
 resolver in <xref target="RFC4033"/> to validate the results of a
 portion of the DNS tree for which it doesn't have a trust anchor. 
+</t>
+
 <t>
 Accordingly, it is a priori not possible for RFC4033 "indeterminate"
 answers for the query domain to be validated.  SMTP clients following
 this specification need not distinguish between "insecure" and
 "indeterminate" in the <xref target="RFC4033"/> sense.
 Both "insecure" and RFC4033 "interminate" are handled identically:
-in both cases unvalidated data for the query domain is all that
+in either case unvalidated data for the query domain is all that
 is and can be available.  In what follows, when we say "insecure",
 we include also DNS results for domains that lie in a portion of
 the DNS tree for which there is no applicable trust anchor.  With
@@ -466,7 +471,7 @@ results in a manner that is indistinguishable to the non-validating
 stub resolver from "insecure" results, the combination of non-validating
 stub resolver and validating recursive resolver is vulnerable to
 downgrade attacks and is not compatible with this specification.
-Because of this, until properly signaling is available between a
+Because of this, until reliable signaling is available between a
 validating recursive resolver and the non-validating security-aware
 stub resolver to which it is returning results, validating
 security-aware stub resolvers SHOULD be used instead of their
@@ -517,8 +522,8 @@ are two important non-failure conditions we need to highlight in
 addition to the obvious case of the DNS client obtaining a well-formed
 response with relevant resource records in the answer section: </t>
 
-+<!-- XXXWJH: needs reworked to drop RCODE references and speak more
-+     generically -->
+<!-- XXXWJH: needs reworked to drop RCODE references and speak more
+     generically -->
 <t>
 <list style="numbers">
 <t> When a DNSSEC response that with a validation status that is
@@ -1597,6 +1602,7 @@ with no adverse security consequences.
 
 <back>
 <references title="Normative References">
+&RFC1035;
 &RFC2119;
 &RFC3207;
 &RFC4033;
