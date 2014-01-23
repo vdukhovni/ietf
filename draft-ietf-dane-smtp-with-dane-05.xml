@@ -403,7 +403,7 @@ status is:
 </artwork>
 </figure>
 <t>
-unfortunately, the "indeterminate" security status has a conflicting
+Unfortunately, the "indeterminate" security status has a conflicting
 definition in section 5 of <xref target="RFC4033"/>:
 </t>
 <figure>
@@ -419,7 +419,7 @@ this specification need not distinguish between "insecure" and
 "indeterminate" in the second sense of <xref target="RFC4033"/>.
 Both "insecure" and RFC4033 "interminate" are handled identically,
 as in both cases unvalidated data for the query domain is all that
-is and can be available.  In what follows when we say "insecure",
+is and can be available.  In what follows, when we say "insecure",
 we include also DNS results for domains that lie in a portion of
 the DNS tree for which there is no applicable trust anchor.  With
 the DNS root zone signed, we expect that most SMTP clients will be
@@ -434,8 +434,8 @@ sense of <xref target="RFC4035"/>.  As noted in section 4.3 of <xref
 target="RFC4035"/> a security-aware DNS resolver MUST be able to
 determine whether a given non-error DNS response is "secure",
 "insecure", "bogus" or "indeterminate".  This creates a complication
-for non-validating security-aware stub resolvers.  There is not at
-this time a standard way to communicate a validation status of
+for non-validating security-aware stub resolvers.  There is not, at
+this time, a standard way to communicate a validation status of
 "indeterminate" from a validating nameserver to a non-validating
 stub resolver.
 </t>
@@ -463,7 +463,7 @@ section 4.9.3 of <xref target="RFC4035"/>:
 </t>
 <figure>
 <artwork>
-  a security-aware stub resolver MUST NOT place any reliance on
+  ... a security-aware stub resolver MUST NOT place any reliance on
   signature validation allegedly performed on its behalf, except
   when the security-aware stub resolver obtained the data in question
   from a trusted security-aware recursive name server via a secure
@@ -477,7 +477,9 @@ validating, a secure channel exists to each one and that each
 combination of the non-validating stub resolver with any of the
 configured validating recursive validating resolvers does not cause
 "indeterminate" results to be processed as either "secure" or
-"insecure".  "Indeterminate" results MUST be reported to the MTA
+"insecure".
+<!-- XXXWJH: this doesn't make sense: -->
+"Indeterminate" results MUST be reported to the MTA
 as one of "indeterminate", "bogus" or an error condition.
 </t>
 
