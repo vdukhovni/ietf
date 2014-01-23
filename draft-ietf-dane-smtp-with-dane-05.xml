@@ -387,11 +387,12 @@ security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 <section title="DNS errors, bogus and indeterminate responses" anchor="dnserr">
 
 <t>
-A DNS lookup may signal an error or a return definitive answer.
-When an answer is returned, its security status can take one of four
-possible values defined in Section 4.3 of <xref target="RFC4035"/>.
-In <xref target="RFC4035"/> the meaning of the "indeterminate" security
-status is:
+A DNS lookup may signal an error or a return definitive answer.  When
+a security-aware resolver is being used, the security status of its
+security status can take one of four possible values defined in
+Section 4.3 of <xref target="RFC4035"/>: "secure", "insecure", "bogus"
+and "indeterminate".  In <xref target="RFC4035"/> the meaning of the
+"indeterminate" security status is:
 </t>
 <figure>
 <artwork>
@@ -403,8 +404,13 @@ status is:
 </artwork>
 </figure>
 <t>
-Unfortunately, the "indeterminate" security status has a conflicting
-definition in section 5 of <xref target="RFC4033"/>:
+When a validation is being performed by a validating resolver, its
+security status can take one of four possible values defined in
+Section 4.3 of <xref target="RFC4035"/>: "secure", "insecure", "bogus"
+and "indeterminate".  Unfortunately, the "indeterminate" security
+status from a validating resolver has a conflicting definition in
+section 5 of <xref target="RFC4033"/> compared to the definition from
+<xref target="RFC4035" /> above:
 </t>
 <figure>
 <artwork>
@@ -413,12 +419,20 @@ definition in section 5 of <xref target="RFC4033"/>:
 </artwork>
 </figure>
 <t>
+The difference from these two seemingly conflicting definitions comes
+entirely from their context: in one case, validation is being
+performed by the resolver itself (<xref target="RFC4033"/>) and in the
+other case the resolver may or may not be validating the results
+itself (<xref target="RFC4035"/>).  It is not possible for validating
+resolver in <xref target="RFC4033"/> to validate the results of a
+portion of the DNS tree for which it doesn't have a trust anchor. 
+<t>
 Accordingly, it is a priori not possible for RFC4033 "indeterminate"
 answers for the query domain to be validated.  SMTP clients following
 this specification need not distinguish between "insecure" and
-"indeterminate" in the second sense of <xref target="RFC4033"/>.
-Both "insecure" and RFC4033 "interminate" are handled identically,
-as in both cases unvalidated data for the query domain is all that
+"indeterminate" in the <xref target="RFC4033"/> sense.
+Both "insecure" and RFC4033 "interminate" are handled identically:
+in both cases unvalidated data for the query domain is all that
 is and can be available.  In what follows, when we say "insecure",
 we include also DNS results for domains that lie in a portion of
 the DNS tree for which there is no applicable trust anchor.  With
