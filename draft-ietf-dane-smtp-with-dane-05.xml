@@ -497,7 +497,8 @@ combination of the non-validating stub resolver with any of the
 configured validating recursive validating resolvers does not cause
 "indeterminate" results to be processed as either "secure" or
 "insecure".
-<!-- XXXWJH: this doesn't make sense: -->
+<!-- XXXWJH: this doesn't make sense.  I suspect we need to say
+     4035/indeterminate for #1 and 4033/indeterminate for #2? -->
 "Indeterminate" results MUST be reported to the MTA
 as one of "indeterminate", "bogus" or an error condition.
 </t>
