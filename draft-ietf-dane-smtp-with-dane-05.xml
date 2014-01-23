@@ -517,6 +517,8 @@ are two important non-failure conditions we need to highlight in
 addition to the obvious case of the DNS client obtaining a well-formed
 response with relevant resource records in the answer section: </t>
 
++<!-- XXXWJH: needs reworked to drop RCODE references and speak more
++     generically -->
 <t>
 <list style="numbers">
 <t> When a DNSSEC response that with a validation status that is
