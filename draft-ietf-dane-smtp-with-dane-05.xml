@@ -490,10 +490,10 @@ section 4.9.3 of <xref target="RFC4035"/>:
 </artwork>
 </figure>
 <t>
-When a non-validating stub resolver is used, the MTA administrator
+When a non-validating security-aware stub resolver is used, the MTA administrator
 MUST make sure that all upstream recursive resolvers are DNSSEC
 validating, a secure channel exists to each one and that each
-combination of the non-validating stub resolver with any of the
+combination of the non-validating security-aware  stub resolver with any of the
 configured validating recursive validating resolvers does not cause
 "indeterminate" results to be processed as either "secure" or
 "insecure".
