@@ -466,6 +466,11 @@ results in a manner that is indistinguishable to the non-validating
 stub resolver from "insecure" results, the combination of non-validating
 stub resolver and validating recursive resolver is vulnerable to
 downgrade attacks and is not compatible with this specification.
+Because of this, until properly signaling is available between a
+validating recursive resolver and the non-validating security-aware
+stub resolver to which it is returning results, validating
+security-aware stub resolvers SHOULD be used instead of their
+non-validating counterparts.
 </t>
 
 <t>
