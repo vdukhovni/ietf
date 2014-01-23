@@ -292,9 +292,9 @@ The following terms or concepts are used through the document:
     precludes authentication even when TLS is available.  </t>
 
     <t hangText="MX hostname:">
-    The Mail Exchange domain name component of a DNS MX record.
-    Used to refer specifically to the DNS name, not the host that
-    bears that name.
+    The Mail Exchange domain name (see <xref target="RFC1035" />,
+    Section 3.3.9) component of a DNS MX record.  Used to refer
+    specifically to the DNS name, not the host that bears that name.
     </t>
 
     <t hangText="MX host:">
