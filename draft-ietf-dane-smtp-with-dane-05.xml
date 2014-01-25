@@ -1323,7 +1323,10 @@ the use of SNI by clients, if the client sends no SNI extension,
 or sends an SNI extension for an unsupported domain the server MUST
 simply use its default certificate chain.  The client may be using
 unauthenticated opportunistic TLS and may not expect any particular
-certificate from the server.
+certificate from the server.  DANE TLS clients that authenticate the
+server may be willing to accept multiple server names, with the SNI
+name set to TLSA base domain, but the server's default certificate
+may match the original next-hop domain.
 </t>
 
 <t>
