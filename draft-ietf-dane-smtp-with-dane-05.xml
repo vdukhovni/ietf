@@ -65,12 +65,11 @@
 <keyword>SMTP</keyword>
 
 <abstract> <t>
-This memo describes a downgrade-resistant protocol for the SMTP
-transport security based on the DNS-Based Authentication of Named
-Entities (DANE) TLSA DNS record.  Adoption of this protocol enables
-an incremental transition of the Internet email backbone to one
-using Transport Layer Security (TLS) to encrypt and authenticate
-the SMTP traffic.
+This memo describes a downgrade-resistant protocol for SMTP transport
+security based on the DNS-Based Authentication of Named Entities
+(DANE) TLSA DNS record.  Adoption of this protocol enables an
+incremental transition of the Internet email backbone to one using
+encrypted and authenticated Transport Layer Security (TLS).
 </t> </abstract>
 
 </front>
@@ -79,15 +78,14 @@ the SMTP traffic.
 <section title="Introduction">
 
 <t>
-There has historically been no scalable way for Simple Mail
-Transport Protocol (SMTP) server operators
-to deploy Transport Layer Security (TLS) using X.509 certificates with
-a client-trusted subject name.  It is
-only with the deployment of Domain Name System Security Extensions
-(DNSSEC) and DNS-Based Authentication of Named
-Entities (DANE) that authenticated TLS
-for server to server SMTP becomes possible between parties that have not already
-established an identity convention out-of-band.
+There has historically been no scalable way for Simple Mail Transport
+Protocol (SMTP) server operators to deploy Transport Layer Security
+(TLS) using X.509 certificates with a client-trusted subject name.
+It is only with the deployment of Domain Name System Security
+Extensions (DNSSEC) and DNS-Based Authentication of Named Entities
+(DANE) that authenticated TLS for server to server SMTP becomes
+practical between parties that have not already established an
+identity convention out-of-band.
 </t>
 
 <section title="Background">
@@ -293,10 +291,13 @@ The following terms or concepts are used through the document:
     precludes authentication even when TLS is available.  </t>
 
     <t hangText="MX hostname:">
-    The Mail Exchange domain name (see <xref target="RFC1035" />,
-    Section 3.3.9) component of a DNS MX record.  Used to refer
-    specifically to the DNS name, not the host that bears that name.
-    </t>
+    The RRDATA of an MX record consists of a 16 bit preference
+    followed by a Mail Exchange domain name (see <xref target="RFC1035"/>,
+    Section 3.3.9).  We will use the term "MX hostname" to refer
+    to the latter, that is, the DNS domain name found after the
+    preference value in an MX record.  Thus an "MX hostname" is
+    specifically a reference to a DNS domain name, rather than any
+    host that bears that name.  </t>
 
     <t hangText="MX host:">
     An SMTP server whose name appears in an MX record for a particular
@@ -388,6 +389,16 @@ security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 <section title="DNS errors, bogus and indeterminate responses" anchor="dnserr">
 
 <t>
+An SMTP client that implements opportunistic DANE TLS per this
+specification depends critically on the integrity of DNSSEC lookups.
+This section lists potential issues and states DNS resolver
+requirements needed to avoid downgrade attacks.  The requirements
+of this section need not apply to email delivery to destinations
+for which the SMTP client is configured to employ a security mechanism
+other than opportunistic DANE TLS.
+</t>
+
+<t>
 A DNS lookup may signal an error or return a definitive answer.  When
 a security-aware resolver is being used, the security status of a
 DNS RRset can take one of four possible values defined in
@@ -436,15 +447,14 @@ Accordingly, it is a priori not possible for RFC4033 "indeterminate"
 answers for the query domain to be validated.  SMTP clients following
 this specification need not distinguish between "insecure" and
 "indeterminate" in the <xref target="RFC4033"/> sense.
-Both "insecure" and RFC4033 "interminate" are handled identically:
+Both "insecure" and RFC4033 "indeterminate" are handled identically:
 in either case unvalidated data for the query domain is all that
 is and can be available.  In what follows, when we say "insecure",
 we include also DNS results for domains that lie in a portion of
 the DNS tree for which there is no applicable trust anchor.  With
-the DNS root zone signed, we expect that most SMTP clients will be
+the DNS root zone signed, we expect that most validating resolvers will be
 configured with the trust anchor data for the root zone.  Therefore,
-RFC4033-style "indeterminate" domains will not exist for most SMTP
-clients.
+RFC4033-style "indeterminate" domains should be rare in practice.
 </t>
 
 <t>
@@ -499,7 +509,7 @@ When a non-validating security-aware stub resolver is used, the MTA administrato
 MUST make sure that all upstream recursive resolvers are DNSSEC
 validating, a secure channel exists to each one and that each
 combination of the non-validating security-aware  stub resolver with any of the
-configured validating recursive validating resolvers does not cause
+configured validating recursive resolvers does not cause
 "indeterminate" results to be processed as either "secure" or
 "insecure".
 <!-- XXXWJH: this doesn't make sense.  I suspect we need to say
@@ -671,7 +681,7 @@ TLS connections are used with mandatory DANE TLS destinations.
 <t>
 An operational error on the sending or receiving side that cannot
 be corrected in a timely manner may at times lead to consistent
-failure to deliver time-sensitive email.  The sending MTA administrar
+failure to deliver time-sensitive email.  The sending MTA administrator
 may have to choose between letting email queue until the error is
 resolved and disabling opportunistic or mandatory DANE TLS for one
 or more destinations.  The choice to disable DANE TLS security
@@ -705,6 +715,10 @@ part of the DNAME support logic is outside the MTA.
 When the original next-hop destination is an address literal, rather
 than a DNS domain, DANE TLS does not apply.  Delivery proceeds using
 any relevant security policy configured by the MTA administrator.
+<!-- XXXVD: Should we in fact highlight this? -->
+Similarly, when an MX RRset incorrectly lists an IPv4 address in lieu
+of an MX hostname, if the MTA chooses to connect to the IPv4 address
+thus specified DANE TLSA does not apply.
 </t>
 
 <t>
@@ -909,8 +923,8 @@ If the ultimate response is a "secure" TLSA RRset (see <xref
 target="dnserr"/>) then the candidate TLSA domain will be the actual
 TLSA domain and the TLSA RRset will constitute the TLSA records for
 the destination.  If none of the candidate TLSA base domains yield
-"secure" TLSA records delivery should proceed via pre-DANE opportunistic
-TLS.
+"secure" TLSA records then delivery should proceed via pre-DANE
+opportunistic TLS.
 </t>
 
 <t>
@@ -953,11 +967,11 @@ For example, given the DNSSEC validated records below:
 
 <figure>
 <artwork>
-example.com.                IN MX 0 mail.example.com.
-example.com.                IN MX 0 mail2.example.com.
-_25._tcp.mail.example.com.  IN CNAME tlsa211._dane.example.com.
-_25._tcp.mail2.example.com. IN CNAME tlsa211._dane.example.com.
-tlsa211._dane.example.com.  IN  TLSA 2 1 1 e3b0c44298fc1c14....
+  example.com.                IN MX 0 mail.example.com.
+  example.com.                IN MX 0 mail2.example.com.
+  _25._tcp.mail.example.com.  IN CNAME tlsa211._dane.example.com.
+  _25._tcp.mail2.example.com. IN CNAME tlsa211._dane.example.com.
+  tlsa211._dane.example.com.  IN  TLSA 2 1 1 e3b0c44298fc1c14....
 </artwork>
 </figure>
 
@@ -982,13 +996,15 @@ attacks.
 </t>
 
 <t>
-As noted previously (in Sections <xref target="mx"/>, <xref
-target="non-mx"/>), when no "secure" TLSA records are found at a
-CNAME-expanded name, the unexpanded name MUST be tried instead.
-This supports customers of hosting providers where the provider's
-zone cannot be validated with DNSSEC, but the customer has shared
-appropriate key material with the hosting provider to enable TLS
-via SNI.
+As noted previously (in Section <xref target="non-mx"/>), when no
+"secure" TLSA records are found at the fully CNAME-expanded name,
+the original unexpanded name MUST be tried instead.  Intermediate
+names that arise during CNAME expansion that are neither the original,
+nor the final name, are never candidate TLSA base domains, even if
+"secure".  This supports customers of hosting providers where the
+provider's zone cannot be validated with DNSSEC, but the customer
+has shared appropriate key material with the hosting provider to
+enable TLS via SNI.
 </t>
 
 </section><!-- TLSA record lookup -->
@@ -1059,8 +1075,8 @@ The matching type field specifies how the TLSA RR Certificate Association
 Data field is to be compared with the certificate or public key.  A value
 of Full(0) means an exact match: the full DER encoding of the certificate
 or public key is given in the TLSA RR.  A value of SHA2-256(1) means
-that the association data matches the SHA-256 digest of the certificate
-or public key, and likewise SHA-512(2) means a SHA-512 digest is used.
+that the association data matches the SHA2-256 digest of the certificate
+or public key, and likewise SHA2-512(2) means a SHA2-512 digest is used.
 </t>
 
 <section title="Certificate usage 3" anchor="cert3">
@@ -1205,7 +1221,7 @@ base domain as a valid DNS name in the server certificate.
 
 <t hangText="MX:">
 If the TLSA base domain was obtained indirectly via an MX lookup
-(it is the possibly CNAME-expanded name of an MX host), then the
+(including any CNAME-expanded name of an MX host), then the
 original next-hop domain used in the MX lookup MUST be accepted in
 the peer certificate.  The CNAME-expanded original next-hop domain
 MUST also be accepted if different from the initial query name. </t>
@@ -1224,7 +1240,42 @@ to the MX hostname allows a domain with multiple MX hostnames to
 field a single certificate bearing the email domain name across all
 the MX hosts.  This also aids inter-operability with pre-DANE SMTP
 clients that are configured to look for the email domain name in
-server certificates.
+server certificates.  For example, with "secure" DNS records as below:
+</t>
+
+<figure>
+<artwork>
+  exchange.example.org. IN CNAME mail.example.org.
+  mail.example.org. IN CNAME example.com.
+  example.com. IN MX 10 mx10.example.com.
+  example.com. IN MX 15 mx15.example.com.
+  example.com. IN MX 20 mx20.example.com.
+  ;
+  mx10.example.com. IN A 192.0.2.10
+  _25._tcp.mx10.example.com. IN TLSA 2 0 1 ...
+  ;
+  mx15.example.com. IN CNAME mxbackup.example.com.
+  mxbackup.example.com. IN A 192.0.2.15
+  ; _25._tcp.mxbackup.example.com. IN TLSA ? (NXDOMAIN)
+  _25._tcp.mx15.example.com. IN TLSA 2 0 1 ...
+  ;
+  mx20.example.com. IN CNAME mxbackup.example.net.
+  mxbackup.example.net. IN A 198.51.100.20
+  _25._tcp.mxbackup.example.net. IN TLSA 2 0 1 ...
+</artwork>
+</figure>
+
+<t>
+Certificate name checks for delivery of mail to exchange.example.org
+via any of the associated MX hosts MUST accept at least the names
+"exchange.example.org" and "example.com", which are respectively
+the original and fully expanded next-hop domain.  When the MX host
+is mx10.example.com, name checks MUST accept the TLSA base domain
+"mx10.example.com".  If, despite the fact that MX hostnames are
+required to not be aliases, the MTA supports delivery via
+"mx15.example.com" or "mx20.example.com" name checks MUST accept
+the respective TLSA base domains "mx15.example.com" and
+"mxbackup.example.net".
 </t>
 
 <t>
@@ -1240,8 +1291,11 @@ or public key (ASN.1 DER encoding or its digest) with the TLSA RRset.
 To ensure that the server sends the right certificate chain, the
 SMTP client MUST send the TLS SNI extension containing the TLSA
 base domain.  This precludes the use of SSLv2-compatible SSL HELLO
-by the SMTP client.  The minimum SSL/TLS version for SMTP clients
-performing DANE authentication is SSLv3.
+by the SMTP client.  The minimum SSL/TLS client HELLO version for
+SMTP clients performing DANE authentication is SSLv3, but a client
+that offers SSLv3 needs to also offer at least TLSv1 and MUST include
+the SNI extension.  Servers that don't make use of SNI MAY negotiate
+SSLv3 if offered by the client.
 </t>
 
 <t>
@@ -1274,17 +1328,20 @@ certificate from the server.
 
 <t>
 The SMTP client MAY include anonymous TLS cipher suites in its SSL
-HELLO.  MX hosts that receive email from the Internet MUST interoperate
-with opportunistic TLS SMTP clients.  If they advertise support for
-STARTTLS in their SMTP EHLO response, they MUST NOT fail to complete
-the TLS handshake merely because the SMTP client offered some cipher
-suites that do not provide for server authentication.  While SMTP
-server operators are under no obligation to enable anonymous cipher
-suites, no security is gained by sending certificates clients are
-willing to ignore.  Indeed support for anonymous cipher suites in
-the server makes audit trails more informative.  Log entries that
-record connections that employed an anonymous cipher suite record
-the fact that the clients did not care to authenticate the server.
+HELLO.  SMTP servers hosts that receive email from the Internet
+MUST interoperate with opportunistic TLS SMTP clients that include
+anonymous ciphers provided the server is able to accept at least
+some of the ciphers offered by the client.  If a server advertises
+support for STARTTLS in its SMTP EHLO response, it MUST NOT fail
+to complete the TLS handshake merely because the SMTP client offered
+some cipher suites that do not provide for server authentication.
+While SMTP server operators are under no obligation to enable
+anonymous cipher suites, no security is gained by sending certificates
+clients are willing to ignore.  Indeed support for anonymous cipher
+suites in the server makes audit trails more informative.  Log
+entries that record connections that employed an anonymous cipher
+suite record the fact that the clients did not care to authenticate
+the server.
 </t>
 
 </section><!-- Certificate matching -->
@@ -1592,7 +1649,7 @@ the attacker to publish TLSA usage 3 certificate associations, and
 thereby bypass any security benefit the legitimate domain owner
 might hope to gain by publishing usage 0 or 1 TLSA RRs.  Given the
 lack of public CA PKI support in existing MTA deployments, avoiding
-certificate usages 0 and 1 simplifies implementationa and deployment
+certificate usages 0 and 1 simplifies implementation and deployment
 with no adverse security consequences.
 </t>
 
