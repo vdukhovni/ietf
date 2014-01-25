@@ -1556,10 +1556,11 @@ comments and advice on this document.
 </t>
 
 <t>
-Thanks to Paul Hoffman who motivated me to begin work on this memo
-and provided feedback on early drafts.  Thanks also to Wietse Venema
-who created Postfix, and whose advice and feedback were essential
-to the development of the Postfix DANE implementation.
+Acknowledgments from Viktor: Thanks to Paul Hoffman who motivated
+me to begin work on this memo and provided feedback on early drafts.
+Thanks also to Wietse Venema who created Postfix, and whose advice
+and feedback were essential to the development of the Postfix DANE
+implementation.
 </t>
 
 </section><!-- Acknowledgements -->
