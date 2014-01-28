@@ -431,15 +431,13 @@ section 5 of <xref target="RFC4033"/> compared to the definition from
 </artwork>
 </figure>
 <t>
-<!-- XXXVD: I don't think I agree with the below, the difference is
-I think more fundamental. -->
 The difference between these two seemingly conflicting definitions
-arises from their context: in one case, validation is being
-performed by the resolver itself (<xref target="RFC4033"/>) and in the
-other case the resolver may or may not be validating the results
-itself (<xref target="RFC4035"/>).  It is not possible for a validating
-resolver in <xref target="RFC4033"/> to validate the results of a
-portion of the DNS tree for which it doesn't have a trust anchor. 
+arises from their usage context: in the <xref target="RFC4035" />
+case the term is defined to highlight validating and non-validating
+security-aware resolution problems when it may not be possible to
+determine if a RRset should be signed, and in the <xref
+targt="RFC4033" /> case the term is defined to highlight domains that
+fall outside the configured range of protection.
 </t>
 
 <t>
