@@ -436,7 +436,7 @@ arises from their usage context: in the <xref target="RFC4035" />
 case the term is defined to highlight validating and non-validating
 security-aware resolution problems when it may not be possible to
 determine if a RRset should be signed, and in the <xref
-targt="RFC4033" /> case the term is defined to highlight domains that
+target="RFC4033" /> case the term is defined to highlight domains that
 fall outside the configured range of protection.
 </t>
 
