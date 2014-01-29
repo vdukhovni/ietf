@@ -391,11 +391,11 @@ security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 <t>
 An SMTP client that implements opportunistic DANE TLS per this
 specification depends critically on the integrity of DNSSEC lookups.
-This section lists potential issues and states DNS resolver
-requirements needed to avoid downgrade attacks.  The requirements
-of this section need not apply to email delivery to destinations
-for which the SMTP client is configured to employ a security mechanism
-other than opportunistic DANE TLS.
+This section states DNS resolver requirements needed to avoid
+downgrade attacks.  The resolver requirements of this section need
+not apply to email delivery to destinations for which the SMTP
+client is configured to employ a security mechanism other than
+opportunistic DANE TLS.
 </t>
 
 <t>
@@ -416,13 +416,8 @@ and "indeterminate".  In <xref target="RFC4035"/> the meaning of the
 </artwork>
 </figure>
 <t>
-When a validation is being performed by a validating resolver, its
-security status can take one of four possible values defined in
-Section 4.3 of <xref target="RFC4035"/>: "secure", "insecure", "bogus"
-and "indeterminate".  Unfortunately, the "indeterminate" security
-status from a validating resolver has a conflicting definition in
-section 5 of <xref target="RFC4033"/> compared to the definition from
-<xref target="RFC4035" /> above:
+Note, the "indeterminate" security status has a conflicting definition
+in section 5 of <xref target="RFC4033"/>.
 </t>
 <figure>
 <artwork>
@@ -430,60 +425,31 @@ section 5 of <xref target="RFC4033"/> compared to the definition from
   portion of the tree is secure.
 </artwork>
 </figure>
+
 <t>
-The difference between these two seemingly conflicting definitions
-arises from their usage context: in the <xref target="RFC4035" />
-case the term is defined to highlight validating and non-validating
-security-aware resolution problems when it may not be possible to
-determine if a RRset should be signed, and in the <xref
-target="RFC4033" /> case the term is defined to highlight domains that
-fall outside the configured range of protection.
+SMTP clients following this specification SHOULD NOT distinguish
+between "insecure" and "indeterminate" in the <xref target="RFC4033"/>
+sense.  Both "insecure" and RFC4033 "indeterminate" are handled
+identically: in either case unvalidated data for the query domain
+is all that is and can be available.  In what follows, when we say
+"insecure", we include also DNS results for domains that lie in a
+portion of the DNS tree for which there is no applicable trust
+anchor.  With the DNS root zone signed, we expect that validating
+resolvers used by Internet-facing MTAs will be configured with trust
+anchor data for the root zone.  Therefore, RFC4033-style "indeterminate"
+domains should be rare in practice.  From here on, when we say
+"indeterminate", it is exclusively in the sense of <xref
+target="RFC4035"/>.
 </t>
 
 <t>
-Accordingly, it is a priori not possible for RFC4033 "indeterminate"
-answers for the query domain to be validated.  SMTP clients following
-this specification need not distinguish between "insecure" and
-"indeterminate" in the <xref target="RFC4033"/> sense.
-Both "insecure" and RFC4033 "indeterminate" are handled identically:
-in either case unvalidated data for the query domain is all that
-is and can be available.  In what follows, when we say "insecure",
-we include also DNS results for domains that lie in a portion of
-the DNS tree for which there is no applicable trust anchor.  With
-the DNS root zone signed, we expect that most validating resolvers will be
-configured with the trust anchor data for the root zone.  Therefore,
-RFC4033-style "indeterminate" domains should be rare in practice.
-</t>
-
-<t>
-From here on, when we say "indeterminate", it is exclusively in the
-sense of <xref target="RFC4035"/>.  As noted in section 4.3 of <xref
-target="RFC4035"/> a security-aware DNS resolver MUST be able to
-determine whether a given non-error DNS response is "secure",
-"insecure", "bogus" or "indeterminate".  This creates a complication
-for non-validating security-aware stub resolvers.  There is not, at
-this time, a standard way to communicate a validation status of
-"indeterminate" from a validating nameserver to a non-validating
-stub resolver.
-</t>
-
-<t>
-Since an "indeterminate" security status is the result of a failure
-to either construct a trust chain to the target domain or to determine
-securely that no such chain exists, some validating recursive
-resolvers signal this via a DNS error code such as "ServFail".  The
-use of such validating resolvers by non-validating security aware
-stub resolvers is compatible with this specification.  If, on the
-other hand, the validating recursive resolver returns "indeterminate"
-results in a manner that is indistinguishable to the non-validating
-stub resolver from "insecure" results, the combination of non-validating
-stub resolver and validating recursive resolver is vulnerable to
-downgrade attacks and is not compatible with this specification.
-Because of this, until reliable signaling is available between a
-validating recursive resolver and the non-validating security-aware
-stub resolver to which it is returning results, validating
-security-aware stub resolvers SHOULD be used instead of their
-non-validating counterparts.
+As noted in section 4.3 of <xref target="RFC4035"/> a security-aware
+DNS resolver MUST be able to determine whether a given non-error
+DNS response is "secure", "insecure", "bogus" or "indeterminate".
+This requirement is too strict for stub resolvers used with DANE.
+It is sufficient for "bogus" and/or "indeterminate" to be reported
+as lookup errors when there is no means to report them directly
+or distinguish them from an error.
 </t>
 
 <t>
@@ -502,76 +468,56 @@ section 4.9.3 of <xref target="RFC4035"/>:
   channel.
 </artwork>
 </figure>
-<t>
-When a non-validating security-aware stub resolver is used, the MTA administrator
-MUST make sure that all upstream recursive resolvers are DNSSEC
-validating, a secure channel exists to each one and that each
-combination of the non-validating security-aware  stub resolver with any of the
-configured validating recursive resolvers does not cause
-"indeterminate" results to be processed as either "secure" or
-"insecure".
-<!-- XXXWJH: this doesn't make sense.  I suspect we need to say
-     4035/indeterminate for #1 and 4033/indeterminate for #2? -->
-"Indeterminate" results MUST be reported to the MTA
-as one of "indeterminate", "bogus" or an error condition.
-</t>
 
 <t>
 To avoid much repetition in the text below, we will pause to explain
-the handling of "bogus" DNSSEC query responses.  These are not
-necessarily the result of a malicious actor; they can, for example,
-occur when network packets are corrupted in transit.
+the handling of "bogus" or "indeterminate" DNSSEC query responses.
+These are not necessarily the result of a malicious actor; they
+can, for example, occur when network packets are corrupted or lost
+in transit.
 </t>
 
 <t>
-In this light, "bogus" replies are a form of lookup failure, provided
-we carefully define what we mean by a DNS lookup failure.  There
-are two important non-failure conditions we need to highlight in
-addition to the obvious case of the DNS client obtaining a well-formed
-response with relevant resource records in the answer section: </t>
-
-<!-- XXXWJH: needs reworked to drop RCODE references and speak more
-     generically -->
-<t>
-<list style="numbers">
-<t> When a DNSSEC response that with a validation status that is
-neither "bogus" nor "indeterminate" has an RCODE of "NoError" (<xref
-target="RFC6895"/> Section 2.3), but the answer count is zero; while
-the DNS client may not have obtained any data of the requested type,
-the response is not a DNS error condition.  The DNS client has not
-been left without an answer; it learns that records of the requested
-type do not exist. </t>
-
-<t> Similarly, when a DNSSEC response that is neither "bogus" nor
-"indeterminate" has an RCODE of "NXDomain", once again the DNS
-client learns not only that records of the requested type do not
-exist, but also that the query domain does not exist.  </t>
-</list>
+In this light, "bogus" or "indeterminate" replies are a form of
+lookup failure, provided we carefully define what we mean by a DNS
+lookup failure.  There is an important non-failure condition we
+need to highlight in addition to the obvious case of the DNS client
+obtaining a non-empty "secure" or "insecure" RRset of the requested
+type.
 </t>
 
 <t>
-When the response is malformed, or has any RCODE other than "NoError"
-or "NXDOMAIN", the DNS lookup has failed.  Returning to DNSSEC,
-when an MTA chooses to delegate DNSSEC validation to a validating
-recursive resolver it will not in practice see any "bogus" results.
-Rather, these will be reported as lookup errors with a "ServFail"
-RCODE.  The foregoing is not a recommendation to use or not use
-non-validating stub resolver configurations, rather, it it is
-intended to explain the point of view that "bogus" replies are just
-lookup errors and MUST be treated in the same manner as all other
-DNS lookup errors.  Similarly, a DANE SMTP client MUST treat all
-"indeterminate" results as lookup errors.
+Namely, it is not an error when either "secure" or "insecure"
+non-existence is determined for the requested data.  When a DNSSEC
+response with a validation status that is neither "bogus" nor
+"indeterminate" reports either no records of the requested type or
+non-existence of the query domain, the response is not a DNS error
+condition.  The DNS client has not been left without an answer; it
+learns that records of the requested type do not exist.  A lookup
+error is thus a failure to obtain the relevant RRset if it exists,
+or to determine that no such RRset exists when it does not.
+</t>
+
+<t>
+Returning to DNSSEC, when an non-validating stub resolver is
+configured to delegate DNSSEC validation to a validating recursive
+resolver it will not in practice see any "bogus" results.  Rather,
+these will be reported as lookup errors with a "ServFail" RCODE.
+The foregoing is not a recommendation to use or not use non-validating
+stub resolvers, rather, it it is intended to amplify the point that
+"bogus" replies are just lookup errors and MUST be treated in the
+same manner as all other DNS lookup errors.  Similarly, a DANE SMTP
+client MUST treat all "indeterminate" results as lookup errors.
 </t>
 
 <t>
 In contrast to a "bogus" or an "indeterminate" response, an "insecure"
-DNSSEC response is not an error, rather it indicates that the
-target DNS zone is not signed or is not connected with the DNSSEC
-trust anchors being used, and DNSSEC validation is not applicable
-to records associated with the query domain.  Insecure results may
-lead to degradation of channel security, but do not stand in the
-way of message delivery.  See section <xref target="discovery"/>
-for further details.
+DNSSEC response is not an error, rather it indicates that the target
+DNS zone is either securely opted out of DNSSEC validation or is
+not connected with the DNSSEC trust anchors being used.  Insecure
+results may leave the SMTP client with degraded channel security,
+but do not stand in the way of message delivery.  See section <xref
+target="discovery"/> for further details.
 </t>
 
 <t>
@@ -596,10 +542,10 @@ defined above) prevents an SMTP client from determining which SMTP
 server or servers it should connect to, message delivery MUST be
 delayed.  This naturally includes, for example, the case when a
 "bogus" or "indeterminate" response is encountered during MX
-resolution.  When multiple SMTP server names are determined via a
-successful MX lookup, but a DNS lookup failure prevents network
-address resolution for a given server, delivery may proceed via any
-remaining servers.
+resolution.  When multiple MX hostnames are obtained from a successful
+MX lookup, but a later DNS lookup failure prevents network address
+resolution for a given MX hostname, delivery may proceed via any
+remaining MX hosts.
 </t>
 
 <t>
