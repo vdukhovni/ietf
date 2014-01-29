@@ -173,13 +173,13 @@ in the DNS.
 MX exchange names are subject to tampering without the use of DNSSSEC,
 thus secure verification of SMTP TLS certificates is not possible
 without DNSSEC.  Even with verified DNS data, an MITM attacker can also suppress
-the SMTP host's STARTTLS EHLO response, convincing an SMTP client that
+the SMTP server's STARTTLS EHLO response, convincing an SMTP client that
 communication over TLS is unavailable.
 </t>
 
 <t>
 One might try to harden the use of STARTTLS against DNS attacks by
-requiring each SMTP host to possess a trusted certificate for the
+requiring each SMTP server to possess a trusted certificate for the
 envelope recipient domain rather than the MX hostname.  Unfortunately,
 this is impractical, as email for many domains is handled by third
 parties that are not in a position to obtain certificates for all
@@ -299,7 +299,7 @@ The following terms or concepts are used through the document:
     specifically a reference to a DNS domain name, rather than any
     host that bears that name.  </t>
 
-    <t hangText="SMTP host:">
+    <t hangText="SMTP server:">
     An SMTP server whose name appears in an MX record for a particular
     domain.  Used to refer specifically to the host and SMTP service
     itself, not its DNS name.
@@ -561,10 +561,10 @@ no servers are reachable, delivery is delayed.
 <t>
 In what follows, we will only describe what happens when all relevant
 DNS queries succeed.  If any DNS failure occurs, the SMTP client MUST
-behave as described in this section, by skipping the problem SMTP host,
+behave as described in this section, by skipping the problem SMTP server,
 or the problem destination.  Queries for candidate TLSA records are
 explicitly part of "all relevant DNS queries" and SMTP clients MUST
-NOT continue to connect to an SMTP host or destination whose TLSA record
+NOT continue to connect to an SMTP server or destination whose TLSA record
 lookup fails.
 </t>
 
@@ -593,13 +593,13 @@ results, insecure or no results or an error signal:
 connection to the MTA MUST be made using authenticated and encrypted
 TLS, using the techniques discussed in the rest of this document.
 Failure to establish an authenticated TLS connection MUST result
-in falling back to the next SMTP host or delayed delivery.
+in falling back to the next SMTP server or delayed delivery.
 </t>
 
 <t hangText="Secure non-empty TLSA RRset with all records unusable:">
 A connection to the MTA MUST be made via TLS, but authentication
 is not required.  Failure to establish an encrypted TLS connection
-MUST result in falling back to the next SMTP host or delayed delivery.  </t>
+MUST result in falling back to the next SMTP server or delayed delivery.  </t>
 
 <t hangText="Insecure or no-TLSA RRset:"> A connection to the MTA
 SHOULD be made using (pre-DANE) opportunistic TLS, this includes
@@ -609,7 +609,7 @@ handshake fails.  </t>
 
 <t hangText="Any lookup error:"> Lookup errors include "bogus"
 replies as explained in <xref target="dnserr"/>.  This MUST result
-in falling back to the next SMTP host or delayed delivery.  </t>
+in falling back to the next SMTP server or delayed delivery.  </t>
 </list>
 </t>
 
@@ -679,7 +679,7 @@ In this section we consider next-hop domains that are subject to
 MX resolution and have MX records.  The TLSA records and the associated
 base domain are derived separately for each MX hostname that is used
 to attempt message delivery.  Clearly, if DANE TLS security is to
-apply to message delivery via any of the SMTP hosts, the MX records
+apply to message delivery via any of the SMTP servers, the MX records
 must be obtained securely via a DNSSEC validated MX lookup.
 </t>
 
@@ -692,7 +692,7 @@ loops by obeying MX preferences MUST take precedence over channel
 security considerations.  Even with two equal preference MX records, an MTA
 is not obligated to choose the MX hostname that offers more security.
 Domains that want secure inbound mail delivery need to ensure that all
-their SMTP hosts and MX records are configured accordingly.
+their SMTP servers and MX records are configured accordingly.
 </t>
 
 <t>
@@ -713,10 +713,10 @@ MX hostname as a separate
 non-MX destination for opportunistic DANE TLS as described
 in <xref target="non-mx"/>.  When, for a given MX hostname, no TLSA
 records are found, or only "insecure" TLSA records are found, DANE
-TLSA is not applicable with the SMTP host in question and delivery
+TLSA is not applicable with the SMTP server in question and delivery
 proceeds to that host as with pre-DANE opportunistic TLS.  To avoid
 downgrade attacks, any errors during TLSA lookups MUST, as explained in
-<xref target="dnserr"/>, cause the SMTP host in question to be treated
+<xref target="dnserr"/>, cause the SMTP server in question to be treated
 as unreachable.
 </t>
 
@@ -920,10 +920,10 @@ For example, given the DNSSEC validated records below:
 </figure>
 
 <t>
-The SMTP hosts mail.example.com and mail2.example.com will be expected
+The SMTP servers mail.example.com and mail2.example.com will be expected
 to have certificates issued under a common trust anchor, but each
 MX hostname's TLSA base domain remains unchanged despite the above
-CNAME records.  Each SMTP host's certificate subject name (or one of
+CNAME records.  Each SMTP server's certificate subject name (or one of
 the subject alternative names) is expected to match either the
 corresponding MX hostname or else "example.com".
 </t>
@@ -1182,7 +1182,7 @@ next-hop domain MUST also be accepted.  </t>
 Accepting certificates with the original next-hop domain in addition
 to the MX hostname allows a domain with multiple MX hostnames to
 field a single certificate bearing the email domain name across all
-the SMTP hosts.  This also aids inter-operability with pre-DANE SMTP
+the SMTP servers.  This also aids inter-operability with pre-DANE SMTP
 clients that are configured to look for the email domain name in
 server certificates.  For example, with "secure" DNS records as below:
 </t>
@@ -1211,9 +1211,9 @@ server certificates.  For example, with "secure" DNS records as below:
 
 <t>
 Certificate name checks for delivery of mail to exchange.example.org
-via any of the associated SMTP hosts MUST accept at least the names
+via any of the associated SMTP servers MUST accept at least the names
 "exchange.example.org" and "example.com", which are respectively
-the original and fully expanded next-hop domain.  When the SMTP host
+the original and fully expanded next-hop domain.  When the SMTP server
 is mx10.example.com, name checks MUST accept the TLSA base domain
 "mx10.example.com".  If, despite the fact that MX hostnames are
 required to not be aliases, the MTA supports delivery via
