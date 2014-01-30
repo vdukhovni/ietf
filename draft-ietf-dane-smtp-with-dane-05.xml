@@ -496,40 +496,18 @@ response with a validation status that is either "secure" or
 non-existence of the query domain, the response is not a DNS error
 condition.  The DNS client has not been left without an answer; it
 learns that records of the requested type do not exist.
-<!-- XXXWJH: this is a jump to the next sentence as it doesn't match
-the previous sentence's topic -->
-A lookup error is thus a failure to obtain the relevant RRset if it exists,
-or to determine that no such RRset exists when it does not.
 </t>
 
-<!-- XXXWJH: this is not needed, because *all* security-aware stub
-resolvers must be able to signal bogus/insecure/etc.  Why do we need
-to talk about how a stub resolver makes it's decision?  It's far more
-complex than a single paragraph can cover (which is why entire RFCs
-exist about it).  I've replaced it with a paragraph that is more
-generic and simply talks about errors without trying to tie them to
-stub-to-forwarding resolvers.  -->
-<!--
 <t>
-configured to delegate DNSSEC validation to a validating recursive
-resolver it will not in practice see any "bogus" results.  Rather,
-these will be reported as lookup errors with a "ServFail" RCODE.
-The foregoing is not a recommendation to use or not use non-validating
-stub resolvers, rather, it it is intended to amplify the point that
-"bogus" replies are just lookup errors and MUST be treated in the
-same manner as all other DNS lookup errors.  Similarly, a DANE SMTP
-client MUST treat all "indeterminate" results as lookup errors.
-</t>
--->
-
-<t>
-Security-aware stub resolvers may also return DNS lookup errors for
-other cases as well, for example using the "ServFail" RCODE, which
-will not have an associated DNSSEC status with it.  All lookup errors
+Security-aware stub resolvers will of course also signal DNS lookup
+errors in other cases, for example when processing a "ServFail" RCODE,
+which will not have an associated DNSSEC status.  All lookup errors
 are treated the same way by this specification, regardless of whether
-they are from a "bogus" or "indeterminate" DNSSEC status or from a
-more generic DNS error: the information that was requested can not
-be obtained by the security-aware resolver at this time.
+they are from a "bogus" or "indeterminate" DNSSEC status or from a more
+generic DNS error: the information that was requested can not be obtained
+by the security-aware resolver at this time.  A lookup error is thus a
+failure to obtain the relevant RRset if it exists, or to determine that
+no such RRset exists when it does not.
 </t>
 
 <t>
