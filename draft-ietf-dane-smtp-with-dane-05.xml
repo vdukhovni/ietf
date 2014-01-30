@@ -121,15 +121,18 @@ HTTPS security model is inadequate to protect SMTP traffic.
 </t>
 
 <t>
-The issues raised in the four subsections below do not mean,
-however, that the Internet email backbone cannot benefit from TLS.
-The fact that SMTP channel security policy is not explicitly specified
-in either the recipient address or the MX record makes it possible
-to employ the DANE TLSA protocol to furnish out-of-band security
-policy to SMTP.  DANE TLSA makes it possible to simultaneously
-discover which peer domains support secure delivery via TLS and how
-to verify the authenticity of the associated SMTP services providing
-a path forward to ubiquitous SMTP channel security.
+The issues raised in the four subsections below do not mean, however,
+that the Internet email backbone cannot benefit from TLS.  The fact
+that SMTP channel security policy is not explicitly specified in
+either the recipient address or the MX record makes it possible to
+employ the DANE TLSA protocol to obtain the security policy for
+each receiving system via DNSSEC.  Instead of explicit security for
+a small set of destination domains the sending system is able to
+securely connect to all domains that publish DANE TLSA DNS records.
+DANE TLSA makes it possible to simultaneously discover which peer
+domains support secure delivery via TLS and how to verify the
+authenticity of the associated SMTP services providing a path forward
+to ubiquitous SMTP channel security.
 </t>
 
 <section title="STARTTLS downgrade attack" anchor="starttls">
@@ -149,18 +152,18 @@ recipient address would not be a good solution.
 </t>
 
 <t>
-With no mechanism to signal transport security policy, SMTP has
-employed a best-effort "opportunistic" security model for TLS.  The
-same SMTP TCP endpoint can serve both TLS and non-TLS clients, with
-the use of TLS negotiated via the SMTP STARTTLS command (<xref
-target="RFC3207"/>).  The server signals TLS support to the client
-over a cleartext connection, and if the client also supports TLS,
-it may negotiate a TLS encrypted channel to use for email transmission.
-The server's indication of TLS support can be easily suppressed by
-a man in the middle attacker.  Thus pre-DANE SMTP TLS security can
-generally be subverted well before any discussion of PKI trust
-models.  The attacker can simply downgrade most connections to
-cleartext.
+With no mechanism to signal transport security policy, SMTP relays
+employ a best-effort "opportunistic" security model for TLS.  A
+single SMTP server TCP listening endpoint can serve both TLS and
+non-TLS clients, with the use of TLS negotiated via the SMTP STARTTLS
+command (<xref target="RFC3207"/>).  The server signals TLS support
+to the client over a cleartext connection, and if the client also
+supports TLS, it may negotiate a TLS encrypted channel to use for
+email transmission.  The server's indication of TLS support can be
+easily suppressed by a man in the middle attacker.  Thus pre-DANE
+SMTP TLS security can generally be subverted well before any
+discussion of PKI trust models.  The attacker can simply downgrade
+most connections to cleartext.
 </t>
 
 </section><!-- STARTTLS downgrade attack -->
@@ -289,10 +292,8 @@ On the other hand, each trusted CA can issue certificates for any
 domain.  If even one of the configured CAs is compromised or operated
 by an adversary, it can subvert TLS security for all destinations.
 Thus the MTA administrator is faced with an unpleasant choice.  Any
-set of CAs is simultaenously both overly inclusive and not inclusive
-enough.  Of course even the public CAs are not sufficient, given
-the poor fit of the public CA PKI model to SMTP many SMTP servers
-have self-signed or private CA issued certificates.
+set of CAs is simultaneously both overly inclusive and not inclusive
+enough.
 </t>
 
 </section><!-- Too many certificate authorities -->
