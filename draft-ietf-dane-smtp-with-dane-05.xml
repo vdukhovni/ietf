@@ -1144,14 +1144,15 @@ with the same key.
 <section title="Certificate usage 2">
 
 <t>
-Some domains may prefer to reduce the operational complexity of
+Some domains may prefer to avoid the operational complexity of
 publishing unique TLSA RRs for each TLS service.  If the domain
 employs a common issuing certificate authority to create certificates
 for multiple TLS services, it may be simpler to publish the issuing
 authority as a trust anchor (TA) for the certificate chains of all
-relevant services.  The TLSA RRs for each service issued by the
-same TA may then be CNAMEs to a common TLSA RRset that matches the
-TA.
+relevant services.  The TLSA query domain (TLSA base domain with
+port and protocol prefix labels) for each service issued by the
+same TA may then be CNAME aliases to a common TLSA RRset that matches
+the TA.
 </t>
 
 <t>
@@ -1171,27 +1172,6 @@ parameters, which specify the SHA2-256 digest of the trust anchor
 public key or certificate respectively.  As with leaf certificate
 rollover discussed in <xref target="cert3" />, two such TLSA RRs
 need to be published to facilitate TA certificate rollover.
-</t>
-
-<t>
-The usability of "2 1 1" or "2 0 1" TLSA RRs with SMTP is not
-assured.  If server operators employing these RRs universally ensure
-that the corresponding TA certificate is included in the SMTP
-server's TLS handshake certificate chain, clients can safely enable
-support for these RRs.  If sufficiently many server administrators
-negligently omit the TA certificate from the server's TLS certificate
-chain, SMTP clients may elect to not support usage "2" TLSA RRs in
-order to avoid mail delivery problems.
-</t>
-
-<t>
-Server operators are encouraged to implement these RRs, if they are
-operationally a better fit for their organization, provided they
-do so with care.  It is essential to not forget to always include
-trust anchor certificates in server certificate chains.  SMTP client
-implementations SHOULD support these TLSA RRs, unless, despite the
-above warning, a non-trivial fraction of server operators fail to
-configure certificate chains that include the required TA certificate.
 </t>
 
 </section><!-- Certificate usage 2 -->
