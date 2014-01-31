@@ -66,16 +66,47 @@
 
 <abstract> <t>
 This memo describes a downgrade-resistant protocol for SMTP transport
-security based on the DNS-Based Authentication of Named Entities
-(DANE) TLSA DNS record.  Adoption of this protocol enables an
-incremental transition of the Internet email backbone to one using
-encrypted and authenticated Transport Layer Security (TLS).
+security between Mail Transfer Agents (MTAs) based on the DNS-Based
+Authentication of Named Entities (DANE) TLSA DNS record.  Adoption
+of this protocol enables an incremental transition of the Internet
+email backbone to one using encrypted and authenticated Transport
+Layer Security (TLS).
 </t> </abstract>
 
 </front>
 
 <middle>
 <section title="Introduction">
+
+<t>
+This memo specifies a new connection security model for Message
+Transfer Agents (MTAs).  It is motivated by the special features
+of inter-domain SMTP delivery where the destination server is
+selected indirectly via DNS MX records and in which the use of TLS
+is opportunistic.
+</t>
+
+<t>
+We note that the SMTP protocol is also used between Message User
+Agents (MUAs) and Message Submission Agents (MSAs).  In <xref
+target="RFC6186"/> a protocol is specified that enables an MUA to
+dynamically locate the MSA based on the user's email address.  SMTP
+connection security requirements for MUAs implementing <xref
+target="RFC6186"/> are largely analogous to connection security
+requirements for MTAs, and this specification could be applied
+largely verbatim with DNS MX records replaced by corresponding DNS
+SRV records.
+</t>
+
+<t>
+However, until MUAs begin to adopt the dynamic configuration
+mechanisms of <xref target="RFC6186"/> they are adequately served
+by more traditional static TLS security policies.  We will not
+discuss the MUA use case further in this document, leaving specification
+of DANE TLS for MUAs to future documents that focus specifically
+on SMTP security between MUAs and MSAs.  The rest of this memo will
+focus on securing MTA to MTA SMTP connections.
+</t>
 
 <section title="Background">
 
@@ -258,17 +289,6 @@ With little opportunity to use TLS authentication, sending MTAs are
 rarely configured with a comprehensive list of trusted CAs.  SMTP
 services that support STARTTLS often use X.509 certificates that are
 self-signed or issued by a private CA.
-</t>
-
-<t>
-Note, the above does not apply to mail submission <xref target="RFC6409"/>,
-where an MUA is pre-configured to send its outgoing email to a fixed
-Message Submission Agent (MSA).  Submission servers usually offer
-TLS and the MUA is often configured to require TLS with its chosen
-MSA.  The situation changes, however, when submission servers are
-configured dynamically via SRV records (see <xref target="RFC6186"/>
-Section 6).  Applications to submission via SRV records will be
-discussed later in this memo.  <!-- XXXWJH: or another ID -->
 </t>
 
 </section><!-- Sender policy does not scale -->
@@ -925,9 +945,8 @@ opportunistic TLS.
 
 <t>
 For SMTP, the destination TCP port is typically 25, but this may
-be different with custom routes specified by the MTA administrator
-or when an MUA connects to a submission server on port 587.  The
-SMTP client MUST use the appropriate number in the "_&lt;port&gt;"
+be different with custom routes specified by the MTA administrator.
+The SMTP client MUST use the appropriate number in the "_&lt;port&gt;"
 prefix in place of "_25".  If, for example, the candidate base
 domain is "mail.example.com", and the SMTP connection is to port
 25, the TLSA RRset is obtained via a DNSSEC query of the form:
@@ -1450,68 +1469,6 @@ that their TLSA records conform with the above specification.
 </section><!-- DANE authentication -->
 </section><!-- Hardening Opportunistic TLS -->
 
-<section title="Opportunistic TLS for Submission">
-
-<t>
-Prior to <xref target="RFC6409"/>, the SMTP submission protocol was
-a poster-child for PKIX (<xref target="RFC5280"/>) public CA based TLS.
-The MUA typically connects to one or
-a few submission servers explicitly configured by the user.  There
-is no indirection via insecure MX records, and unlike web browsers,
-there is no need to authenticate a large set of TLS servers.  Once
-TLS is enabled for the desired submission server or servers, provided
-the server certificate is correctly maintained, the MUA is able to
-reliably use TLS to authenticate the submission server.  The MUA's
-list of trusted CAs need not be comprehensive, it suffices to trust
-just the CAs that issue the certificates of the particular submission
-servers.
-</t>
-
-<t>
-<xref target="RFC6186"/> aims to simplify the configuration of the
-MUA submission service by dynamically deriving the submission service
-from the user's email address.  This is done via SRV records, but
-at the cost of introducing many of the same TLS security problems
-faced by MTA to MTA SMTP.  The suggestion to prompt the user when
-the SRV record domain is different from the email domain is not a
-robust solution.
-</t>
-
-<t>
-The protocol defined in this memo can also be used to secure
-submission service discovery.  If the email domain is DNSSEC signed,
-the SRV records are "secure" and the SRV host publishes secure TLSA
-records for submission, then the MUA can safely auto-configure to
-authenticate the submission server via DANE.  When DANE TLSA records
-are not available, the client SHOULD fall back to legacy behavior
-(this may involve prompting the user to accept the resulting server
-and perhaps "pin" its certificate).
-</t>
-
-<t>
-Specifically, MUAs that dynamically determine the submission server
-via SRV records SHOULD support DNSSEC and DANE TLSA records.  They
-SHOULD use TLSA records to authenticate the server.  The processing
-of usage 2 and 3 TLSA associations by an MUA is the same as by an
-MTA, with SRV records taking the place of MX records.
-</t>
-
-<t>
-Just as with SMTP service on port 25, SMTP submission servers SHOULD
-NOT publish usage 0 or 1 TLSA associations, and MUAs that support
-DANE TLSA are not expected to trust a full list of public CAs.
-Server certificate subjectAltNames should include at least the
-server name.  When the server administrator is able to obtain a
-certificate for the email domain, the server certificate should
-also include the email domain name.  MUAs that are not able to
-support DNSSEC may then be able to authenticate the server domain.
-If it is practical to field additional certificates for hosted
-domains, SNI may be used by the server to select the appropriate
-domain's certificate.
-</t>
-
-</section><!-- Opportunistic TLS for Submission -->
-
 <section title="Mandatory TLS Security">
 
 <t>
@@ -1620,9 +1577,8 @@ Size Guidelines".
 This protocol leverages DANE TLSA records to implement MITM resistant
 opportunistic channel security for SMTP.  For destination domains
 that sign their MX records and publish signed TLSA records for their
-MX hostnames, this protocol allows sending MTAs (and perhaps dynamically
-configured MUAs) to securely discover both the availability of TLS
-and how to authenticate the destination.
+MX hostnames, this protocol allows sending MTAs to securely discover
+both the availability of TLS and how to authenticate the destination.
 </t>
 
 <t>
