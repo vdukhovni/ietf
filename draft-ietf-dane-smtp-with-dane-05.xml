@@ -188,18 +188,19 @@ recipient address would not be a good solution.
 </t>
 
 <t>
-With no mechanism to signal transport security policy, SMTP relays
-employ a best-effort "opportunistic" security model for TLS.  A
+With no mechanism available to signal transport security policy, SMTP
+relays employ a best-effort "opportunistic" security model for TLS.  A
 single SMTP server TCP listening endpoint can serve both TLS and
-non-TLS clients, with the use of TLS negotiated via the SMTP STARTTLS
-command (<xref target="RFC3207"/>).  The server signals TLS support
-to the client over a cleartext connection, and if the client also
+non-TLS clients; the use of TLS is negotiated via the SMTP STARTTLS
+command (<xref target="RFC3207"/>).  The server signals TLS support to
+the client over a cleartext SMTP connection, and if the client also
 supports TLS, it may negotiate a TLS encrypted channel to use for
 email transmission.  The server's indication of TLS support can be
-easily suppressed by a man in the middle attacker.  Thus pre-DANE
-SMTP TLS security can generally be subverted well before any
-discussion of PKI trust models.  The attacker can simply downgrade
-most connections to cleartext.
+easily suppressed by a man in the middle attacker.  Thus pre-DANE SMTP
+TLS security can be subverted by simply downgrading a connection to
+cleartext, effectively turning off TLS altogether.  No in-TLS security
+model, such as the use of PKIX, can prevent it.  The attacker can
+simply downgrade most connections to cleartext.
 </t>
 
 </section><!-- STARTTLS downgrade attack -->
