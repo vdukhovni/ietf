@@ -108,6 +108,112 @@ on SMTP security between MUAs and MSAs.  The rest of this memo will
 focus on securing MTA to MTA SMTP connections.
 </t>
 
+<section title="Terminology" anchor="terms">
+
+<t>
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in
+this document are to be interpreted as described in <xref target="RFC2119"/>.
+</t>
+
+
+<t>
+The following terms or concepts are used through the document:
+</t>
+<t>
+<list style="hanging">
+
+    <t hangText="secure, bogus, insecure, indeterminate:">
+    DNSSEC validation results, as defined in Section 4.3 of <xref
+    target="RFC4035"/>.  </t>
+
+    <t hangText="Validating Security-Aware Stub Resolver and
+    Non-Validating Security-Aware Stub Resolver:">
+    Capabilities of the stub resolver in use as defined in <xref
+    target="RFC4033" />; note that this specification requires the
+    use of a Security-Aware Stub Resolver; Security-Oblivious
+    stub-resolvers MUST NOT be used.  </t>
+
+    <t hangText="opportunistic DANE TLS:">
+    Best-effort use of TLS, resistant to downgrade attacks for
+    destinations with DNSSEC-validated TLSA records.  When opportunistic
+    DANE TLS is determined to be unavailable, clients should fall
+    back to opportunistic TLS below.  Opportunistic DANE TLS requires
+    support for DNSSEC, DANE and STARTTLS on the client side and
+    STARTTLS plus a DNSSEC published TLSA record on the server side.  </t>
+
+    <t hangText="(pre-DANE) opportunistic TLS:">
+    Best-effort use of TLS that is generally vulnerable to DNS
+    forgery and STARTTLS downgrade attacks.  When a TLS-encrypted
+    communication channel is not available, message transmission
+    takes place in the clear.  MX record indirection generally
+    precludes authentication even when TLS is available.  </t>
+
+    <t hangText="MX hostname:">
+    The RRDATA of an MX record consists of a 16 bit preference
+    followed by a Mail Exchange domain name (see <xref target="RFC1035"/>,
+    Section 3.3.9).  We will use the term "MX hostname" to refer
+    to the latter, that is, the DNS domain name found after the
+    preference value in an MX record.  Thus an "MX hostname" is
+    specifically a reference to a DNS domain name, rather than any
+    host that bears that name.  </t>
+
+    <t hangText="SMTP server:">
+    An SMTP server whose name appears in an MX record for a particular
+    domain.  Used to refer specifically to the host and SMTP service
+    itself, not its DNS name.
+    </t>
+
+    <!-- XXXWJH: I think we need three actions to be defined here (one
+         of which is already next).  Then we can say through the rest
+         of the document at each step what the action should be.  The
+         three actions should be something like "delay delivery",
+         "connect only over authenticated and encrypted TLS" and
+         "connect over either encrypted TLS or over unprotected TCP".
+    With these in place we can rewrite the document again using these
+    terms.  And we can define things based on 4033 language when
+    talking about the appropriate stub resolver cases. -->
+    <!-- XXXVD: Actually we have the following *four* choices:
+    	1.  Secure delivery via authenticated TLS
+	2.  Passive intercept protected delivery via unauthenticated, but
+	    required TLS.
+	3.  Opportunistic TLS.
+	4.  Delayed delivery.
+	Not yet sure whether we want to list them all here, some may be more
+	clear if defined in context.
+    -->
+
+    <t hangText="delayed delivery:">
+    Email delivery is a multi-hop store &amp; forward process.  When
+    an MTA is unable forward a message that may become deliverable
+    later, the message is queued and delivery is retried periodically.
+    Some MTAs may be configured with a fallback next-hop destination
+    that handles messages that the MTA would otherwise queue and
+    retry.  In these cases, messages that would otherwise have to
+    be delayed, may be sent to the fallback next-hop destination
+    instead.  The fallback destination may itself be subject to
+    opportunistic or mandatory DANE TLS as though it were the
+    original message destination.  </t>
+
+    <t hangText="original next hop destination: ">
+    The logical destination for mail delivery.  By default this is
+    the domain portion of the recipient address, but MTAs may be
+    configured to forward mail for some or all recipients via
+    designated relays.  The original next hop destination is,
+    respectively, either the recipient domain or the associated
+    configured relay.  </t>
+
+    <t hangText="MTA: ">
+    Message Transfer Agent (<xref target="RFC5598" />, Section 4.3.2).  </t>
+
+    <t hangText="MSA: ">
+    Message Submission Agent (<xref target="RFC5598" />, Section 4.3.1).  </t>
+
+    <t hangText="MUA: ">
+    Message User Agent (<xref target="RFC5598" />, Section 4.2.1).  </t>
+</list>
+</t>
+
 <section title="Background">
 
 <t>
@@ -327,112 +433,6 @@ inclusive enough.
 </section><!-- Too many certificate authorities -->
 
 </section><!-- SMTP channel security -->
-
-<section title="Terminology" anchor="terms">
-
-<t>
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in
-this document are to be interpreted as described in <xref target="RFC2119"/>.
-</t>
-
-
-<t>
-The following terms or concepts are used through the document:
-</t>
-<t>
-<list style="hanging">
-
-    <t hangText="secure, bogus, insecure, indeterminate:">
-    DNSSEC validation results, as defined in Section 4.3 of <xref
-    target="RFC4035"/>.  </t>
-
-    <t hangText="Validating Security-Aware Stub Resolver and
-    Non-Validating Security-Aware Stub Resolver:">
-    Capabilities of the stub resolver in use as defined in <xref
-    target="RFC4033" />; note that this specification requires the
-    use of a Security-Aware Stub Resolver; Security-Oblivious
-    stub-resolvers MUST NOT be used.  </t>
-
-    <t hangText="opportunistic DANE TLS:">
-    Best-effort use of TLS, resistant to downgrade attacks for
-    destinations with DNSSEC-validated TLSA records.  When opportunistic
-    DANE TLS is determined to be unavailable, clients should fall
-    back to opportunistic TLS below.  Opportunistic DANE TLS requires
-    support for DNSSEC, DANE and STARTTLS on the client side and
-    STARTTLS plus a DNSSEC published TLSA record on the server side.  </t>
-
-    <t hangText="(pre-DANE) opportunistic TLS:">
-    Best-effort use of TLS that is generally vulnerable to DNS
-    forgery and STARTTLS downgrade attacks.  When a TLS-encrypted
-    communication channel is not available, message transmission
-    takes place in the clear.  MX record indirection generally
-    precludes authentication even when TLS is available.  </t>
-
-    <t hangText="MX hostname:">
-    The RRDATA of an MX record consists of a 16 bit preference
-    followed by a Mail Exchange domain name (see <xref target="RFC1035"/>,
-    Section 3.3.9).  We will use the term "MX hostname" to refer
-    to the latter, that is, the DNS domain name found after the
-    preference value in an MX record.  Thus an "MX hostname" is
-    specifically a reference to a DNS domain name, rather than any
-    host that bears that name.  </t>
-
-    <t hangText="SMTP server:">
-    An SMTP server whose name appears in an MX record for a particular
-    domain.  Used to refer specifically to the host and SMTP service
-    itself, not its DNS name.
-    </t>
-
-    <!-- XXXWJH: I think we need three actions to be defined here (one
-         of which is already next).  Then we can say through the rest
-         of the document at each step what the action should be.  The
-         three actions should be something like "delay delivery",
-         "connect only over authenticated and encrypted TLS" and
-         "connect over either encrypted TLS or over unprotected TCP".
-    With these in place we can rewrite the document again using these
-    terms.  And we can define things based on 4033 language when
-    talking about the appropriate stub resolver cases. -->
-    <!-- XXXVD: Actually we have the following *four* choices:
-    	1.  Secure delivery via authenticated TLS
-	2.  Passive intercept protected delivery via unauthenticated, but
-	    required TLS.
-	3.  Opportunistic TLS.
-	4.  Delayed delivery.
-	Not yet sure whether we want to list them all here, some may be more
-	clear if defined in context.
-    -->
-
-    <t hangText="delayed delivery:">
-    Email delivery is a multi-hop store &amp; forward process.  When
-    an MTA is unable forward a message that may become deliverable
-    later, the message is queued and delivery is retried periodically.
-    Some MTAs may be configured with a fallback next-hop destination
-    that handles messages that the MTA would otherwise queue and
-    retry.  In these cases, messages that would otherwise have to
-    be delayed, may be sent to the fallback next-hop destination
-    instead.  The fallback destination may itself be subject to
-    opportunistic or mandatory DANE TLS as though it were the
-    original message destination.  </t>
-
-    <t hangText="original next hop destination: ">
-    The logical destination for mail delivery.  By default this is
-    the domain portion of the recipient address, but MTAs may be
-    configured to forward mail for some or all recipients via
-    designated relays.  The original next hop destination is,
-    respectively, either the recipient domain or the associated
-    configured relay.  </t>
-
-    <t hangText="MTA: ">
-    Message Transfer Agent (<xref target="RFC5598" />, Section 4.3.2).  </t>
-
-    <t hangText="MSA: ">
-    Message Submission Agent (<xref target="RFC5598" />, Section 4.3.1).  </t>
-
-    <t hangText="MUA: ">
-    Message User Agent (<xref target="RFC5598" />, Section 4.2.1).  </t>
-</list>
-</t>
 
 </section><!-- Terminology -->
 </section><!-- Introduction -->
