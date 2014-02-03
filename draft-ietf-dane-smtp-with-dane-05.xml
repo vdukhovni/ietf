@@ -578,7 +578,7 @@ has learned that records of the requested type do not exist.
 </t>
 
 <t>
-Security-aware stub resolvers will of course also signal DNS lookup
+Security-aware stub resolvers will, of course, also signal DNS lookup
 errors in other cases, for example when processing a "ServFail" RCODE,
 which will not have an associated DNSSEC status.  All lookup errors
 are treated the same way by this specification, regardless of whether
@@ -594,7 +594,7 @@ In contrast to a "bogus" or an "indeterminate" response, an "insecure"
 DNSSEC response is not an error, rather it indicates that the target
 DNS zone is either securely opted out of DNSSEC validation or is
 not connected with the DNSSEC trust anchors being used.  Insecure
-results may leave the SMTP client with degraded channel security,
+results will leave the SMTP client with degraded channel security,
 but do not stand in the way of message delivery.  See section <xref
 target="discovery"/> for further details.
 </t>
@@ -607,7 +607,7 @@ recursion limit.  If at any stage of recursive CNAME expansion a
 query fails, the stub resolver's lookup of the original requested
 records will result in a failure status being returned.  If at any
 stage of recursive expansion the response is "insecure", then it
-and all subsequent results, and in particular the final result,
+and all subsequent results (in particular, the final result)
 MUST be considered "insecure" regardless of whether the other
 responses received were deemed "secure".  If at any stage of recursive
 expansion the validation status is "bogus" or "indeterminate" or
@@ -630,7 +630,7 @@ remaining MX hosts.
 
 <t>
 When a particular SMTP server is selected as the delivery destination,
-a set of DNS lookups must be performed to determine the related
+a set of DNS lookups must be performed to discover any related
 TLSA records.  If any DNS queries used to locate TLSA records fail
 (be it due to "bogus" or "indeterminate" records, timeouts, malformed
 replies, ServFails, etc.), then the SMTP client MUST treat that server as
