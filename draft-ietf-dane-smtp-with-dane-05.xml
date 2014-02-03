@@ -123,13 +123,13 @@ authentication via the existing public Certificate Authority (CA)
 PKI suffers from an over-abundance of trusted certificate authorities
 capable of issuing certificates for any domain of their choice.
 DANE leverages the DNSSEC infrastructure to publish trusted public
-keys and certificates for use with TLS via a new "TLSA" DNS record
-type.
+keys and certificates for use with 
+the Transport Layer Security (TLS) <xref target="RFC5246"/> protocol
+via a new "TLSA" DNS record type.
 </t>
 
 <t>
-The Transport Layer Security (TLS) <xref target="RFC5246"/> protocol
-enables secure TCP communication.  In the context of this memo,
+The TLS protocol enables secure TCP communication.  In the context of this memo,
 channel security is assumed to be provided by TLS.  Used without
 authentication, TLS provides only privacy protection against
 eavesdropping attacks.  With authentication, TLS also provides data
