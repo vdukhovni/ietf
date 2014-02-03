@@ -144,10 +144,10 @@ attacks.
 <t>
 With HTTPS, Transport Layer Security (TLS) employs X.509 certificates
 issued by one of the many Certificate Authorities (CAs) bundled
-with popular web browsers to authenticate "secure" websites to their
-users.  Before we specify a new DANE TLS security model for SMTP,
+with popular web browsers to allow users to authenticate their
+"secure" websites.  Before we specify a new DANE TLS security model for SMTP,
 we will explain why a new security model is needed to protect
-Internet SMTP traffic.  To do that, we will explain why the familiar
+Internet SMTP traffic.  In the process, we will explain why the familiar
 HTTPS security model is inadequate to protect SMTP traffic.
 </t>
 
