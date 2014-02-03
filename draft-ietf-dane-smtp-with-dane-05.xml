@@ -653,58 +653,61 @@ lookup fails.
 <section title="TLS discovery" anchor="discovery">
 
 <t>
-As noted previously (<xref target="starttls" />), opportunistic
+As noted previously (in <xref target="starttls" />), opportunistic
 TLS with SMTP servers that advertise TLS support via STARTTLS is
 subject to an MITM downgrade attack.  Also some SMTP servers that
-are not, in fact, TLS capable, erroneously advertise STARTTLS by
+are not, in fact, TLS capable erroneously advertise STARTTLS by
 default and clients need to be prepared to retry cleartext delivery
 after STARTTLS fails.  In contrast, DNSSEC validated TLSA records
-are unlikely to be accidentally published for servers that do not
-support TLS, and thus clients can safely interpret their presence
+are MUST NOT published for servers that do not
+support TLS. Clients can safely interpret their presence
 as a commitment by the server operator to implement TLS and STARTTLS.
 </t>
 
-<t>Specifically, this memo defines four actions to be taken after the
-search for a TLSA record returns secure usable results, secure unusable
-results, insecure or no results or an error signal:
+<t>This memo defines four actions to be taken after the search for a
+TLSA record returns secure usable results, secure unusable results,
+insecure or no results or an error signal.  The term "usable" in this
+context is in Section 4.1 of <xref target="RFC6698" />. Specifically,
+if the DNS lookup for a TLSA record returns:
 
 <list style="hanging">
-<t hangText="Secure TLSA RRset with at least usable record:"> A
+<t hangText="A secure TLSA RRset with at least usable record:"> A
 connection to the MTA MUST be made using authenticated and encrypted
 TLS, using the techniques discussed in the rest of this document.
 Failure to establish an authenticated TLS connection MUST result
 in falling back to the next SMTP server or delayed delivery.
 </t>
 
-<t hangText="Secure non-empty TLSA RRset with all records unusable:">
+<t hangText="A Secure non-empty TLSA RRset where all the records are unusable:">
 A connection to the MTA MUST be made via TLS, but authentication
 is not required.  Failure to establish an encrypted TLS connection
 MUST result in falling back to the next SMTP server or delayed delivery.  </t>
 
-<t hangText="Insecure or no-TLSA RRset:"> A connection to the MTA
-SHOULD be made using (pre-DANE) opportunistic TLS, this includes
-cleartext delivery when the remote SMTP server does not appear to
-support TLS, and optionally also fallback to cleartext when a TLS
-handshake fails.  </t>
+<t hangText="An insecure TLSA RRset or DNSSEC validated proof-of-non-existent TLSA records:">
+A connection to the MTA SHOULD be made using (pre-DANE) opportunistic
+TLS, this includes using cleartext delivery when the remote SMTP server does
+not appear to support TLS.  It also includes optionally falling back to cleartext
+when a TLS handshake fails.</t>
 
-<t hangText="Any lookup error:"> Lookup errors include "bogus"
-replies as explained in <xref target="dnserr"/>.  This MUST result
-in falling back to the next SMTP server or delayed delivery.  </t>
+<t hangText="Any lookup error:"> Lookup errors, including "bogus" and
+"indeterminate", as explained in <xref target="dnserr"/> MUST result
+in falling back to the next SMTP server or delayed delivery.</t>
 </list>
 </t>
 
 <t>
-An SMTP client may be configured to require DANE verified delivery for
+An SMTP client MAY be configured to require DANE verified delivery for
 some destinations.  We will call such a configuration "mandatory DANE
 TLS".  With mandatory DANE TLS, delivery proceeds only when "secure"
 TLSA records are used to establish an encrypted and authenticated TLS
-channel with the SMTP server.  Neither cleartext nor unauthenticated
-TLS connections are used with mandatory DANE TLS destinations.
+channel with the SMTP server.  Cleartext and unauthenticated
+TLS connections MUST NOT be used with mandatory DANE TLS destinations.
 </t>
 
+<!-- XXXWJH: move to operational considerations? -->
 <t>
 An operational error on the sending or receiving side that cannot
-be corrected in a timely manner may at times lead to consistent
+be corrected in a timely manner may, at times, lead to consistent
 failure to deliver time-sensitive email.  The sending MTA administrator
 may have to choose between letting email queue until the error is
 resolved and disabling opportunistic or mandatory DANE TLS for one
