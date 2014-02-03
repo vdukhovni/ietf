@@ -320,9 +320,8 @@ employing an unknown certificate authority.
 On the other hand, each trusted CA can issue certificates for any
 domain.  If even one of the configured CAs is compromised or operated
 by an adversary, it can subvert TLS security for all destinations.
-Thus the MTA administrator is faced with an unpleasant choice.  Any
-set of CAs is simultaneously both overly inclusive and not inclusive
-enough.
+Any set of CAs is simultaneously both overly inclusive and not 
+inclusive enough.
 </t>
 
 </section><!-- Too many certificate authorities -->
