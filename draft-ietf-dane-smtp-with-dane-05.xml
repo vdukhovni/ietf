@@ -279,10 +279,11 @@ document.
 
 <t>
 Sending systems are in some cases explicitly configured to use TLS
-for mail sent to specifically selected peer domains.  In most cases
-this also requires MTAs to be configured with appropriate subject
+for mail sent to specifically selected peer domains.  This 
+requires MTAs to be configured with appropriate subject
 names or certificate content digests to expect in the presented
-host certificates.  Such statically configured SMTP secure channels
+host certificates.  Because of the heavy administrative configuration
+burden, such statically configured SMTP secure channels
 are used rarely (generally only between domains that make bilateral
 arrangements with their business partners).  Internet email, on the
 other hand, requires regularly contacting new domains for which
@@ -295,7 +296,7 @@ often across organization boundaries, limits the use of public CA
 PKI with SMTP to a small set of sender-configured peer domains.
 With little opportunity to use TLS authentication, sending MTAs are
 rarely configured with a comprehensive list of trusted CAs.  SMTP
-services that support STARTTLS often use X.509 certificates that are
+services that do support STARTTLS often use X.509 certificates that are
 self-signed or issued by a private CA.
 </t>
 
