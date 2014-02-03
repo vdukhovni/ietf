@@ -256,13 +256,6 @@ protects only against passive eavesdropping attacks.
 </t>
 
 <t>
-Note that securing the MX record with DNSSEC is not by itself
-sufficient. Even with DNSSEC validated MX records, an MITM attacker
-can still suppress the SMTP server's STARTTLS EHLO response, convincing
-an SMTP client that communication over TLS is unavailable.
-</t>
-
-<t>
 Since SMTP security depends critically on DNSSEC, it is important
 to point out that consequently SMTP with DANE is the most conservative
 possible trust model.  It trusts only what must be trusted and no
