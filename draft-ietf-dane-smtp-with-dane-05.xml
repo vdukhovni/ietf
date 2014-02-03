@@ -246,7 +246,7 @@ attacks.
 
 </section><!-- Background -->
 
-<section title="SMTP channel security">
+<section title="SMTP channel security" anchor="channelsecurity">
 
 <t>
 With HTTPS, Transport Layer Security (TLS) employs X.509 certificates
@@ -469,12 +469,10 @@ security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
 
 <t>
 An SMTP client that implements opportunistic DANE TLS per this
-specification depends critically on the integrity of DNSSEC lookups.
-This section states DNS resolver requirements needed to avoid
-downgrade attacks.  The resolver requirements of this section need
-not apply to email delivery to destinations for which the SMTP
-client is configured to employ a security mechanism other than
-opportunistic DANE TLS.
+specification depends critically on the integrity of DNSSEC lookups,
+as discussed in <xref target="channelsecurity" />.
+This section lists the DNS resolver requirements needed to avoid
+downgrade attacks when using opportunistic DANE TLS.
 </t>
 
 <t>
@@ -511,7 +509,8 @@ SMTP clients following this specification SHOULD NOT distinguish
 between "insecure" and "indeterminate" in the <xref target="RFC4033"/>
 sense.  Both "insecure" and RFC4033 "indeterminate" are handled
 identically: in either case unvalidated data for the query domain
-is all that is and can be available.  In what follows, when we say
+is all that is and can be available, and authentication using the
+data is impossible.  In what follows, when we say
 "insecure", we include also DNS results for domains that lie in a
 portion of the DNS tree for which there is no applicable trust
 anchor.  With the DNS root zone signed, we expect that validating
@@ -527,10 +526,11 @@ As noted in section 4.3 of <xref target="RFC4035"/>, a security-aware
 DNS resolver MUST be able to determine whether a given non-error
 DNS response is "secure", "insecure", "bogus" or "indeterminate".
 <!-- XXXWJH: -->
-This requirement is too strict for stub resolvers used with DANE.
-It is sufficient for "bogus" and/or "indeterminate" to be reported
-as lookup errors when there is no means to report them directly
-or distinguish them from an error.
+Hopefully security-aware stub resolvers that return "indeterminate" in
+the RFC4035-sense should be rare in practice.  If one is used,
+however, "indeterminate" for usage in this specification MUST be
+treated identically to an error.  I.E., treat it as if "bogus" or some
+other DNS error had been returned.
 </t>
 
 <t>
@@ -559,8 +559,8 @@ in transit.
 </t>
 
 <t>
-In this light, "bogus" or "indeterminate" replies are a form of
-lookup failure, provided we carefully define what we mean by a DNS
+In this light, "bogus" or "indeterminate" replies are treated in this
+memo a form of lookup failure, and we carefully define what we mean by a DNS
 lookup failure.  There is an important non-failure condition we
 need to highlight in addition to the obvious case of the DNS client
 obtaining a non-empty "secure" or "insecure" RRset of the requested
@@ -574,7 +574,7 @@ response with a validation status that is either "secure" or
 "insecure" reports either no records of the requested type or
 non-existence of the query domain, the response is not a DNS error
 condition.  The DNS client has not been left without an answer; it
-learns that records of the requested type do not exist.
+has learned that records of the requested type do not exist.
 </t>
 
 <t>
