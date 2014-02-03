@@ -174,10 +174,17 @@ addresses and are security-agnostic.  Unlike the Hypertext Transfer
 Protocol (HTTP) and its corresponding secured version, HTTPS, there
 is no URI scheme for email addresses to designate whether communication
 with the SMTP server should be conducted via a cleartext or a
-TLS-encrypted channel.  TLS encryption of SMTP protects email traffic
-only on a hop-by-hop basis.  Some hops may be protected by TLS, and
+TLS-encrypted channel.
+<!-- XXXWJH for Viktor: I don't think this is needed and doesn't
+follow the above...  It should either be a new paragraph discussing
+hop-by-hop issues or should just be dropped.  I'd drop it because I
+don't think it's too useful. -->
+<!--
+TLS encryption of SMTP also only protects email traffic
+on a hop-by-hop basis.  Some hops may be protected by TLS, and
 some may not.  Specifying hop-by-hop security policy via an end-to-end
 recipient address would not be a good solution.
+-->
 </t>
 
 <t>
