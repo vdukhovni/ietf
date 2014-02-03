@@ -80,10 +80,10 @@ Layer Security (TLS).
 
 <t>
 This memo specifies a new connection security model for Message
-Transfer Agents (MTAs).  It is motivated by the special features
+Transfer Agents (MTAs).  It extends the existing framework 
 of inter-domain SMTP delivery where the destination server is
-selected indirectly via DNS MX records and in which the use of TLS
-is opportunistic.
+selected indirectly via DNS Mail Exchange (MX) records 
+and in which the use of TLS is opportunistic.
 </t>
 
 <t>
@@ -95,14 +95,14 @@ connection security requirements for MUAs implementing <xref
 target="RFC6186"/> are largely analogous to connection security
 requirements for MTAs, and this specification could be applied
 largely verbatim with DNS MX records replaced by corresponding DNS
-SRV records.
+Service (SRV) records.
 </t>
 
 <t>
 However, until MUAs begin to adopt the dynamic configuration
 mechanisms of <xref target="RFC6186"/> they are adequately served
-by more traditional static TLS security policies.  We will not
-discuss the MUA use case further in this document, leaving specification
+by more traditional static TLS security policies.  This document will not
+discuss the MUA use case further, leaving specification
 of DANE TLS for MUAs to future documents that focus specifically
 on SMTP security between MUAs and MSAs.  The rest of this memo will
 focus on securing MTA to MTA SMTP connections.
