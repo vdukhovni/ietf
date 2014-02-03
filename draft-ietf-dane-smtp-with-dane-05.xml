@@ -15,6 +15,7 @@
 <!ENTITY RFC6394 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6394.xml">
 <!ENTITY RFC6409 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6409.xml">
 <!ENTITY RFC6066 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6066.xml">
+<!ENTITY RFC6672 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6672.xml">
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY RFC6895 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6895.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
@@ -600,10 +601,10 @@ target="discovery"/> for further details.
 </t>
 
 <t>
-When a stub resolver receives a response containing a CNAME alias,
+When a stub resolver receives a response containing a DNAME or CNAME redirection,
 it will generally restart the query at the target of the alias, and
 should do so recursively up to some configured or implementation-dependent
-recursion limit.  If at any stage of recursive CNAME expansion a
+recursion limit.  If at any stage of recursive DNAME or CNAME expansion a
 query fails, the stub resolver's lookup of the original requested
 records will result in a failure status being returned.  If at any
 stage of recursive expansion the response is "insecure", then it
@@ -720,32 +721,13 @@ supported by the sending MTA.
 </t>
 
 <t>
-<!-- XXXWJH: hmm...  the stub resolver should take care of this; we
-should probably remove it (counter to what I've said before) -->
-A note about DNAME aliases:  a query for a domain name whose ancestor
-domain is a DNAME alias returns the DNAME RR for the ancestor domain,
-along with a CNAME that maps the query domain to the corresponding
-sub-domain of the target domain of the DNAME alias.  Therefore,
-whenever we speak of CNAME aliases, we implicitly allow for the
-possibility that the alias in question is the result of an ancestor
-domain DNAME record.  Consequently, no explicit support for DNAME
-records is needed in SMTP software, it is sufficient to process the
-resulting CNAME aliases.  DNAME records only require special
-processing in the DNSSEC library that validates the integrity of
-the combined DNAME + CNAME reply.  When DNSSEC validation is handled
-by a local caching resolver, rather than the MTA itself, even that
-part of the DNAME support logic is outside the MTA.
-</t>
-
-<t>
 <!-- XXXWJH: probably need to state when this occurs; eg, local policy -->
 When the original next-hop destination is an address literal, rather
 than a DNS domain, DANE TLS does not apply.  Delivery proceeds using
 any relevant security policy configured by the MTA administrator.
-<!-- XXXVD: Should we in fact highlight this? -->
-Similarly, when an MX RRset incorrectly lists an IPv4 address in lieu
-of an MX hostname, if the MTA chooses to connect to the IPv4 address
-thus specified DANE TLSA does not apply.
+Similarly, when an MX RRset incorrectly lists an IPv4 or IPv6 address in lieu
+of an MX hostname, the MTA might choose to connect to the IPv4 or IPv6
+address and, in this case, DANE TLSA does not apply.
 </t>
 
 <t>
@@ -1619,6 +1601,7 @@ with no adverse security consequences.
 &RFC6186;
 &RFC6409;
 &RFC6066;
+&RFC6672;
 &RFC6698;
 &I-D.ietf-dane-ops;
 </references>
