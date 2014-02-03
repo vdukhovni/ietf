@@ -245,7 +245,7 @@ Since the recipient domain name cannot be used as the SMTP server
 authentication identity, and neither can the MX hostname without
 DNSSEC, large-scale deployment of authenticated TLS for SMTP requires
 that the DNS be secure.
-<!-- XXXWJH for viktor: I don't think these sentences are needed
+<!-- XXXWJH for Viktor: I don't think these sentences are needed
      either; they really don't add anything: -->
 <!--
 At this time, DNSSEC is not yet widely deployed and MTA-to-MTA traffic
@@ -255,6 +255,9 @@ protects only against passive eavesdropping attacks.
 -->
 </t>
 
+<!-- XXXWJH for Viktor: I've read this paragraph twice but still can't figure out
+what the point of it is.  I'd argue it's not needed either, but I
+didn't comment it out. -->
 <t>
 Since SMTP security depends critically on DNSSEC, it is important
 to point out that consequently SMTP with DANE is the most conservative
