@@ -213,6 +213,7 @@ The following terms or concepts are used through the document:
     Message User Agent (<xref target="RFC5598" />, Section 4.2.1).  </t>
 </list>
 </t>
+</section><!-- Terminology -->
 
 <section title="Background">
 
@@ -434,7 +435,6 @@ inclusive enough.
 
 </section><!-- SMTP channel security -->
 
-</section><!-- Terminology -->
 </section><!-- Introduction -->
 
 <section title="Hardening (pre-DANE) Opportunistic TLS">
