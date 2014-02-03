@@ -198,7 +198,7 @@ supports TLS, it may negotiate a TLS encrypted channel to use for
 email transmission.  The server's indication of TLS support can be
 easily suppressed by a man in the middle attacker.  Thus pre-DANE SMTP
 TLS security can be subverted by simply downgrading a connection to
-cleartext, effectively turning off TLS altogether.  No in-TLS security
+upcleartext, effectively turning off TLS altogether.  No in-TLS security
 model, such as the use of PKIX, can prevent it.  The attacker can
 simply downgrade most connections to cleartext.
 </t>
@@ -215,13 +215,15 @@ domain.
 </t>
 
 <t>
-TLS clients are vulnerable to MITM attacks if they don't verify
-that the server's certificate binds its public key to its name.
-Absent DNSSEC, the MX lookup is vulnerable to man-in-the-middle
+Secure verification of TLS certificates by a TLS client requires it to
+verify that the server's certificate binds its public key to its name.
+Not doing so leaves the client vulnerable to MITM attacks.  However,
+with SMTP the MX record specifies the name of the SMTP and TLS server.
+But absent DNSSEC, the MX lookup is vulnerable to man-in-the-middle
 (MITM) and DNS cache poisoning attacks.  Active attackers can forge
-DNS replies with fake MX records, and can redirect email to servers
-of their choice.  Therefore, secure verification of SMTP TLS
-certificates is not possible without DNSSEC.
+DNS replies with fake MX records, and can redirect email to servers of
+their choice.  Therefore, secure verification of SMTP TLS certificates
+is not possible without DNSSEC.
 </t>
 
 <t>
