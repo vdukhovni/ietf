@@ -152,18 +152,16 @@ HTTPS security model is inadequate to protect SMTP traffic.
 </t>
 
 <t>
-The issues raised in the four subsections below do not mean, however,
-that the Internet email backbone cannot benefit from TLS.  The fact
-that SMTP channel security policy is not explicitly specified in
-either the recipient address or the MX record makes it possible to
-employ the DANE TLSA protocol to obtain the security policy for
-each receiving system via DNSSEC.  Instead of explicit security for
-a small set of destination domains the sending system is able to
-securely connect to all domains that publish DANE TLSA DNS records.
-DANE TLSA makes it possible to simultaneously discover which peer
-domains support secure delivery via TLS and how to verify the
-authenticity of the associated SMTP services providing a path forward
-to ubiquitous SMTP channel security.
+The subsections below discuss four issues that the solution this
+document solves.  SMTP channel security policy is not explicitly
+specified in either the recipient address or the MX record, so a new
+signaling mechanism is required to indicate when channel security is
+possible and should be used.  Client SMTP systems are able to detect
+the availability of TLS on servers by seeing if DANE TLSA records have
+been published for the server.  DANE TLSA makes it possible to
+simultaneously discover which peer domains support secure delivery via
+TLS and how to verify the authenticity of the associated SMTP services
+providing a path forward to ubiquitous SMTP channel security.
 </t>
 
 <section title="STARTTLS downgrade attack" anchor="starttls">
