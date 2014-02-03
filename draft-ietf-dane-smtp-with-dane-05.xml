@@ -221,9 +221,9 @@ Not doing so leaves the client vulnerable to MITM attacks.  However,
 with SMTP the MX record specifies the name of the SMTP and TLS server.
 But absent DNSSEC, the MX lookup is vulnerable to man-in-the-middle
 (MITM) and DNS cache poisoning attacks.  Active attackers can forge
-DNS replies with fake MX records, and can redirect email to servers of
-their choice.  Therefore, secure verification of SMTP TLS certificates
-is not possible without DNSSEC.
+DNS replies with fake MX records, and can redirect email to servers
+with server names of their choice.  Therefore, secure verification of
+SMTP TLS certificates is not possible without DNSSEC.
 </t>
 
 <t>
@@ -244,16 +244,20 @@ rarely the case for email.
 Since the recipient domain name cannot be used as the SMTP server
 authentication identity, and neither can the MX hostname without
 DNSSEC, large-scale deployment of authenticated TLS for SMTP requires
-that the DNS be secure.  At this time, DNSSEC is not yet widely
-deployed and MTA-to-MTA traffic between Internet-connected organizations
-is most frequently entirely unencrypted, or occasionally uses TLS
-without authentication, which protects only against passive
-eavesdropping attacks.
+that the DNS be secure.
+<!-- XXXWJH for viktor: I don't think these sentences are needed
+     either; they really don't add anything: -->
+<!--
+At this time, DNSSEC is not yet widely deployed and MTA-to-MTA traffic
+between Internet-connected organizations is most frequently entirely
+unencrypted, or occasionally uses TLS without authentication, which
+protects only against passive eavesdropping attacks.
+-->
 </t>
 
 <t>
 Note that securing the MX record with DNSSEC is not by itself
-sufficient, Even with DNSSEC validated MX records, an MITM attacker
+sufficient. Even with DNSSEC validated MX records, an MITM attacker
 can still suppress the SMTP server's STARTTLS EHLO response, convincing
 an SMTP client that communication over TLS is unavailable.
 </t>
