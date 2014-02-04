@@ -1507,26 +1507,6 @@ or misconfigures SMTP server certificate chains, mail will be delayed.
 
 </section><!-- Mandatory TLS Security -->
 
-<section anchor="Acknowledgements" title="Acknowledgements">
-
-<t>
-The authors would like to extend great thanks to Tony Finch, who
-started the original version of a DANE SMTP document.  His work is
-greatly appreciated and has been incorporated into this document.
-The authors would like to additionally thank Phil Pennock for his
-comments and advice on this document.
-</t>
-
-<t>
-Acknowledgments from Viktor: Thanks to Paul Hoffman who motivated
-me to begin work on this memo and provided feedback on early drafts.
-Thanks also to Wietse Venema who created Postfix, and whose advice
-and feedback were essential to the development of the Postfix DANE
-implementation.
-</t>
-
-</section><!-- Acknowledgements -->
-
 <section anchor="Operational" title="Operational Considerations">
 
 <section anchor="opclients" title="Client Operational Considerations">
@@ -1616,6 +1596,26 @@ with no adverse security consequences.
 </t>
 
 </section><!-- Security Considerations -->
+
+<section anchor="Acknowledgements" title="Acknowledgements">
+
+<t>
+The authors would like to extend great thanks to Tony Finch, who
+started the original version of a DANE SMTP document.  His work is
+greatly appreciated and has been incorporated into this document.
+The authors would like to additionally thank Phil Pennock for his
+comments and advice on this document.
+</t>
+
+<t>
+Acknowledgments from Viktor: Thanks to Paul Hoffman who motivated
+me to begin work on this memo and provided feedback on early drafts.
+Thanks also to Wietse Venema who created Postfix, and whose advice
+and feedback were essential to the development of the Postfix DANE
+implementation.
+</t>
+
+</section><!-- Acknowledgements -->
 
 </middle>
 
