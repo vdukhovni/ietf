@@ -918,30 +918,12 @@ delaying or abandoning delivery.
 <section title="TLSA record lookup" anchor="tlsa-lookup">
 
 <t>
-Each candidate TLSA base domain, that is, the original or fully
+Each candidate TLSA base domain (the original or fully
 CNAME-expanded name of a non-MX destination or a particular MX
-hostname of an MX destination, is in turn prefixed with service
+hostname of an MX destination) is in turn prefixed with service
 labels of the form "_&lt;port&gt;._tcp".  The resulting domain
 name is used to issue a DNSSEC query with the query type set to
 TLSA (<xref target="RFC6698"/> Section 7.1).
-</t>
-
-<t>
-The query response may be a CNAME, or the actual TLSA RRset.  If
-the response is a CNAME, the SMTP client restarts the TLSA query
-at the target domain, following CNAMEs as appropriate and keeping
-track of whether the entire chain is "secure".  If any "insecure"
-records are encountered, or equivalently TLSA records don't exist,
-the next candidate TLSA base is tried instead.
-</t>
-
-<t>
-If the ultimate response is a "secure" TLSA RRset (see <xref
-target="dnserr"/>) then the candidate TLSA domain will be the actual
-TLSA domain and the TLSA RRset will constitute the TLSA records for
-the destination.  If none of the candidate TLSA base domains yield
-"secure" TLSA records then delivery should proceed via pre-DANE
-opportunistic TLS.
 </t>
 
 <t>
@@ -958,6 +940,24 @@ domain is "mail.example.com", and the SMTP connection is to port
 _25._tcp.mail.example.com. IN TLSA ?
 </artwork>
 </figure>
+
+<t>
+The query response may be a CNAME, or the actual TLSA RRset.  If the
+response is a CNAME, the SMTP client (through the use of its
+security-aware stub resolver) restarts the TLSA query at the target
+domain, following CNAMEs as appropriate and keeping track of whether
+the entire chain is "secure".  If any "insecure" records are
+encountered, or the TLSA records don't exist, the next candidate TLSA
+base is tried instead.
+</t>
+
+<t>
+If the ultimate response is a "secure" TLSA RRset, then the candidate
+TLSA domain will be the actual TLSA domain and the TLSA RRset will
+constitute the TLSA records for the destination.  If none of the
+candidate TLSA base domains yield "secure" TLSA records then delivery
+should proceed via pre-DANE opportunistic TLS.
+</t>
 
 <t>
 TLSA record publishers may leverage CNAMEs to reference a single
@@ -1013,14 +1013,14 @@ attacks.
 
 <t>
 As noted previously (in Section <xref target="non-mx"/>), when no
-"secure" TLSA records are found at the fully CNAME-expanded name,
-the original unexpanded name MUST be tried instead.  Intermediate
-names that arise during CNAME expansion that are neither the original,
-nor the final name, are never candidate TLSA base domains, even if
-"secure".  This supports customers of hosting providers where the
-provider's zone cannot be validated with DNSSEC, but the customer
-has shared appropriate key material with the hosting provider to
-enable TLS via SNI.
+"secure" TLSA records are found at the fully CNAME-expanded name, the
+original unexpanded name MUST be tried instead.  This supports
+customers of hosting providers where the provider's zone cannot be
+validated with DNSSEC, but the customer has shared appropriate key
+material with the hosting provider to enable TLS via SNI.
+Intermediate names that arise during CNAME expansion that are neither
+the original, nor the final name, are never candidate TLSA base
+domains, even if "secure".
 </t>
 
 </section><!-- TLSA record lookup -->
