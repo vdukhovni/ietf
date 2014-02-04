@@ -81,10 +81,11 @@ Layer Security (TLS).
 
 <t>
 This memo specifies a new connection security model for Message
-Transfer Agents (MTAs).  It extends the existing framework 
-of inter-domain SMTP delivery where the destination server is
-selected indirectly via DNS Mail Exchange (MX) records 
-and in which the use of TLS is opportunistic.
+Transfer Agents (MTAs).  This model is motivated by key features
+of inter-domain SMTP delivery, in particular the fact that the
+destination server is selected indirectly via DNS Mail Exchange
+(MX) records and that with MTA to MTA SMTP the use of TLS is
+generally opportunistic.
 </t>
 
 <t>
@@ -231,9 +232,10 @@ authentication via the existing public Certificate Authority (CA)
 PKI suffers from an over-abundance of trusted certificate authorities
 capable of issuing certificates for any domain of their choice.
 DANE leverages the DNSSEC infrastructure to publish trusted public
-keys and certificates for use with 
-the Transport Layer Security (TLS) <xref target="RFC5246"/> protocol
-via a new "TLSA" DNS record type.
+keys and certificates for use with the Transport Layer Security
+(TLS) <xref target="RFC5246"/> protocol via a new "TLSA" DNS record
+type.  With DNSSEC each domain can only vouch for the keys of its
+directly delegated sub-domains.
 </t>
 
 <t>
@@ -253,22 +255,23 @@ attacks.
 With HTTPS, Transport Layer Security (TLS) employs X.509 certificates
 issued by one of the many Certificate Authorities (CAs) bundled
 with popular web browsers to allow users to authenticate their
-"secure" websites.  Before we specify a new DANE TLS security model for SMTP,
-we will explain why a new security model is needed to protect
-Internet SMTP traffic.  In the process, we will explain why the familiar
-HTTPS security model is inadequate to protect SMTP traffic.
+"secure" websites.  Before we specify a new DANE TLS security model
+for SMTP, we will explain why a new security model is needed.  In
+the process, we will explain why the familiar HTTPS security model
+is is inadequate to protect inter-domain SMTP traffic.
 </t>
 
 <t>
-The subsections below discuss four issues that the solution this
-document solves.  SMTP channel security policy is not explicitly
-specified in either the recipient address or the MX record, so a new
-signaling mechanism is required to indicate when channel security is
-possible and should be used.  Client SMTP systems are able to detect
-the availability of TLS on servers by seeing if DANE TLSA records have
-been published for the server.  DANE TLSA makes it possible to
-simultaneously discover which peer domains support secure delivery via
-TLS and how to verify the authenticity of the associated SMTP services
+The subsections below outline four key problems with applying
+traditional PKI to SMTP that are addressed by this specification.
+Since SMTP channel security policy is not explicitly specified in
+either the recipient address or the MX record, a new signaling
+mechanism is required to indicate when channel security is possible
+and should be used.  The publication of TLSA records allows server
+operators to securely signal to SMTP clients that TLS is available
+and should be used.  DANE TLSA makes it possible to simultaneously
+discover which destination domains support secure delivery via TLS
+and how to verify the authenticity of the associated SMTP services
 providing a path forward to ubiquitous SMTP channel security.
 </t>
 
@@ -282,33 +285,25 @@ addresses and are security-agnostic.  Unlike the Hypertext Transfer
 Protocol (HTTP) and its corresponding secured version, HTTPS, there
 is no URI scheme for email addresses to designate whether communication
 with the SMTP server should be conducted via a cleartext or a
-TLS-encrypted channel.
-<!-- XXXWJH for Viktor: I don't think this is needed and doesn't
-follow the above...  It should either be a new paragraph discussing
-hop-by-hop issues or should just be dropped.  I'd drop it because I
-don't think it's too useful. -->
-<!--
-TLS encryption of SMTP also only protects email traffic
-on a hop-by-hop basis.  Some hops may be protected by TLS, and
-some may not.  Specifying hop-by-hop security policy via an end-to-end
-recipient address would not be a good solution.
--->
+TLS-encrypted channel.  Indeed no such URI scheme could work well
+with SMTP since TLS encryption of SMTP protects email traffic on a
+hop-by-hop basis while email addresses could only express end-to-end
+policy.
 </t>
 
 <t>
-With no mechanism available to signal transport security policy, SMTP
-relays employ a best-effort "opportunistic" security model for TLS.  A
-single SMTP server TCP listening endpoint can serve both TLS and
-non-TLS clients; the use of TLS is negotiated via the SMTP STARTTLS
-command (<xref target="RFC3207"/>).  The server signals TLS support to
-the client over a cleartext SMTP connection, and if the client also
-supports TLS, it may negotiate a TLS encrypted channel to use for
-email transmission.  The server's indication of TLS support can be
-easily suppressed by a man in the middle attacker.  Thus pre-DANE SMTP
-TLS security can be subverted by simply downgrading a connection to
-upcleartext, effectively turning off TLS altogether.  No in-TLS security
-model, such as the use of PKIX, can prevent it.  The attacker can
-simply downgrade most connections to cleartext.
+With no mechanism available to signal transport security policy,
+SMTP relays employ a best-effort "opportunistic" security model for
+TLS.  A single SMTP server TCP listening endpoint can serve both
+TLS and non-TLS clients; the use of TLS is negotiated via the SMTP
+STARTTLS command (<xref target="RFC3207"/>).  The server signals
+TLS support to the client over a cleartext SMTP connection, and if
+the client also supports TLS, it may negotiate a TLS encrypted
+channel to use for email transmission.  The server's indication of
+TLS support can be easily suppressed by a man in the middle attacker.
+Thus pre-DANE SMTP TLS security can be subverted by simply downgrading
+a connection to cleartext.  No TLS security feature, such as the
+use of PKIX, can prevent this.  The attacker can simply bypass TLS.
 </t>
 
 </section><!-- STARTTLS downgrade attack -->
@@ -323,15 +318,14 @@ domain.
 </t>
 
 <t>
-Secure verification of TLS certificates by a TLS client requires it to
-verify that the server's certificate binds its public key to its name.
-Not doing so leaves the client vulnerable to MITM attacks.  However,
-with SMTP the MX record specifies the name of the SMTP and TLS server.
-But absent DNSSEC, the MX lookup is vulnerable to man-in-the-middle
-(MITM) and DNS cache poisoning attacks.  Active attackers can forge
-DNS replies with fake MX records, and can redirect email to servers
-with server names of their choice.  Therefore, secure verification of
-SMTP TLS certificates is not possible without DNSSEC.
+A PKIX TLS client is vulnerable to man in the middle (MITM) attacks
+unless it verifies that the server's certificate binds its public
+key to its name.  However, with SMTP server names are obtained
+indirectly via MX records.  Without DNSSEC, the MX lookup is
+vulnerable MITM and DNS cache poisoning attacks.  Active attackers
+can forge DNS replies with fake MX records, and can redirect email
+to servers with names of their choice.  Therefore, secure verification
+of SMTP TLS certificates is not possible without DNSSEC.
 </t>
 
 <t>
@@ -353,19 +347,8 @@ Since the recipient domain name cannot be used as the SMTP server
 authentication identity, and neither can the MX hostname without
 DNSSEC, large-scale deployment of authenticated TLS for SMTP requires
 that the DNS be secure.
-<!-- XXXWJH for Viktor: I don't think these sentences are needed
-     either; they really don't add anything: -->
-<!--
-At this time, DNSSEC is not yet widely deployed and MTA-to-MTA traffic
-between Internet-connected organizations is most frequently entirely
-unencrypted, or occasionally uses TLS without authentication, which
-protects only against passive eavesdropping attacks.
--->
 </t>
 
-<!-- XXXWJH for Viktor: I've read this paragraph twice but still can't figure out
-what the point of it is.  I'd argue it's not needed either, but I
-didn't comment it out. -->
 <t>
 Since SMTP security depends critically on DNSSEC, it is important
 to point out that consequently SMTP with DANE is the most conservative
@@ -390,7 +373,7 @@ Sending systems are in some cases explicitly configured to use TLS
 for mail sent to specifically selected peer domains.  This 
 requires MTAs to be configured with appropriate subject
 names or certificate content digests to expect in the presented
-host certificates.  Because of the heavy administrative configuration
+host certificates.  Because of the heavy administrative
 burden, such statically configured SMTP secure channels
 are used rarely (generally only between domains that make bilateral
 arrangements with their business partners).  Internet email, on the
@@ -404,7 +387,7 @@ often across organization boundaries, limits the use of public CA
 PKI with SMTP to a small set of sender-configured peer domains.
 With little opportunity to use TLS authentication, sending MTAs are
 rarely configured with a comprehensive list of trusted CAs.  SMTP
-services that do support STARTTLS often use X.509 certificates that are
+services that support STARTTLS often use X.509 certificates that are
 self-signed or issued by a private CA.
 </t>
 
@@ -527,11 +510,12 @@ As noted in section 4.3 of <xref target="RFC4035"/>, a security-aware
 DNS resolver MUST be able to determine whether a given non-error
 DNS response is "secure", "insecure", "bogus" or "indeterminate".
 <!-- XXXWJH: -->
-Hopefully security-aware stub resolvers that return "indeterminate" in
-the RFC4035-sense should be rare in practice.  If one is used,
-however, "indeterminate" for usage in this specification MUST be
-treated identically to an error.  I.E., treat it as if "bogus" or some
-other DNS error had been returned.
+It is expected that most security-aware stub resolvers will not
+signal an "indeterminate" security status the RFC4035-sense to the
+application, and will signal a "bogus" or error result instead.  If
+a resolver does signal an RFC4035 "indeterminate" security status,
+this MUST be treated by the SMTP client as though a "bogus" or error
+result had been returned.
 </t>
 
 <t>
@@ -556,19 +540,14 @@ To avoid much repetition in the text below, we will pause to explain
 the handling of "bogus" or "indeterminate" DNSSEC query responses.
 These are not necessarily the result of a malicious actor; they
 can, for example, occur when network packets are corrupted or lost
-in transit.
+in transit.  Therefore, "bogus" or "indeterminate" replies are equated
+in this memo with lookup failure.
 </t>
 
 <t>
-In this light, "bogus" or "indeterminate" replies are treated in this
-memo a form of lookup failure, and we carefully define what we mean by a DNS
-lookup failure.  There is an important non-failure condition we
-need to highlight in addition to the obvious case of the DNS client
-obtaining a non-empty "secure" or "insecure" RRset of the requested
-type.
-</t>
-
-<t>
+There is an important non-failure condition we need to highlight
+in addition to the obvious case of the DNS client obtaining a
+non-empty "secure" or "insecure" RRset of the requested type.
 Namely, it is not an error when either "secure" or "insecure"
 non-existence is determined for the requested data.  When a DNSSEC
 response with a validation status that is either "secure" or
@@ -601,20 +580,19 @@ target="discovery"/> for further details.
 </t>
 
 <t>
-When a stub resolver receives a response containing a DNAME or CNAME redirection,
+When a stub resolver receives a response containing a CNAME alias,
 it will generally restart the query at the target of the alias, and
 should do so recursively up to some configured or implementation-dependent
-recursion limit.  If at any stage of recursive DNAME or CNAME expansion a
+recursion limit.  If at any stage of recursive CNAME expansion a
 query fails, the stub resolver's lookup of the original requested
 records will result in a failure status being returned.  If at any
 stage of recursive expansion the response is "insecure", then it
-and all subsequent results (in particular, the final result)
-MUST be considered "insecure" regardless of whether the other
-responses received were deemed "secure".  If at any stage of recursive
-expansion the validation status is "bogus" or "indeterminate" or
-associated with another DNS lookup error, the
-resolution of the requested records MUST be considered to have
-failed.
+and all subsequent results (in particular, the final result) MUST
+be considered "insecure" regardless of whether the other responses
+received were deemed "secure".  If at any stage of recursive expansion
+the validation status is "bogus" or "indeterminate" or associated
+with another DNS lookup error, the resolution of the requested
+records MUST be considered to have failed.
 </t>
 
 <t>
@@ -660,19 +638,20 @@ subject to an MITM downgrade attack.  Also some SMTP servers that
 are not, in fact, TLS capable erroneously advertise STARTTLS by
 default and clients need to be prepared to retry cleartext delivery
 after STARTTLS fails.  In contrast, DNSSEC validated TLSA records
-are MUST NOT published for servers that do not
-support TLS. Clients can safely interpret their presence
-as a commitment by the server operator to implement TLS and STARTTLS.
+MUST NOT be published for servers that do not support TLS.  Clients
+can safely interpret their presence as a commitment by the server
+operator to implement TLS and STARTTLS.
 </t>
 
-<t>This memo defines four actions to be taken after the search for a
+<t>
+This memo defines four actions to be taken after the search for a
 TLSA record returns secure usable results, secure unusable results,
-insecure or no results or an error signal.  The term "usable" in this
-context is in Section 4.1 of <xref target="RFC6698" />. Specifically,
-if the DNS lookup for a TLSA record returns:
+insecure or no results or an error signal.  The term "usable" in
+this context is the sense of Section 4.1 of <xref target="RFC6698"/>.
+Specifically, if the DNS lookup for a TLSA record returns:
 
 <list style="hanging">
-<t hangText="A secure TLSA RRset with at least usable record:"> A
+<t hangText="A secure TLSA RRset with at least one usable record:"> A
 connection to the MTA MUST be made using authenticated and encrypted
 TLS, using the techniques discussed in the rest of this document.
 Failure to establish an authenticated TLS connection MUST result
@@ -686,9 +665,9 @@ MUST result in falling back to the next SMTP server or delayed delivery.  </t>
 
 <t hangText="An insecure TLSA RRset or DNSSEC validated proof-of-non-existent TLSA records:">
 A connection to the MTA SHOULD be made using (pre-DANE) opportunistic
-TLS, this includes using cleartext delivery when the remote SMTP server does
-not appear to support TLS.  It also includes optionally falling back to cleartext
-when a TLS handshake fails.</t>
+TLS, this includes using cleartext delivery when the remote SMTP
+server does not appear to support TLS.  The MTA may optionally
+retry in cleartext when a TLS handshake fails.</t>
 
 <t hangText="Any lookup error:"> Lookup errors, including "bogus" and
 "indeterminate", as explained in <xref target="dnserr"/> MUST result
@@ -701,8 +680,7 @@ An SMTP client MAY be configured to require DANE verified delivery for
 some destinations.  We will call such a configuration "mandatory DANE
 TLS".  With mandatory DANE TLS, delivery proceeds only when "secure"
 TLSA records are used to establish an encrypted and authenticated TLS
-channel with the SMTP server.  Cleartext and unauthenticated
-TLS connections MUST NOT be used with mandatory DANE TLS destinations.
+channel with the SMTP server.
 </t>
 
 <!-- XXXWJH: move to operational considerations? -->
@@ -721,13 +699,29 @@ supported by the sending MTA.
 </t>
 
 <t>
+A note about DNAME aliases:  a query for a domain name whose ancestor
+domain is a DNAME alias returns the DNAME RR for the ancestor domain,
+along with a CNAME that maps the query domain to the corresponding
+sub-domain of the target domain of the DNAME alias.  Therefore,
+whenever we speak of CNAME aliases, we implicitly allow for the
+possibility that the alias in question is the result of an ancestor
+domain DNAME record.  Consequently, no explicit support for DNAME
+records is needed in SMTP software, it is sufficient to process the
+resulting CNAME aliases.  DNAME records only require special
+processing in the validating stub-resolver library that checks the
+integrity of the combined DNAME + CNAME reply.  When DNSSEC validation
+is handled by a local caching resolver, rather than the MTA itself,
+even that part of the DNAME support logic is outside the MTA.
+</t>
+
+<t>
 <!-- XXXWJH: probably need to state when this occurs; eg, local policy -->
 When the original next-hop destination is an address literal, rather
 than a DNS domain, DANE TLS does not apply.  Delivery proceeds using
 any relevant security policy configured by the MTA administrator.
-Similarly, when an MX RRset incorrectly lists an IPv4 or IPv6 address in lieu
-of an MX hostname, the MTA might choose to connect to the IPv4 or IPv6
-address and, in this case, DANE TLSA does not apply.
+Similarly, when an MX RRset incorrectly lists an network address in lieu
+of an MX hostname, if the MTA chooses to connect to the network address
+DANE TLSA does not apply for such a connection.
 </t>
 
 <t>
@@ -761,20 +755,18 @@ their SMTP servers and MX records are configured accordingly.
 </t>
 
 <t>
-<!-- XXXWJH for Viktor: can probably delete this paragraph now given
-     the above CNAME discussion ? -->
+<!-- XXXVD: This is the first discussion of non-error CNAME processing -->
 In the language of <xref target="RFC5321"/> Section 5.1, the original
 next-hop domain is the "initial name".  If the MX lookup of the
-initial name results in a CNAME alias (possibly through the result of
-a DNAME expansion), sub resolvers should replace the initial name with
-the resulting name and perform a new lookup with the new name.  Sub
-resolvers used by MTAs typically support recursion in CNAME expansion,
-so this replacement is performed repeatedly until the ultimate
-non-CNAME domain is found.
+initial name results in a CNAME alias, the MTA replaces the initial
+name with the resulting name and performs a new lookup with the new name.
+MTAs typically support recursion in CNAME expansion, so this
+replacement is performed repeatedly until the ultimate non-CNAME
+domain is found.
 </t>
 
 <t>
-If, the MX RRset (or any CNAME/DNAME leading to it) is "insecure" (see
+If the MX RRset (or any CNAME leading to it) is "insecure" (see
 <xref target="dnserr"/>), DANE TLS does not apply, and delivery
 proceeds via pre-DANE opportunistic TLS.  Otherwise (assuming no DNS
 errors or "bogus"/"indeterminate" responses), the MX RRset is
@@ -812,17 +804,16 @@ hostnames. </t>
 resolution.  This frequently involves configuration set by the MTA
 administrator to handle some or all mail. </t>
 
-<t> A next-hop destination domain subject to MX resolution that has no
-MX records.  In this case the domain's name is implicitly the hostname
-of its sole SMTP server. </t>
+<t> A next-hop destination domain subject to MX resolution that has
+no MX records.  In this case the domain's name is implicitly also
+the hostname of its sole SMTP server. </t>
 
 </list>
 </t>
 
 <t>
 <!-- XXXWJH: move the next 4 paragraphs to operational considerations section -->
-Note that DNS queries with type TLSA are sometimes mishandled by
-some load balancing
+Note that DNS queries with type TLSA are mishandled by load balancing
 nameservers that serve the MX hostnames of some large email providers.
 The DNS zones served by these nameservers are not signed and contain
 no TLSA records, but queries for TLSA records fail, rather than
@@ -860,7 +851,7 @@ initial name and perform a lookup again using the new name.  This
 replacement is performed recursively.
 </t>
 
-<t> We consider the following cases for handling a DNS response for a
+<t> We consider the following cases for handling a DNS response for an
 A or AAAA DNS lookup: </t>
 
 <t>
@@ -953,7 +944,7 @@ base is tried instead.
 
 <t>
 If the ultimate response is a "secure" TLSA RRset, then the candidate
-TLSA domain will be the actual TLSA domain and the TLSA RRset will
+TLSA base domain will be the actual TLSA base domain and the TLSA RRset will
 constitute the TLSA records for the destination.  If none of the
 candidate TLSA base domains yield "secure" TLSA records then delivery
 should proceed via pre-DANE opportunistic TLS.
