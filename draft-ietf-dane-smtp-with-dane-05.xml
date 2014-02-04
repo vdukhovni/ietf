@@ -1374,41 +1374,22 @@ it does not specify a protocol by which the SMTP client and TLSA
 record publisher can agree on the strongest shared algorithm.  Such
 a protocol would allow the client and server to avoid exposure to
 any deprecated weaker algorithms that are published for compatibilty
-with less capable clients, but should if possible be ignored.  We
+with less capable clients, but should be ignored when possible.  We
 specify such a protocol below.
 </t>
 
 <t>
+<!-- XXXWJH: needs better clarity.  -->
 Suppose that a DANE TLS client authenticating a TLS server considers
-digest algorithm X stronger than digest algorithm Y.  Suppose further
-that a server's TLSA RRset contains some records with X as the
-digest algorithm.  Finally, suppose that for every raw public key
-or certificate object that is included in the server's TLSA RRset
-in digest form, whenever that object appears with algorithm Y with
-some usage and selector it also appears with algorithm X with the
-same usage and selector.  In that case our client can safely ignore
-TLSA records with the weaker algorithm Y, because it suffices to
-check the records with the stronger algorithm X.
-</t>
-
-<t>
-To achieve digest algorithm agility we mandate that all published TLSA
-RRsets conform to the above assumptions.  Then, for each combination
-of usage and selector, SMTP clients can simply ignore all digest
-records except those that employ the strongest digest algorithm.
-The ordering of digest algorithms by strength is not specified in
-advance, it is entirely up to the SMTP client.  SMTP client
-implementations are encouranged to make the digest algorithm
-preference order configurable.  Only the future will tell which
-algorithms might be weakened by new attacks and when.
-</t>
-
-<t>
-Note, TLSA records with a matching type of "0", that publish the
-full value of a certificate or public key object, play no role in
-digest algorithm agility.  They neither trump the processing of
-records that employ digests, nor are they ignored in the presence
-of any records with a digest (i.e. non-zero) matching type.
+digest algorithm BETTER stronger than digest algorithm WORSE.  Suppose
+further that a server's TLSA RRset contains some records with BETTER
+as the digest algorithm.  Finally, suppose that for every raw public
+key or certificate object that is included in the server's TLSA
+RRset in digest form, whenever that object appears with algorithm
+WORSE with some usage and selector it also appears with algorithm
+BETTER with the same usage and selector.  In that case our client can
+safely ignore TLSA records with the weaker algorithm WORSE, because it
+suffices to check the records with the stronger algorithm BETTER.
 </t>
 
 <t>
@@ -1423,12 +1404,32 @@ that apply uniformly to all the objects.
 </t>
 
 <t>
+To achieve digest algorithm agility, all published TLSA RRsets for use
+with opportunistic DANE TLS for SMTP MUST conform to the above
+requirements.  Then, for each combination of usage and selector, SMTP
+clients can simply ignore all digest records except those that employ
+the strongest digest algorithm.  The ordering of digest algorithms by
+strength is not specified in advance, it is entirely up to the SMTP
+client.  SMTP client implementations SHOULD make the
+digest algorithm preference order configurable.  Only the future will
+tell which algorithms might be weakened by new attacks and when.
+</t>
+
+<t>
+Note, TLSA records with a matching type of "Full(0)", that publish the
+full value of a certificate or public key object, play no role in
+digest algorithm agility.  They neither trump the processing of
+records that employ digests, nor are they ignored in the presence
+of any records with a digest (i.e. non-zero) matching type.
+</t>
+
+<t>
 SMTP clients SHOULD use digest algorithm agility when processing
 the DANE TLSA records of an SMTP server.  Algorithm agility is to
 be applied after first discarding any unusable or malformed records
 (unsupported digest algorithm, or incorrect digest length).  Thus,
 for each usage and selector, the client SHOULD process only any
-usable records with a matching type of "0" and the usable records
+usable records with a matching type of "Full(0)" and the usable records
 whose digest algorithm is believed to be the strongest among usable
 records with the given usage and selector.
 </t>
@@ -1452,19 +1453,14 @@ To avoid problems, server operators SHOULD apply the following strategy:
 <list style="symbols">
 <t> When changing the set of objects published via the TLSA RRset
 (e.g. during key rotation), DO NOT change the set of digest algorithms
-used, change just the list of objects. </t>
+used; change just the list of objects. </t>
 <t> When changing the set of digest algorithms, change only the set
 of algorithms, and generate a new RRset in which all the current objects
 are re-published with the new set of digest algorithms. </t>
 </list>
 </t>
 
-<t>
-The client-side of this "digest algorithm agility" protocol is
-enabled by default in the first DANE for SMTP implementation.  For
-key rotation to work non-disruptively server operators MUST ensure
-that their TLSA records conform with the above specification.
-</t>
+<!-- XXXWJH: need to state how long to wait for this: eg, cache flushing -->
 
 </section><!-- Digest algorithm agility -->
 
