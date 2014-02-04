@@ -1140,37 +1140,41 @@ certificate renewals with the same key.
 
 </section><!-- Certificate usage 3 -->
 
-<section title="Certificate usage 2">
+<section title="Certificate usage DANE-TA(2)">
 
 <t>
 Some domains may prefer to avoid the operational complexity of
 publishing unique TLSA RRs for each TLS service.  If the domain
-employs a common issuing certificate authority to create certificates
+employs a common issuing Certificate Authority to create certificates
 for multiple TLS services, it may be simpler to publish the issuing
 authority as a trust anchor (TA) for the certificate chains of all
 relevant services.  The TLSA query domain (TLSA base domain with
 port and protocol prefix labels) for each service issued by the
-same TA may then be CNAME aliases to a common TLSA RRset that matches
-the TA.
+same TA can then resolve to a CNAME aliases that points to a
+common TLSA RRset that matches the TA.
 </t>
 
 <t>
-SMTP servers that rely on certificate usage "2" TLSA records for
+SMTP servers that rely on certificate usage "DANE-TA(2)" TLSA records for
 TLS authentication MUST include the TA certificate as part of the
 certificate chain presented in the TLS handshake even when it is a
-self-signed root certificate.  SMTP clients cannot generally be
-expected to have domain-issued trust anchor certificates in their
-trusted certificate store.  Even when the TA happens to be in the
-trusted certificate store, many MTAs will not employ any of their
-locally trusted certificates when processing usage 2 TLSA records.
+self-signed root certificate.  At this time, SMTP servers are not
+configured with a list of trust anchors, nor are they expected to at
+any point in the future.  Managing a trust anchor list is outside the
+operational work of the average MTA administrator and the MTA software
+vendors have equally expressed non-interest in maintaining a TA list
+to distribute with their software.  Thus, distributing the TA
+certificate as part of the presented certificate chain is critical for
+the client to succeed in verifying the server's certificate 
+when processing usage DANE-TA(2) TLSA records.
 </t>
 
 <t>
-TLSA Publishers should publish either "2 1 1" or "2 0 1" TLSA
-parameters, which specify the SHA2-256 digest of the trust anchor
-public key or certificate respectively.  As with leaf certificate
-rollover discussed in <xref target="cert3" />, two such TLSA RRs
-need to be published to facilitate TA certificate rollover.
+TLSA Publishers should publish either "DANE-TA(2) SPKI(1) Full(0)" or
+"DANE-TA(2) Cert(0) SHA2-256(1)" TLSA parameters.
+As with leaf certificate rollover discussed in <xref
+target="cert3" />, two such TLSA RRs need to be published to
+facilitate TA certificate rollover.
 </t>
 
 </section><!-- Certificate usage 2 -->
