@@ -1460,7 +1460,9 @@ are re-published with the new set of digest algorithms. </t>
 </list>
 </t>
 
-<!-- XXXWJH: need to state how long to wait for this: eg, cache flushing -->
+<t>After either of these two changes are made, the new TLSA RRset
+should be left in place long enough that the older TLSA RRset can be
+flushed from caches before making another change.</t> 
 
 </section><!-- Digest algorithm agility -->
 
