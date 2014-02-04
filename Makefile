@@ -14,3 +14,6 @@ clean:
 
 %.html: %.xml
 	xml2rfc $< --html
+
+idnits: $(TXT)
+	idnits $<
