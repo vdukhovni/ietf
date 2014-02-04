@@ -647,7 +647,7 @@ operator to implement TLS and STARTTLS.
 This memo defines four actions to be taken after the search for a
 TLSA record returns secure usable results, secure unusable results,
 insecure or no results or an error signal.  The term "usable" in
-this context is the sense of Section 4.1 of <xref target="RFC6698"/>.
+this context is in the sense of Section 4.1 of <xref target="RFC6698"/>.
 Specifically, if the DNS lookup for a TLSA record returns:
 
 <list style="hanging">
