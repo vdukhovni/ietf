@@ -1179,21 +1179,24 @@ facilitate TA certificate rollover.
 
 </section><!-- Certificate usage 2 -->
 
-<section title="Certificate usages 0 and 1">
+<section title="Certificate usages PKIX-TA(0) and PKIX-EE(1)">
 
 <t>
-SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "0"
-or "1".  SMTP clients cannot be expected to be configured with a
+SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "PKIX-TA(0)"
+or "PKIX-EE(1)".  SMTP clients cannot be expected to be configured with a
 suitably complete set of trusted public CAs.  Even with a full set
 of public CAs, SMTP clients cannot (without relying on DNSSEC for
 secure MX records and DANE for STARTTLS support signalling) perform
 <xref target="RFC6125"/> server identity verification or prevent
-STARTTLS downgrade attacks.
+STARTTLS downgrade attacks.  Additionally, usage of public trusted CAs
+offers no added security since anyone attacking the system must attack
+DNS first and if successful need only replace the PKIX-TA(0) or
+PKIX-EE(1) TLSA records with a non-PKIX counterpart.
 </t>
 
 <t>
-SMTP client treatment of TLSA RRs with certificate usages "0" or "1"
-is undefined.  For example, clients MAY (will likely) treat such TLSA
+SMTP client treatment of TLSA RRs with certificate usages "PKIX-TA(0)"
+or "PKIX-EE(1)" is undefined.  For example, clients MAY (will likely) treat such TLSA
 records as unusable.
 </t>
 
