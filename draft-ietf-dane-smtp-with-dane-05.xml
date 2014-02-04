@@ -1092,9 +1092,11 @@ that the association data matches the SHA2-256 digest of the certificate
 or public key, and likewise SHA2-512(2) means a SHA2-512 digest is used.
 </t>
 
+<t>
 The following subsections describe some aspects of the DANE TLSA
 record specific to the opportunistic DANE TLS protocol defined in this
 document.
+</t>
 
 <section title="Certificate usage DANE-EE(3)" anchor="cert3">
 
