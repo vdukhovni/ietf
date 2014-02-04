@@ -1470,28 +1470,34 @@ flushed from caches before making another change.</t>
 </section><!-- Hardening Opportunistic TLS -->
 
 <section title="Mandatory TLS Security">
-
+<!-- XXXWJH: this is sort of talked about already above; a reference
+to here should be put in rather than saying as much above -->
 <t>
 An MTA implementing this protocol may require a stronger security
-assurance when sending email to selected destinations to which the
-sending organization sends sensitive email and may have regulatory
+assurance when sending email to selected destinations.  The
+sending organization may need to send sensitive email and/or may have regulatory
 obligations to protect its content.  This protocol is not in conflict
 with such a requirement, and in fact can often simplify authenticated
 delivery to such destinations.
 </t>
 
 <t>
-Specifically, with domains that publish DANE TLSA records for their
-MX hostnames a sending MTA can be configured to use the receiving
-domains's DANE TLSA records to authenticate the corresponding MX
-hostnames.  Authentication via DANE TLSA records is easier to manage,
-as changes in the receiver's expected certificate properties are
-made on the receiver end.  With mandatory DANE TLS, when no usable
-TLSA records are found, message delivery is delayed.  Thus mail
-is only sent when an authenticated TLS channel is established to
-the remote SMTP server.
+Specifically, with domains that publish DANE TLSA records for their MX
+hostnames, a sending MTA can be configured to use the receiving
+domains's DANE TLSA records to authenticate the corresponding SMTP
+server.  Authentication via DANE TLSA records is easier to manage, as
+changes in the receiver's expected certificate properties are made on
+the receiver end and don't require manually communicated configuration
+changes.  With mandatory DANE TLS, when no usable TLSA records are
+found, message delivery is delayed.  Thus, mail is only sent when an
+authenticated TLS channel is established to the remote SMTP server.
 </t>
 
+<!-- XXXWJH: move to operational guidance and make generic.  Any
+change by any administrator will always end up in a similar spot.  All
+admins need to do appropriate monitoring, etc. The only difference we
+may need to spell out here is simply due to the likely need for
+increased robustness between partnering organizations. -->
 <t>
 Administrators of mail servers that employ mandatory DANE TLS, need
 to carefully monitor their mail logs and queues.  If a partner
