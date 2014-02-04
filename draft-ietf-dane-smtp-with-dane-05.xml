@@ -212,7 +212,13 @@ The following terms or concepts are used through the document:
     Message Submission Agent (<xref target="RFC5598" />, Section 4.3.1).  </t>
 
     <t hangText="MUA: ">
-    Message User Agent (<xref target="RFC5598" />, Section 4.2.1).  </t>
+    Message User Agent (<xref target="RFC5598" />, Section 4.2.1).
+    </t>
+    
+    <t hangText="RR: ">A DNS Resource Record</t>
+
+    <t hangText="RRset: ">A set of DNS Resource Records for a particular
+    class, domain and record type.</t>
 </list>
 </t>
 </section><!-- Terminology -->
@@ -1086,7 +1092,11 @@ that the association data matches the SHA2-256 digest of the certificate
 or public key, and likewise SHA2-512(2) means a SHA2-512 digest is used.
 </t>
 
-<section title="Certificate usage 3" anchor="cert3">
+The following subsections describe some aspects of the DANE TLSA
+record specific to the opportunistic DANE TLS protocol defined in this
+document.
+
+<section title="Certificate usage DANE-EE(3)" anchor="cert3">
 
 <t>
 Since opportunistic DANE TLS will be used by non-interactive MTAs,
@@ -1095,11 +1105,11 @@ of peer authentication is paramount.
 </t>
 
 <t>
-Authentication via certificate usage "3" TLSA records involves
+Authentication via certificate usage "DANE-EE(3)" TLSA records involves
 simply checking that the server's leaf certificate matches the TLSA
 record.  Other than extracting the relevant certificate elements
 for comparison, no other use is made of the certificate content.
-Authentication via certificate usage "3" TLSA records involves
+Authentication via certificate usage "DANE-EE(3)" TLSA records involves
 no certificate authority signature checks.  It also involves no
 server name checks, and thus does not impose any new requirements
 on the names contained in the server certificate (SNI is not required
@@ -1107,11 +1117,11 @@ when the TLSA record matches the server's default certificate).
 </t>
 
 <t>
-Two TLSA records will need to be published before updating a server's
+Two TLSA records MUST be published before updating a server's
 public key, one matching the currently deployed key and the other
 matching the new key scheduled to replace it.  Once sufficient time
-has elapsed for all DNS caches to expire the previous TLSA RRset,
-which contains only the old key, the server may be reconfigured to
+has elapsed for all DNS caches to expire the previous old TLSA RRset and
+related DNSSEC RRsets, the server may be reconfigured to
 use the new private key and associated public key certificate.  Once
 the server is using the new key, the TLSA RR that matches the retired
 key can be removed from DNS, leaving only the RR that matches the
@@ -1120,15 +1130,10 @@ new key.
 
 <t>
 TLSA records published for SMTP servers SHOULD, in most cases, be
-"3 1 1" records.  Such records have "certificate usage" 3, thus
-they are associated with the end entity (i.e. SMTP server) certificate.
-The "selector" is 1, which indicates that the record describes the
-public key portion the server certificate.  Finally, the "matching
-type" is 1, which indicates that the "association data" is the
-SHA2-256 digest of the server's public key.  Since all DANE
-implementations are required to support SHA2-256, this record works
-for all clients and need not change across certificate renewals
-with the same key.
+"DANE-EE(3) DANE(SPKI) SHA2-256(1)" records. 
+Since all DANE implementations are required to support SHA2-256,
+this record works for all clients and need not change across
+certificate renewals with the same key.
 </t>
 
 </section><!-- Certificate usage 3 -->
