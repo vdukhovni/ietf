@@ -1093,9 +1093,13 @@ or public key, and likewise SHA2-512(2) means a SHA2-512 digest is used.
 </t>
 
 <t>
-The following subsections describe some aspects of the DANE TLSA
-record specific to the opportunistic DANE TLS protocol defined in this
-document.
+The certificate usage element of a TLSA record plays a critical
+role in determining how the corresponding certificate association
+data field is used to authenticate server's certificate chain.  The
+next two subsections explain the process for certificate usages
+DANE-EE(3) and DANE-TA(2).  The third subsection briefly explains why
+certificate usages PKIX-TA(0) and PKIX-EE(1) are not applicable
+with opportunistic DANE TLS.
 </t>
 
 <section title="Certificate usage DANE-EE(3)" anchor="cert3">
@@ -1107,11 +1111,11 @@ of peer authentication is paramount.
 </t>
 
 <t>
-Authentication via certificate usage "DANE-EE(3)" TLSA records involves
+Authentication via certificate usage DANE-EE(3) TLSA records involves
 simply checking that the server's leaf certificate matches the TLSA
 record.  Other than extracting the relevant certificate elements
 for comparison, no other use is made of the certificate content.
-Authentication via certificate usage "DANE-EE(3)" TLSA records involves
+Authentication via certificate usage DANE-EE(3) TLSA records involves
 no certificate authority signature checks.  It also involves no
 server name checks, and thus does not impose any new requirements
 on the names contained in the server certificate (SNI is not required
@@ -1122,8 +1126,8 @@ when the TLSA record matches the server's default certificate).
 Two TLSA records MUST be published before updating a server's
 public key, one matching the currently deployed key and the other
 matching the new key scheduled to replace it.  Once sufficient time
-has elapsed for all DNS caches to expire the previous old TLSA RRset and
-related DNSSEC RRsets, the server may be reconfigured to
+has elapsed for all DNS caches to expire the previous TLSA RRset and
+related signature RRsets, the server may be reconfigured to
 use the new private key and associated public key certificate.  Once
 the server is using the new key, the TLSA RR that matches the retired
 key can be removed from DNS, leaving only the RR that matches the
@@ -1150,23 +1154,22 @@ for multiple TLS services, it may be simpler to publish the issuing
 authority as a trust anchor (TA) for the certificate chains of all
 relevant services.  The TLSA query domain (TLSA base domain with
 port and protocol prefix labels) for each service issued by the
-same TA can then resolve to a CNAME aliases that points to a
+same TA may then be set to a CNAME alias that points to a
 common TLSA RRset that matches the TA.
 </t>
 
 <t>
-SMTP servers that rely on certificate usage "DANE-TA(2)" TLSA records for
-TLS authentication MUST include the TA certificate as part of the
-certificate chain presented in the TLS handshake even when it is a
-self-signed root certificate.  At this time, SMTP servers are not
-configured with a list of trust anchors, nor are they expected to at
-any point in the future.  Managing a trust anchor list is outside the
-operational work of the average MTA administrator and the MTA software
-vendors have equally expressed non-interest in maintaining a TA list
-to distribute with their software.  Thus, distributing the TA
-certificate as part of the presented certificate chain is critical for
-the client to succeed in verifying the server's certificate 
-when processing usage DANE-TA(2) TLSA records.
+SMTP servers that rely on certificate usage DANE-TA(2) TLSA records
+for TLS authentication MUST include the TA certificate as part of
+the certificate chain presented in the TLS handshake server certificate
+message even when it is a self-signed root certificate.  At this
+time, many SMTP servers are not configured with a comprehensive
+list of trust anchors, nor are they expected to at any point in the
+future.  Some MTAs will ignore all locally trusted certificates
+when processing usage DANE-TA(2) TLSA records.  Thus even when the
+TA happens to be a public Certificate Authority known to the SMTP
+client, authentication is likely to fail unless the TA is included
+in the TLS server certificate message.
 </t>
 
 <t>
@@ -1188,10 +1191,10 @@ suitably complete set of trusted public CAs.  Even with a full set
 of public CAs, SMTP clients cannot (without relying on DNSSEC for
 secure MX records and DANE for STARTTLS support signalling) perform
 <xref target="RFC6125"/> server identity verification or prevent
-STARTTLS downgrade attacks.  Additionally, usage of public trusted CAs
-offers no added security since anyone attacking the system must attack
-DNS first and if successful need only replace the PKIX-TA(0) or
-PKIX-EE(1) TLSA records with a non-PKIX counterpart.
+STARTTLS downgrade attacks.  The use of trusted public CAs
+offers no added security since an attacker capable of compromising
+DNSSEC is free to replace any PKIX-TA(0) or PKIX-EE(1) TLSA records with
+records bearing any convenient non-PKIX certificate usage.
 </t>
 
 <t>
@@ -1213,7 +1216,7 @@ fails, otherwise the SMTP client is vulnerable to MITM attacks.
 </t>
 
 <t>
-To match a server via a TLSA record with certificate usage "DANE-TA(2)", the
+To match a server via a TLSA record with certificate usage DANE-TA(2), the
 client MUST perform name checks to ensure that it has reached the
 correct server.  In all cases the SMTP client MUST accept the TLSA
 base domain as a valid DNS name in the server certificate.
@@ -1228,10 +1231,9 @@ the peer certificate.  The CNAME-expanded original next-hop domain
 MUST also be accepted if different from the initial query name. </t>
 
 <t hangText="TLSA records for Non-MX hostnames:">
-If MX records were not used (i.e., not available)
-and the TLSA base domain is the
-CNAME-expanded original next-hop domain, then the original
-next-hop domain MUST also be accepted.  </t>
+If MX records were not used (e.g., if none exist) and the TLSA base
+domain is the CNAME-expanded original next-hop domain, then the
+original next-hop domain MUST also be accepted.  </t>
 
 </list>
 </t>
@@ -1283,7 +1285,7 @@ the respective TLSA base domains "mx15.example.com" and
 
 <t>
 The SMTP client MUST NOT perform certificate usage name checks with
-certificate usage "DANE-EE(3)", since with usage "DANE-EE(3)" the
+certificate usage DANE-EE(3), since with usage DANE-EE(3) the
 server is authenticated directly by matching the TLSA RRset to its
 certificate or public key without resorting to any issuing authority.
 The certificate content is ignored except to
@@ -1301,18 +1303,18 @@ the 1.2 extension RFC and then somehow try to show that SSLv3 is
 possible is probably crazy.  -->
 To ensure that the server sends the right certificate chain, the
 SMTP client MUST send the TLS SNI extension containing the TLSA
-base domain.  This precludes the use of the SSLv2-compatible SSL HELLO
-by the SMTP client.  The minimum SSL/TLS client HELLO version for
-SMTP clients performing DANE authentication is SSLv3, but a client
-that offers SSLv3 needs to also offer at least TLSv1 and MUST include
-the SNI extension.  Servers that don't make use of SNI MAY negotiate
-SSLv3 if offered by the client.
+base domain.  This precludes the use of the backward compatible
+SSL 2.0 compatible SSL HELLO by the SMTP client.  The minimum SSL/TLS
+client HELLO version for SMTP clients performing DANE authentication is
+SSL 3.0, but a client that offers SSL 3.0 MUST also offer at least
+TLS 1.0 and MUST include the SNI extension.  Servers that don't make
+use of SNI MAY negotiate SSL 3.0 if offered by the client.
 </t>
 
 <t>
 Each SMTP server MUST present a certificate chain (see <xref
 target="RFC5246"/> Section 7.4.2) that matches at least
-one of the TLSA records.  The server SHOULD rely on SNI to determine
+one of the TLSA records.  The server MAY rely on SNI to determine
 which certificate chain to present to the client.  Clients that
 don't send SNI information may not see the expected certificate
 chain.
@@ -1320,9 +1322,10 @@ chain.
 
 <t>
 If the server's TLSA RRset includes records with a matching type
-indicating a digest record (i.e., a value other than "Full(0)"), a
-TLSA record with a SHA2-256(1) matching time SHOULD be provided along with any other
-digest published, since some SMTP clients may support only SHA2-256(1).
+indicating a digest record (i.e., a value other than Full(0)), a
+TLSA record with a SHA2-256(1) matching type SHOULD be provided
+along with any other digest published, since some SMTP clients may
+support only SHA2-256(1).
 </t>
 
 <t>
@@ -1334,34 +1337,35 @@ the use of SNI by clients, as the client may be using unauthenticated
 opportunistic TLS and may not expect any particular certificate from
 the server.  If the client sends no SNI extension, or sends an SNI
 extension for an unsupported domain, the server MUST simply send its
-default certificate chain.
-<!-- XXXWJH for Viktor: I can't figure out how to reword this sentence, but it
-needs rewording: -->
-DANE TLS clients that authenticate the
-server may be willing to accept multiple server names, with the SNI
-name set to TLSA base domain, but the server's default certificate may
-match the original next-hop domain.
+default certificate chain.  The reason for not enforcing strict
+matching of the requested SNI hostname is that DANE TLS clients are
+typically willing to accept multiple server names, but can only
+send one name in the SNI extension.  The server's default certificate
+may match a different name acceptable to the client, e.g., the
+original next-hop domain.
 </t>
 
 <t>
 <!-- XXXWJH: this paragraph needs work; it rambles a bit and the point
      isn't clear-->
-The SMTP client MAY include anonymous TLS cipher suites in its TLS
-HELLO.  SMTP servers that receive email from the Internet
-<!-- XXXWJH: why the MUST?  I'm thinking SHOULD? -->
-MUST interoperate with opportunistic TLS SMTP clients that include
-anonymous ciphers, provided the server is able to accept at least
-some of the ciphers offered by the client.  If a server advertises
-support for STARTTLS in its SMTP EHLO response, it MUST NOT fail
-to complete the TLS handshake merely because the SMTP client offered
-some cipher suites that do not provide for server authentication.
-While SMTP server operators are under no obligation to enable
-anonymous cipher suites, no security is gained by sending certificates
-clients are willing to ignore.  Indeed support for anonymous cipher
-suites in the server makes audit trails more informative.  Log
-entries that record connections that employed an anonymous cipher
-suite record the fact that the clients did not care to authenticate
-the server.
+An SMTP client employing pre-DANE opportunistic TLS MAY include
+some anonymous TLS cipher suites in its TLS HELLO in addition to
+at least one non-anonymous cipher suite (since servers often do
+support any of the anonymous ones).  Therefore, SMTP servers that
+Therefore, an SMTP server MUST either select some suitable non-anonymous
+cipher suite offered by the client, or if it selects an anonymous
+cipher suite, it MUST NOT fail to complete the handshake merely
+because an anonymous cipher suite was chosen.
+</t>
+
+<t>
+Note that while SMTP server operators are under no obligation to
+enable anonymous cipher suites, no security is gained by sending
+certificates to clients that will ignore them.  Indeed support for
+anonymous cipher suites in the server makes audit trails more
+informative.  Log entries that record connections that employed an
+anonymous cipher suite record the fact that the clients did not
+care to authenticate the server.
 </t>
 
 </section><!-- Certificate matching -->
@@ -1416,7 +1420,7 @@ tell which algorithms might be weakened by new attacks and when.
 </t>
 
 <t>
-Note, TLSA records with a matching type of "Full(0)", that publish the
+Note, TLSA records with a matching type of Full(0), that publish the
 full value of a certificate or public key object, play no role in
 digest algorithm agility.  They neither trump the processing of
 records that employ digests, nor are they ignored in the presence
@@ -1429,7 +1433,7 @@ the DANE TLSA records of an SMTP server.  Algorithm agility is to
 be applied after first discarding any unusable or malformed records
 (unsupported digest algorithm, or incorrect digest length).  Thus,
 for each usage and selector, the client SHOULD process only any
-usable records with a matching type of "Full(0)" and the usable records
+usable records with a matching type of Full(0) and the usable records
 whose digest algorithm is believed to be the strongest among usable
 records with the given usage and selector.
 </t>
@@ -1522,20 +1526,12 @@ whose certificate chain fails to match at least one TLSA record when
 usable TLSA records are available.
 </t>
 
-<t>
-SMTP clients employing opportunistic DANE TLS and TLSA record
-publishers for SMTP servers need to follow the guidance outlined
-in <xref target="I-D.ietf-dane-ops"/>'s "Certificate Name Check
-Conventions", "Service Provider and TLSA Publisher Synchronization"
-and "TLSA Base Domain and CNAMEs" sections.
-</t>
-
 </section>
 
 <section anchor="oppublishers" title="Publisher Operational Considerations">
 
 <t>
-SMTP servers that publish certificate usage "DANE-TA(2)"
+SMTP servers that publish certificate usage DANE-TA(2)
 associations MUST include the TA certificate in their TLS server
 certificate chain, even when that TA certificate is a self-signed
 root certificate.
@@ -1624,9 +1620,10 @@ comments and advice on this document.
 <t>
 Acknowledgments from Viktor: Thanks to Paul Hoffman who motivated
 me to begin work on this memo and provided feedback on early drafts.
-Thanks also to Wietse Venema who created Postfix, and whose advice
-and feedback were essential to the development of the Postfix DANE
-implementation.
+Thanks to Patrick Koetter, Perry Metzger and Nico Williams for
+valuable review comments.  Thanks also to Wietse Venema who created
+Postfix, and whose advice and feedback were essential to the
+development of the Postfix DANE implementation.
 </t>
 
 </section><!-- Acknowledgements -->
