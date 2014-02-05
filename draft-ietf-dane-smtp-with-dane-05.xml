@@ -1535,15 +1535,15 @@ and "TLSA Base Domain and CNAMEs" sections.
 <section anchor="oppublishers" title="Publisher Operational Considerations">
 
 <t>
-SMTP servers that publish certificate usage 2 (trust anchor)
+SMTP servers that publish certificate usage "DANE-TA(2)"
 associations MUST include the TA certificate in their TLS server
-certificate chain even when that TA certificate is a self-signed
+certificate chain, even when that TA certificate is a self-signed
 root certificate.
 </t>
 
 <t>
-TLSA Publishers MUST follow the digest agility guidelines in <xref
-target="agility"/> and make sure that all objects published in
+TLSA Publishers must follow the digest agility guidelines in <xref
+target="agility"/> and must make sure that all objects published in
 digest form for a particular usage and selector are published with
 the same set of digest algorithms.
 </t>
