@@ -1595,6 +1595,16 @@ certificate usages 0 and 1 simplifies implementation and deployment
 with no adverse security consequences.
 </t>
 
+<t>
+Implementations must strictly follow the portions of this
+specification that indicate when it is appropriate to initiate a
+non-authenticated connection or cleartext connection to a SMTP
+server.  Specifically, in order to prevent downgrade attacks on this
+protocol, implementation must not initiate a connection when this
+specification indicates a particular SMTP server must be considered
+unreachable.
+</t>
+
 </section><!-- Security Considerations -->
 
 <section title="IANA considerations">
