@@ -1351,7 +1351,7 @@ original next-hop domain.
 An SMTP client employing pre-DANE opportunistic TLS MAY include
 some anonymous TLS cipher suites in its TLS HELLO in addition to
 at least one non-anonymous cipher suite (since servers often do
-support any of the anonymous ones).  Therefore, SMTP servers that
+support any of the anonymous ones).
 Therefore, an SMTP server MUST either select some suitable non-anonymous
 cipher suite offered by the client, or if it selects an anonymous
 cipher suite, it MUST NOT fail to complete the handshake merely
