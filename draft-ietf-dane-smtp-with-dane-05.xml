@@ -114,8 +114,9 @@ focus on securing MTA to MTA SMTP connections.
 
 <t>
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
-"SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in
-this document are to be interpreted as described in <xref target="RFC2119"/>.
+"SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",  "MAY",
+and "OPTIONAL" in this document are to be interpreted as described
+in <xref target="RFC2119"/>.
 </t>
 
 
