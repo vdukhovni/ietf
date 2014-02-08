@@ -323,6 +323,7 @@ in <xref target="RFC2119"/>.
 
     </section>
 
+    <!-- XXX: DANEbis: Discourage use of Full(0) -->
     <section title= "Packet Size Considerations for TLSA Parameters">
 
       <t>
@@ -336,11 +337,11 @@ in <xref target="RFC2119"/>.
 
       <t>
         While TLSA records using a TLSA Selector of SPKI(1) and a TLSA
-        Matching Type of Full(0), publishing full public keys without the
-        full X.509 wrapping, are generally more compact, these too
-        should be used with caution as they are still larger than
-        necessary.  Rather, servers SHOULD make use of the
-        digest-based TLSA Matching Types within TLSA records.
+        Matching Type of Full(0) (that publish the bare public key without
+	the overhead of a containing X.509 certificate) are generally more
+	compact, these too should be used with caution as they are still
+	larger than necessary.  Rather, servers SHOULD publish digest-based
+	TLSA Matching Types in their TLSA records.
         The complete corresponding certificate should, instead, be
         transmitted to the client in-band during the TLS handshake.
       </t>
@@ -369,6 +370,7 @@ in <xref target="RFC2119"/>.
     </t>
 
     <t>
+      <!-- XXX: DANEbis: Mandate use of SNI by clients -->
       When a server hosts multiple domains at the same transport
       endpoint, the server's ability to respond with the right
       certificate chain is predicated on correct SNI information
@@ -377,6 +379,7 @@ in <xref target="RFC2119"/>.
     </t>
 
     <t>
+      <!-- XXX: DANEbis: Specify name check requirements -->
       Except with TLSA Certificate Usage DANE-EE(3), where name
       checks are not applicable (see <xref target="type3" />), DANE
       clients MUST verify that the client has reached the correct
@@ -439,6 +442,12 @@ in <xref target="RFC2119"/>.
     </t>
 
     <t>
+      <!-- XXX: DANEbis: Explain how DANE-EE(3) and DANE-TA(2) make it
+       it possible to avoid the need for service providers to obtain keys
+       from clients, or alternatively for clients to publish TLSA RRs
+       for provider generated keys. SNI is needed with DANE-TA(2), but
+       the key material and TLSA RRs are managed unilaterally by the
+       Service Provider. -->
       Whenever possible, the TLSA Publisher and the Service Provider
       should be the same entity.  Otherwise changes in the service
       certificate chain must be carefully coordinated between the
@@ -475,8 +484,8 @@ in <xref target="RFC2119"/>.
     Provider is free to issue a certificate bearing any customer's
     domain name.  Without DANE, such a certificate would not pass
     trust verification, but with DANE, the customer's TLSA RRset
-    aliased to the provider's TLSA RRset can grant legitimacy to
-    the provider's CA for the service in question!  The Service
+    aliased to the provider's TLSA RRset can delegate authority to
+    the provider's CA for the corresponding service.  The Service
     Provider can generate appropriate certificates for each customer
     and use SNI to select the right certificate chain to present
     to each client. </t>
@@ -514,6 +523,8 @@ in <xref target="RFC2119"/>.
     </figure>
 
     <t>
+      <!-- XXX: DANEbis: Note redirection of TLSA base domain via MX, SRV
+      and related records -->
       With protocols that support explicit transport redirection
       via DNS MX records, SRV records, or other similar records,
       the TLSA base domain is based on the redirected transport
@@ -568,24 +579,26 @@ in <xref target="RFC2119"/>.
     </t>
 
     <t>
+      <!-- XXX: DANEbis: Preferred TLSA base domain with CNAME expansion -->
       The complexity of coordinating key rollover is largely
       eliminated when DANE TLSA records are found in the Service
       Provider's domain, as discussed in <xref target="sync" />.
       Therefore, DANE TLS clients connecting to a server whose
       domain name is a CNAME alias SHOULD follow the CNAME hop-by-hop
       to its ultimate target host (noting at each step whether the
-      CNAME is DNSSEC-validated), and use the final target host as
-      the base domain for TLSA lookups.
+      CNAME is DNSSEC-validated).  If at each stage of CNAME expansion
+      the DNSSEC validation status is "secure", the final target name
+      SHOULD be the preferred base domain for TLSA lookups.
     </t>
 
-    <!-- XXX: MAY or SHOULD? -->
     <t>
+      <!-- XXX: DANEbis: Fallback TLSA base domain with CNAME expansion -->
       Implementations failing to find a TLSA record using a base
       name of the final target of a CNAME expansion SHOULD issue a
       TLSA query using the original destination name.  That is, the
       preferred TLSA base domain should be derived from the
       fully expanded name, and failing that should be the initial
-      query name.
+      domain name.
     </t>
 
     <t>
@@ -607,6 +620,7 @@ in <xref target="RFC2119"/>.
   </section>
 
   <section title="Interaction with Certificate Transparency">
+  <!-- XXX: DANEbis: CT interaction: No CT for DANE-TA/EE -->
 
     <t>
       <xref target="RFC6962"/> Certificate Transparency, or CT for
@@ -664,6 +678,7 @@ in <xref target="RFC2119"/>.
       chains.
     </t>
 
+    <!-- XXX: DANEbis: Opportunistic TLS discovery. -->
     <t>
       A service with DNSSEC-validated TLSA records implicitly
       promises TLS support.  When all the TLSA records for a service
@@ -686,6 +701,7 @@ in <xref target="RFC2119"/>.
 
     <section title="Design Considerations for non-PKIX Protocols" anchor="nopki">
 
+      <!-- XXX: DANEbis: App protocols may define non-usability of CU-[01]. -->
       <t>
         For some application protocols (such as SMTP to MX with
         opportunistic TLS), the existing public CA PKI is not a
@@ -714,6 +730,7 @@ in <xref target="RFC2119"/>.
 
   <section title="TLSA Records and Trust Anchor Digests" anchor="tadgst">
 
+    <!-- XXX: DANEbis: Servers must send DANE-TA(2) certs in TLS chain. -->
     <t>
       With TLSA records that match the EE certificate, the TLS client has
       no difficulty matching TLSA records against the server certificate,
@@ -777,6 +794,7 @@ in <xref target="RFC2119"/>.
 
   <section title="Trust anchor public keys">
 
+    <!-- XXX: DANEbis: clarify "IN TLSA 2 1 0" requirements. -->
     <t>
       TLSA records with TLSA Certificate Usage DANE-TA(2), selector
       SPKI(1) and a matching type of Full(0) publish the full public
@@ -925,7 +943,7 @@ in <xref target="RFC2119"/>.
       chain may be incomplete or name checks may fail.  It requires
       more complex coordination between the Customer Domain and the
       Service Provider in hosting arrangements.  This certificate
-      usage is not recommended.
+      usage is NOT RECOMMENDED.
     </t>
 
   </section>
@@ -976,7 +994,7 @@ in <xref target="RFC2119"/>.
       configured with the required root CA, and requires more complex
       coordination between the Customer Domain and the Service
       Provider in hosting arrangements.  This certificate usage is
-      not recommended.
+      NOT RECOMMENDED.
     </t>
 
   </section>
