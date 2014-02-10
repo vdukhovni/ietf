@@ -167,25 +167,6 @@ The following terms or concepts are used through the document:
     itself, not its DNS name.
     </t>
 
-    <!-- XXXWJH: I think we need three actions to be defined here (one
-         of which is already next).  Then we can say through the rest
-         of the document at each step what the action should be.  The
-         three actions should be something like "delay delivery",
-         "connect only over authenticated and encrypted TLS" and
-         "connect over either encrypted TLS or over unprotected TCP".
-    With these in place we can rewrite the document again using these
-    terms.  And we can define things based on 4033 language when
-    talking about the appropriate stub resolver cases. -->
-    <!-- XXXVD: Actually we have the following *four* choices:
-    	1.  Secure delivery via authenticated TLS
-	2.  Passive intercept protected delivery via unauthenticated, but
-	    required TLS.
-	3.  Opportunistic TLS.
-	4.  Delayed delivery.
-	Not yet sure whether we want to list them all here, some may be more
-	clear if defined in context.
-    -->
-
     <t hangText="delayed delivery:">
     Email delivery is a multi-hop store &amp; forward process.  When
     an MTA is unable forward a message that may become deliverable
@@ -516,7 +497,6 @@ target="RFC4035"/>.
 As noted in section 4.3 of <xref target="RFC4035"/>, a security-aware
 DNS resolver MUST be able to determine whether a given non-error
 DNS response is "secure", "insecure", "bogus" or "indeterminate".
-<!-- XXXWJH: -->
 It is expected that most security-aware stub resolvers will not
 signal an "indeterminate" security status the RFC4035-sense to the
 application, and will signal a "bogus" or error result instead.  If
@@ -690,7 +670,6 @@ TLSA records are used to establish an encrypted and authenticated TLS
 channel with the SMTP server.
 </t>
 
-<!-- XXXWJH: move to operational considerations? -->
 <t>
 An operational error on the sending or receiving side that cannot
 be corrected in a timely manner may, at times, lead to consistent
@@ -722,7 +701,6 @@ even that part of the DNAME support logic is outside the MTA.
 </t>
 
 <t>
-<!-- XXXWJH: probably need to state when this occurs; eg, local policy -->
 When the original next-hop destination is an address literal, rather
 than a DNS domain, DANE TLS does not apply.  Delivery proceeds using
 any relevant security policy configured by the MTA administrator.
@@ -762,7 +740,6 @@ their SMTP servers and MX records are configured accordingly.
 </t>
 
 <t>
-<!-- XXXVD: This is the first discussion of non-error CNAME processing -->
 In the language of <xref target="RFC5321"/> Section 5.1, the original
 next-hop domain is the "initial name".  If the MX lookup of the
 initial name results in a CNAME alias, the MTA replaces the initial
@@ -791,7 +768,6 @@ treated as unreachable.
 </section><!-- MX resolution -->
 
 <section title="Non-MX destinations" anchor="non-mx">
-<!-- XXXWJH: this section needs the most work -->
 
 <t>
 This section describes the algorithm used to locate the TLSA records
@@ -819,7 +795,6 @@ the hostname of its sole SMTP server. </t>
 </t>
 
 <t>
-<!-- XXXWJH: move the next 4 paragraphs to operational considerations section -->
 Note that DNS queries with type TLSA are mishandled by load balancing
 nameservers that serve the MX hostnames of some large email providers.
 The DNS zones served by these nameservers are not signed and contain
@@ -1295,13 +1270,6 @@ with the TLSA RRset.
 </t>
 
 <t>
-<!-- XXXWJH for Viktor: suggest we drop the notes about SSLv2/SSLv3
-and simply state we require TLS version 1.2? and go with it.  We'll
-likely not get this paragraph past the security review.  It would be
-better to drop it and if implementations want to support older
-versions, it's their responsibility. To say you MUST do SNI, reference
-the 1.2 extension RFC and then somehow try to show that SSLv3 is
-possible is probably crazy.  -->
 To ensure that the server sends the right certificate chain, the
 SMTP client MUST send the TLS SNI extension containing the TLSA
 base domain.  This precludes the use of the backward compatible
@@ -1347,8 +1315,6 @@ original next-hop domain.
 </t>
 
 <t>
-<!-- XXXWJH: this paragraph needs work; it rambles a bit and the point
-     isn't clear-->
 An SMTP client employing pre-DANE opportunistic TLS MAY include
 some anonymous TLS cipher suites in its TLS HELLO in addition to
 at least one non-anonymous cipher suite (since servers often do
@@ -1384,7 +1350,6 @@ specify such a protocol below.
 </t>
 
 <t>
-<!-- XXXWJH: needs better clarity.  -->
 Suppose that a DANE TLS client authenticating a TLS server considers
 digest algorithm BETTER stronger than digest algorithm WORSE.  Suppose
 further that a server's TLSA RRset contains some records with BETTER
@@ -1475,8 +1440,7 @@ flushed from caches before making another change.</t>
 </section><!-- Hardening Opportunistic TLS -->
 
 <section title="Mandatory TLS Security">
-<!-- XXXWJH: this is sort of talked about already above; a reference
-to here should be put in rather than saying as much above -->
+
 <t>
 An MTA implementing this protocol may require a stronger security
 assurance when sending email to selected destinations.  The
@@ -1498,11 +1462,6 @@ found, message delivery is delayed.  Thus, mail is only sent when an
 authenticated TLS channel is established to the remote SMTP server.
 </t>
 
-<!-- XXXWJH: move to operational guidance and make generic.  Any
-change by any administrator will always end up in a similar spot.  All
-admins need to do appropriate monitoring, etc. The only difference we
-may need to spell out here is simply due to the likely need for
-increased robustness between partnering organizations. -->
 <t>
 Administrators of mail servers that employ mandatory DANE TLS, need
 to carefully monitor their mail logs and queues.  If a partner
