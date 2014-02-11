@@ -410,8 +410,8 @@ MTAs are not interactive applications where a human operator can make
 a decision (wisely or otherwise) to selectively disable TLS security
 policy when certificate chain verification fails.  With no user to
 "click OK", the MTAs list of public CA trust anchors would need to
-be comprehensive in order to avoid bouncing mail to sites
-employing an unknown certificate authority.
+be comprehensive in order to avoid bouncing mail addressed to sites
+that employ unknown certificate authorities.
 </t>
 
 <t>
@@ -1137,7 +1137,7 @@ new key.
 
 <t>
 TLSA records published for SMTP servers SHOULD, in most cases, be
-"DANE-EE(3) DANE(SPKI) SHA2-256(1)" records. 
+"DANE-EE(3) SPKI(1) SHA2-256(1)" records. 
 Since all DANE implementations are required to support SHA2-256,
 this record works for all clients and need not change across
 certificate renewals with the same key.
@@ -1522,9 +1522,9 @@ enabling it only for selected sites, or may occasionally need to
 disable opportunistic DANE TLS for peers that fail to interoperate due
 to misconfiguration or software defects on either end.  Unless local
 policy specifies that opportunistic DANE TLS is not to be used for a
-particular destination, client MUST NOT deliver mail via a server
+particular destination, an SMTP client MUST NOT deliver mail via a server
 whose certificate chain fails to match at least one TLSA record when
-usable TLSA records are available.
+usable TLSA records are found for that server.
 </t>
 
 </section>
