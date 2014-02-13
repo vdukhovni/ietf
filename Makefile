@@ -13,7 +13,7 @@ clean:
 	xml2rfc $<
 
 %.html: %.xml
-	xml2rfc $< --html
+	xml2rfc $< $@
 
 idnits: $(TXT)
 	idnits $<
