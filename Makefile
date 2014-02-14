@@ -16,4 +16,6 @@ clean:
 	xml2rfc $< --html
 
 idnits: $(TXT)
-	idnits $<
+	for i in $(TXT) ; do  \
+		idnits $< ; \
+	done
