@@ -712,7 +712,7 @@ in <xref target="RFC2119"/>.
       server.  Standards for DANE specific to the particular
       application protocol may modify the above as appropriate to
       specify whether the connection should be established anyway
-      without relying on TLS security, with only TLS encryption but
+      without relying on TLS security, with only encryption but
       not authentication, or whether to refuse to connect entirely.
       Protocols must choose whether to prioritize security or
       robustness.
