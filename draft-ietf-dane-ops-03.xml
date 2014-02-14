@@ -73,26 +73,29 @@ protocol and TLSA records.
 
 <t>
 Section 2 of <xref target="RFC6698"/> specifies a new "TLSA" DNS resource
-record which associates with a TLS transport endpoint the corresponding
+record which associates a TLS transport endpoint with a corresponding
 trusted leaf or issuing authority certificates or public keys.
 DNSSEC-validated DANE TLSA records can be used to augment or replace the
-trust model of the existing public CA PKI.
+trust model of the existing public Certificate Authority (CA) Public
+Key Infrastructure (PKI).
 </t>
 
 <t>
-<xref target="RFC6698"/> defines 24 combinations of TLSA record parameters.
-Additional complexity arises when the TLS transport endpoint is obtained
-indirectly via SRV, MX and CNAME records or other mechanisms that map an
+<xref target="RFC6698"/> defines 24 combinations of TLSA record
+parameters.  Additional complexity arises when the TLS transport
+endpoint is obtained indirectly via a Service Record (SRV), Mail
+Exchange (MX) record, CNAME records or other mechanisms that map an
 abstract service domain to a concrete server domain.  With service
-indirection there are multiple potential places for clients to find the
-relevant TLSA records.  Service indirection is often used to implement
-"virtual hosting", where a single Service Provider transport endpoint
-simultaneously supports multiple hosted domains.  With services that employ
-TLS, such hosting arrangements may require the Service Provider to employ
-multiple pairs of private keys and certificates with TLS clients signalling
-the desired domain via SNI (<xref target="RFC6066" />, section 3).  This
-memo provides operational guidelines intended to maximize interoperability
-between DANE TLS clients and servers.
+indirection there are multiple potential places for clients to find
+the relevant TLSA records.  Service indirection is often used to
+implement "virtual hosting", where a single Service Provider transport
+endpoint simultaneously supports multiple hosted domain names.  With
+services that employ TLS, such hosting arrangements may require the
+Service Provider to employ multiple pairs of private keys and
+certificates with TLS clients signalling the desired domain via an
+Server Name Indication (SNI) extension (<xref target="RFC6066" />,
+section 3).  This memo provides operational guidelines intended to
+maximize interoperability between DANE TLS clients and servers.
 </t>
 
 <t>
@@ -100,12 +103,13 @@ In the context of this memo, channel security is assumed to be
 provided by TLS or DTLS.  The Transport Layer Security (TLS) <xref
 target="RFC5246" /> and Datagram Transport Layer Security (DTLS) <xref
 target="RFC6347" /> protocols provide secured TCP and UDP
-communication over the Internet Protocol.  By convention, "TLS" will
-be used throughout this document and, unless otherwise specified, the
-text applies equally well to the DTLS protocol.  Used without
-authentication, TLS provides protection only against eavesdropping.
-With authentication, TLS also provides protection against
-man-in-the-middle (MITM) attacks.
+communication over the IP.  By convention, "TLS" will be used
+throughout this document and, unless otherwise specified, the text
+applies equally well to the DTLS protocol.  Used without
+authentication, TLS provides protection only against eavesdropping
+through its use of encryption.  With authentication, TLS also provides
+integrity protection and authentication, which protects the transport
+against man-in-the-middle (MITM) attacks.
 </t>
 
 <section title="Terminology">
