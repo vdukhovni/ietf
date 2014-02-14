@@ -90,14 +90,15 @@ generally opportunistic.
 
 <t>
 We note that the SMTP protocol is also used between Message User
-Agents (MUAs) and Message Submission Agents (MSAs).  In <xref
-target="RFC6186"/> a protocol is specified that enables an MUA to
-dynamically locate the MSA based on the user's email address.  SMTP
-connection security requirements for MUAs implementing <xref
-target="RFC6186"/> are largely analogous to connection security
-requirements for MTAs, and this specification could be applied
-largely verbatim with DNS MX records replaced by corresponding DNS
-Service (SRV) records.
+Agents (MUAs) and Message Submission Agents (MSAs) <xref
+target="RFC6409" />.  In <xref target="RFC6186"/> a protocol is
+specified that enables an MUA to dynamically locate the MSA based on
+the user's email address.  SMTP connection security requirements for
+MUAs implementing <xref target="RFC6186"/> are largely analogous to
+connection security requirements for MTAs, and this specification
+could be applied largely verbatim with DNS MX records replaced by
+corresponding DNS Service (SRV) records <xref
+target="I-D.ietf-dane-srv" />.
 </t>
 
 <t>
@@ -260,12 +261,12 @@ attacks.
 
 <t>
 With HTTPS, Transport Layer Security (TLS) employs X.509 certificates
-issued by one of the many Certificate Authorities (CAs) bundled
-with popular web browsers to allow users to authenticate their
-"secure" websites.  Before we specify a new DANE TLS security model
-for SMTP, we will explain why a new security model is needed.  In
-the process, we will explain why the familiar HTTPS security model
-is inadequate to protect inter-domain SMTP traffic.
+<xref target="RFC5280" /> issued by one of the many Certificate
+Authorities (CAs) bundled with popular web browsers to allow users to
+authenticate their "secure" websites.  Before we specify a new DANE
+TLS security model for SMTP, we will explain why a new security model
+is needed.  In the process, we will explain why the familiar HTTPS
+security model is inadequate to protect inter-domain SMTP traffic.
 </t>
 
 <t>
@@ -709,7 +710,8 @@ supported by the sending MTA.
 A note about DNAME aliases:  a query for a domain name whose ancestor
 domain is a DNAME alias returns the DNAME RR for the ancestor domain,
 along with a CNAME that maps the query domain to the corresponding
-sub-domain of the target domain of the DNAME alias.  Therefore,
+sub-domain of the target domain of the DNAME alias <xref
+target="RFC6672" />.  Therefore,
 whenever we speak of CNAME aliases, we implicitly allow for the
 possibility that the alias in question is the result of an ancestor
 domain DNAME record.  Consequently, no explicit support for DNAME
@@ -1644,7 +1646,6 @@ development of the Postfix DANE implementation.
 &RFC5321;
 &RFC6125;
 &RFC6186;
-&RFC6409;
 &RFC6066;
 &RFC6672;
 &RFC6698;
@@ -1652,10 +1653,8 @@ development of the Postfix DANE implementation.
 </references>
 <references title="Informative References">
 &RFC5598;
-&RFC6394;
-&RFC6895;
+&RFC6409;
 &I-D.ietf-dane-srv;
-&I-D.ietf-dane-smtp;
 &I-D.ietf-dane-registry-acronyms;
 </references>
 </back>
