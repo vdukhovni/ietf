@@ -751,17 +751,18 @@ in <xref target="RFC2119"/>.
 
     <!-- XXX: DANEbis: Servers must send DANE-TA(2) certs in TLS chain. -->
     <t>
-      With TLSA records that match the EE certificate, the TLS client has
-      no difficulty matching TLSA records against the server certificate,
-      as this certificate is always present in the TLS server certificate
-      chain.
+      With TLSA records that match the EE certificate (i.e., DANE-EE(3) or
+      PKIX-EE(1)), the TLS client has no difficulty matching TLSA records
+      against the server certificate, as this certificate is always
+      present in the TLS server certificate chain.
     </t>
 
     <t>
-      With DANE TLSA records that match the digest of a TA certificate or
-      public key, a complication arises when the TA certificate is omitted
-      from the server's certificate chain.  This can happen when the
-      trust anchor is a root certificate authority, as stated in section
+      With DANE TLSA records that match the digest of a TA certificate
+      or public key (i.e., DANE-TA(2) or PKIX-TA(0)), a complication
+      arises when the TA certificate is omitted from the server's
+      certificate chain.  This can happen when the trust anchor is a
+      root certificate authority, as stated in section
       7.4.2 of <xref target="RFC5246"/>:
     </t>
 
@@ -788,7 +789,7 @@ in <xref target="RFC2119"/>.
     </t>
 
     <t>
-      With TLSA Certificate Usage DANE-TA(2), there is no expectation
+      With TLSA Certificate Usage DANE-TA(2), however, there is no expectation
       that the client is pre-configured with the trust anchor
       certificate.  Rather, with TLSA Certificate Usage DANE-TA(2)
       clients must be able to rely on the TLSA records alone.  But,
