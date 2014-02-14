@@ -643,14 +643,15 @@ in <xref target="RFC2119"/>.
 
     <t>
       Certificate Transparency (CT) <xref target="RFC6962"/> defines
-      an approach to mitigate the risk of rogue or compromised public
-      CAs issuing unauthorized certificates.  This section clarifies
-      the interaction of CT and DANE.  CT is a protocol and auditing
-      system that applies only to public CAs, and only when they are
-      free to issue unauthorized certificates for a domain.  If the CA
-      is not a public CA, or a DANE-EE(3) TLSA RR directly specifies
-      the end entity certificate, there is no role for CT, and clients
-      need not apply CT checks.
+      an experimental approach to mitigate the risk of rogue or
+      compromised public CAs issuing unauthorized certificates.  This
+      section clarifies the interaction of CT and DANE.  CT is an
+      experimental protocol and auditing system that applies only to
+      public CAs, and only when they are free to issue unauthorized
+      certificates for a domain.  If the CA is not a public CA, or a
+      DANE-EE(3) TLSA RR directly specifies the end entity
+      certificate, there is no role for CT, and clients need not apply
+      CT checks.
     </t>
 
     <t>
