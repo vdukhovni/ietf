@@ -126,16 +126,16 @@ in <xref target="RFC2119"/>.
     A company or organization that offers to host a service on behalf
     of a Customer Domain.  The original domain name associated with the
     service often remains under the control of the customer.  Connecting
-    applications are directed to the Service Provider via a redirection
+    applications may directed to the Service Provider via a redirection
     resource record.  Example redirection records include MX, SRV, and
-    CNAME.  The Service Provider typically provides services for
+    CNAME.  The Service Provider frequently provides services for
     many customers and must carefully manage any TLS credentials
     offered to connecting applications to ensure name matching is
     handled easily by the applications.
   </t>
   <t hangText="Customer Domain:">
     Customers that make use of a Service Provider to outsource their
-    services will be referred to as "Customer Domains".
+    service(s) will be referred to as "Customer Domains".
   </t>
   <t hangText="TLSA Publisher:">
     The entity responsible for publishing a TLSA record within a DNS
@@ -147,7 +147,8 @@ in <xref target="RFC2119"/>.
   </t>
   <t hangText="public key:">
     The term "public key" will be an informal short-hand for the
-    subjectPublicKeyInfo component of a PKIX certificate.
+    subjectPublicKeyInfo component of a PKIX <xref target="RFC5280" />
+    certificate.
   </t>
   <t hangText="SNI:">
     "Server Name Indication", or SNI, describes the TLS protocol
@@ -156,7 +157,7 @@ in <xref target="RFC2119"/>.
     />, section 3).  Without this TLS extension, a TLS server has no choice
     but to offer a PKIX certificate with a default list of server
     names, making it difficult to host multiple Customer Domains at
-    the same TLS service endpoint (secure virtual hosting).
+    the same TLS service endpoint (i.e., "secure virtual hosting").
   </t>
 </list>
 </t>
