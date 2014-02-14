@@ -516,24 +516,24 @@ in <xref target="RFC2119"/>.
 
     <figure>
     <artwork>
-  ; Hosted web service redirected via a CNAME alias.
-  ; Associated TLSA RRset redirected via a CNAME alias.
-  ;
-  ; Single certificate at provider works for all Customer Domains
-  ;
-  www1.example.com.             300 IN CNAME www311.example.net.
-  _443._tcp.www3.example.com.   300 IN CNAME _443._tcp.www311.example.net.
-  _443._tcp.www311.example.net. 300 IN TLSA  DANE-EE SPKI SHA2-256 (
-                                8A9A70596E869BED72C69D97A8895DFA
-                                D86F300A343FECEFF19E89C27C896BC9 )
-  ;
-  ; CA at provider can issue certificates for each Customer Domain.
-  ;
-  www2.example.com.             300 IN CNAME www201.example.net.
-  _443._tcp.www2.example.com.   300 IN CNAME _443._tcp.www201.example.net.
-  _443._tcp.www201.example.net. 300 IN TLSA DANE-TA Cert SHA2-256 (
-                                C164B2C3F36D068D42A6138E446152F5
-                                68615F28C69BD96A73E354CAC88ED00C )
+; Hosted web service redirected via a CNAME alias.
+; Associated TLSA RRset redirected via a CNAME alias.
+;
+; Single certificate at provider works for all Customer Domains
+;
+www1.example.com.             300 IN CNAME w3.example.net.
+_443._tcp.www3.example.com.   300 IN CNAME _443._tcp.w3.example.net.
+_443._tcp.w3.example.net.     300 IN TLSA  DANE-EE SPKI SHA2-256 (
+                              8A9A70596E869BED72C69D97A8895DFA
+                              D86F300A343FECEFF19E89C27C896BC9 )
+;
+; CA at provider can issue certificates for each Customer Domain.
+;
+www2.example.com.             300 IN CNAME w2.example.net.
+_443._tcp.www2.example.com.   300 IN CNAME _443._tcp.w2.example.net.
+_443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
+                              C164B2C3F36D068D42A6138E446152F5
+                              68615F28C69BD96A73E354CAC88ED00C )
     </artwork>
     </figure>
 
