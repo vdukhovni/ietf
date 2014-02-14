@@ -1048,23 +1048,6 @@ in <xref target="RFC2119"/>.
 
 </section>
 
-<section anchor="Acknowledgements" title="Acknowledgements">
-
-  <t>
-    The authors would like to thank Phil Pennock for his comments and
-    advice on this document.
-  </t>
-
-  <t>
-    Acknowledgments from Viktor: Thanks to Tony Finch who finally
-    prodded me into participating in DANE working group discussions.
-    Thanks to Paul Hoffman who motivated me to produce this memo
-    and provided feedback on early drafts.  Thanks also to Samuel
-    Dukhovni for editorial assistance.
-  </t>
-
-</section><!-- Acknowledgements -->
-
 <section anchor="Security" title="Security Considerations">
 
   <t>
@@ -1095,6 +1078,23 @@ in <xref target="RFC2119"/>.
 <section title="IANA considerations">
   <t>This specification requires no support from IANA.</t>
 </section>
+
+<section anchor="Acknowledgements" title="Acknowledgements">
+
+  <t>
+    The authors would like to thank Phil Pennock for his comments and
+    advice on this document.
+  </t>
+
+  <t>
+    Acknowledgments from Viktor: Thanks to Tony Finch who finally
+    prodded me into participating in DANE working group discussions.
+    Thanks to Paul Hoffman who motivated me to produce this memo
+    and provided feedback on early drafts.  Thanks also to Samuel
+    Dukhovni for editorial assistance.
+  </t>
+
+</section><!-- Acknowledgements -->
 
 </middle>
 
