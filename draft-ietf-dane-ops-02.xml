@@ -1092,6 +1092,10 @@ in <xref target="RFC2119"/>.
 
 </section><!-- Security Considerations -->
 
+<section title="IANA considerations">
+  <t>This specification requires no support from IANA.</t>
+</section>
+
 </middle>
 
 <back>
