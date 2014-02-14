@@ -60,7 +60,7 @@ certificate chain via published TLSA records.  Guidance is also
 provided to clients for selecting reliable TLSA record parameters and
 using them for server authentication.  Finally, guidance is given to
 protocol designers who wish to make use of TLSA records when securing
-protocols using a combination of TLS and TLSA.
+protocols using a combination of Transport Layer Security (TLS) and TLSA.
 </t>
 
 </abstract>
