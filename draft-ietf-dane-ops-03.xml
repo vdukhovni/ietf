@@ -452,7 +452,7 @@ in <xref target="RFC2119"/>.
       entity as the Service Provider.  In this situation, the TLSA
       Publisher and the Service Provider must cooperate to ensure that
       TLSA records published by the TLSA Publisher don't fall out of
-      sync with the server certificate configuration used by the
+      sync with the server certificate used by the
       Service Provider.
     </t>
 
@@ -464,20 +464,20 @@ in <xref target="RFC2119"/>.
        the key material and TLSA RRs are managed unilaterally by the
        Service Provider. -->
       Whenever possible, the TLSA Publisher and the Service Provider
-      should be the same entity.  Otherwise changes in the service
+      should be the same entity.  Otherwise, changes in the service
       certificate chain must be carefully coordinated between the
-      parties involved.  Such coordination is difficult and outages
-      will result when the process fails.
+      parties involved.  Such coordination is difficult and service
+      outages will result when coordination fails.
     </t>
 
     <t>
-      Even when the TLSA RRset must be published in the Customer
-      Domain's DNS zone, it is possible to employ CNAME records (see
-      <xref target="cname"/>) to delegate the content of the TLSA
-      RRset to a domain operated by the Service Provider.  Having
-      the master TLSA record in the Service Provider's zone avoids
-      the complexity of bilateral coordination of server certificate
-      configuration and TLSA record management.  Certificate name
+      Having the master TLSA record in the Service Provider's zone
+      avoids the complexity of bilateral coordination of server
+      certificate configuration and TLSA record management.  Even when
+      the TLSA RRset must be published in the Customer Domain's DNS
+      zone, it is possible to employ CNAME records (see <xref
+      target="cname"/>) to delegate the content of the TLSA RRset to a
+      domain operated by the Service Provider.  Certificate name
       checks generally constrain the applicability of TLSA CNAMEs
       across organizational boundaries to Certificate Usages
       DANE-EE(3) and DANE-TA(2):
@@ -487,23 +487,23 @@ in <xref target="RFC2119"/>.
     <list style="hanging">
 
     <t hangText="Certificate Usage DANE-EE(3):"> In this case the
-    Service Provider can publish a single TLSA RRset that matches
-    the server certificate or public key digest.  The same RRset
-    works for all Customer Domains because name checks do not apply
-    with DANE-EE(3) TLSA records.  A Customer Domain can create a
-    CNAME record pointing to the TLSA RRset published by the Service
-    Provider.  </t>
+    Service Provider can publish a single TLSA RRset that matches the
+    server certificate or public key digest.  The same RRset works for
+    all Customer Domains because name checks do not apply with
+    DANE-EE(3) TLSA records (see <xref target="type3" />).  A
+    Customer Domain can create a CNAME record pointing to the TLSA
+    RRset published by the Service Provider.  </t>
 
     <t hangText="Certificate Usage DANE-TA(2):"> When the Service
     Provider operates a private certificate authority, the Service
     Provider is free to issue a certificate bearing any customer's
     domain name.  Without DANE, such a certificate would not pass
-    trust verification, but with DANE, the customer's TLSA RRset
-    aliased to the provider's TLSA RRset can delegate authority to
+    trust verification, but with DANE, the customer's TLSA RRset that
+    is aliased to the provider's TLSA RRset can delegate authority to
     the provider's CA for the corresponding service.  The Service
     Provider can generate appropriate certificates for each customer
-    and use SNI to select the right certificate chain to present
-    to each client. </t>
+    and use SNI to select the right certificate chain to present to
+    each client. </t>
 
     </list>
     </t>
@@ -523,7 +523,7 @@ in <xref target="RFC2119"/>.
   ;
   www1.example.com.             300 IN CNAME www311.example.net.
   _443._tcp.www3.example.com.   300 IN CNAME _443._tcp.www311.example.net.
-  _443._tcp.www311.example.net. 300 IN TLSA  3 1 1 (
+  _443._tcp.www311.example.net. 300 IN TLSA  DANE-EE SPKI SHA2-256 (
                                 8A9A70596E869BED72C69D97A8895DFA
                                 D86F300A343FECEFF19E89C27C896BC9 )
   ;
@@ -531,7 +531,7 @@ in <xref target="RFC2119"/>.
   ;
   www2.example.com.             300 IN CNAME www201.example.net.
   _443._tcp.www2.example.com.   300 IN CNAME _443._tcp.www201.example.net.
-  _443._tcp.www201.example.net. 300 IN TLSA 2 0 1 (
+  _443._tcp.www201.example.net. 300 IN TLSA DANE-TA Cert SHA2-256 (
                                 C164B2C3F36D068D42A6138E446152F5
                                 68615F28C69BD96A73E354CAC88ED00C )
     </artwork>
@@ -556,12 +556,12 @@ in <xref target="RFC2119"/>.
     <artwork>
   ; Hosted SMTP service
   ;
-  example.com. IN MX 0 mx1.example.net.
-  example.com. IN MX 0 mx2.example.net.
-  _25._tcp.mx1.example.net. IN TLSA 3 1 1 (
+  example.com.              300 IN MX 0 mx1.example.net.
+  example.com.              300 IN MX 0 mx2.example.net.
+  _25._tcp.mx1.example.net. 300 IN TLSA DANE-EE SPKI SHA2-256 (
                                 8A9A70596E869BED72C69D97A8895DFA
                                 D86F300A343FECEFF19E89C27C896BC9 )
-  _25._tcp.mx2.example.net. IN TLSA 3 1 1 (
+  _25._tcp.mx2.example.net. 300 IN TLSA DANE-EE SPKI SHA2-256 (
                                 C164B2C3F36D068D42A6138E446152F5
                                 68615F28C69BD96A73E354CAC88ED00C )
     </artwork>
