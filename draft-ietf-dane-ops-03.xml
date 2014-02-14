@@ -271,9 +271,9 @@ in <xref target="RFC2119"/>.
 
     <figure>
     <artwork>
-  _25._tcp.mail.example.com. IN TLSA 2 0 1 (
-                                E8B54E0B4BAA815B06D3462D65FBC7C0
-                                CF556ECCF9F5303EBFBB77D022F834C0 )
+  _25._tcp.mail.example.com. 300 IN TLSA PKIX-TA Cert SHA2-256 (
+                                 E8B54E0B4BAA815B06D3462D65FBC7C0
+                                 CF556ECCF9F5303EBFBB77D022F834C0 )
     </artwork>
     </figure>
 
@@ -420,10 +420,10 @@ in <xref target="RFC2119"/>.
 
     <figure>
     <artwork>
-  example.com. IN MX 0 mail.example.com.
-  _25._tcp.mail.example.com. IN TLSA 2 0 1 (
-                                E8B54E0B4BAA815B06D3462D65FBC7C0
-                                CF556ECCF9F5303EBFBB77D022F834C0 )
+  example.com.               300 IN MX 0 mail.example.com.
+  _25._tcp.mail.example.com. 300 IN TLSA DANE-TA Cert SHA2-256  (
+                                 E8B54E0B4BAA815B06D3462D65FBC7C0
+                                 CF556ECCF9F5303EBFBB77D022F834C0 )
     </artwork>
     </figure>
 
@@ -521,17 +521,17 @@ in <xref target="RFC2119"/>.
   ;
   ; Single certificate at provider works for all Customer Domains
   ;
-  www1.example.com. IN CNAME www311.example.net.
-  _443._tcp.www3.example.com. IN CNAME _443._tcp.www311.example.net.
-  _443._tcp.www311.example.net. IN TLSA 3 1 1 (
+  www1.example.com.             300 IN CNAME www311.example.net.
+  _443._tcp.www3.example.com.   300 IN CNAME _443._tcp.www311.example.net.
+  _443._tcp.www311.example.net. 300 IN TLSA  3 1 1 (
                                 8A9A70596E869BED72C69D97A8895DFA
                                 D86F300A343FECEFF19E89C27C896BC9 )
   ;
   ; CA at provider can issue certificates for each Customer Domain.
   ;
-  www2.example.com. IN CNAME www201.example.net.
-  _443._tcp.www2.example.com. IN CNAME _443._tcp.www201.example.net.
-  _443._tcp.www201.example.net. IN TLSA 2 0 1 (
+  www2.example.com.             300 IN CNAME www201.example.net.
+  _443._tcp.www2.example.com.   300 IN CNAME _443._tcp.www201.example.net.
+  _443._tcp.www201.example.net. 300 IN TLSA 2 0 1 (
                                 C164B2C3F36D068D42A6138E446152F5
                                 68615F28C69BD96A73E354CAC88ED00C )
     </artwork>
