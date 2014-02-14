@@ -4,7 +4,6 @@
 <!ENTITY RFC4033 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4033.xml">
 <!ENTITY RFC4034 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4034.xml">
 <!ENTITY RFC4035 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4035.xml">
-<!ENTITY RFC4346 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4346.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
 <!ENTITY RFC6066 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6066.xml">
@@ -46,7 +45,7 @@
         <email>ietf@hardakers.net</email>
       </address>
     </author>
-<date month="January" year="2014" />
+<date month="February" year="2014" />
 <area>sec</area>
 <workgroup>DANE</workgroup>
 <keyword>DANE</keyword>
@@ -96,14 +95,16 @@ between DANE TLS clients and servers.
 </t>
 
 <t>
-In the context of this memo, channel security is assumed to be provided by
-TLS or DTLS.  The Transport Layer Security (TLS) and Datagram Transport
-Layer Security (DTLS) protocols provide secured TCP and UDP communication
-over the Internet Protocol.  By convention, "TLS" will be used throughout
-this document and, unless otherwise specified, the text applies equally
-well to the DTLS protocol.  Used without authentication, TLS provides
-protection only against eavesdropping.  With authentication, TLS also
-provides protection against man-in-the-middle (MITM) attacks.
+In the context of this memo, channel security is assumed to be
+provided by TLS or DTLS.  The Transport Layer Security (TLS) <xref
+target="RFC5246" /> and Datagram Transport Layer Security (DTLS) <xref
+target="RFC6347" /> protocols provide secured TCP and UDP
+communication over the Internet Protocol.  By convention, "TLS" will
+be used throughout this document and, unless otherwise specified, the
+text applies equally well to the DTLS protocol.  Used without
+authentication, TLS provides protection only against eavesdropping.
+With authentication, TLS also provides protection against
+man-in-the-middle (MITM) attacks.
 </t>
 
 <section title="Terminology">
@@ -163,12 +164,13 @@ in <xref target="RFC2119"/>.
 
   <t>
     DANE TLSA <xref target="RFC6698"/> specifies a protocol for
-    publishing TLS server certificate associations via DNSSEC.  The
-    DANE TLSA specification defines multiple TLSA RR types via
-    combinations of 3 numeric parameters.  The numeric values of
-    these parameters were later given symbolic names in <xref
-    target="I-D.ietf-dane-registry-acronyms"/>.  These parameters
-    are:
+    publishing TLS server certificate associations via DNSSEC <xref
+    target="RFC4033" /> <xref target="RFC4034" /> <xref
+    target="RFC4035" />.  The DANE TLSA specification defines multiple
+    TLSA RR types via combinations of 3 numeric parameters.  The
+    numeric values of these parameters were later given symbolic names
+    in <xref target="I-D.ietf-dane-registry-acronyms"/>.  These
+    parameters are:
   </t>
 
   <t>
@@ -566,6 +568,10 @@ in <xref target="RFC2119"/>.
       generated keys and certificate chains.
     </t>
 
+    <t>For further information about combining DANE and SRV, please
+    see <xref target="I-D.ietf-dane-srv" />.
+    </t>
+
   </section>
 
   <section title="TLSA Base Domain and CNAMEs" anchor="cname">
@@ -623,16 +629,15 @@ in <xref target="RFC2119"/>.
   <!-- XXX: DANEbis: CT interaction: No CT for DANE-TA/EE -->
 
     <t>
-      <xref target="RFC6962"/> Certificate Transparency, or CT for
-      short, defines an approach to mitigate the risk of rogue or
-      compromised public CAs issuing unauthorized certificates.
-      This section clarifies the interaction of CT and DANE.  CT
-      is a protocol and auditing system that applies only to public
-      CAs, and only when they are free to issue unauthorized
-      certificates for a domain.  If the CA is not a public CA, or
-      a DANE-EE(3) TLSA RR directly specifies the end entity
-      certificate, there is no role for CT, and clients need not
-      apply CT checks.
+      Certificate Transparency (CT) <xref target="RFC6962"/> defines
+      an approach to mitigate the risk of rogue or compromised public
+      CAs issuing unauthorized certificates.  This section clarifies
+      the interaction of CT and DANE.  CT is a protocol and auditing
+      system that applies only to public CAs, and only when they are
+      free to issue unauthorized certificates for a domain.  If the CA
+      is not a public CA, or a DANE-EE(3) TLSA RR directly specifies
+      the end entity certificate, there is no role for CT, and clients
+      need not apply CT checks.
     </t>
 
     <t>
@@ -1104,16 +1109,15 @@ in <xref target="RFC2119"/>.
 &RFC4033;
 &RFC4034;
 &RFC4035;
-&RFC4346;
 &RFC5246;
 &RFC5280;
 &RFC6066;
 &RFC6125;
 &RFC6347;
 &RFC6698;
-&RFC6962;
 </references>
 <references title="Informative References">
+&RFC6962;
 &I-D.ietf-dane-registry-acronyms;
 &I-D.ietf-dane-smtp-with-dane;
 &I-D.ietf-dane-srv;
