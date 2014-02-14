@@ -876,32 +876,32 @@ in <xref target="RFC2119"/>.
 
     <t>
       Authentication via certificate usage "3" TLSA records involves
-      simply checking that the server's leaf certificate matches
-      the TLSA record.  Other than extracting the relevant certificate
+      simply checking that the server's leaf certificate matches the
+      TLSA record.  Other than extracting the relevant certificate
       elements for comparison, no other use is made of the certificate
       content.  Authentication via certificate usage "3" TLSA records
       involves no certificate authority signature checks.  It also
-      involves no server name checks, and thus does not impose any
-      new requirements on the names contained in the server certificate
-      (servers don't depend on SNI when the TLSA record matches the
-      server's default certificate).
+      involves no server name checks, and thus does not impose any new
+      requirements on the names contained in the server certificate
+      (servers don't require an SNI extension to be present when the
+      TLSA record matches the server's default certificate).
     </t>
 
     <t>
-      Two TLSA records will need to be published before updating a server's
-      public key, one matching the currently deployed key and the other
-      matching the new key scheduled to replace it.  Once sufficient time
-      has elapsed for all DNS caches to expire the previous TLSA RRset,
-      which contains only the old key, the server may be reconfigured to
-      use the new private key and associated certificate chain.  Once
-      the server is using the new key, the TLSA RR that matches the retired
-      key can be removed from DNS, leaving only the RR that matches the
-      new key.
+      Two TLSA records will need to be published before updating a
+      server's public key, one matching the currently deployed key and
+      the other matching the new key scheduled to replace it.  Once
+      sufficient time has elapsed for all the previous TLSA RRsets,
+      which contains only the old key, to expire from DNS caches, the
+      server may be reconfigured to use the new private key and
+      associated certificate chain.  Once the server is using the new
+      key, the TLSA RR that matches the retired key can be removed
+      from DNS, leaving only the TLSA RR that matches the new key.
     </t>
 
     <t>
       TLSA records for servers SHOULD, when possible, be DANE-EE(3),
-      SPKI(1), SHA2-256(1) records.  Such "3 1 1" records specify
+      SPKI(1), SHA2-256(1) records.  Such records specify
       the SHA2-256 digest of the public key of the server certificate.
       Since all DANE implementations are required to support SHA2-256,
       this record works for all clients and need not change across
