@@ -1034,12 +1034,15 @@ in <xref target="RFC2119"/>.
   </t>
 
   <t>
+    <!-- XXXWJH for viktor: name constraints are rarely used??  Huh???
+    When did that creep in, as it's not at all accurate, but I'm not
+    removing it till you can explain it.  -->
     With the existing public CA PKI, name constraints are rarely
     used, and a public root CA can issue certificates for any domain
     of its choice.  With DNSSEC, the situation is different. Only
     the registrar of record can update a domain's DS record in the
     registry parent zone (in some cases, however, the registry is
-    the sole registrar).  With gTLDs, for which multiple registrars
+    the sole registrar).  With many gTLDs, for which multiple registrars
     compete to provide domains in a single registry, it is important
     to make sure that rogue registrars cannot easily initiate an
     unauthorized domain transfer, and thus take over DNSSEC for the
@@ -1061,9 +1064,9 @@ in <xref target="RFC2119"/>.
     expire.  Operators should plan accordingly and not generate
     signatures with excessively long duration.  For domains publishing
     high-value keys, a signature lifetime of a few days is reasonable,
-    and the zone should be resigned every day.  For domains with
+    and the zone should be resigned daily.  For domains with
     less critical data, a reasonable signature lifetime is a couple
-    of weeks to a month, and the zone should be resigned every week.
+    of weeks to a month, and the zone should be resigned weekly.
     Monitoring of the signature lifetime is important.  If the zone
     is not resigned in a timely manner, one risks a major outage
     with the entire domain becoming invalid.
