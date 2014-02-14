@@ -17,5 +17,5 @@ clean:
 
 idnits: $(TXT)
 	for i in $(TXT) ; do  \
-		idnits $< ; \
+		idnits $$i ; \
 	done
