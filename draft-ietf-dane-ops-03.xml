@@ -368,14 +368,13 @@ in <xref target="RFC2119"/>.
   <section title="Certificate Name Check Conventions">
 
     <t>
-      Certificates presented by a TLS server will generally contain
-      a Common Name (CN) element in the subject distinguished name
-      (DN) and/or a subjectAltName (SAN) extension.  The server's
-      DNS hostname should be published within these elements, ideally
-      within the subjectAltName extension as use of the CN field
-      for this purpose is deprecated.  Name checks SHOULD NOT
-      consider the subject CN when SAN values of type 'dns' are
-      present.
+      Certificates presented by a TLS server will generally contain a
+      subjectAltName (SAN) extension or a Common Name (CN) element in
+      the subject distinguished name (DN).  The server's DNS hostname
+      should be published within these elements, ideally within the
+      subjectAltName extension as use of the CN field for this purpose
+      is deprecated.  Name checks SHOULD NOT consider the subject CN
+      when SAN values of type 'dns' are present.
     </t>
 
     <t>
