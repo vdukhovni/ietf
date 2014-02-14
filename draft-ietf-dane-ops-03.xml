@@ -370,7 +370,7 @@ in <xref target="RFC2119"/>.
     <t>
       Certificates presented by a TLS server will generally contain a
       subjectAltName (SAN) extension or a Common Name (CN) element in
-      the subject distinguished name (DN).  The server's DNS hostname
+      the subject distinguished name (DN).  The server's DNS domain name
       should be published within these elements, ideally within the
       subjectAltName extension as use of the CN field for this purpose
       is deprecated.  Name checks SHOULD NOT consider the subject CN
@@ -402,16 +402,16 @@ in <xref target="RFC2119"/>.
     </t>
 
     <t>
-      It is the responsibility of the service operator in coordination
-      with the TLSA Publisher to ensure that at least one of the
-      TLSA records published for the service will match the server's
-      certificate chain (either the default chain or selected based
-      on the SNI information from the client).  With certificate
-      usage values other than DANE-EE(3) the server leaf (EE)
-      certificate MUST include the TLSA base domain as one of its
-      names, or else if other acceptable names are specified by a
-      protocol-specific DANE standard, one of those can be used in
-      place of the TLSA base domain.
+      It is the responsibility of the service operator, in
+      coordination with the TLSA Publisher, to ensure that at least
+      one of the TLSA records published for the service will match the
+      server's certificate chain (either the default chain or the
+      certificate that was selected based on the SNI information from the
+      client).  With certificate usage values other than DANE-EE(3),
+      the EE certificate SHOULD include the TLSA base
+      domain as one of its names.  If other acceptable names
+      are specified by a protocol-specific DANE standard, one of those
+      MAY be used in place of the TLSA base domain.
     </t>
 
     <t>
@@ -428,7 +428,14 @@ in <xref target="RFC2119"/>.
     </figure>
 
     <t>
-      the TLSA base domain is "mail.example.com" and this MUST be the
+      <!-- XXX: should probably state that a mail.example.com is a
+           record and not a CNAME? And more importantly that there is
+           no TLSA record at _25._tcp.example.com itself, or the MUST
+           doesn't apply because either can be used.  Because we
+           select multiple base names in the SMTP draft, so the below
+           doesn't match perfectly unless _25._tcp.example.com doesn't
+           exist. -->
+      The TLSA base domain is "mail.example.com" and this MUST be the
       HostName in the client's SNI extension.  The server certificate
       chain MUST be signed by a trust anchor with the above certificate
       SHA2-256 digest.  One of the DNS names in the server certificate
