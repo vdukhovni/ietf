@@ -206,18 +206,19 @@ in <xref target="RFC2119"/>.
     We may think of TLSA Certificate Usage values 0 through 3 as
     a combination of two one-bit flags.  The low-bit chooses between
     trust anchor (TA) and end entity (EE) certificates.  The high bit
-    chooses between public PKI issued and domain-issued certificates:
+    chooses between PKIX, or public PKI issued, and TA, or
+    domain-issued trust anchors:
   </t>
 
   <t>
   <list style="symbols">
 
-    <t> When the low bit is set (PKIX-EE(1) and DANE-EE(3)) the
-    TLSA record matches an EE (commonly referred to as a leaf or
-    server) certificate.  </t>
+    <t> When the low bit is set (PKIX-EE(1) and DANE-EE(3)) the TLSA
+    record matches an EE certificate (also commonly referred to as a
+    leaf or server certificate.)</t>
 
     <t> When the low bit is not set (PKIX-TA(0) and DANE-TA(2)) the
-    TLSA record matches a trust anchor (a certificate authority)
+    TLSA record matches a trust anchor (a Certificate Authority)
     that issued one of the certificates in the server certificate
     chain.  </t>
 
@@ -340,12 +341,12 @@ in <xref target="RFC2119"/>.
         as even a single certificate is generally too large to be
         reliably delivered via DNS over UDP.  Furthermore, two TLSA
         records containing full certificates may need to be published
-        during certificate rollover.
+        simultaneously during a certificate rollover.
       </t>
 
       <t>
         While TLSA records using a TLSA Selector of SPKI(1) and a TLSA
-        Matching Type of Full(0) (that publish the bare public key without
+        Matching Type of Full(0) (which publishes the bare public key without
 	the overhead of a containing X.509 certificate) are generally more
 	compact, these too should be used with caution as they are still
 	larger than necessary.  Rather, servers SHOULD publish digest-based
