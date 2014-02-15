@@ -92,7 +92,7 @@ implement "virtual hosting", where a single Service Provider transport
 endpoint simultaneously supports multiple hosted domain names.  With
 services that employ TLS, such hosting arrangements may require the
 Service Provider to employ multiple pairs of private keys and
-certificates with TLS clients signalling the desired domain via an
+certificates with TLS clients signalling the desired domain via a
 Server Name Indication (SNI) extension (<xref target="RFC6066" />,
 section 3).  This memo provides operational guidelines intended to
 maximize interoperability between DANE TLS clients and servers.
@@ -103,12 +103,12 @@ In the context of this memo, channel security is assumed to be
 provided by TLS or DTLS.  The Transport Layer Security (TLS) <xref
 target="RFC5246" /> and Datagram Transport Layer Security (DTLS) <xref
 target="RFC6347" /> protocols provide secured TCP and UDP
-communication over the IP.  By convention, "TLS" will be used
+communication over IP.  By convention, "TLS" will be used
 throughout this document and, unless otherwise specified, the text
 applies equally well to the DTLS protocol.  Used without
 authentication, TLS provides protection only against eavesdropping
 through its use of encryption.  With authentication, TLS also provides
-integrity protection and authentication, which protects the transport
+integrity protection and authentication, which protect the transport
 against man-in-the-middle (MITM) attacks.
 </t>
 
@@ -126,7 +126,7 @@ in <xref target="RFC2119"/>.
     A company or organization that offers to host a service on behalf
     of a Customer Domain.  The original domain name associated with the
     service often remains under the control of the customer.  Connecting
-    applications may directed to the Service Provider via a redirection
+    applications may be directed to the Service Provider via a redirection
     resource record.  Example redirection records include MX, SRV, and
     CNAME.  The Service Provider frequently provides services for
     many customers and must carefully manage any TLS credentials
@@ -206,7 +206,7 @@ in <xref target="RFC2119"/>.
     We may think of TLSA Certificate Usage values 0 through 3 as
     a combination of two one-bit flags.  The low-bit chooses between
     trust anchor (TA) and end entity (EE) certificates.  The high bit
-    chooses between PKIX, or public PKI issued, and TA, or
+    chooses between PKIX, or public PKI issued, and DANE, or
     domain-issued trust anchors:
   </t>
 
@@ -346,7 +346,7 @@ in <xref target="RFC2119"/>.
 
       <t>
         While TLSA records using a TLSA Selector of SPKI(1) and a TLSA
-        Matching Type of Full(0) (which publishes the bare public key without
+        Matching Type of Full(0) (which publish the bare public keys without
 	the overhead of a containing X.509 certificate) are generally more
 	compact, these too should be used with caution as they are still
 	larger than necessary.  Rather, servers SHOULD publish digest-based
@@ -892,7 +892,7 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
       server's public key, one matching the currently deployed key and
       the other matching the new key scheduled to replace it.  Once
       sufficient time has elapsed for all the previous TLSA RRsets,
-      which contains only the old key, to expire from DNS caches, the
+      which contain only the old key, to expire from DNS caches, the
       server may be reconfigured to use the new private key and
       associated certificate chain.  Once the server is using the new
       key, the TLSA RR that matches the retired key can be removed
@@ -982,8 +982,8 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
     </t>
 
     <t>
-      TLSA Publishers MAY publish TLSA records for a particular
-      public root CA, expecting that clients will then only accept
+      TLSA Publishers who publish TLSA records for a particular
+      public root CA, will expect that clients will then only accept
       chains anchored at that root.  It is possible, however, that
       the client's trusted certificate store includes some intermediate
       CAs, either with or without the corresponding root CA.  When
@@ -1013,7 +1013,7 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
       records of his choosing and thus bypass the PKIX verification
       requirements.  Therefore, in most cases this certificate usage
       offers only illusory incremental security over usage DANE-TA(2).
-      It provides lower reliability than usage 2, though, since some
+      It provides lower reliability than usage DANE-TA(2), since some
       clients may not be configured with the required root CA, and
       additionally requires more complex coordination between the
       Customer Domain and the Service Provider in hosting
