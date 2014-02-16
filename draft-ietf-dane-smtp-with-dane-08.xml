@@ -127,6 +127,10 @@ The following terms or concepts are used through the document:
 <t>
 <list style="hanging">
 
+    <t hangText="Man-in-the-middle or MITM attack:">
+    Active modification of network traffic by an adversary able to
+    thereby compromise the confidentiality or integrity of the data.  </t>
+
     <t hangText="secure, bogus, insecure, indeterminate:">
     DNSSEC validation results, as defined in Section 4.3 of <xref
     target="RFC4035"/>.  </t>
@@ -251,8 +255,7 @@ The TLS protocol enables secure TCP communication.  In the context of this memo,
 channel security is assumed to be provided by TLS.  Used without
 authentication, TLS provides only privacy protection against
 eavesdropping attacks.  With authentication, TLS also provides data
-integrity protection to guard against man-in-the-middle (MITM)
-attacks.
+integrity protection to guard against MITM attacks.
 </t>
 
 </section><!-- Background -->
@@ -308,10 +311,10 @@ STARTTLS command (<xref target="RFC3207"/>).  The server signals
 TLS support to the client over a cleartext SMTP connection, and, if
 the client also supports TLS, it may negotiate a TLS encrypted
 channel to use for email transmission.  The server's indication of
-TLS support can be easily suppressed by a man in the middle attacker.
+TLS support can be easily suppressed by an MITM attacker.
 Thus pre-DANE SMTP TLS security can be subverted by simply downgrading
 a connection to cleartext.  No TLS security feature, such as the
-use of PKIX, can prevent this.  The attacker can simply bypass TLS.
+use of PKIX, can prevent this.  The attacker can simply disable TLS.
 </t>
 
 </section><!-- STARTTLS downgrade attack -->
@@ -326,7 +329,7 @@ domain.
 </t>
 
 <t>
-A PKIX TLS client is vulnerable to man in the middle (MITM) attacks
+A PKIX TLS client is vulnerable to MITM attacks
 unless it verifies that the server's certificate binds its public
 key to its name.  However, with SMTP server names are obtained
 indirectly via MX records.  Without DNSSEC, the MX lookup is
@@ -363,7 +366,7 @@ to point out that consequently SMTP with DANE is the most conservative
 possible trust model.  It trusts only what must be trusted and no
 more.  Adding any other trusted actors to the mix can only reduce
 SMTP security.  A sender may choose to harden DNSSEC for selected
-high value receiving domains, by configuring explicit trust anchors
+high-value receiving domains, by configuring explicit trust anchors
 for those domains instead of relying on the chain of trust from the
 root domain.  In such a case there is not an "additional" trusted
 authority, rather the root trust anchor is replaced with a more
@@ -429,7 +432,7 @@ inclusive enough.
 
 </section><!-- Introduction -->
 
-<section title="Hardening (pre-DANE) Opportunistic TLS">
+<section title="Opportunistic DANE TLS" anchor="specification">
 
 <t>
 Neither email addresses nor MX hostnames (or submission SRV records)
@@ -517,7 +520,6 @@ target="RFC4035"/>.
 As noted in section 4.3 of <xref target="RFC4035"/>, a security-aware
 DNS resolver MUST be able to determine whether a given non-error
 DNS response is "secure", "insecure", "bogus" or "indeterminate".
-<!-- XXXWJH: -->
 It is expected that most security-aware stub resolvers will not
 signal an "indeterminate" security status in the RFC4035-sense to the
 application, and will signal a "bogus" or error result instead.  If
@@ -728,7 +730,7 @@ even that part of the DNAME support logic is outside the MTA.
 When the original next-hop destination is an address literal, rather
 than a DNS domain, DANE TLS does not apply.  Delivery proceeds using
 any relevant security policy configured by the MTA administrator.
-Similarly, when an MX RRset incorrectly lists an network address in lieu
+Similarly, when an MX RRset incorrectly lists a network address in lieu
 of an MX hostname, if the MTA chooses to connect to the network address
 DANE TLSA does not apply for such a connection.
 </t>
@@ -757,7 +759,7 @@ MX records MUST be sorted by preference; an MX hostname with a worse
 preempt an MX hostname with a better (numerically lower) preference
 that has no TLSA records.  In other words, prevention of delivery
 loops by obeying MX preferences MUST take precedence over channel
-security considerations.  Even with two equal preference MX records, an MTA
+security considerations.  Even with two equal-preference MX records, an MTA
 is not obligated to choose the MX hostname that offers more security.
 Domains that want secure inbound mail delivery need to ensure that all
 their SMTP servers and MX records are configured accordingly.
@@ -815,7 +817,7 @@ administrator to handle some or all mail. </t>
 
 <t> A next-hop destination domain subject to MX resolution that has
 no MX records.  In this case the domain's name is implicitly also
-the hostname of its sole SMTP server. </t>
+its sole SMTP server name. </t>
 
 </list>
 </t>
@@ -1034,8 +1036,9 @@ opportunistic DANE TLS and how to apply such records to authenticate
 the SMTP server.  With opportunistic DANE TLS, both the TLS support
 implied by the presence of DANE TLSA records and the verification
 parameters necessary to authenticate the TLS peer are obtained
-together, therefore authentication via this protocol is expected
-to be less prone to connection failure caused by incompatible
+together.  In contrast to protocols where channel security policy
+is set exclusively by the client, authentication via this protocol
+is expected to be less prone to connection failure caused by incompatible
 configuration of the client and server.
 </t>
 
@@ -1474,9 +1477,9 @@ flushed from caches before making another change.</t>
 </section><!-- Digest algorithm agility -->
 
 </section><!-- DANE authentication -->
-</section><!-- Hardening Opportunistic TLS -->
+</section><!-- Opportunistic DANE TLS -->
 
-<section title="Mandatory TLS Security">
+<section title="Mandatory TLS Security" anchor="mandatory">
 <!-- XXXWJH: this is sort of talked about already above; a reference
 to here should be put in rather than saying as much above -->
 <t>
