@@ -89,26 +89,13 @@ generally opportunistic.
 </t>
 
 <t>
-We note that the SMTP protocol is also used between Message User
-Agents (MUAs) and Message Submission Agents (MSAs) <xref
-target="RFC6409" />.  In <xref target="RFC6186"/> a protocol is
-specified that enables an MUA to dynamically locate the MSA based on
-the user's email address.  SMTP connection security requirements for
-MUAs implementing <xref target="RFC6186"/> are largely analogous to
-connection security requirements for MTAs, and this specification
-could be applied largely verbatim with DNS MX records replaced by
-corresponding DNS Service (SRV) records <xref
-target="I-D.ietf-dane-srv" />.
-</t>
-
-<t>
-However, until MUAs begin to adopt the dynamic configuration
-mechanisms of <xref target="RFC6186"/> they are adequately served
-by more traditional static TLS security policies.  This document will not
-discuss the MUA use case further, leaving specification
-of DANE TLS for MUAs to future documents that focus specifically
-on SMTP security between MUAs and MSAs.  The rest of this memo will
-focus on securing MTA to MTA SMTP connections.
+Problems with existing use of TLS in MTA to MTA SMTP that motivate
+this specification are described in <xref target="channelsecurity"/>.
+The specification itself follows in <xref target="specification"/>.
+Then, in <xref target="mandatory"/>, we discuss application of DANE
+TLS to destinations for which channel integrity and confidentiality
+are mandatory.  In <xref target="mua"/> we briefly comment on
+potential applicability of this specification to Message User Agents.
 </t>
 
 <section title="Terminology" anchor="terms">
@@ -1516,6 +1503,31 @@ or misconfigures SMTP server certificate chains, mail will be delayed.
 </t>
 
 </section><!-- Mandatory TLS Security -->
+
+<section title="Note on DANE for Message User Agents" anchor="mua">
+
+<t>
+We note that the SMTP protocol is also used between Message User
+Agents (MUAs) and Message Submission Agents (MSAs) <xref
+target="RFC6409"/>.  In <xref target="RFC6186"/> a protocol is
+specified that enables an MUA to dynamically locate the MSA based on
+the user's email address.  SMTP connection security considerations for
+MUAs implementing <xref target="RFC6186"/> are largely analogous to
+connection security requirements for MTAs, and this specification
+could be applied largely verbatim with DNS MX records replaced by
+corresponding DNS Service (SRV) records <xref target="I-D.ietf-dane-srv"/>.
+</t>
+
+<t>
+However, until MUAs begin to adopt the dynamic configuration
+mechanisms of <xref target="RFC6186"/> they are adequately served
+by more traditional static TLS security policies.  Specification
+of DANE TLS for Message User Agent (MUA) to Message Submission Agent
+(MSA) SMTP is left to future documents that focus specifically on
+SMTP security between MUAs and MSAs.
+</t>
+
+</section><!-- Note on DANE for MUAs -->
 
 <section anchor="Operational" title="Operational Considerations">
 
