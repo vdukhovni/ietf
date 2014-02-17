@@ -1086,6 +1086,16 @@ or public key, and likewise SHA2-512(2) means a SHA2-512 digest is used.
 </t>
 
 <t>
+Since opportunistic DANE TLS will be used by non-interactive MTAs,
+with no user to "press OK" when authentication fails, reliability
+of peer authentication is paramount.  Server operators are advised
+to publish TLSA records that are least likely to fail authentication
+due to interoperability or operational problems.  Because DANE TLS
+relies on coordinated changes to DNS and SMTP server settings, the
+best choice of records to publish will depend on site-specific practices.
+</t>
+
+<t>
 The certificate usage element of a TLSA record plays a critical
 role in determining how the corresponding certificate association
 data field is used to authenticate server's certificate chain.  The
@@ -1096,12 +1106,6 @@ with opportunistic DANE TLS.
 </t>
 
 <section title="Certificate usage DANE-EE(3)" anchor="cert3">
-
-<t>
-Since opportunistic DANE TLS will be used by non-interactive MTAs,
-with no user to "press OK" when authentication fails, reliability
-of peer authentication is paramount.  
-</t>
 
 <t>
 Authentication via certificate usage DANE-EE(3) TLSA records involves
@@ -1116,23 +1120,20 @@ when the TLSA record matches the server's default certificate).
 </t>
 
 <t>
-Two TLSA records MUST be published before updating a server's
-public key, one matching the currently deployed key and the other
-matching the new key scheduled to replace it.  Once sufficient time
-has elapsed for all DNS caches to expire the previous TLSA RRset and
-related signature RRsets, the server may be reconfigured to
-use the new private key and associated public key certificate.  Once
-the server is using the new key, the TLSA RR that matches the retired
-key can be removed from DNS, leaving only the RR that matches the
-new key.
+For domains where it is practical to make coordinated changes in
+DNS TLSA records during SMTP server key rotation, it is often best
+to publish end-entity DANE-EE(3) certificate associations.  DANE-EE(3)
+certificates don't suddenly stop working when leaf or intermediate
+certificates expire, and don't fail when the server operator
+neglects to configure all the required issuer certificates in the
+server certificate chain.
 </t>
 
 <t>
 TLSA records published for SMTP servers SHOULD, in most cases, be
-"DANE-EE(3) SPKI(1) SHA2-256(1)" records. 
-Since all DANE implementations are required to support SHA2-256,
-this record works for all clients and need not change across
-certificate renewals with the same key.
+"DANE-EE(3) SPKI(1) SHA2-256(1)" records.  Since all DANE implementations
+are required to support SHA2-256, this record type works for all clients
+and need not change across certificate renewals with the same key.
 </t>
 
 </section><!-- Certificate usage 3 -->
@@ -1166,11 +1167,21 @@ in the TLS server certificate message.
 </t>
 
 <t>
-TLSA Publishers should publish either "DANE-TA(2) SPKI(1) Full(0)" or
-"DANE-TA(2) Cert(0) SHA2-256(1)" TLSA parameters.
-As with leaf certificate rollover discussed in <xref
-target="cert3" />, two such TLSA RRs need to be published to
-facilitate TA certificate rollover.
+TLSA Publishers employing DANE-TA(2) records SHOULD publish records
+with a selector of Cert(0).  Such TLSA records are associated with
+the whole trust anchor certificate, not just with the trust anchor
+public key.  In particular, the SMTP client SHOULD then apply any
+relevant constraints from the trust anchor certificate, such as,
+for example, path length constraints.
+</t>
+
+<t>
+While a selector of SPKI(1) may also be employed, the resulting
+TLSA record will not specify the full trust anchor certificate
+content, and elements of the trust anchor certificate other than
+the public key become mutable.  This may, for example, allow a
+subsidiary CA to issue a chain that violates the trust anchor's
+path length or name constraints.
 </t>
 
 </section><!-- Certificate usage 2 -->
@@ -1362,6 +1373,26 @@ care to authenticate the server.
 </t>
 
 </section><!-- Certificate matching -->
+
+<section title="Key rotation" anchor="rotation">
+
+<t>
+Two TLSA records MUST be published before employing a new EE or TA
+public key or certificate, one matching the currently deployed key
+and the other matching the new key scheduled to replace it.  Once
+sufficient time has elapsed for all DNS caches to expire the previous
+TLSA RRset and related signature RRsets, servers may be configured
+to use the new EE private key and associated public key certificate
+or may employ certificates signed by the new trust anchor.
+</t>
+
+<t>
+Once the new public key or certificate is in use, the TLSA RR that
+matches the retired key can be removed from DNS, leaving only RRs
+that match keys or certificates in active use.
+</t>
+
+</section><!-- Key rotation -->
 
 <section title="Digest algorithm agility" anchor="agility">
 
