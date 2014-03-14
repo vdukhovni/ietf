@@ -153,12 +153,6 @@ The following terms or concepts are used through the document:
     specifically a reference to a DNS domain name, rather than any
     host that bears that name.  </t>
 
-    <t hangText="SMTP server:">
-    An SMTP server whose name appears in an MX record for a particular
-    domain.  Used to refer specifically to the host and SMTP service
-    itself, not its DNS name.
-    </t>
-
     <!-- XXXWJH: I think we need three actions to be defined here (one
          of which is already next).  Then we can say through the rest
          of the document at each step what the action should be.  The
@@ -280,13 +274,12 @@ The Simple Mail Transfer Protocol (SMTP) <xref target="RFC5321"/>
 is a single-hop protocol in a multi-hop store &amp; forward email
 delivery process.  SMTP envelope recipient addresses are not transport
 addresses and are security-agnostic.  Unlike the Hypertext Transfer
-Protocol (HTTP) and its corresponding secured version, HTTPS, there
-is no URI scheme for email addresses to designate whether communication
-with the SMTP server should be conducted via a cleartext or a
-TLS-encrypted channel.  Indeed, no such URI scheme could work well
-with SMTP since TLS encryption of SMTP protects email traffic on a
-hop-by-hop basis while email addresses could only express end-to-end
-policy.
+Protocol (HTTP) and its corresponding secured version, HTTPS, where
+the use of TLS is signalled via the URI scheme, email recipient
+addresses do not directly signal transport security policy.  Indeed,
+no such signalling could work well with SMTP since TLS encryption
+of SMTP protects email traffic on a hop-by-hop basis while email
+addresses could only express end-to-end policy.
 </t>
 
 <t>
@@ -1530,7 +1523,8 @@ increased robustness between partnering organizations. -->
 Administrators of mail servers that employ mandatory DANE TLS, need
 to carefully monitor their mail logs and queues.  If a partner
 domain unwittingly misconfigures their TLSA records, disables DNSSEC,
-or misconfigures SMTP server certificate chains, mail will be delayed.
+or misconfigures SMTP server certificate chains, mail will be delayed
+and may bounce if the issue is not resolved in a timely manner.
 </t>
 
 </section><!-- Mandatory TLS Security -->
