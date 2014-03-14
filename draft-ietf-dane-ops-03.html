@@ -372,11 +372,12 @@
 <link href="#rfc.section.4.3" rel="Chapter" title="4.3 Certificate Usage PKIX-EE(1) Guidelines"/>
 <link href="#rfc.section.4.4" rel="Chapter" title="4.4 Certificate Usage PKIX-TA(0) Guidelines"/>
 <link href="#rfc.section.5" rel="Chapter" title="5 Note on DNSSEC security"/>
-<link href="#rfc.section.6" rel="Chapter" title="6 Acknowledgements"/>
-<link href="#rfc.section.7" rel="Chapter" title="7 Security Considerations"/>
-<link href="#rfc.references" rel="Chapter" title="8 References"/>
-<link href="#rfc.references.1" rel="Chapter" title="8.1 Normative References"/>
-<link href="#rfc.references.2" rel="Chapter" title="8.2 Informative References"/>
+<link href="#rfc.section.6" rel="Chapter" title="6 Security Considerations"/>
+<link href="#rfc.section.7" rel="Chapter" title="7 IANA considerations"/>
+<link href="#rfc.section.8" rel="Chapter" title="8 Acknowledgements"/>
+<link href="#rfc.references" rel="Chapter" title="9 References"/>
+<link href="#rfc.references.1" rel="Chapter" title="9.1 Normative References"/>
+<link href="#rfc.references.2" rel="Chapter" title="9.2 Informative References"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
@@ -384,10 +385,10 @@
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
   <meta name="dct.creator" content="Dukhovni, V. and W. Hardaker" />
-  <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-dane-ops-02" />
-  <meta name="dct.issued" scheme="ISO8601" content="2014-1" />
-  <meta name="dct.abstract" content="This memo provides guidance to server operators to help ensure that clients will be able to authenticate a server's certificate chain via published TLSA records.  Guidance is also provided to clients for selecting reliable TLSA record parameters and using them for server authentication.  Finally, guidance is given to protocol designers who wish to make use of TLSA records when securing protocols using a combination of TLS and TLSA.  " />
-  <meta name="description" content="This memo provides guidance to server operators to help ensure that clients will be able to authenticate a server's certificate chain via published TLSA records.  Guidance is also provided to clients for selecting reliable TLSA record parameters and using them for server authentication.  Finally, guidance is given to protocol designers who wish to make use of TLSA records when securing protocols using a combination of TLS and TLSA.  " />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-dane-ops-03" />
+  <meta name="dct.issued" scheme="ISO8601" content="2014-2" />
+  <meta name="dct.abstract" content="This memo provides guidance to server operators to help ensure that clients will be able to authenticate a server's certificate chain via published TLSA records.  Guidance is also provided to clients for selecting reliable TLSA record parameters and using them for server authentication.  Finally, guidance is given to protocol designers who wish to make use of TLSA records when securing protocols using a combination of the Transport Layer Security (TLS) protocol and TLSA records.  " />
+  <meta name="description" content="This memo provides guidance to server operators to help ensure that clients will be able to authenticate a server's certificate chain via published TLSA records.  Guidance is also provided to clients for selecting reliable TLSA record parameters and using them for server authentication.  Finally, guidance is given to protocol designers who wish to make use of TLSA records when securing protocols using a combination of the Transport Layer Security (TLS) protocol and TLSA records.  " />
 
 </head>
 
@@ -409,12 +410,12 @@
   <td class="right">W. Hardaker</td>
 </tr>
 <tr>
-  <td class="left">Expires: July 5, 2014</td>
+  <td class="left">Expires: August 5, 2014</td>
   <td class="right">Parsons</td>
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">January 2014</td>
+  <td class="right">February 2014</td>
 </tr>
 
     	
@@ -422,19 +423,19 @@
   </table>
 
   <p class="title">DANE TLSA implementation and operational guidance<br />
-  <span class="filename">draft-ietf-dane-ops-02</span></p>
+  <span class="filename">draft-ietf-dane-ops-03</span></p>
   
   <h1 id="rfc.abstract">
   <a href="#rfc.abstract">Abstract</a>
 </h1>
-<p>This memo provides guidance to server operators to help ensure that clients will be able to authenticate a server's certificate chain via published TLSA records.  Guidance is also provided to clients for selecting reliable TLSA record parameters and using them for server authentication.  Finally, guidance is given to protocol designers who wish to make use of TLSA records when securing protocols using a combination of TLS and TLSA.  </p>
+<p>This memo provides guidance to server operators to help ensure that clients will be able to authenticate a server's certificate chain via published TLSA records.  Guidance is also provided to clients for selecting reliable TLSA record parameters and using them for server authentication.  Finally, guidance is given to protocol designers who wish to make use of TLSA records when securing protocols using a combination of the Transport Layer Security (TLS) protocol and TLSA records.  </p>
 <h1 id="rfc.status">
   <a href="#rfc.status">Status of This Memo</a>
 </h1>
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on July 5, 2014.</p>
+<p>This Internet-Draft will expire on August 5, 2014.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -466,40 +467,41 @@
 <li>4.3.   <a href="#rfc.section.4.3">Certificate Usage PKIX-EE(1) Guidelines</a></li>
 <li>4.4.   <a href="#rfc.section.4.4">Certificate Usage PKIX-TA(0) Guidelines</a></li>
 <li>5.   <a href="#rfc.section.5">Note on DNSSEC security</a></li>
-<li>6.   <a href="#rfc.section.6">Acknowledgements</a></li>
-<li>7.   <a href="#rfc.section.7">Security Considerations</a></li>
-<li>8.   <a href="#rfc.references">References</a></li>
-<li>8.1.   <a href="#rfc.references.1">Normative References</a></li>
-<li>8.2.   <a href="#rfc.references.2">Informative References</a></li>
+<li>6.   <a href="#rfc.section.6">Security Considerations</a></li>
+<li>7.   <a href="#rfc.section.7">IANA considerations</a></li>
+<li>8.   <a href="#rfc.section.8">Acknowledgements</a></li>
+<li>9.   <a href="#rfc.references">References</a></li>
+<li>9.1.   <a href="#rfc.references.1">Normative References</a></li>
+<li>9.2.   <a href="#rfc.references.2">Informative References</a></li>
 <li><a href="#rfc.authors">Authors' Addresses</a></li>
 
 
   </ul>
 
   <h1 id="rfc.section.1"><a href="#rfc.section.1">1.</a> Introduction</h1>
-<p id="rfc.section.1.p.1">Section 2 of <a href="#RFC6698">[RFC6698]</a> specifies a new "TLSA" DNS resource record which associates with a TLS transport endpoint the corresponding trusted leaf or issuing authority certificates or public keys.  DNSSEC-validated DANE TLSA records can be used to augment or replace the trust model of the existing public CA PKI.  </p>
-<p><a href="#RFC6698">[RFC6698]</a> defines 24 combinations of TLSA record parameters.  Additional complexity arises when the TLS transport endpoint is obtained indirectly via SRV, MX and CNAME records or other mechanisms that map an abstract service domain to a concrete server domain.  With service indirection there are multiple potential places for clients to find the relevant TLSA records.  Service indirection is often used to implement "virtual hosting", where a single Service Provider transport endpoint simultaneously supports multiple hosted domains.  With services that employ TLS, such hosting arrangements may require the Service Provider to employ multiple pairs of private keys and certificates with TLS clients signalling the desired domain via SNI (<a href="#RFC6066">[RFC6066]</a>, section 3).  This memo provides operational guidelines intended to maximize interoperability between DANE TLS clients and servers.  </p>
-<p id="rfc.section.1.p.3">In the context of this memo, channel security is assumed to be provided by TLS or DTLS.  The Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS) protocols provide secured TCP and UDP communication over the Internet Protocol.  By convention, "TLS" will be used throughout this document and, unless otherwise specified, the text applies equally well to the DTLS protocol.  Used without authentication, TLS provides protection only against eavesdropping.  With authentication, TLS also provides protection against man-in-the-middle (MITM) attacks.  </p>
+<p id="rfc.section.1.p.1">Section 2 of <a href="#RFC6698">[RFC6698]</a> specifies a new "TLSA" DNS resource record which associates a TLS transport endpoint with a corresponding trusted leaf or issuing authority certificates or public keys.  DNSSEC-validated DANE TLSA records can be used to augment or replace the trust model of the existing public Certificate Authority (CA) Public Key Infrastructure (PKI).  </p>
+<p><a href="#RFC6698">[RFC6698]</a> defines 24 combinations of TLSA record parameters.  Additional complexity arises when the TLS transport endpoint is obtained indirectly via a Service Record (SRV), Mail Exchange (MX) record, CNAME records or other mechanisms that map an abstract service domain to a concrete server domain.  With service indirection there are multiple potential places for clients to find the relevant TLSA records.  Service indirection is often used to implement "virtual hosting", where a single Service Provider transport endpoint simultaneously supports multiple hosted domain names.  With services that employ TLS, such hosting arrangements may require the Service Provider to employ multiple pairs of private keys and certificates with TLS clients signalling the desired domain via a Server Name Indication (SNI) extension (<a href="#RFC6066">[RFC6066]</a>, section 3).  This memo provides operational guidelines intended to maximize interoperability between DANE TLS clients and servers.  </p>
+<p id="rfc.section.1.p.3">In the context of this memo, channel security is assumed to be provided by TLS or DTLS.  The Transport Layer Security (TLS) <a href="#RFC5246">[RFC5246]</a> and Datagram Transport Layer Security (DTLS) <a href="#RFC6347">[RFC6347]</a> protocols provide secured TCP and UDP communication over IP.  By convention, "TLS" will be used throughout this document and, unless otherwise specified, the text applies equally well to the DTLS protocol.  Used without authentication, TLS provides protection only against eavesdropping through its use of encryption.  With authentication, TLS also provides integrity protection and authentication, which protect the transport against man-in-the-middle (MITM) attacks.  </p>
 <h1 id="rfc.section.1.1"><a href="#rfc.section.1.1">1.1.</a> Terminology</h1>
 <p id="rfc.section.1.1.p.1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in <a href="#RFC2119">[RFC2119]</a>.  </p>
 <p id="rfc.section.1.1.p.2">The following terms are used throughout this document: </p>
 
 <dl>
   <dt>Service Provider:</dt>
-  <dd style="margin-left: 8">A company or organization that offers to host a service on behalf of a Customer Domain.  The original domain name associated with the service often remains under the control of the customer.  Connecting applications are directed to the Service Provider via a redirection resource record.  Example redirection records include MX, SRV, and CNAME.  The Service Provider typically provides services for many customers and must carefully manage any TLS credentials offered to connecting applications to ensure name matching is handled easily by the applications.  </dd>
+  <dd style="margin-left: 8">A company or organization that offers to host a service on behalf of a Customer Domain.  The original domain name associated with the service often remains under the control of the customer.  Connecting applications may be directed to the Service Provider via a redirection resource record.  Example redirection records include MX, SRV, and CNAME.  The Service Provider frequently provides services for many customers and must carefully manage any TLS credentials offered to connecting applications to ensure name matching is handled easily by the applications.  </dd>
   <dt>Customer Domain:</dt>
-  <dd style="margin-left: 8">Customers that make use of a Service Provider to outsource their services will be referred to as "Customer Domains".  </dd>
+  <dd style="margin-left: 8">Customers that make use of a Service Provider to outsource their service(s) will be referred to as "Customer Domains".  </dd>
   <dt>TLSA Publisher:</dt>
   <dd style="margin-left: 8">The entity responsible for publishing a TLSA record within a DNS zone.  This zone will be considered DNSSEC-signed and validatable to a trust anchor, unless otherwise specified.  If the Customer Domain is not outsourcing their DNS service, the TLSA Publisher will be the customer themselves.  Otherwise the TLSA Publisher may be the operator of the outsourced DNS service.  </dd>
   <dt>public key:</dt>
-  <dd style="margin-left: 8">The term "public key" will be an informal short-hand for the subjectPublicKeyInfo component of a PKIX certificate.  </dd>
+  <dd style="margin-left: 8">The term "public key" will be an informal short-hand for the subjectPublicKeyInfo component of a PKIX <a href="#RFC5280">[RFC5280]</a> certificate.  </dd>
   <dt>SNI:</dt>
-  <dd style="margin-left: 8">"Server Name Indication", or SNI, describes the TLS protocol extension by which a TLS client requests to connect to a particular service name of a TLS server (<a href="#RFC6066">[RFC6066]</a>, section 3).  Without this TLS extension, a TLS server has no choice but to offer a PKIX certificate with a default list of server names, making it difficult to host multiple Customer Domains at the same TLS service endpoint (secure virtual hosting).  </dd>
+  <dd style="margin-left: 8">"Server Name Indication", or SNI, describes the TLS protocol extension by which a TLS client requests to connect to a particular service name of a TLS server (<a href="#RFC6066">[RFC6066]</a>, section 3).  Without this TLS extension, a TLS server has no choice but to offer a PKIX certificate with a default list of server names, making it difficult to host multiple Customer Domains at the same TLS service endpoint (i.e., "secure virtual hosting").  </dd>
 </dl>
 
 <p> </p>
 <h1 id="rfc.section.2"><a href="#rfc.section.2">2.</a> DANE TLSA record overview</h1>
-<p id="rfc.section.2.p.1">DANE TLSA <a href="#RFC6698">[RFC6698]</a> specifies a protocol for publishing TLS server certificate associations via DNSSEC.  The DANE TLSA specification defines multiple TLSA RR types via combinations of 3 numeric parameters.  The numeric values of these parameters were later given symbolic names in <a href="#I-D.ietf-dane-registry-acronyms">[I-D.ietf-dane-registry-acronyms]</a>.  These parameters are: </p>
+<p id="rfc.section.2.p.1">DANE TLSA <a href="#RFC6698">[RFC6698]</a> specifies a protocol for publishing TLS server certificate associations via DNSSEC <a href="#RFC4033">[RFC4033]</a> <a href="#RFC4034">[RFC4034]</a> <a href="#RFC4035">[RFC4035]</a>.  The DANE TLSA specification defines multiple TLSA RR types via combinations of 3 numeric parameters.  The numeric values of these parameters were later given symbolic names in <a href="#I-D.ietf-dane-registry-acronyms">[I-D.ietf-dane-registry-acronyms]</a>.  These parameters are: </p>
 <p/>
 
 <dl>
@@ -512,12 +514,12 @@
 </dl>
 
 <p> </p>
-<p id="rfc.section.2.p.3">We may think of TLSA Certificate Usage values 0 through 3 as a combination of two one-bit flags.  The low-bit chooses between trust anchor (TA) and end entity (EE) certificates.  The high bit chooses between public PKI issued and domain-issued certificates: </p>
+<p id="rfc.section.2.p.3">We may think of TLSA Certificate Usage values 0 through 3 as a combination of two one-bit flags.  The low-bit chooses between trust anchor (TA) and end entity (EE) certificates.  The high bit chooses between PKIX, or public PKI issued, and DANE, or domain-issued trust anchors: </p>
 <p/>
 
 <ul>
-  <li>When the low bit is set (PKIX-EE(1) and DANE-EE(3)) the TLSA record matches an EE (commonly referred to as a leaf or server) certificate.  </li>
-  <li>When the low bit is not set (PKIX-TA(0) and DANE-TA(2)) the TLSA record matches a trust anchor (a certificate authority) that issued one of the certificates in the server certificate chain.  </li>
+  <li>When the low bit is set (PKIX-EE(1) and DANE-EE(3)) the TLSA record matches an EE certificate (also commonly referred to as a leaf or server certificate.)</li>
+  <li>When the low bit is not set (PKIX-TA(0) and DANE-TA(2)) the TLSA record matches a trust anchor (a Certificate Authority) that issued one of the certificates in the server certificate chain.  </li>
   <li>When the high bit is set (DANE-TA(2) and DANE-EE(3)), the server certificate chain is domain-issued and may be verified without reference to any pre-existing public certificate authority PKI.  Trust is entirely placed on the content of the TLSA records obtained via DNSSEC.  </li>
   <li>When the high bit is not set (PKIX-TA(0) and PKIX-EE(1)), the TLSA record publishes a server policy stating that its certificate chain must pass PKIX validation <a href="#RFC5280">[RFC5280]</a> and the DANE TLSA record is used to constrain the server certificate chain to contain the referenced CA or EE certificate.  </li>
 </ul>
@@ -528,9 +530,9 @@
 <h1 id="rfc.section.2.1"><a href="#rfc.section.2.1">2.1.</a> Example TLSA record</h1>
 <p id="rfc.section.2.1.p.1">In the example TLSA record below: </p>
 <pre>
-  _25._tcp.mail.example.com. IN TLSA 2 0 1 (
-                                E8B54E0B4BAA815B06D3462D65FBC7C0
-                                CF556ECCF9F5303EBFBB77D022F834C0 )
+  _25._tcp.mail.example.com. 300 IN TLSA PKIX-TA Cert SHA2-256 (
+                                 E8B54E0B4BAA815B06D3462D65FBC7C0
+                                 CF556ECCF9F5303EBFBB77D022F834C0 )
     </pre>
 <p id="rfc.section.2.1.p.2">The TLSA Certificate Usage is DANE-TA(2), the selector is Cert(0) and the matching type is SHA2-256(1).  The rest of the record is the certificate association data field, which is in this case the SHA2-256 digest of the server certificate.  </p>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> General DANE Guidelines</h1>
@@ -543,71 +545,72 @@
 <p id="rfc.section.3.2.1.p.1">Deployments SHOULD avoid TLSA record sizes that cause UDP fragmentation.  </p>
 <p id="rfc.section.3.2.1.p.2">Although DNS over TCP would provide the ability to transfer larger DNS records between clients and servers, it is not universally deployed and is still blocked by some firewalls.  Clients that request DNS records via UDP typically only use TCP upon receipt of a truncated response in TCP.  </p>
 <h1 id="rfc.section.3.2.2"><a href="#rfc.section.3.2.2">3.2.2.</a> Packet Size Considerations for TLSA Parameters</h1>
-<p id="rfc.section.3.2.2.p.1">Server operators SHOULD NOT publish TLSA records using both a TLSA Selector of Cert(0) and a TLSA Matching Type of Full(0), as even a single certificate is generally too large to be reliably delivered via DNS over UDP.  Furthermore, two TLSA records containing full certificates may need to be published during certificate rollover.  </p>
-<p id="rfc.section.3.2.2.p.2">While TLSA records using a TLSA Selector of SPKI(1) and a TLSA Matching Type of Full(0) (that publish the bare public key without the overhead of a containing X.509 certificate) are generally more compact, these too should be used with caution as they are still larger than necessary.  Rather, servers SHOULD publish digest-based TLSA Matching Types in their TLSA records.  The complete corresponding certificate should, instead, be transmitted to the client in-band during the TLS handshake.  </p>
+<p id="rfc.section.3.2.2.p.1">Server operators SHOULD NOT publish TLSA records using both a TLSA Selector of Cert(0) and a TLSA Matching Type of Full(0), as even a single certificate is generally too large to be reliably delivered via DNS over UDP.  Furthermore, two TLSA records containing full certificates may need to be published simultaneously during a certificate rollover.  </p>
+<p id="rfc.section.3.2.2.p.2">While TLSA records using a TLSA Selector of SPKI(1) and a TLSA Matching Type of Full(0) (which publish the bare public keys without the overhead of a containing X.509 certificate) are generally more compact, these too should be used with caution as they are still larger than necessary.  Rather, servers SHOULD publish digest-based TLSA Matching Types in their TLSA records.  The complete corresponding certificate should, instead, be transmitted to the client in-band during the TLS handshake.  </p>
 <p id="rfc.section.3.2.2.p.3">In summary, the use of a TLSA Matching Type of Full(0) is NOT RECOMMENDED and the use of SHA2-256(1) and SHA2-512(2) is strongly preferred.  </p>
 <h1 id="rfc.section.3.3"><a href="#rfc.section.3.3">3.3.</a> Certificate Name Check Conventions</h1>
-<p id="rfc.section.3.3.p.1">Certificates presented by a TLS server will generally contain a Common Name (CN) element in the subject distinguished name (DN) and/or a subjectAltName (SAN) extension.  The server's DNS hostname should be published within these elements, ideally within the subjectAltName extension as use of the CN field for this purpose is deprecated.  Name checks SHOULD NOT consider the subject CN when SAN values of type 'dns' are present.  </p>
+<p id="rfc.section.3.3.p.1">Certificates presented by a TLS server will generally contain a subjectAltName (SAN) extension or a Common Name (CN) element in the subject distinguished name (DN).  The server's DNS domain name should be published within these elements, ideally within the subjectAltName extension as use of the CN field for this purpose is deprecated.  Name checks SHOULD NOT consider the subject CN when SAN values of type 'dns' are present.  </p>
 <p id="rfc.section.3.3.p.2">When a server hosts multiple domains at the same transport endpoint, the server's ability to respond with the right certificate chain is predicated on correct SNI information from the client.  DANE clients MUST send the SNI extension with a HostName value of the base domain of the TLSA RRset.  </p>
 <p id="rfc.section.3.3.p.3">Except with TLSA Certificate Usage DANE-EE(3), where name checks are not applicable (see <a href="#type3">Section 4.1</a>), DANE clients MUST verify that the client has reached the correct server by checking that the server name is listed in the server certificate.  The server name used for this comparison SHOULD be the base domain of the TLSA RRset.  Additional acceptable names may be specified by protocol-specific DANE standards.  For example, with SMTP both the destination domain name and the MX host name are acceptable names to be found in the server certificate (see <a href="#I-D.ietf-dane-smtp-with-dane">[I-D.ietf-dane-smtp-with-dane]</a>).  </p>
-<p id="rfc.section.3.3.p.4">It is the responsibility of the service operator in coordination with the TLSA Publisher to ensure that at least one of the TLSA records published for the service will match the server's certificate chain (either the default chain or selected based on the SNI information from the client).  With certificate usage values other than DANE-EE(3) the server leaf (EE) certificate MUST include the TLSA base domain as one of its names, or else if other acceptable names are specified by a protocol-specific DANE standard, one of those can be used in place of the TLSA base domain.  </p>
+<p id="rfc.section.3.3.p.4">It is the responsibility of the service operator, in coordination with the TLSA Publisher, to ensure that at least one of the TLSA records published for the service will match the server's certificate chain (either the default chain or the certificate that was selected based on the SNI information from the client).  With certificate usage values other than DANE-EE(3), the EE certificate SHOULD include the TLSA base domain as one of its names.  If other acceptable names are specified by a protocol-specific DANE standard, one of those MAY be used in place of the TLSA base domain.  </p>
 <p id="rfc.section.3.3.p.5">Given the DNSSEC validated DNS records below: </p>
 <pre>
-  example.com. IN MX 0 mail.example.com.
-  _25._tcp.mail.example.com. IN TLSA 2 0 1 (
-                                E8B54E0B4BAA815B06D3462D65FBC7C0
-                                CF556ECCF9F5303EBFBB77D022F834C0 )
+  example.com.               300 IN MX 0 mail.example.com.
+  _25._tcp.mail.example.com. 300 IN TLSA DANE-TA Cert SHA2-256  (
+                                 E8B54E0B4BAA815B06D3462D65FBC7C0
+                                 CF556ECCF9F5303EBFBB77D022F834C0 )
     </pre>
-<p id="rfc.section.3.3.p.6">the TLSA base domain is "mail.example.com" and this MUST be the HostName in the client's SNI extension.  The server certificate chain MUST be signed by a trust anchor with the above certificate SHA2-256 digest.  One of the DNS names in the server certificate MUST be either "mail.example.com" or "example.com".  </p>
+<p id="rfc.section.3.3.p.6">The TLSA base domain is "mail.example.com" and this MUST be the HostName in the client's SNI extension.  The server certificate chain MUST be signed by a trust anchor with the above certificate SHA2-256 digest.  One of the DNS names in the server certificate MUST be either "mail.example.com" or "example.com".  </p>
 <h1 id="rfc.section.3.4"><a href="#rfc.section.3.4">3.4.</a> <a href="#sync" id="sync">Service Provider and TLSA Publisher Synchronization</a></h1>
-<p id="rfc.section.3.4.p.1">Complications arise when the TLSA Publisher is not the same entity as the Service Provider.  In this situation, the TLSA Publisher and the Service Provider must cooperate to ensure that TLSA records published by the TLSA Publisher don't fall out of sync with the server certificate configuration used by the Service Provider.  </p>
-<p id="rfc.section.3.4.p.2">Whenever possible, the TLSA Publisher and the Service Provider should be the same entity.  Otherwise changes in the service certificate chain must be carefully coordinated between the parties involved.  Such coordination is difficult and outages will result when the process fails.  </p>
-<p id="rfc.section.3.4.p.3">Even when the TLSA RRset must be published in the Customer Domain's DNS zone, it is possible to employ CNAME records (see <a href="#cname">Section 3.5</a>) to delegate the content of the TLSA RRset to a domain operated by the Service Provider.  Having the master TLSA record in the Service Provider's zone avoids the complexity of bilateral coordination of server certificate configuration and TLSA record management.  Certificate name checks generally constrain the applicability of TLSA CNAMEs across organizational boundaries to Certificate Usages DANE-EE(3) and DANE-TA(2): </p>
+<p id="rfc.section.3.4.p.1">Complications arise when the TLSA Publisher is not the same entity as the Service Provider.  In this situation, the TLSA Publisher and the Service Provider must cooperate to ensure that TLSA records published by the TLSA Publisher don't fall out of sync with the server certificate used by the Service Provider.  </p>
+<p id="rfc.section.3.4.p.2">Whenever possible, the TLSA Publisher and the Service Provider should be the same entity.  Otherwise, changes in the service certificate chain must be carefully coordinated between the parties involved.  Such coordination is difficult and service outages will result when coordination fails.  </p>
+<p id="rfc.section.3.4.p.3">Having the master TLSA record in the Service Provider's zone avoids the complexity of bilateral coordination of server certificate configuration and TLSA record management.  Even when the TLSA RRset must be published in the Customer Domain's DNS zone, it is possible to employ CNAME records (see <a href="#cname">Section 3.5</a>) to delegate the content of the TLSA RRset to a domain operated by the Service Provider.  Certificate name checks generally constrain the applicability of TLSA CNAMEs across organizational boundaries to Certificate Usages DANE-EE(3) and DANE-TA(2): </p>
 <p/>
 
 <dl>
   <dt>Certificate Usage DANE-EE(3):</dt>
-  <dd style="margin-left: 8">In this case the Service Provider can publish a single TLSA RRset that matches the server certificate or public key digest.  The same RRset works for all Customer Domains because name checks do not apply with DANE-EE(3) TLSA records.  A Customer Domain can create a CNAME record pointing to the TLSA RRset published by the Service Provider.  </dd>
+  <dd style="margin-left: 8">In this case the Service Provider can publish a single TLSA RRset that matches the server certificate or public key digest.  The same RRset works for all Customer Domains because name checks do not apply with DANE-EE(3) TLSA records (see <a href="#type3">Section 4.1</a>).  A Customer Domain can create a CNAME record pointing to the TLSA RRset published by the Service Provider.  </dd>
   <dt>Certificate Usage DANE-TA(2):</dt>
-  <dd style="margin-left: 8">When the Service Provider operates a private certificate authority, the Service Provider is free to issue a certificate bearing any customer's domain name.  Without DANE, such a certificate would not pass trust verification, but with DANE, the customer's TLSA RRset aliased to the provider's TLSA RRset can delegate authority to the provider's CA for the corresponding service.  The Service Provider can generate appropriate certificates for each customer and use SNI to select the right certificate chain to present to each client. </dd>
+  <dd style="margin-left: 8">When the Service Provider operates a private certificate authority, the Service Provider is free to issue a certificate bearing any customer's domain name.  Without DANE, such a certificate would not pass trust verification, but with DANE, the customer's TLSA RRset that is aliased to the provider's TLSA RRset can delegate authority to the provider's CA for the corresponding service.  The Service Provider can generate appropriate certificates for each customer and use SNI to select the right certificate chain to present to each client. </dd>
 </dl>
 
 <p> </p>
 <p id="rfc.section.3.4.p.5">Below are example DNS records that illustrate both of of the above cases in the case of an HTTPS service whose clients all support DANE TLS.  </p>
 <pre>
-  ; Hosted web service redirected via a CNAME alias.
-  ; Associated TLSA RRset redirected via a CNAME alias.
-  ;
-  ; Single certificate at provider works for all Customer Domains
-  ;
-  www1.example.com. IN CNAME www311.example.net.
-  _443._tcp.www3.example.com. IN CNAME _443._tcp.www311.example.net.
-  _443._tcp.www311.example.net. IN TLSA 3 1 1 (
-                                8A9A70596E869BED72C69D97A8895DFA
-                                D86F300A343FECEFF19E89C27C896BC9 )
-  ;
-  ; CA at provider can issue certificates for each Customer Domain.
-  ;
-  www2.example.com. IN CNAME www201.example.net.
-  _443._tcp.www2.example.com. IN CNAME _443._tcp.www201.example.net.
-  _443._tcp.www201.example.net. IN TLSA 2 0 1 (
-                                C164B2C3F36D068D42A6138E446152F5
-                                68615F28C69BD96A73E354CAC88ED00C )
+; Hosted web service redirected via a CNAME alias.
+; Associated TLSA RRset redirected via a CNAME alias.
+;
+; Single certificate at provider works for all Customer Domains
+;
+www1.example.com.             300 IN CNAME w3.example.net.
+_443._tcp.www3.example.com.   300 IN CNAME _443._tcp.w3.example.net.
+_443._tcp.w3.example.net.     300 IN TLSA  DANE-EE SPKI SHA2-256 (
+                              8A9A70596E869BED72C69D97A8895DFA
+                              D86F300A343FECEFF19E89C27C896BC9 )
+;
+; CA at provider can issue certificates for each Customer Domain.
+;
+www2.example.com.             300 IN CNAME w2.example.net.
+_443._tcp.www2.example.com.   300 IN CNAME _443._tcp.w2.example.net.
+_443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
+                              C164B2C3F36D068D42A6138E446152F5
+                              68615F28C69BD96A73E354CAC88ED00C )
     </pre>
 <p id="rfc.section.3.4.p.6">With protocols that support explicit transport redirection via DNS MX records, SRV records, or other similar records, the TLSA base domain is based on the redirected transport end-point, rather than the origin domain.  With SMTP for example, when email service is hosted by a Service Provider, the Customer Domain's MX hostnames will point at the Service Provider's SMTP hosts.  When the Customer Domain's DNS zone is signed, the MX hostnames can be securely used as the base domains for TLSA records that are published and managed by the Service Provider.  For example: </p>
 <pre>
   ; Hosted SMTP service
   ;
-  example.com. IN MX 0 mx1.example.net.
-  example.com. IN MX 0 mx2.example.net.
-  _25._tcp.mx1.example.net. IN TLSA 3 1 1 (
+  example.com.              300 IN MX 0 mx1.example.net.
+  example.com.              300 IN MX 0 mx2.example.net.
+  _25._tcp.mx1.example.net. 300 IN TLSA DANE-EE SPKI SHA2-256 (
                                 8A9A70596E869BED72C69D97A8895DFA
                                 D86F300A343FECEFF19E89C27C896BC9 )
-  _25._tcp.mx2.example.net. IN TLSA 3 1 1 (
+  _25._tcp.mx2.example.net. 300 IN TLSA DANE-EE SPKI SHA2-256 (
                                 C164B2C3F36D068D42A6138E446152F5
                                 68615F28C69BD96A73E354CAC88ED00C )
     </pre>
 <p id="rfc.section.3.4.p.7">If redirection to the Service Provider's domain (via MX or SRV records or any similar mechanism) is not possible, and aliasing of the TLSA record is not an option, then more complex coordination between the Customer Domain and Service Provider is required.  Either the Customer Domain periodically provides private keys and a corresponding certificate chain to the Provider after making appropriate changes in its TLSA records, or the Service Provider periodically generates the keys and certificates and must wait for matching TLSA records to be published by its Customer Domains before deploying newly generated keys and certificate chains.  </p>
+<p id="rfc.section.3.4.p.8">For further information about combining DANE and SRV, please see <a href="#I-D.ietf-dane-srv">[I-D.ietf-dane-srv]</a>.  </p>
 <h1 id="rfc.section.3.5"><a href="#rfc.section.3.5">3.5.</a> <a href="#cname" id="cname">TLSA Base Domain and CNAMEs</a></h1>
 <p id="rfc.section.3.5.p.1">When the protocol does not support service location indirection via MX, SRV or similar DNS records, the service may be redirected via a CNAME.  A CNAME is a more blunt instrument for this purpose, since unlike an MX or SRV record, it remaps the origin domain to the target domain for all protocols.  </p>
 <p id="rfc.section.3.5.p.2">The complexity of coordinating key rollover is largely eliminated when DANE TLSA records are found in the Service Provider's domain, as discussed in <a href="#sync">Section 3.4</a>.  Therefore, DANE TLS clients connecting to a server whose domain name is a CNAME alias SHOULD follow the CNAME hop-by-hop to its ultimate target host (noting at each step whether the CNAME is DNSSEC-validated).  If at each stage of CNAME expansion the DNSSEC validation status is "secure", the final target name SHOULD be the preferred base domain for TLSA lookups.  </p>
@@ -615,19 +618,19 @@
 <p id="rfc.section.3.5.p.4">Protocol-specific TLSA specifications may provide additional guidance or restrictions when following CNAME expansions.  </p>
 <p id="rfc.section.3.5.p.5">Though CNAMEs are illegal on the right hand side of most indirection records, such as MX and SRV records, they are supported by some implementations.  For example, if the MX or SRV host is a CNAME alias, some implementations may "chase" the CNAME.  They SHOULD use the target hostname as the preferred TLSA base domain as well as the HostName in SNI, provided the CNAME RR is found to be "secure" at each step in the CNAME expansion.  </p>
 <h1 id="rfc.section.3.6"><a href="#rfc.section.3.6">3.6.</a> Interaction with Certificate Transparency</h1>
-<p><a href="#RFC6962">[RFC6962]</a> Certificate Transparency, or CT for short, defines an approach to mitigate the risk of rogue or compromised public CAs issuing unauthorized certificates.  This section clarifies the interaction of CT and DANE.  CT is a protocol and auditing system that applies only to public CAs, and only when they are free to issue unauthorized certificates for a domain.  If the CA is not a public CA, or a DANE-EE(3) TLSA RR directly specifies the end entity certificate, there is no role for CT, and clients need not apply CT checks.  </p>
+<p id="rfc.section.3.6.p.1">Certificate Transparency (CT) <a href="#RFC6962">[RFC6962]</a> defines an experimental approach to mitigate the risk of rogue or compromised public CAs issuing unauthorized certificates.  This section clarifies the interaction of CT and DANE.  CT is an experimental protocol and auditing system that applies only to public CAs, and only when they are free to issue unauthorized certificates for a domain.  If the CA is not a public CA, or a DANE-EE(3) TLSA RR directly specifies the end entity certificate, there is no role for CT, and clients need not apply CT checks.  </p>
 <p id="rfc.section.3.6.p.2">When a server is authenticated via a DANE TLSA RR with TLSA Certificate Usage DANE-EE(3), the domain owner has directly specified the certificate associated with the given service without reference to any PKIX certificate authority.  Therefore, when a TLS client authenticates the TLS server via a TLSA certificate association with usage DANE-EE(3), CT checks SHOULD NOT be performed.  Publication of the server certificate or public key (digest) in a TLSA record in a DNSSEC signed zone by the domain owner assures the TLS client that the certificate is not an unauthorized certificate issued by a rogue CA without the domain owner's consent.  </p>
 <p id="rfc.section.3.6.p.3">When a server is authenticated via a DANE TLSA RR with TLSA usage DANE-TA(2) and the server certificate does not chain to a known public root CA, CT cannot apply (CT logs only accept chains that start with a known, public root).  Since TLSA Certificate Usage DANE-TA(2) is generally intended to support non-PKIX trust anchors, TLS clients SHOULD NOT perform CT checks with usage DANE-TA(2) using unknown root CAs.  </p>
 <p id="rfc.section.3.6.p.4">A server operator who wants clients to perform CT checks should publish TLSA RRs with usage PKIX-TA(0) or PKIX-EE(1).  </p>
 <h1 id="rfc.section.3.7"><a href="#rfc.section.3.7">3.7.</a> Design Considerations for Protocols Using DANE</h1>
 <p id="rfc.section.3.7.p.1">When a TLS client goes to the trouble of authenticating a certificate chain presented by a TLS server, it should not continue to use that server in the event of authentication failure, or else authentication serves no purpose.  Servers publishing TLSA records MUST be configured to allow correctly configured clients to successfully authenticate their TLS certificate chains.  </p>
-<p id="rfc.section.3.7.p.2">A service with DNSSEC-validated TLSA records implicitly promises TLS support.  When all the TLSA records for a service are found "unusable", due to unsupported parameter combinations or malformed associated data, DANE clients cannot authenticate the service certificate chain.  When authenticated TLS is dictated by the application, the client SHOULD NOT connect to the associated server.  If, on the other hand, the use of TLS is "opportunistic", then the client SHOULD generally use the server via an unauthenticated TLS connection, but if TLS encryption cannot be established, the client MUST NOT use the server.  Standards for DANE specific to the particular application protocol may modify the above as appropriate to specify whether the connection should be established anyway without relying on TLS security, with only TLS encryption but not authentication, or whether to refuse to connect entirely.  Protocols must choose whether to prioritize security or robustness.  </p>
+<p id="rfc.section.3.7.p.2">A service with DNSSEC-validated TLSA records implicitly promises TLS support.  When all the TLSA records for a service are found "unusable", due to unsupported parameter combinations or malformed associated data, DANE clients cannot authenticate the service certificate chain.  When authenticated TLS is dictated by the application, the client SHOULD NOT connect to the associated server.  If, on the other hand, the use of TLS is "opportunistic", then the client SHOULD generally use the server via an unauthenticated TLS connection, but if TLS encryption cannot be established, the client MUST NOT use the server.  Standards for DANE specific to the particular application protocol may modify the above as appropriate to specify whether the connection should be established anyway without relying on TLS security, with only encryption but not authentication, or whether to refuse to connect entirely.  Protocols must choose whether to prioritize security or robustness.  </p>
 <h1 id="rfc.section.3.7.1"><a href="#rfc.section.3.7.1">3.7.1.</a> <a href="#nopki" id="nopki">Design Considerations for non-PKIX Protocols</a></h1>
 <p id="rfc.section.3.7.1.p.1">For some application protocols (such as SMTP to MX with opportunistic TLS), the existing public CA PKI is not a viable alternative to DANE.  For these (non-PKIX) protocols, new DANE standards SHOULD NOT suggest publishing TLSA records with TLSA Certificate Usage PKIX-TA(0) or PKIX-EE(1), as TLS clients cannot be expected to perform <a href="#RFC5280">[RFC5280]</a> PKIX validation or <a href="#RFC6125">[RFC6125]</a> identity verification.  </p>
 <p id="rfc.section.3.7.1.p.2">Protocols designed for non-PKIX use SHOULD choose to treat any TLSA records with TLSA Certificate Usage PKIX-TA(0) or PKIX-EE(1) as unusable.  After verifying that the only available TLSA Certificate Usage types are PKIX-TA(0) or PKIX-EE(1), protocol specifications MAY instruct clients to either refuse to initiate a connection or to connect via unauthenticated TLS if no alternative authentication mechanisms are available.  </p>
 <h1 id="rfc.section.3.8"><a href="#rfc.section.3.8">3.8.</a> <a href="#tadgst" id="tadgst">TLSA Records and Trust Anchor Digests</a></h1>
-<p id="rfc.section.3.8.p.1">With TLSA records that match the EE certificate, the TLS client has no difficulty matching TLSA records against the server certificate, as this certificate is always present in the TLS server certificate chain.  </p>
-<p id="rfc.section.3.8.p.2">With DANE TLSA records that match the digest of a TA certificate or public key, a complication arises when the TA certificate is omitted from the server's certificate chain.  This can happen when the trust anchor is a root certificate authority, as stated in section 7.4.2 of <a href="#RFC5246">[RFC5246]</a>: </p>
+<p id="rfc.section.3.8.p.1">With TLSA records that match the EE certificate (i.e., DANE-EE(3) or PKIX-EE(1)), the TLS client has no difficulty matching TLSA records against the server certificate, as this certificate is always present in the TLS server certificate chain.  </p>
+<p id="rfc.section.3.8.p.2">With DANE TLSA records that match the digest of a TA certificate or public key (i.e., DANE-TA(2) or PKIX-TA(0)), a complication arises when the TA certificate is omitted from the server's certificate chain.  This can happen when the trust anchor is a root certificate authority, as stated in section 7.4.2 of <a href="#RFC5246">[RFC5246]</a>: </p>
 <pre>
   The sender's certificate MUST come first in the list.  Each
   following certificate MUST directly certify the one preceding
@@ -638,7 +641,7 @@
   possess it in order to validate it in any case.
       </pre>
 <p id="rfc.section.3.8.p.3">This means that TLSA records that match a TA certificate or public key digest are not entirely sufficient to validate the peer certificate chain.  If no matching certificate is found in the server's certificate chain, the chain may be signed by an omitted root CA whose digest matches the TLSA record.  With Certificate Usage PKIX-TA(0), this is not a problem, since the client is expected to be pre-configured with the issuing TA certificate.  </p>
-<p id="rfc.section.3.8.p.4">With TLSA Certificate Usage DANE-TA(2), there is no expectation that the client is pre-configured with the trust anchor certificate.  Rather, with TLSA Certificate Usage DANE-TA(2) clients must be able to rely on the TLSA records alone.  But, with a digest in the TLSA record, the TLSA record contains neither the full trust anchor certificate nor the full public key.  If the TLS server's certificate chain does not contain the trust anchor certificate, DANE clients will be unable to authenticate the server.  </p>
+<p id="rfc.section.3.8.p.4">With TLSA Certificate Usage DANE-TA(2), however, there is no expectation that the client is pre-configured with the trust anchor certificate.  Rather, with TLSA Certificate Usage DANE-TA(2) clients must be able to rely on the TLSA records alone.  But, with a digest in the TLSA record, the TLSA record contains neither the full trust anchor certificate nor the full public key.  If the TLS server's certificate chain does not contain the trust anchor certificate, DANE clients will be unable to authenticate the server.  </p>
 <p id="rfc.section.3.8.p.5">TLSA Publishers that publish TLSA Certificate Usage DANE-TA(2) with a digest (not Full(0)) matching type MUST ensure that the corresponding server is configured to also include the trust anchor certificate in its TLS handshake certificate chain, even if that certificate is a self-signed root CA and would have been optional in the context of the existing public CA PKI.  </p>
 <h1 id="rfc.section.3.9"><a href="#rfc.section.3.9">3.9.</a> Trust anchor public keys</h1>
 <p id="rfc.section.3.9.p.1">TLSA records with TLSA Certificate Usage DANE-TA(2), selector SPKI(1) and a matching type of Full(0) publish the full public key of a trust anchor via DNS.  In section 6.1.1 of <a href="#RFC5280">[RFC5280]</a> the definition of a trust anchor consists of the following four parts: </p>
@@ -656,33 +659,35 @@
 <p id="rfc.section.3.9.p.6">If none of the server's certificate chain elements match a public key specified in full in a TLSA record, clients SHOULD check whether the topmost certificate in the chain is signed by the provided public key and has not expired, and if that is the case, and the rest of the chain passes validation, consider the server authenticated if name checks are also successful.  </p>
 <h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> Certificate Usage Specific DANE Guidelines</h1>
 <h1 id="rfc.section.4.1"><a href="#rfc.section.4.1">4.1.</a> <a href="#type3" id="type3">Certificate Usage DANE-EE(3) Guidelines</a></h1>
-<p id="rfc.section.4.1.p.1">Authentication via certificate usage "3" TLSA records involves simply checking that the server's leaf certificate matches the TLSA record.  Other than extracting the relevant certificate elements for comparison, no other use is made of the certificate content.  Authentication via certificate usage "3" TLSA records involves no certificate authority signature checks.  It also involves no server name checks, and thus does not impose any new requirements on the names contained in the server certificate (servers don't depend on SNI when the TLSA record matches the server's default certificate).  </p>
-<p id="rfc.section.4.1.p.2">Two TLSA records will need to be published before updating a server's public key, one matching the currently deployed key and the other matching the new key scheduled to replace it.  Once sufficient time has elapsed for all DNS caches to expire the previous TLSA RRset, which contains only the old key, the server may be reconfigured to use the new private key and associated certificate chain.  Once the server is using the new key, the TLSA RR that matches the retired key can be removed from DNS, leaving only the RR that matches the new key.  </p>
-<p id="rfc.section.4.1.p.3">TLSA records for servers SHOULD, when possible, be DANE-EE(3), SPKI(1), SHA2-256(1) records.  Such "3 1 1" records specify the SHA2-256 digest of the public key of the server certificate.  Since all DANE implementations are required to support SHA2-256, this record works for all clients and need not change across certificate renewals with the same key.  With no name checks required, this TLSA record type supports hosting arrangements with a single certificate matching all client domains!  It is also the easiest to implement correctly in the client.  </p>
+<p id="rfc.section.4.1.p.1">Authentication via certificate usage "3" TLSA records involves simply checking that the server's leaf certificate matches the TLSA record.  Other than extracting the relevant certificate elements for comparison, no other use is made of the certificate content.  Authentication via certificate usage "3" TLSA records involves no certificate authority signature checks.  It also involves no server name checks, and thus does not impose any new requirements on the names contained in the server certificate (servers don't require an SNI extension to be present when the TLSA record matches the server's default certificate).  </p>
+<p id="rfc.section.4.1.p.2">Two TLSA records will need to be published before updating a server's public key, one matching the currently deployed key and the other matching the new key scheduled to replace it.  Once sufficient time has elapsed for all the previous TLSA RRsets, which contain only the old key, to expire from DNS caches, the server may be reconfigured to use the new private key and associated certificate chain.  Once the server is using the new key, the TLSA RR that matches the retired key can be removed from DNS, leaving only the TLSA RR that matches the new key.  </p>
+<p id="rfc.section.4.1.p.3">TLSA records for servers SHOULD, when possible, be DANE-EE(3), SPKI(1), SHA2-256(1) records.  Such records specify the SHA2-256 digest of the public key of the server certificate.  Since all DANE implementations are required to support SHA2-256, this record works for all clients and need not change across certificate renewals with the same key.  With no name checks required, this TLSA record type supports hosting arrangements with a single certificate matching all client domains!  It is also the easiest to implement correctly in the client.  </p>
 <h1 id="rfc.section.4.2"><a href="#rfc.section.4.2">4.2.</a> <a href="#type2" id="type2">Certificate Usage DANE-TA(2) Guidelines</a></h1>
 <p id="rfc.section.4.2.p.1">Some domains may prefer to reduce the operational complexity of maintaining a distinct TLSA RRset for each TLS service.  If the domain employs a common issuing certificate authority to create certificates for multiple TLS services, it may be simpler to publish the issuing authority as a trust anchor (TA) for the certificate chains of all relevant services.  The TLSA RRs for each service issued by the same TA may then be CNAMEs to a common TLSA RRset that matches the TA.  This certificate usage also allows Service Providers to independently generate appropriate certificates for each Customer Domain (see <a href="#sync">Section 3.4</a>).  </p>
-<p id="rfc.section.4.2.p.2">As explained in <a href="#tadgst">Section 3.8</a>, servers that employ Certificate Usage DANE-TA(2) TLSA records MUST include the TA certificate as part of the certificate chain presented in the TLS handshake even when it is a self-signed root certificate.  TLSA Publishers should publish either "2 1 1" or "2 0 1" TLSA parameters, which specify the SHA2-256 digest of the trust anchor public key or certificate respectively.  As with leaf certificate rollover discussed in <a href="#type3">Section 4.1</a>, two such TLSA RRs need to be published to facilitate TA certificate rollover.  </p>
+<p id="rfc.section.4.2.p.2">As explained in <a href="#tadgst">Section 3.8</a>, servers that employ Certificate Usage DANE-TA(2) TLSA records MUST include the TA certificate as part of the certificate chain presented in the TLS handshake even when it is a self-signed root certificate.  TLSA Publishers should publish either "DANE-TA(2) SPKI(1) SHA2-256(1)" or "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA parameters.  As with leaf certificate rollover discussed in <a href="#type3">Section 4.1</a>, two such TLSA RRs need to be published to facilitate TA certificate rollover.  </p>
 <h1 id="rfc.section.4.3"><a href="#rfc.section.4.3">4.3.</a> <a href="#type1" id="type1">Certificate Usage PKIX-EE(1) Guidelines</a></h1>
-<p id="rfc.section.4.3.p.1">From a TLSA record perspective this certificate usage is similar to DANE-EE(3), but in addition PKIX verification is required.  Therefore, name checks, certificate expiration, etc., apply as they would without DANE.  An attacker who can compromise DNSSEC can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA records of his choosing and thus bypass the PKIX verification requirements.  </p>
-<p id="rfc.section.4.3.p.2">Therefore, in most cases this certificate usage offers only illusory incremental security over usage DANE-EE(3).  It provides lower reliability than usage 3 since some clients may not be configured with the required root CA, the server's chain may be incomplete or name checks may fail.  It requires more complex coordination between the Customer Domain and the Service Provider in hosting arrangements.  This certificate usage is NOT RECOMMENDED.  </p>
+<p id="rfc.section.4.3.p.1">From a TLSA record perspective this certificate usage is similar to DANE-EE(3), but in addition PKIX verification is required.  Therefore, name checks, certificate expiration, etc., apply as they would without DANE.  It should be noted that an attacker who can compromise DNSSEC can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA records of his choosing, and thus bypass the PKIX verification requirements.  </p>
+<p id="rfc.section.4.3.p.2">Therefore, in most cases this certificate usage offers only illusory incremental security over usage DANE-EE(3).  It provides lower operational reliability than usage 3 since when some clients may not be configured with the required root CA, the server's chain may be incomplete or name checks may fail.  PKIX-EE(1) also requires more complex coordination between the Customer Domain and the Service Provider in hosting arrangements.  This certificate usage is NOT RECOMMENDED.  </p>
 <h1 id="rfc.section.4.4"><a href="#rfc.section.4.4">4.4.</a> <a href="#type0" id="type0">Certificate Usage PKIX-TA(0) Guidelines</a></h1>
-<p id="rfc.section.4.4.p.1">TLSA Certificate Usage PKIX-TA(0) allows a domain to publish constraints on the set of certificate authorities trusted to issue certificates for its TLS servers.  Clients must only accept PKIX-verified trust chains which contain a match for one of the published TLSA records.  </p>
-<p id="rfc.section.4.4.p.2">TLSA Publishers may publish TLSA records for a particular public root CA, expecting that clients will then only accept chains anchored at that root.  It is possible, however, that the client's trusted certificate store includes some intermediate CAs, either with or without the corresponding root CA.  When a client constructs a trust chain leading from a trusted intermediate CA to the server leaf certificate, such a "truncated" chain might not contain a trusted root published in the server's TLSA records.  </p>
-<p id="rfc.section.4.4.p.3">If the omitted root is also trusted, the client may erroneously reject the server chain if it fails to determine that the shorter chain it constructed extends to a longer trusted chain that matches the TLSA records.  This means that, when matching a usage 0 TLSA record, a client SHOULD NOT always stop extending the chain when the first locally trusted certificate is found.  If no TLSA records have matched any of the elements of the chain, it MUST attempt to build a longer chain if the trusted certificate found is not self-issued, in the hope that a certificate closer to the root may in fact match the server's TLSA records.  </p>
-<p id="rfc.section.4.4.p.4">An attacker who can compromise DNSSEC can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA records of his choosing and thus bypass the PKIX verification requirements.  Therefore, in most cases this certificate usage offers only illusory incremental security over usage DANE-TA(2).  It provides lower reliability than usage 2 since some clients may not be configured with the required root CA, and requires more complex coordination between the Customer Domain and the Service Provider in hosting arrangements.  This certificate usage is NOT RECOMMENDED.  </p>
+<p id="rfc.section.4.4.p.1">TLSA Certificate Usage PKIX-TA(0) allows a domain to publish constraints on the set of certificate authorities trusted to issue certificates for its TLS servers.  Clients MUST only accept PKIX-verified trust chains which contain a match for one of the published TLSA records.  </p>
+<p id="rfc.section.4.4.p.2">TLSA Publishers who publish TLSA records for a particular public root CA, will expect that clients will then only accept chains anchored at that root.  It is possible, however, that the client's trusted certificate store includes some intermediate CAs, either with or without the corresponding root CA.  When a client constructs a trust chain leading from a trusted intermediate CA to the server leaf certificate, such a "truncated" chain might not contain a trusted root published in the server's TLSA records.  </p>
+<p id="rfc.section.4.4.p.3">If the omitted root is also trusted, the client may erroneously reject the server chain if it fails to determine that the shorter chain it constructed extends to a longer trusted chain that matches the TLSA records.  This means that, when matching a usage PKIX-TA(0) TLSA record, a client SHOULD NOT always stop extending the chain when the first locally trusted certificate is found.  If no TLSA records have matched any of the elements of the chain, it MUST attempt to build a longer chain if the trusted certificate found is not self-issued, in the hope that a certificate closer to the root may in fact match the server's TLSA records.  </p>
+<p id="rfc.section.4.4.p.4">As with PKIX-EE(1) case, An attacker who can compromise DNSSEC can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA records of his choosing and thus bypass the PKIX verification requirements.  Therefore, in most cases this certificate usage offers only illusory incremental security over usage DANE-TA(2).  It provides lower reliability than usage DANE-TA(2), since some clients may not be configured with the required root CA, and additionally requires more complex coordination between the Customer Domain and the Service Provider in hosting arrangements.  This certificate usage is NOT RECOMMENDED.  </p>
 <h1 id="rfc.section.5"><a href="#rfc.section.5">5.</a> Note on DNSSEC security</h1>
 <p id="rfc.section.5.p.1">Clearly the security of the DANE TLSA PKI rests on the security of the underlying DNSSEC infrastructure.  While this memo is not a guide to DNSSEC security, a few comments may be helpful to TLSA implementors.  </p>
-<p id="rfc.section.5.p.2">With the existing public CA PKI, name constraints are rarely used, and a public root CA can issue certificates for any domain of its choice.  With DNSSEC, the situation is different. Only the registrar of record can update a domain's DS record in the registry parent zone (in some cases, however, the registry is the sole registrar).  With gTLDs, for which multiple registrars compete to provide domains in a single registry, it is important to make sure that rogue registrars cannot easily initiate an unauthorized domain transfer, and thus take over DNSSEC for the domain.  DNS Operators SHOULD use a registrar lock of their domains to offer some protection against this possibility.  </p>
+<p id="rfc.section.5.p.2">With the existing public CA PKI, name constraints are rarely used, and a public root CA can issue certificates for any domain of its choice.  With DNSSEC, the situation is different. Only the registrar of record can update a domain's DS record in the registry parent zone (in some cases, however, the registry is the sole registrar).  With many gTLDs, for which multiple registrars compete to provide domains in a single registry, it is important to make sure that rogue registrars cannot easily initiate an unauthorized domain transfer, and thus take over DNSSEC for the domain.  DNS Operators SHOULD use a registrar lock of their domains to offer some protection against this possibility.  </p>
 <p id="rfc.section.5.p.3">When the registrar is also the DNS operator for the domain, one needs to consider whether the registrar will allow orderly migration of the domain to another registrar or DNS operator in a way that will maintain DNSSEC integrity.  TLSA Publishers SHOULD ensure their registrar publishes a suitable domain transfer policy.  </p>
-<p id="rfc.section.5.p.4">DNSSEC signed RRsets cannot be securely revoked before they expire.  Operators should plan accordingly and not generate signatures with excessively long duration.  For domains publishing high-value keys, a signature lifetime of a few days is reasonable, and the zone should be resigned every day.  For domains with less critical data, a reasonable signature lifetime is a couple of weeks to a month, and the zone should be resigned every week.  Monitoring of the signature lifetime is important.  If the zone is not resigned in a timely manner, one risks a major outage with the entire domain becoming invalid.  </p>
-<h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#Acknowledgements" id="Acknowledgements">Acknowledgements</a></h1>
-<p id="rfc.section.6.p.1">The authors would like to thank Phil Pennock for his comments and advice on this document.  </p>
-<p id="rfc.section.6.p.2">Acknowledgments from Viktor: Thanks to Tony Finch who finally prodded me into participating in DANE working group discussions.  Thanks to Paul Hoffman who motivated me to produce this memo and provided feedback on early drafts.  Thanks also to Samuel Dukhovni for editorial assistance.  </p>
-<h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#Security" id="Security">Security Considerations</a></h1>
-<p id="rfc.section.7.p.1">Application protocols that cannot make use of the existing public CA PKI (so called non-PKIX protocols), may choose not to implement certain PKIX-dependent TLSA record types defined in <a href="#RFC6698">[RFC6698]</a>.  If such records are published despite not being supported by the application protocol, they are treated as "unusable".  When TLS is opportunistic, the client may proceed to use the server with mandatory unauthenticated TLS.  This is stronger than opportunistic TLS without DANE, since in that case the client may also proceed with a plaintext connection.  When TLS is not opportunistic, the client MUST NOT connect to the server.  </p>
-<p id="rfc.section.7.p.2">Therefore, when TLSA records are used with protocols where PKIX does not apply, the recommended policy is for servers to not publish PKIX-dependent TLSA records, and for opportunistic TLS clients to use them to enforce the use of (albeit unauthenticated) TLS, but otherwise treat them as unusable.  Of course, when PKIX validation is supported by the application protocol, clients SHOULD perform PKIX validation per <a href="#RFC6698">[RFC6698]</a>.  </p>
-<h1 id="rfc.references"><a href="#rfc.references">8.</a> References</h1>
-<h1 id="rfc.references.1"><a href="#rfc.references.1">8.1.</a> Normative References</h1>
+<p id="rfc.section.5.p.4">DNSSEC signed RRsets cannot be securely revoked before they expire.  Operators should plan accordingly and not generate signatures with excessively long duration.  For domains publishing high-value keys, a signature lifetime of a few days is reasonable, and the zone should be resigned daily.  For domains with less critical data, a reasonable signature lifetime is a couple of weeks to a month, and the zone should be resigned weekly.  Monitoring of the signature lifetime is important.  If the zone is not resigned in a timely manner, one risks a major outage with the entire domain becoming invalid.  </p>
+<h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#Security" id="Security">Security Considerations</a></h1>
+<p id="rfc.section.6.p.1">Application protocols that cannot make use of the existing public CA PKI (so called non-PKIX protocols), may choose not to implement certain PKIX-dependent TLSA record types defined in <a href="#RFC6698">[RFC6698]</a>.  If such records are published despite not being supported by the application protocol, they are treated as "unusable".  When TLS is opportunistic, the client may proceed to use the server with mandatory unauthenticated TLS.  This is stronger than opportunistic TLS without DANE, since in that case the client may also proceed with a plaintext connection.  When TLS is not opportunistic, the client MUST NOT connect to the server.  </p>
+<p id="rfc.section.6.p.2">Therefore, when TLSA records are used with protocols where PKIX does not apply, the recommended policy is for servers to not publish PKIX-dependent TLSA records, and for opportunistic TLS clients to use them to enforce the use of (albeit unauthenticated) TLS, but otherwise treat them as unusable.  Of course, when PKIX validation is supported by the application protocol, clients SHOULD perform PKIX validation per <a href="#RFC6698">[RFC6698]</a>.  </p>
+<h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> IANA considerations</h1>
+<p id="rfc.section.7.p.1">This specification requires no support from IANA.</p>
+<h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#Acknowledgements" id="Acknowledgements">Acknowledgements</a></h1>
+<p id="rfc.section.8.p.1">The authors would like to thank Phil Pennock for his comments and advice on this document.  </p>
+<p id="rfc.section.8.p.2">Acknowledgments from Viktor: Thanks to Tony Finch who finally prodded me into participating in DANE working group discussions.  Thanks to Paul Hoffman who motivated me to produce this memo and provided feedback on early drafts.  Thanks also to Samuel Dukhovni for editorial assistance.  </p>
+<h1 id="rfc.references"><a href="#rfc.references">9.</a> References</h1>
+<h1 id="rfc.references.1"><a href="#rfc.references.1">9.1.</a> Normative References</h1>
 <table>
   <tbody>
     <tr>
@@ -708,12 +713,6 @@
         <b id="RFC4035">[RFC4035]</b>
       </td>
       <td class="top"><a>Arends, R.</a>, <a>Austein, R.</a>, <a>Larson, M.</a>, <a>Massey, D.</a> and <a>S. Rose</a>, "<a href="http://tools.ietf.org/html/rfc4035">Protocol Modifications for the DNS Security Extensions</a>", RFC 4035, March 2005.</td>
-    </tr>
-    <tr>
-      <td class="reference">
-        <b id="RFC4346">[RFC4346]</b>
-      </td>
-      <td class="top"><a>Dierks, T.</a> and <a>E. Rescorla</a>, "<a href="http://tools.ietf.org/html/rfc4346">The Transport Layer Security (TLS) Protocol Version 1.1</a>", RFC 4346, April 2006.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -751,15 +750,9 @@
       </td>
       <td class="top"><a>Hoffman, P.</a> and <a>J. Schlyter</a>, "<a href="http://tools.ietf.org/html/rfc6698">The DNS-Based Authentication of Named Entities (DANE) Transport Layer Security (TLS) Protocol: TLSA</a>", RFC 6698, August 2012.</td>
     </tr>
-    <tr>
-      <td class="reference">
-        <b id="RFC6962">[RFC6962]</b>
-      </td>
-      <td class="top"><a>Laurie, B.</a>, <a>Langley, A.</a> and <a>E. Kasper</a>, "<a href="http://tools.ietf.org/html/rfc6962">Certificate Transparency</a>", RFC 6962, June 2013.</td>
-    </tr>
   </tbody>
 </table>
-<h1 id="rfc.references.2"><a href="#rfc.references.2">8.2.</a> Informative References</h1>
+<h1 id="rfc.references.2"><a href="#rfc.references.2">9.2.</a> Informative References</h1>
 <table>
   <tbody>
     <tr>
@@ -779,6 +772,12 @@
         <b id="I-D.ietf-dane-srv">[I-D.ietf-dane-srv]</b>
       </td>
       <td class="top"><a>Finch, T.</a>, "<a href="http://tools.ietf.org/html/draft-ietf-dane-srv-02">Using DNS-Based Authentication of Named Entities (DANE) TLSA records with SRV and MX records.</a>", Internet-Draft draft-ietf-dane-srv-02, February 2013.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC6962">[RFC6962]</b>
+      </td>
+      <td class="top"><a>Laurie, B.</a>, <a>Langley, A.</a> and <a>E. Kasper</a>, "<a href="http://tools.ietf.org/html/rfc6962">Certificate Transparency</a>", RFC 6962, June 2013.</td>
     </tr>
   </tbody>
 </table>
