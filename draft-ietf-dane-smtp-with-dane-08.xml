@@ -1103,13 +1103,27 @@ with opportunistic DANE TLS.
 <t>
 Authentication via certificate usage DANE-EE(3) TLSA records involves
 simply checking that the server's leaf certificate matches the TLSA
-record.  Other than extracting the relevant certificate elements
-for comparison, no other use is made of the certificate content.
-Authentication via certificate usage DANE-EE(3) TLSA records involves
-no certificate authority signature checks.  It also involves no
-server name checks, and thus does not impose any new requirements
-on the names contained in the server certificate (SNI is not required
-when the TLSA record matches the server's default certificate).
+record.  In particular the binding of the server public key to its
+name is based entirely on the TLSA record association   The server
+MUST be considered authenticated even if none of the names in the
+certificate match the client's reference identity for the server.
+</t>
+
+<t>
+Similarly, the expiration date of the server certificate MUST be
+ignored, the validity period of the TLSA record key binding is
+determined by the validity interval of the TLSA record DNSSEC
+signature.
+</t>
+
+<t>
+With DANE-EE(3) servers need not employ SNI (may ignore the client's
+SNI message) even when the server is known under independent names
+that would otherwise require separate certificates.  It is instead
+sufficient for the TLSA RRsets for all the domains in question
+to match the server's default certificate.  Of couse with SMTP
+servers it is simpler still to publish the same MX hostname for
+all the hosted domains.
 </t>
 
 <t>
