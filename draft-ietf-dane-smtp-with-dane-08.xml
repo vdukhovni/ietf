@@ -221,8 +221,8 @@ Domain Name System (DNS).  DNSSEC is defined in <xref target="RFC4033"/>,
 
 <t>
 As described in the introduction of <xref target="RFC6698"/>, TLS
-authentication via the existing public Certificate Authority (CA)
-PKI suffers from an over-abundance of trusted certificate authorities
+authentication via the existing public Certification Authority (CA)
+PKI suffers from an over-abundance of trusted parties
 capable of issuing certificates for any domain of their choice.
 DANE leverages the DNSSEC infrastructure to publish trusted public
 keys and certificates for use with the Transport Layer Security
@@ -384,18 +384,18 @@ self-signed or issued by a private CA.
 
 </section><!-- Sender policy does not scale -->
 
-<section title="Too many certificate authorities">
+<section title="Too many certification authorities">
 
 <t>
 Even if it were generally possible to determine a secure server name,
 the SMTP client would still need to verify that the server's certificate
-chain is issued by a trusted certificate authority (a trust anchor).
+chain is issued by a trusted Certification Authority (a trust anchor).
 MTAs are not interactive applications where a human operator can make
 a decision (wisely or otherwise) to selectively disable TLS security
 policy when certificate chain verification fails.  With no user to
 "click OK", the MTAs list of public CA trust anchors would need to
 be comprehensive in order to avoid bouncing mail addressed to sites
-that employ unknown certificate authorities.
+that employ unknown Certification Authorities.
 </t>
 
 <t>
@@ -406,7 +406,7 @@ Any set of CAs is simultaneously both overly inclusive and not
 inclusive enough.
 </t>
 
-</section><!-- Too many certificate authorities -->
+</section><!-- Too many certification authorities -->
 
 </section><!-- SMTP channel security -->
 
@@ -943,7 +943,7 @@ should proceed via pre-DANE opportunistic TLS.
 
 <t>
 TLSA record publishers may leverage CNAMEs to reference a single
-authoritative TLSA RRset specifying a common certificate authority
+authoritative TLSA RRset specifying a common Certification Authority
 or a common end entity certificate to be used with multiple TLS
 services.  Such CNAME expansion does not change the SMTP client's
 notion of the TLSA base domain; thus, when _25._tcp.mail.example.com
@@ -1150,7 +1150,7 @@ and need not change across certificate renewals with the same key.
 <t>
 Some domains may prefer to avoid the operational complexity of
 publishing unique TLSA RRs for each TLS service.  If the domain
-employs a common issuing Certificate Authority to create certificates
+employs a common issuing Certification Authority to create certificates
 for multiple TLS services, it may be simpler to publish the issuing
 authority as a trust anchor (TA) for the certificate chains of all
 relevant services.  The TLSA query domain (TLSA base domain with
@@ -1168,7 +1168,7 @@ time, many SMTP servers are not configured with a comprehensive
 list of trust anchors, nor are they expected to at any point in the
 future.  Some MTAs will ignore all locally trusted certificates
 when processing usage DANE-TA(2) TLSA records.  Thus even when the
-TA happens to be a public Certificate Authority known to the SMTP
+TA happens to be a public Certification Authority known to the SMTP
 client, authentication is likely to fail unless the TA is included
 in the TLS server certificate message.
 </t>
