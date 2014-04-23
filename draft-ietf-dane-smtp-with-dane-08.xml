@@ -144,6 +144,16 @@ The following terms or concepts are used through the document:
     takes place in the clear.  MX record indirection generally
     precludes authentication even when TLS is available.  </t>
 
+    <t hangText="reference identifier:">
+    (Special case of <xref target="RFC6125"/> definition).  One of
+    the domain names associated by the SMTP client with the destination
+    SMTP server for performing name checks on the server certificate.
+    When name checks are applicable, at least one of the reference
+    identifiers MUST match an <xref target="RFC6125"/> DNS-ID (or
+    if none are present the <xref target="RFC6125"/> CN-ID) of the
+    server certificate.
+    </t>
+
     <t hangText="MX hostname:">
     The RRDATA of an MX record consists of a 16 bit preference
     followed by a Mail Exchange domain name (see <xref target="RFC1035"/>,
@@ -309,21 +319,24 @@ domain.
 </t>
 
 <t>
-A PKIX TLS client is vulnerable to MITM attacks
-unless it verifies that the server's certificate binds its public
-key to its name.  However, with SMTP server names are obtained
-indirectly via MX records.  Without DNSSEC, the MX lookup is
-vulnerable to MITM and DNS cache poisoning attacks.  Active attackers
-can forge DNS replies with fake MX records and can redirect email
-to servers with names of their choice.  Therefore, secure verification
-of SMTP TLS certificates is not possible without DNSSEC.
+A PKIX TLS client is vulnerable to MITM attacks unless it verifies
+that the server's certificate binds its public key to a name that
+matches one of the client's reference identifiers.  A natural choice
+of reference identifier is the server's domain name.  However, with
+SMTP, server names are obtained indirectly via MX records.  Without
+DNSSEC, the MX lookup is vulnerable to MITM and DNS cache poisoning
+attacks.  Active attackers can forge DNS replies with fake MX records
+and can redirect email to servers with names of their choice.
+Therefore, secure verification of SMTP TLS certificates matching
+the server name is not possible without DNSSEC.
 </t>
 
 <t>
 One might try to harden the use of TLS with SMTP against DNS attacks
-by requiring each SMTP server to possess a trusted certificate for
+by using the envelope recipient domain as a reference identifier and
+requiring each SMTP server to possess a trusted certificate for
 the envelope recipient domain rather than the MX hostname.
-Unfortunately, this is impractical, as email for many domains is
+Unfortunately, this is impractical as email for many domains is
 handled by third parties that are not in a position to obtain
 certificates for all the domains they serve.  Deployment of the
 Server Name Indication (SNI) extension to TLS (see <xref
@@ -335,7 +348,7 @@ rarely the case for email.
 
 <t>
 Since the recipient domain name cannot be used as the SMTP server
-authentication identity, and neither can the MX hostname without
+reference identifier, and neither can the MX hostname without
 DNSSEC, large-scale deployment of authenticated TLS for SMTP requires
 that the DNS be secure.
 </t>
@@ -345,14 +358,11 @@ Since SMTP security depends critically on DNSSEC, it is important
 to point out that consequently SMTP with DANE is the most conservative
 possible trust model.  It trusts only what must be trusted and no
 more.  Adding any other trusted actors to the mix can only reduce
-SMTP security.  A sender may choose to harden DNSSEC for selected
-high-value receiving domains, by configuring explicit trust anchors
-for those domains instead of relying on the chain of trust from the
-root domain.  In such a case there is not an "additional" trusted
-authority, rather the root trust anchor is replaced with a more
-specific trust anchor for each of the domains in question.  Detailed
-discussion of DNSSEC security practices is out of scope for this
-document.
+SMTP security.  A sender may choose to further harden DNSSEC for
+selected high-value receiving domains, by configuring explicit trust
+anchors for those domains instead of relying on the chain of trust
+from the root domain.  Detailed discussion of DNSSEC security
+practices is out of scope for this document.
 </t>
 
 </section><!-- Insecure server name without DNSSEC -->
@@ -361,15 +371,15 @@ document.
 
 <t>
 Sending systems are in some cases explicitly configured to use TLS
-for mail sent to specifically selected peer domains.  This 
-requires MTAs to be configured with appropriate subject
-names or certificate content digests to expect in the presented
-host certificates.  Because of the heavy administrative
-burden, such statically configured SMTP secure channels
-are used rarely (generally only between domains that make bilateral
-arrangements with their business partners).  Internet email, on the
-other hand, requires regularly contacting new domains for which
-security configurations cannot be established in advance.
+for mail sent to selected peer domains.  This requires sending MTAs
+to be configured with appropriate subject names or certificate
+content digests to expect in the presented server certificates.
+Because of the heavy administrative burden, such statically configured
+SMTP secure channels are used rarely (generally only between domains
+that make bilateral arrangements with their business partners).
+Internet email, on the other hand, requires regularly contacting
+new domains for which security configurations cannot be established
+in advance.
 </t>
 
 <t>
@@ -378,7 +388,7 @@ often across organization boundaries, limits the use of public CA
 PKI with SMTP to a small set of sender-configured peer domains.
 With little opportunity to use TLS authentication, sending MTAs are
 rarely configured with a comprehensive list of trusted CAs.  SMTP
-services that support STARTTLS often use X.509 certificates that are
+services that support STARTTLS often deploy X.509 certificates that are
 self-signed or issued by a private CA.
 </t>
 
@@ -415,10 +425,10 @@ inclusive enough.
 <section title="Opportunistic DANE TLS" anchor="specification">
 
 <t>
-Neither email addresses nor MX hostnames (or submission SRV records)
-signal a requirement for either secure or cleartext transport.
-Therefore, SMTP transport security is of necessity generally
-opportunistic (barring manually configured exceptions).
+Neither email addresses nor MX hostnames signal a requirement for
+either secure or cleartext transport.  Therefore, SMTP transport
+security is of necessity, barring manually configured exceptions,
+opportunistic.
 </t>
 
 <t>
@@ -656,8 +666,9 @@ MUST result in falling back to the next SMTP server or delayed delivery.  </t>
 <t hangText="An insecure TLSA RRset or DNSSEC validated proof-of-non-existent TLSA records:">
 A connection to the MTA SHOULD be made using (pre-DANE) opportunistic
 TLS, this includes using cleartext delivery when the remote SMTP
-server does not appear to support TLS.  The MTA may optionally
-retry in cleartext when a TLS handshake fails.</t>
+server does not appear to support TLS.  The MTA MAY retry in cleartext
+when delivery via TLS fails either during the handshake or even during
+data transfer.</t>
 
 <t hangText="Any lookup error:"> Lookup errors, including "bogus" and
 "indeterminate", as explained in <xref target="dnserr"/> MUST result
@@ -671,21 +682,6 @@ some destinations.  We will call such a configuration "mandatory DANE
 TLS".  With mandatory DANE TLS, delivery proceeds only when "secure"
 TLSA records are used to establish an encrypted and authenticated TLS
 channel with the SMTP server.
-</t>
-
-<!-- XXXWJH: move to operational considerations? -->
-<t>
-An operational error on the sending or receiving side that cannot
-be corrected in a timely manner may, at times, lead to consistent
-failure to deliver time-sensitive email.  The sending MTA administrator
-may have to choose between letting email queue until the error is
-resolved and disabling opportunistic or mandatory DANE TLS for one
-or more destinations.  The choice to disable DANE TLS security
-should not be made lightly.  Every reasonable effort should be made
-to determine that problems with mail delivery are the result of an
-operational error, and not an attack.  A fallback strategy
-may be to configure explicit out-of-band TLS security settings if
-supported by the sending MTA.
 </t>
 
 <t>
@@ -817,8 +813,8 @@ served by the problem nameservers the SMTP client MUST perform any
 A and/or AAAA queries for the destination before attempting to locate
 the associated TLSA records.  This lookup is needed in any case
 to determine whether the destination domain is reachable and the
-DNSSEC validation status of each stage of the chain of CNAME queries
-required to reach the final result.
+DNSSEC validation status of the chain of CNAME queries required to
+reach the ultimate address records.
 </t>
 
 <t>
@@ -913,13 +909,13 @@ For SMTP, the destination TCP port is typically 25, but this may
 be different with custom routes specified by the MTA administrator
 in which case the SMTP client MUST use the appropriate number in the "_&lt;port&gt;"
 prefix in place of "_25".  If, for example, the candidate base
-domain is "mail.example.com", and the SMTP connection is to port
+domain is "mx.example.com", and the SMTP connection is to port
 25, the TLSA RRset is obtained via a DNSSEC query of the form:
 </t>
 
 <figure>
 <artwork>
-_25._tcp.mail.example.com. IN TLSA ?
+_25._tcp.mx.example.com. IN TLSA ?
 </artwork>
 </figure>
 
@@ -946,17 +942,20 @@ TLSA record publishers may leverage CNAMEs to reference a single
 authoritative TLSA RRset specifying a common Certification Authority
 or a common end entity certificate to be used with multiple TLS
 services.  Such CNAME expansion does not change the SMTP client's
-notion of the TLSA base domain; thus, when _25._tcp.mail.example.com
-is a CNAME, the base domain remains mail.example.com and is still
-the name used in peer certificate name checks.
+notion of the TLSA base domain; thus, when _25._tcp.mx.example.com
+is a CNAME, the base domain remains mx.example.com and this is still
+the reference identifier used together with the next-hop domain in
+peer certificate name checks.
 </t>
 
 <t>
 Note, shared end entity certificate associations expose the publishing
 domain to substitution attacks, where an MITM attacker can reroute
 traffic to a different server that shares the same end entity
-certificate.  Such shared end entity records should be avoided
-unless the servers in question are interchangeable.
+certificate.  Such shared end entity records SHOULD be avoided
+unless the servers in question are functionally equivalent (an
+active attacker gains nothing by diverting client traffic from one
+such server to another).
 </t>
 
 <t>
@@ -965,21 +964,21 @@ For example, given the DNSSEC validated records below:
 
 <figure>
 <artwork>
-  example.com.                IN MX 0 mail.example.com.
-  example.com.                IN MX 0 mail2.example.com.
-  _25._tcp.mail.example.com.  IN CNAME tlsa211._dane.example.com.
-  _25._tcp.mail2.example.com. IN CNAME tlsa211._dane.example.com.
-  tlsa211._dane.example.com.  IN  TLSA 2 1 1 e3b0c44298fc1c14....
+  example.com.                IN MX 0 mx1.example.com.
+  example.com.                IN MX 0 mx2.example.com.
+  _25._tcp.mx1.example.com.   IN CNAME tlsa211._dane.example.com.
+  _25._tcp.mx2.example.com.   IN CNAME tlsa211._dane.example.com.
+  tlsa211._dane.example.com.  IN TLSA 2 1 1 e3b0c44298fc1c149a...
 </artwork>
 </figure>
 
 <t>
-The SMTP servers mail.example.com and mail2.example.com will be expected
+The SMTP servers mx1.example.com and mx2.example.com will be expected
 to have certificates issued under a common trust anchor, but each
 MX hostname's TLSA base domain remains unchanged despite the above
-CNAME records.  Each SMTP server's certificate subject name (or one of
-the subject alternative names) is expected to match either the
-corresponding MX hostname or else "example.com".
+CNAME records.  Correspondingly, each SMTP server will be associated
+with a pair of reference identifiers consisting of its hostname
+plus the next-hop domain "example.com".
 </t>
 
 <t>
@@ -1098,6 +1097,17 @@ certificate usages PKIX-TA(0) and PKIX-EE(1) are not applicable
 with opportunistic DANE TLS.
 </t>
 
+<t>
+In summary, we recommend the use of either "DANE-EE(3) SPKI(1)
+SHA2-256(1)" or "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA records
+depending on site needs.  Other combinations of TLSA parameters are
+either explicitly unsupported, or offer little to recommend them
+over these two.  If at some point the "SHA2-256" digest algorithm
+is tarnished by new cryptanalytic attacks, publishers will need to
+include an appropriate stronger digest in their TLSA records, initially
+along with, and ultimately in place of, SHA2-256.
+</t>
+
 <section title="Certificate usage DANE-EE(3)" anchor="cert3">
 
 <t>
@@ -1156,7 +1166,24 @@ authority as a trust anchor (TA) for the certificate chains of all
 relevant services.  The TLSA query domain (TLSA base domain with
 port and protocol prefix labels) for each service issued by the
 same TA may then be set to a CNAME alias that points to a
-common TLSA RRset that matches the TA.
+common TLSA RRset that matches the TA.  For example:
+</t>
+
+<figure>
+<artwork>
+  example.com.                IN MX 0 mx1.example.com.
+  example.com.                IN MX 0 mx2.example.com.
+  _25._tcp.mx1.example.com.   IN CNAME tlsa211._dane.example.com.
+  _25._tcp.mx2.example.com.   IN CNAME tlsa211._dane.example.com.
+  tlsa211._dane.example.com.  IN TLSA 2 1 1 e3b0c44298fc1c14....
+</artwork>
+</figure>
+
+<t>
+With usage DANE-TA(2) the server certificates will need to have
+names that match one of the client's reference identifiers (see
+<xref target="RFC6125"/>).  The server MAY employ SNI to select the
+appropriate certificate to present to the client.
 </t>
 
 <t>
@@ -1169,8 +1196,20 @@ list of trust anchors, nor are they expected to at any point in the
 future.  Some MTAs will ignore all locally trusted certificates
 when processing usage DANE-TA(2) TLSA records.  Thus even when the
 TA happens to be a public Certification Authority known to the SMTP
-client, authentication is likely to fail unless the TA is included
-in the TLS server certificate message.
+client, authentication is likely to fail unless the TA certificate
+is included in the TLS server certificate message.
+</t>
+
+<t>
+TLSA records with selector Full(0) are discouraged.  While these
+potentially obviate the need to transmit the TA certificate in the
+TLS server certificate message, client implementations may not be
+able to augment the server certificate chain with the data obtained
+from DNS, especially when the TLSA record supplies a bare key
+(selector SPKI(1)).  Since the server will need to transmit the TA
+certificate in any case, server operators SHOULD publish TLSA records
+with a selector other than Full(0) and avoid potential interoperability
+issues with large TLSA records containing full certificates or keys.
 </t>
 
 <t>
@@ -1210,8 +1249,8 @@ records bearing any convenient non-PKIX certificate usage.
 
 <t>
 SMTP client treatment of TLSA RRs with certificate usages "PKIX-TA(0)"
-or "PKIX-EE(1)" is undefined.  For example, clients MAY (will likely) treat such TLSA
-records as unusable.
+or "PKIX-EE(1)" is undefined.  For example, clients MAY (will likely)
+treat such TLSA records as unusable.
 </t>
 
 </section><!-- Certificate usages 0 and 1 -->
@@ -1219,6 +1258,7 @@ records as unusable.
 </section><!-- TLSA certificate usages -->
 
 <section title="Certificate matching" anchor="matching">
+
 <t>
 When at least one usable "secure" TLSA record is found, the SMTP
 client SHOULD use TLSA records to authenticate the SMTP server.
@@ -1226,25 +1266,39 @@ Messages SHOULD NOT be delivered via the SMTP server if authentication
 fails, otherwise the SMTP client is vulnerable to MITM attacks.
 </t>
 
+<section title="DANE-EE(3) name checks">
+
 <t>
-To match a server via a TLSA record with certificate usage DANE-TA(2), the
-client MUST perform name checks to ensure that it has reached the
-correct server.  In all cases the SMTP client MUST accept the TLSA
-base domain as a valid DNS name in the server certificate.
+The SMTP client MUST NOT perform certificate name checks with
+certificate usage DANE-EE(3), see <xref target="cert3"/> above.
+</t>
+
+</section><!-- DANE-EE(3) name checks -->
+
+<section title="DANE-TA(2) name checks">
+
+<t>
+To match a server via a TLSA record with certificate usage DANE-TA(2),
+the client MUST perform name checks to ensure that it has reached
+the correct server.  In all DANE-TA(2) cases the SMTP client MUST
+include the TLSA base domain as one of the valid reference identifiers
+for matching the server certificate.
 
 <list style="hanging">
 
 <t hangText="TLSA records for MX hostnames:">
 If the TLSA base domain was obtained indirectly via an MX lookup
 (including any CNAME-expanded name of an MX hostname), then the
-original next-hop domain used in the MX lookup MUST be accepted in
-the peer certificate.  The CNAME-expanded original next-hop domain
-MUST also be accepted if different from the initial query name. </t>
+original next-hop domain used in the MX lookup MUST be included as
+as a second reference identifier.  The CNAME-expanded original next-hop
+domain MUST be included as a third reference identifier if different from
+the original next-hop domain. </t>
 
 <t hangText="TLSA records for Non-MX hostnames:">
 If MX records were not used (e.g., if none exist) and the TLSA base
 domain is the CNAME-expanded original next-hop domain, then the
-original next-hop domain MUST also be accepted.  </t>
+original next-hop domain MUST be included as a second reference
+identifier. </t>
 
 </list>
 </t>
@@ -1253,7 +1307,7 @@ original next-hop domain MUST also be accepted.  </t>
 Accepting certificates with the original next-hop domain in addition
 to the MX hostname allows a domain with multiple MX hostnames to field
 a single certificate bearing a single domain name (i.e., the email
-domain) across all the SMTP servers.  This also aids inter-operability
+domain) across all the SMTP servers.  This also aids interoperability
 with pre-DANE SMTP clients that are configured to look for the email
 domain name in server certificates.  For example, with "secure" DNS
 records as below:
@@ -1294,90 +1348,35 @@ the respective TLSA base domains "mx15.example.com" and
 "mxbackup.example.net".
 </t>
 
+</section><!-- DANE-TA(2) name checks -->
+
+<section title="Reference idenfier matching">
+
 <t>
-The SMTP client MUST NOT perform certificate usage name checks with
-certificate usage DANE-EE(3), since with usage DANE-EE(3) the
-server is authenticated directly by matching the TLSA RRset to its
-certificate or public key without resorting to any issuing authority.
-The certificate content is ignored except to
-match the certificate or public key (ASN.1 DER encoding or its digest)
-with the TLSA RRset.
+When name checks are applicable (certificate usage DANE-TA(2)), if
+the server certificate contains a Subject Alternative Name extension
+(<xref target="RFC5280"/>), with at least one dNSName entry then
+only such dNSName entries are matched against the client's reference
+identifiers.  The commonName in the subject DN is only considered
+when no Subject Alternative NAME dNSName entries are present.  The
+server certificate is considered matched when one of its presented
+identifiers (<xref target="RFC5280"/>) matches any of the client's
+reference identifiers.
 </t>
 
 <t>
-<!-- XXXWJH for Viktor: suggest we drop the notes about SSLv2/SSLv3
-and simply state we require TLS version 1.2? and go with it.  We'll
-likely not get this paragraph past the security review.  It would be
-better to drop it and if implementations want to support older
-versions, it's their responsibility. To say you MUST do SNI, reference
-the 1.2 extension RFC and then somehow try to show that SSLv3 is
-possible is probably crazy.  -->
-To ensure that the server sends the right certificate chain, the
-SMTP client MUST send the TLS SNI extension containing the TLSA
-base domain.  This precludes the use of the backward compatible
-SSL 2.0 compatible SSL HELLO by the SMTP client.  The minimum SSL/TLS
-client HELLO version for SMTP clients performing DANE authentication is
-SSL 3.0, but a client that offers SSL 3.0 MUST also offer at least
-TLS 1.0 and MUST include the SNI extension.  Servers that don't make
-use of SNI MAY negotiate SSL 3.0 if offered by the client.
+Wildcards are valid in either the commonName or in dNSName entries.
+The wilcard character must be entire first label of the dNSName or
+commonName.  Thus, "*.example.com" is valid, while "smtp*.example.com"
+and "*smtp.example.com" are not.  SMTP clients MUST support wildcards
+that match the single first label of the server reference identifier,
+e.g.  the dNSName "*.example.com" matches the reference identifier
+"mx1.example.com".  SMTP clients MAY, subject to local policy allow
+wildcards to match multiple labels, but servers cannot expect broad
+support for such a policy.
 </t>
 
-<t>
-Each SMTP server MUST present a certificate chain (see <xref
-target="RFC5246"/> Section 7.4.2) that matches at least
-one of the TLSA records.  The server MAY rely on SNI to determine
-which certificate chain to present to the client.  Clients that
-don't send SNI information may not see the expected certificate
-chain.
-</t>
-
-<t>
-If the server's TLSA RRset includes records with a matching type
-indicating a digest record (i.e., a value other than Full(0)), a
-TLSA record with a SHA2-256(1) matching type SHOULD be provided
-along with any other digest published, since some SMTP clients may
-support only SHA2-256(1).
-</t>
-
-<t>
-If the server's TLSA records match the server's default certificate
-chain, the server need not support SNI.  In either case, the server
-need not include the SNI extension in its TLS HELLO as simply returning a
-matching certificate chain is sufficient.  Servers MUST NOT enforce
-the use of SNI by clients, as the client may be using unauthenticated
-opportunistic TLS and may not expect any particular certificate from
-the server.  If the client sends no SNI extension, or sends an SNI
-extension for an unsupported domain, the server MUST simply send its
-default certificate chain.  The reason for not enforcing strict
-matching of the requested SNI hostname is that DANE TLS clients are
-typically willing to accept multiple server names, but can only
-send one name in the SNI extension.  The server's default certificate
-may match a different name acceptable to the client, e.g., the
-original next-hop domain.
-</t>
-
-<t>
-<!-- XXXWJH: this paragraph needs work; it rambles a bit and the point
-     isn't clear-->
-An SMTP client employing pre-DANE opportunistic TLS MAY include
-some anonymous TLS cipher suites in its TLS HELLO in addition to
-at least one non-anonymous cipher suite (since servers often do
-support any of the anonymous ones).
-Therefore, an SMTP server MUST either select some suitable non-anonymous
-cipher suite offered by the client, or if it selects an anonymous
-cipher suite, it MUST NOT fail to complete the handshake merely
-because an anonymous cipher suite was chosen.
-</t>
-
-<t>
-Note that while SMTP server operators are under no obligation to
-enable anonymous cipher suites, no security is gained by sending
-certificates to clients that will ignore them.  Indeed support for
-anonymous cipher suites in the server makes audit trails more
-informative.  Log entries that record connections that employed an
-anonymous cipher suite record the fact that the clients did not
-care to authenticate the server.
-</t>
+</section><!-- Reference idenfier matching -->
 
 </section><!-- Certificate matching -->
 
@@ -1568,19 +1567,127 @@ SMTP security between MUAs and MSAs.
 
 </section><!-- Note on DANE for MUAs -->
 
+<section title="Interoperability considerations">
+
+<section title="SNI support">
+
+<t>
+<!-- XXXWJH for Viktor: suggest we drop the notes about SSLv2/SSLv3
+and simply state we require TLS version 1.2? and go with it.  We'll
+likely not get this paragraph past the security review.  It would be
+better to drop it and if implementations want to support older
+versions, it's their responsibility. To say you MUST do SNI, reference
+the 1.2 extension RFC and then somehow try to show that SSLv3 is
+possible is probably crazy.  -->
+<!-- XXX from Viktor: Sadly interoperability considerations
+for an *opportunistic* protocol mean tolerance for servers with
+obsolete TLS stacks, so SSLv3.0 should stay.  -->
+To ensure that the server sends the right certificate chain, the
+SMTP client MUST send the TLS SNI extension containing the TLSA
+base domain.  This precludes the use of the backward compatible
+SSL 2.0 compatible SSL HELLO by the SMTP client.  The minimum SSL/TLS
+client HELLO version for SMTP clients performing DANE authentication is
+SSL 3.0, but a client that offers SSL 3.0 MUST also offer at least
+TLS 1.0 and MUST include the SNI extension.  Servers that don't make
+use of SNI MAY negotiate SSL 3.0 if offered by the client.
+</t>
+
+<t>
+Each SMTP server MUST present a certificate chain (see <xref
+target="RFC5246"/> Section 7.4.2) that matches at least
+one of the TLSA records.  The server MAY rely on SNI to determine
+which certificate chain to present to the client.  Clients that
+don't send SNI information may not see the expected certificate
+chain.
+</t>
+
+<t>
+If the server's TLSA RRset includes records with a matching type
+indicating a digest record (i.e., a value other than Full(0)), a
+TLSA record with a SHA2-256(1) matching type SHOULD be provided
+along with any other digest published, since some SMTP clients may
+support only SHA2-256(1).
+</t>
+
+<t>
+If the server's TLSA records match the server's default certificate
+chain, the server need not support SNI.  In either case, the server
+need not include the SNI extension in its TLS HELLO as simply returning a
+matching certificate chain is sufficient.  Servers MUST NOT enforce
+the use of SNI by clients, as the client may be using unauthenticated
+opportunistic TLS and may not expect any particular certificate from
+the server.  If the client sends no SNI extension, or sends an SNI
+extension for an unsupported domain, the server MUST simply send its
+default certificate chain.  The reason for not enforcing strict
+matching of the requested SNI hostname is that DANE TLS clients are
+typically willing to accept multiple server names, but can only
+send one name in the SNI extension.  The server's default certificate
+may match a different name acceptable to the client, e.g., the
+original next-hop domain.
+</t>
+
+</section><!-- SNI support -->
+
+<section title="Anonymous TLS cipher suites">
+
+<t>
+Since many SMTP servers either do not support or do not enable any
+anonymous TLS cipher suites, SMTP client TLS HELLO messages SHOULD
+offer to negotiate a typical set of non-anonymous cipher suites
+required for interoperability with such servers.  An SMTP client
+employing pre-DANE opportunistic TLS MAY in addition include one
+or more anonymous TLS cipher suites in its TLS HELLO.  SMTP servers,
+that need to interoperate with opportunistic TLS clients SHOULD be
+prepared to interoperate with such clients by either always selecting a
+mutually supported non-anonymous cipher suite or by correctly handling
+client connections that negotiate anonymous cipher suites.
+</t>
+
+<t>
+Note that while SMTP server operators are under no obligation to
+enable anonymous cipher suites, no security is gained by sending
+certificates to clients that will ignore them.  Indeed support for
+anonymous cipher suites in the server makes audit trails more
+informative.  Log entries that record connections that employed an
+anonymous cipher suite record the fact that the clients did not
+care to authenticate the server.
+</t>
+
+</section><!-- Anonymous TLS cipher suites -->
+
+</section><!-- Interoperability considerations -->
+
 <section anchor="Operational" title="Operational Considerations">
 
 <section anchor="opclients" title="Client Operational Considerations">
 
 <t>
+An operational error on the sending or receiving side that cannot
+be corrected in a timely manner may, at times, lead to consistent
+failure to deliver time-sensitive email.  The sending MTA administrator
+may have to choose between letting email queue until the error is
+resolved and disabling opportunistic or mandatory DANE TLS for one
+or more destinations.  The choice to disable DANE TLS security
+should not be made lightly.  Every reasonable effort should be made
+to determine that problems with mail delivery are the result of an
+operational error, and not an attack.  A fallback strategy
+may be to configure explicit out-of-band TLS security settings if
+supported by the sending MTA.
+</t>
+
+<t>
 SMTP clients may deploy opportunistic DANE TLS incrementally by
 enabling it only for selected sites, or may occasionally need to
-disable opportunistic DANE TLS for peers that fail to interoperate due
-to misconfiguration or software defects on either end.  Unless local
-policy specifies that opportunistic DANE TLS is not to be used for a
-particular destination, an SMTP client MUST NOT deliver mail via a server
-whose certificate chain fails to match at least one TLSA record when
-usable TLSA records are found for that server.
+disable opportunistic DANE TLS for peers that fail to interoperate
+due to misconfiguration or software defects on either end.  Some
+implementations MAY support DANE TLS in an "audit only" mode in
+which failure to achieve the requisite security level is logged as
+a warning and delivery proceeds at a reduced security level.  Unless
+local policy specifies "audit only" or that opportunistic DANE TLS
+is not to be used for a particular destination, an SMTP client MUST
+NOT deliver mail via a server whose certificate chain fails to match
+at least one TLSA record when usable TLSA records are found for
+that server.
 </t>
 
 </section>
