@@ -40,7 +40,7 @@
 <front>
 <title>SMTP security via opportunistic DANE TLS</title>
 <author fullname="Viktor Dukhovni" initials="V." surname="Dukhovni">
-    <organization>Unaffiliated</organization>
+    <organization>Two Sigma</organization>
     <address>
     <email>ietf-dane@dukhovni.org</email>
     </address>
@@ -151,7 +151,7 @@ The following terms or concepts are used through the document:
     When name checks are applicable, at least one of the reference
     identifiers MUST match an <xref target="RFC6125"/> DNS-ID (or
     if none are present the <xref target="RFC6125"/> CN-ID) of the
-    server certificate.
+    server certificate (see <xref target="name-matching"/>).
     </t>
 
     <t hangText="MX hostname:">
@@ -211,7 +211,7 @@ The following terms or concepts are used through the document:
     <t hangText="MUA: ">
     Message User Agent (<xref target="RFC5598" />, Section 4.2.1).
     </t>
-    
+
     <t hangText="RR: ">A DNS Resource Record</t>
 
     <t hangText="RRset: ">A set of DNS Resource Records for a particular
@@ -287,7 +287,7 @@ addresses and are security-agnostic.  Unlike the Hypertext Transfer
 Protocol (HTTP) and its corresponding secured version, HTTPS, where
 the use of TLS is signalled via the URI scheme, email recipient
 addresses do not directly signal transport security policy.  Indeed,
-no such signalling could work well with SMTP since TLS encryption
+no such signaling could work well with SMTP since TLS encryption
 of SMTP protects email traffic on a hop-by-hop basis while email
 addresses could only express end-to-end policy.
 </t>
@@ -315,12 +315,12 @@ use of PKIX, can prevent this.  The attacker can simply disable TLS.
 With SMTP, DNS Mail Exchange (MX) records abstract the next-hop
 transport endpoint and allow administrators to specify a set of
 target servers to which SMTP traffic should be directed for a given
-domain.  
+domain.
 </t>
 
 <t>
 A PKIX TLS client is vulnerable to MITM attacks unless it verifies
-that the server's certificate binds its public key to a name that
+that the server's certificate binds the public key to a name that
 matches one of the client's reference identifiers.  A natural choice
 of reference identifier is the server's domain name.  However, with
 SMTP, server names are obtained indirectly via MX records.  Without
@@ -332,7 +332,7 @@ the server name is not possible without DNSSEC.
 </t>
 
 <t>
-One might try to harden the use of TLS with SMTP against DNS attacks
+One might try to harden TLS for SMTP against DNS attacks
 by using the envelope recipient domain as a reference identifier and
 requiring each SMTP server to possess a trusted certificate for
 the envelope recipient domain rather than the MX hostname.
@@ -412,7 +412,7 @@ that employ unknown Certification Authorities.
 On the other hand, each trusted CA can issue certificates for any
 domain.  If even one of the configured CAs is compromised or operated
 by an adversary, it can subvert TLS security for all destinations.
-Any set of CAs is simultaneously both overly inclusive and not 
+Any set of CAs is simultaneously both overly inclusive and not
 inclusive enough.
 </t>
 
@@ -426,9 +426,9 @@ inclusive enough.
 
 <t>
 Neither email addresses nor MX hostnames signal a requirement for
-either secure or cleartext transport.  Therefore, SMTP transport
-security is of necessity, barring manually configured exceptions,
-opportunistic.
+either secure or cleartext transport.  Therefore, aside from a few
+manually configured exceptions, SMTP transport security is of
+necessity opportunistic.
 </t>
 
 <t>
@@ -1102,10 +1102,19 @@ In summary, we recommend the use of either "DANE-EE(3) SPKI(1)
 SHA2-256(1)" or "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA records
 depending on site needs.  Other combinations of TLSA parameters are
 either explicitly unsupported, or offer little to recommend them
-over these two.  If at some point the "SHA2-256" digest algorithm
-is tarnished by new cryptanalytic attacks, publishers will need to
-include an appropriate stronger digest in their TLSA records, initially
-along with, and ultimately in place of, SHA2-256.
+over these two. 
+</t>
+
+<t>
+The mandatory to support digest algorithm in <xref target="RFC6698"/>
+is SHA2-256(1).  When the server's TLSA RRset includes records with
+a matching type indicating a digest record (i.e., a value other
+than Full(0)), a TLSA record with a SHA2-256(1) matching type SHOULD
+be provided along with any other digest published, since some SMTP
+clients may support only SHA2-256(1).  If at some point the SHA2-256
+digest algorithm is tarnished by new cryptanalytic attacks, publishers
+will need to include an appropriate stronger digest in their TLSA
+records, initially along with, and ultimately in place of, SHA2-256.
 </t>
 
 <section title="Certificate usage DANE-EE(3)" anchor="cert3">
@@ -1131,7 +1140,7 @@ With DANE-EE(3) servers need not employ SNI (may ignore the client's
 SNI message) even when the server is known under independent names
 that would otherwise require separate certificates.  It is instead
 sufficient for the TLSA RRsets for all the domains in question
-to match the server's default certificate.  Of couse with SMTP
+to match the server's default certificate.  Of course with SMTP
 servers it is simpler still to publish the same MX hostname for
 all the hosted domains.
 </t>
@@ -1239,7 +1248,7 @@ SMTP servers SHOULD NOT publish TLSA RRs with certificate usage "PKIX-TA(0)"
 or "PKIX-EE(1)".  SMTP clients cannot be expected to be configured with a
 suitably complete set of trusted public CAs.  Even with a full set
 of public CAs, SMTP clients cannot (without relying on DNSSEC for
-secure MX records and DANE for STARTTLS support signalling) perform
+secure MX records and DANE for STARTTLS support signaling) perform
 <xref target="RFC6125"/> server identity verification or prevent
 STARTTLS downgrade attacks.  The use of trusted public CAs
 offers no added security since an attacker capable of compromising
@@ -1350,33 +1359,35 @@ the respective TLSA base domains "mx15.example.com" and
 
 </section><!-- DANE-TA(2) name checks -->
 
-<section title="Reference idenfier matching">
+<section title="Reference identifier matching" anchor="name-matching">
 
 <t>
 When name checks are applicable (certificate usage DANE-TA(2)), if
 the server certificate contains a Subject Alternative Name extension
-(<xref target="RFC5280"/>), with at least one dNSName entry then
-only such dNSName entries are matched against the client's reference
-identifiers.  The commonName in the subject DN is only considered
-when no Subject Alternative NAME dNSName entries are present.  The
-server certificate is considered matched when one of its presented
-identifiers (<xref target="RFC5280"/>) matches any of the client's
-reference identifiers.
+(<xref target="RFC5280"/>), with at least one DNS-ID (<xref
+target="RFC6125"/>) then only the DNS-IDs are matched against the
+client's reference identifiers.  The CN-ID (<xref target="RFC6125"/>)
+is only considered when no DNS-IDs are present.  The server certificate
+is considered matched when one of its presented identifiers (<xref
+target="RFC5280"/>) matches any of the client's reference identifiers.
 </t>
 
 <t>
-Wildcards are valid in either the commonName or in dNSName entries.
-The wilcard character must be entire first label of the dNSName or
-commonName.  Thus, "*.example.com" is valid, while "smtp*.example.com"
+Wildcards are valid in either DNS-IDs or the CN-ID when applicable.
+The wildcard character must be entire first label of the DNS-ID or
+CN-ID.  Thus, "*.example.com" is valid, while "smtp*.example.com"
 and "*smtp.example.com" are not.  SMTP clients MUST support wildcards
-that match the single first label of the server reference identifier,
-e.g.  the dNSName "*.example.com" matches the reference identifier
-"mx1.example.com".  SMTP clients MAY, subject to local policy allow
-wildcards to match multiple labels, but servers cannot expect broad
-support for such a policy.
+that match the first label of the reference identifier, with the
+remaining labels matching verbatim.  For example, the DNS-ID
+"*.example.com" matches the reference identifier "mx1.example.com".
+SMTP clients MAY, subject to local policy allow wildcards to match
+multiple reference identifier labels, but servers cannot expect
+broad support for such a policy.  Therefore any wildcards in
+server certificates SHOULD match exactly one label in either
+the TLSA base domain or the next-hop domain.
 </t>
 
-</section><!-- Reference idenfier matching -->
+</section><!-- Reference identifier matching -->
 
 </section><!-- Certificate matching -->
 
@@ -1407,7 +1418,7 @@ While <xref target="RFC6698"/> specifies multiple digest algorithms,
 it does not specify a protocol by which the SMTP client and TLSA
 record publisher can agree on the strongest shared algorithm.  Such
 a protocol would allow the client and server to avoid exposure to
-any deprecated weaker algorithms that are published for compatibilty
+any deprecated weaker algorithms that are published for compatibility
 with less capable clients, but should be ignored when possible.  We
 specify such a protocol below.
 </t>
@@ -1494,9 +1505,11 @@ are re-published with the new set of digest algorithms. </t>
 </list>
 </t>
 
-<t>After either of these two changes are made, the new TLSA RRset
-should be left in place long enough that the older TLSA RRset can be
-flushed from caches before making another change.</t> 
+<t>
+After either of these two changes are made, the new TLSA RRset
+should be left in place long enough that the older TLSA RRset can
+be flushed from caches before making another change.
+</t>
 
 </section><!-- Digest algorithm agility -->
 
@@ -1599,14 +1612,6 @@ one of the TLSA records.  The server MAY rely on SNI to determine
 which certificate chain to present to the client.  Clients that
 don't send SNI information may not see the expected certificate
 chain.
-</t>
-
-<t>
-If the server's TLSA RRset includes records with a matching type
-indicating a digest record (i.e., a value other than Full(0)), a
-TLSA record with a SHA2-256(1) matching type SHOULD be provided
-along with any other digest published, since some SMTP clients may
-support only SHA2-256(1).
 </t>
 
 <t>
