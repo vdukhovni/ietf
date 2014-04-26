@@ -84,18 +84,41 @@ This memo specifies a new connection security model for Message
 Transfer Agents (MTAs).  This model is motivated by key features
 of inter-domain SMTP delivery, in particular the fact that the
 destination server is selected indirectly via DNS Mail Exchange
-(MX) records and that with MTA to MTA SMTP the use of TLS is
-generally opportunistic.
+(MX) records and that neither email addresses nor MX hostnames
+signal a requirement for either secure or cleartext transport.
+Therefore, aside from a few manually configured exceptions, SMTP
+transport security is of necessity opportunistic.
+</t>
+
+<t>
+This specification uses the presence of DANE TLSA records to securely
+signal TLS support and to publish the means by which SMTP clients
+can successfully authenticate legitimate SMTP servers.  This becomes
+"opportunistic DANE TLS" and is resistant to downgrade and MITM
+attacks.  It enables an incremental transition of the email backbone
+to authenticated TLS delivery, with increased global protection as
+adoption increases.
+</t>
+
+<t>
+With opportunistic DANE TLS, traffic from SMTP clients to domains
+that publish "usable" DANE TLSA records in accordance with this
+memo is authenticated and encrypted.  Traffic from legacy clients
+or to domains that do not publish TLSA records will continue to be
+sent in the same manner as before, via manually configured security,
+(pre-DANE) opportunistic TLS or just cleartext SMTP.
 </t>
 
 <t>
 Problems with existing use of TLS in MTA to MTA SMTP that motivate
 this specification are described in <xref target="channelsecurity"/>.
-The specification itself follows in <xref target="specification"/>.
-Then, in <xref target="mandatory"/>, we discuss application of DANE
-TLS to destinations for which channel integrity and confidentiality
-are mandatory.  In <xref target="mua"/> we briefly comment on
-potential applicability of this specification to Message User Agents.
+The specification itself follows in <xref target="lookup"/> and
+<xref target="authentication"/> which describe respectively how to
+locate and use DANE TLSA records with SMTP.  In <xref
+target="mandatory"/>, we discuss application of DANE TLS to
+destinations for which channel integrity and confidentiality are
+mandatory.  In <xref target="mua"/> we briefly comment on potential
+applicability of this specification to Message User Agents.
 </t>
 
 <section title="Terminology" anchor="terms">
@@ -422,33 +445,7 @@ inclusive enough.
 
 </section><!-- Introduction -->
 
-<section title="Opportunistic DANE TLS" anchor="specification">
-
-<t>
-Neither email addresses nor MX hostnames signal a requirement for
-either secure or cleartext transport.  Therefore, aside from a few
-manually configured exceptions, SMTP transport security is of
-necessity opportunistic.
-</t>
-
-<t>
-This specification uses the presence of DANE TLSA records to
-securely signal TLS support and to publish the means by which SMTP
-clients can successfully authenticate legitimate SMTP servers.  This
-becomes "opportunistic DANE TLS" and is resistant to downgrade and MITM attacks,
-and enables an incremental transition of the email backbone to
-authenticated TLS delivery, with increased global protection as
-adoption increases.
-</t>
-
-<t>
-With opportunistic DANE TLS, traffic from SMTP clients to domains
-that publish "usable" DANE TLSA records in accordance with this
-memo is authenticated and encrypted.  Traffic from non-compliant
-clients or to domains that do not publish TLSA records will continue
-to be sent in the same manner as before, via manually configured
-security, (pre-DANE) opportunistic TLS or just cleartext SMTP.
-</t>
+<section title="Identifying applicable TLSA records" anchor="lookup">
 
 <section title="DNS errors, bogus and indeterminate responses" anchor="dnserr">
 
@@ -1006,8 +1003,9 @@ domains, even if "secure".
 
 </section><!-- TLSA record lookup -->
 </section><!-- TLS discovery -->
+</section><!-- Opportunistic DANE TLS -->
 
-<section title="DANE authentication">
+<section title="DANE authentication" anchor="authentication">
 
 <t>
 This section describes which TLSA records are applicable to SMTP
@@ -1164,7 +1162,7 @@ and need not change across certificate renewals with the same key.
 
 </section><!-- Certificate usage 3 -->
 
-<section title="Certificate usage DANE-TA(2)">
+<section title="Certificate usage DANE-TA(2)" anchor="dane-ta">
 
 <t>
 Some domains may prefer to avoid the operational complexity of
@@ -1406,7 +1404,9 @@ the TLSA base domain or the next-hop domain.
 
 </section><!-- Certificate matching -->
 
-<section title="Key rotation" anchor="rotation">
+</section><!-- DANE authentication -->
+
+<section title="Server key management">
 
 <t>
 Two TLSA records MUST be published before employing a new EE or TA
@@ -1424,7 +1424,34 @@ matches the retired key can be removed from DNS, leaving only RRs
 that match keys or certificates in active use.
 </t>
 
-</section><!-- Key rotation -->
+<t>
+As described in <xref target="dane-ta"/>, when server certificates
+are validated via a DANE-TA(2) trust anchor, and CNAME records are
+employed to store the TA association data at a single location, the
+responsibility of updating the TLSA RRset shifts to the operator
+of the trust anchor.  Before a new trust anchor is used to sign any
+new server certificates, its certificate (digest) is added to the
+relevant TLSA RRset.  After enough time elapses for the original
+TLSA RRset to age out of DNS caches, the new trust anchor can start
+issuing new server certificates.  Once all certificates issued under
+the previous trust anchor have expired, its associated RRs can be
+removed from the TLSA RRset.
+</t>
+
+<t>
+In the DANE-TA(2) key management model server operators do not
+generally need to update DNS TLSA records after initially creating
+a CNAME record that references the centrally operated DANE-TA(2)
+RRset.  If a particular server's key is compromised, its TLSA CNAME
+SHOULD be replaced with a DANE-EE(3) association until the certificate
+for the compromised key expires, at which point it can return to
+using CNAME record.  If the central trust anchor is compromised, all
+servers need to be issued new keys by a new TA, and a shared DANE-TA(2)
+TLSA RRset needs to be published containing just the new TA.  SMTP
+servers cannot expect broad SMTP client CRL or OCSP support.
+</t>
+
+</section><!-- Server key management -->
 
 <section title="Digest algorithm agility" anchor="agility">
 
@@ -1528,9 +1555,6 @@ be flushed from caches before making another change.
 </t>
 
 </section><!-- Digest algorithm agility -->
-
-</section><!-- DANE authentication -->
-</section><!-- Opportunistic DANE TLS -->
 
 <section title="Mandatory TLS Security" anchor="mandatory">
 <!-- XXXWJH: this is sort of talked about already above; a reference
