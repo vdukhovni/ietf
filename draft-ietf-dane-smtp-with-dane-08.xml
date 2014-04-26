@@ -1123,7 +1123,7 @@ records, initially along with, and ultimately in place of, SHA2-256.
 Authentication via certificate usage DANE-EE(3) TLSA records involves
 simply checking that the server's leaf certificate matches the TLSA
 record.  In particular the binding of the server public key to its
-name is based entirely on the TLSA record association   The server
+name is based entirely on the TLSA record association.  The server
 MUST be considered authenticated even if none of the names in the
 certificate match the client's reference identity for the server.
 </t>
@@ -1426,15 +1426,16 @@ specify such a protocol below.
 <t>
 <!-- XXXWJH: needs better clarity.  -->
 Suppose that a DANE TLS client authenticating a TLS server considers
-digest algorithm BETTER stronger than digest algorithm WORSE.  Suppose
-further that a server's TLSA RRset contains some records with BETTER
-as the digest algorithm.  Finally, suppose that for every raw public
-key or certificate object that is included in the server's TLSA
-RRset in digest form, whenever that object appears with algorithm
-WORSE with some usage and selector it also appears with algorithm
-BETTER with the same usage and selector.  In that case our client can
-safely ignore TLSA records with the weaker algorithm WORSE, because it
-suffices to check the records with the stronger algorithm BETTER.
+digest algorithm "BetterAlg" stronger than digest algorithm "WorseAlg".
+Suppose further that a server's TLSA RRset contains some records
+with "BetterAlg" as the digest algorithm.  Finally, suppose that
+for every raw public key or certificate object that is included in
+the server's TLSA RRset in digest form, whenever that object appears
+with algorithm "WorseAlg" with some usage and selector it also
+appears with algorithm "BetterAlg" with the same usage and selector.
+In that case our client can safely ignore TLSA records with the
+weaker algorithm "WorseAlg", because it suffices to check the records
+with the stronger algorithm "BetterAlg".
 </t>
 
 <t>
@@ -1617,18 +1618,18 @@ chain.
 <t>
 If the server's TLSA records match the server's default certificate
 chain, the server need not support SNI.  In either case, the server
-need not include the SNI extension in its TLS HELLO as simply returning a
-matching certificate chain is sufficient.  Servers MUST NOT enforce
-the use of SNI by clients, as the client may be using unauthenticated
-opportunistic TLS and may not expect any particular certificate from
-the server.  If the client sends no SNI extension, or sends an SNI
-extension for an unsupported domain, the server MUST simply send its
-default certificate chain.  The reason for not enforcing strict
-matching of the requested SNI hostname is that DANE TLS clients are
-typically willing to accept multiple server names, but can only
-send one name in the SNI extension.  The server's default certificate
-may match a different name acceptable to the client, e.g., the
-original next-hop domain.
+need not include the SNI extension in its TLS HELLO as simply
+returning a matching certificate chain is sufficient.  Servers MUST
+NOT enforce the use of SNI by clients, as the client may be using
+unauthenticated opportunistic TLS and may not expect any particular
+certificate from the server.  If the client sends no SNI extension,
+or sends an SNI extension for an unsupported domain, the server
+MUST simply send some fallback certificate chain of its choice.
+The reason for not enforcing strict matching of the requested SNI
+hostname is that DANE TLS clients are typically willing to accept
+multiple server names, but can only send one name in the SNI
+extension.  The server's fallback certificate may match a different
+name acceptable to the client, e.g., the original next-hop domain.
 </t>
 
 </section><!-- SNI support -->
@@ -1689,7 +1690,7 @@ implementations MAY support DANE TLS in an "audit only" mode in
 which failure to achieve the requisite security level is logged as
 a warning and delivery proceeds at a reduced security level.  Unless
 local policy specifies "audit only" or that opportunistic DANE TLS
-is not to be used for a particular destination, an SMTP client MUST
+is not to be used for a particular destination, an SMTP client SHOULD
 NOT deliver mail via a server whose certificate chain fails to match
 at least one TLSA record when usable TLSA records are found for
 that server.
