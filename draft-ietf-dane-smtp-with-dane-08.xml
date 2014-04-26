@@ -447,6 +447,8 @@ inclusive enough.
 
 <section title="Identifying applicable TLSA records" anchor="lookup">
 
+<section title="DNS considerations">
+
 <section title="DNS errors, bogus and indeterminate responses" anchor="dnserr">
 
 <t>
@@ -576,21 +578,9 @@ but do not stand in the way of message delivery.  See section <xref
 target="discovery"/> for further details.
 </t>
 
-<t>
-When a stub resolver receives a response containing a CNAME alias,
-it will generally restart the query at the target of the alias, and
-should do so recursively up to some configured or implementation-dependent
-recursion limit.  If at any stage of recursive CNAME expansion a
-query fails, the stub resolver's lookup of the original requested
-records will result in a failure status being returned.  If at any
-stage of recursive expansion the response is "insecure", then it
-and all subsequent results (in particular, the final result) MUST
-be considered "insecure" regardless of whether the other responses
-received were deemed "secure".  If at any stage of recursive expansion
-the validation status is "bogus" or "indeterminate" or associated
-with another DNS lookup error, the resolution of the requested
-records MUST be considered to have failed.
-</t>
+</section><!-- DNS lookup errors and bogus responses -->
+
+<section title="DNS error handling">
 
 <t>
 When a DNS lookup failure (error or "bogus" or "indeterminate" as
@@ -605,13 +595,14 @@ remaining MX hosts.
 </t>
 
 <t>
-When a particular SMTP server is selected as the delivery destination,
-a set of DNS lookups must be performed to discover any related
-TLSA records.  If any DNS queries used to locate TLSA records fail
-(be it due to "bogus" or "indeterminate" records, timeouts, malformed
-replies, ServFails, etc.), then the SMTP client MUST treat that server as
-unreachable and MUST NOT deliver the message via that server.  If
-no servers are reachable, delivery is delayed.
+When a particular SMTP server is securely identified as the delivery
+destination, a set of DNS lookups (<xref target="discovery"/>) MUST
+be performed to locate any related TLSA records.  If any DNS
+queries used to locate TLSA records fail (be it due to "bogus" or
+"indeterminate" records, timeouts, malformed replies, ServFails,
+etc.), then the SMTP client MUST treat that server as unreachable
+and MUST NOT deliver the message via that server.  If no servers
+are reachable, delivery is delayed.
 </t>
 
 <t>
@@ -624,7 +615,70 @@ NOT continue to connect to an SMTP server or destination whose TLSA record
 lookup fails.
 </t>
 
-</section><!-- DNS lookup errors and bogus responses -->
+</section><!-- Handling DNS errors -->
+
+<section title="Stub resolver considerations" anchor="stub">
+
+<t>
+A note about DNAME aliases:  a query for a domain name whose ancestor
+domain is a DNAME alias returns the DNAME RR for the ancestor domain,
+along with a CNAME that maps the query domain to the corresponding
+sub-domain of the target domain of the DNAME alias <xref
+target="RFC6672"/>.  Therefore, whenever we speak of CNAME aliases,
+we implicitly allow for the possibility that the alias in question
+is the result of an ancestor domain DNAME record.  Consequently,
+no explicit support for DNAME records is needed in SMTP software,
+it is sufficient to process the resulting CNAME aliases.  DNAME
+records only require special processing in the validating stub-resolver
+library that checks the integrity of the combined DNAME + CNAME
+reply.  When DNSSEC validation is handled by a local caching resolver,
+rather than the MTA itself, even that part of the DNAME support
+logic is outside the MTA.
+</t>
+
+<t>
+When a stub resolver returns a response containing a CNAME alias
+that does not also contain the corresponding query results for the
+target of the alias, the SMTP client will need to repeat the query
+at the target of the alias, and should do so recursively up to some
+configured or implementation-dependent recursion limit.  If at any
+stage of CNAME expansion an error is detected, the lookup of the
+original requested records MUST be considered to have failed.
+</t>
+
+<t>
+Whether a chain of CNAME records was returned in a single stub
+resolver response or via explicit recursion by the SMTP client, if
+at any stage of recursive expansion an "insecure" CNAME record is
+encountered, then it and all subsequent results (in particular, the
+final result) MUST be considered "insecure" regardless of whether
+any earlier CNAME records leading to the "insecure" record were
+"secure".
+</t>
+
+<t>
+Note, a security-aware non-validating stub resolver may return to
+the SMTP client an "insecure" reply received from a validating
+recursive resolver that contains a CNAME record along with additional
+answers recursively obtained starting at the target of the CNAME.
+In this all that one can say is that some record in the set of
+records returned is "insecure", but it is possible that the initial
+CNAME record and a subset of the subsequent records are "secure".
+</t>
+
+<t>
+If the SMTP client needs to determine the security status of the
+DNS zone containing the initial CNAME record, it may need to issue
+an a separate query of type "CNAME" that returns only the initial
+CNAME record.  In particular in <xref target="non-mx"/> when insecure
+A or AAAA records are found for an SMTP server via a CNAME alias,
+it may be necessary to perform an additional CNAME query to determine
+whether the DNS zone in which the alias is published is signed.
+</t>
+
+</section><!-- Stub resolver considerations -->
+
+</section><!-- DNS considerations -->
 
 <section title="TLS discovery" anchor="discovery">
 
@@ -679,23 +733,6 @@ some destinations.  We will call such a configuration "mandatory DANE
 TLS".  With mandatory DANE TLS, delivery proceeds only when "secure"
 TLSA records are used to establish an encrypted and authenticated TLS
 channel with the SMTP server.
-</t>
-
-<t>
-A note about DNAME aliases:  a query for a domain name whose ancestor
-domain is a DNAME alias returns the DNAME RR for the ancestor domain,
-along with a CNAME that maps the query domain to the corresponding
-sub-domain of the target domain of the DNAME alias <xref
-target="RFC6672" />.  Therefore,
-whenever we speak of CNAME aliases, we implicitly allow for the
-possibility that the alias in question is the result of an ancestor
-domain DNAME record.  Consequently, no explicit support for DNAME
-records is needed in SMTP software, it is sufficient to process the
-resulting CNAME aliases.  DNAME records only require special
-processing in the validating stub-resolver library that checks the
-integrity of the combined DNAME + CNAME reply.  When DNSSEC validation
-is handled by a local caching resolver, rather than the MTA itself,
-even that part of the DNAME support logic is outside the MTA.
 </t>
 
 <t>
@@ -817,15 +854,14 @@ reach the ultimate address records.
 <t>
 If no address records are found, the destination is unreachable.
 If address records are found, but the DNSSEC validation status of
-the first query response is "insecure" (there may be additional
-queries if the initial response is a CNAME alias), the SMTP client
-SHOULD NOT proceed to search for any associated TLSA records.  With
-the problem domains, TLSA queries will lead to DNS lookup errors
-and cause messages to be consistently delayed and ultimately
-returned to the sender.  We don't expect to find any "secure" TLSA
-records associated with a TLSA base domain that lies in an unsigned
-DNS zone.  Therefore, skipping TLSA lookups in this case will also
-reduce latency with no detrimental impact on security.
+the first query response is "insecure" (see <xref target="stub"/>),
+the SMTP client SHOULD NOT proceed to search for any associated
+TLSA records.  With the problem domains, TLSA queries will lead to
+DNS lookup errors and cause messages to be consistently delayed and
+ultimately returned to the sender.  We don't expect to find any
+"secure" TLSA records associated with a TLSA base domain that lies
+in an unsigned DNS zone.  Therefore, skipping TLSA lookups in this
+case will also reduce latency with no detrimental impact on security.
 </t>
 
 <t>
@@ -983,7 +1019,7 @@ If, during TLSA resolution (including possible CNAME indirection),
 at least one "secure" TLSA record is found (even if not usable
 because it is unsupported by the implementation or support is
 administratively disabled), then the corresponding host has signaled
-its commitment to implement TLS.  The SMTP client SHOULD NOT deliver
+its commitment to implement TLS.  The SMTP client MUST NOT deliver
 mail via the corresponding host unless a TLS session is negotiated
 via STARTTLS.  This is required to avoid MITM STARTTLS downgrade
 attacks.
@@ -1283,8 +1319,8 @@ TLSA records as unusable.
 
 <t>
 When at least one usable "secure" TLSA record is found, the SMTP
-client SHOULD use TLSA records to authenticate the SMTP server.
-Messages SHOULD NOT be delivered via the SMTP server if authentication
+client MUST use TLSA records to authenticate the SMTP server.
+Messages MUST NOT be delivered via the SMTP server if authentication
 fails, otherwise the SMTP client is vulnerable to MITM attacks.
 </t>
 
@@ -1729,7 +1765,7 @@ implementations MAY support DANE TLS in an "audit only" mode in
 which failure to achieve the requisite security level is logged as
 a warning and delivery proceeds at a reduced security level.  Unless
 local policy specifies "audit only" or that opportunistic DANE TLS
-is not to be used for a particular destination, an SMTP client SHOULD
+is not to be used for a particular destination, an SMTP client MUST
 NOT deliver mail via a server whose certificate chain fails to match
 at least one TLSA record when usable TLSA records are found for
 that server.
