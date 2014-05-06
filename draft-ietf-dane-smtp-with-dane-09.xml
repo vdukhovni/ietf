@@ -25,7 +25,7 @@
 ]>
 
 <!-- rfc xmlns:x="http://purl.org/net/xml2rfc/ext" category="std" -->
-<rfc category="std" docName="draft-ietf-dane-smtp-with-dane-08" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-dane-smtp-with-dane-09" ipr="trust200902">
 
 <?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
 
@@ -58,7 +58,7 @@
         <email>ietf@hardakers.net</email>
       </address>
     </author>
-<date month="April" year="2014"/>
+<date/>
 <area>sec</area>
 <workgroup>DANE</workgroup>
 <keyword>DANE</keyword>
@@ -758,9 +758,9 @@ used in identity checks of the SMTP server certificate.
 In this section we consider next-hop domains that are subject to
 MX resolution and have MX records.  The TLSA records and the associated
 base domain are derived separately for each MX hostname that is used
-to attempt message delivery.  Clearly, if DANE TLS security is to
-apply to message delivery via any of the SMTP servers, the MX records
-must be obtained securely via a DNSSEC validated MX lookup.
+to attempt message delivery.  DANE TLS can authenticate message
+delivery to the intended next-hop domain only when the MX records
+are obtained securely via a DNSSEC validated lookup.
 </t>
 
 <t>
@@ -776,7 +776,6 @@ their SMTP servers and MX records are configured accordingly.
 </t>
 
 <t>
-<!-- XXXVD: This is the first discussion of non-error CNAME processing -->
 In the language of <xref target="RFC5321"/> Section 5.1, the original
 next-hop domain is the "initial name".  If the MX lookup of the
 initial name results in a CNAME alias, the MTA replaces the initial
@@ -788,24 +787,51 @@ domain is found.
 
 <t>
 If the MX RRset (or any CNAME leading to it) is "insecure" (see
-<xref target="dnserr"/>), DANE TLS does not apply, and delivery
-proceeds via pre-DANE opportunistic TLS.  Otherwise (assuming no DNS
-errors or "bogus"/"indeterminate" responses), the MX RRset is
-"secure", and the SMTP client MUST treat each MX hostname as a
-separate non-MX destination for opportunistic DANE TLS as described in
-<xref target="non-mx"/>.  When, for a given MX hostname, no TLSA
-records are found, or only "insecure" TLSA records are found, DANE
-TLSA is not applicable with the SMTP server in question and delivery
-proceeds to that host as with pre-DANE opportunistic TLS.  To avoid
-downgrade attacks, any errors during TLSA lookups MUST, as explained
-in <xref target="dnserr"/>, cause the SMTP server in question to be
-treated as unreachable.
+<xref target="dnserr"/>), DANE TLS need not apply, and delivery MAY
+proceed via pre-DANE opportunistic TLS.  That said, the protocol
+in this memo is an "opportunistic security" protocol, meaning that
+it strives to communicate with each peer as securely as possible,
+while maintaining broad interoperability.  Therefore, the SMTP
+client MAY proceed to use DANE TLS (as described in <xref
+target="non-mx"/> below) even with MX hosts obtained via an "insecure"
+MX RRset.  For example, when a hosting provider has a signed DNS
+zone and publishes TLSA records for its SMTP servers, hosted domains
+that are not signed may still benefit from the provider's TLSA
+records.  Deliveries via the provider's SMTP servers will not be
+subject to active attacks when sending SMTP clients elect to make
+use of the provider's TLSA records.
+</t>
+
+<t>
+When the MX records are not (DNSSEC) signed, an active attacker can
+redirect SMTP clients to MX hosts of his choice.  Such redirection
+is tamper-evident when SMTP servers found via "insecure" MX records
+are recorded as the next-hop relay in the MTA delivery logs in their
+original (rather than CNAME expanded) form.  Sending MTAs SHOULD
+log unexpanded MX hostnames when these result from insecure
+MX lookups.  Any successful authentication via an insecurely
+determined MX host MUST NOT be misrepresented in the mail logs as
+secure delivery to the intended next-hop domain.  When DANE TLS is
+mandatory (xref target="madatory"/>) for a given destination,
+delivery MUST be delayed when the MX RRset is not "secure".
+</t>
+
+<t>
+Otherwise, assuming no DNS errors (<xref target="dnserr"/>),
+the MX RRset is "secure", and the SMTP client MUST treat
+each MX hostname as a separate non-MX destination for opportunistic
+DANE TLS as described in <xref target="non-mx"/>.  When, for a given
+MX hostname, no TLSA records are found, or only "insecure" TLSA
+records are found, DANE TLSA is not applicable with the SMTP server
+in question and delivery proceeds to that host as with pre-DANE
+opportunistic TLS.  To avoid downgrade attacks, any errors during
+TLSA lookups MUST, as explained in <xref target="dnserr"/>, cause
+the SMTP server in question to be treated as unreachable.
 </t>
 
 </section><!-- MX resolution -->
 
 <section title="Non-MX destinations" anchor="non-mx">
-<!-- XXXWJH: this section needs the most work -->
 
 <t>
 This section describes the algorithm used to locate the TLSA records
@@ -833,7 +859,6 @@ its sole SMTP server name. </t>
 </t>
 
 <t>
-<!-- XXXWJH: move the next 4 paragraphs to operational considerations section -->
 Note that DNS queries with type TLSA are mishandled by load balancing
 nameservers that serve the MX hostnames of some large email providers.
 The DNS zones served by these nameservers are not signed and contain
@@ -964,10 +989,15 @@ base is tried instead.
 
 <t>
 If the ultimate response is a "secure" TLSA RRset, then the candidate
-TLSA base domain will be the actual TLSA base domain and the TLSA RRset will
-constitute the TLSA records for the destination.  If none of the
-candidate TLSA base domains yield "secure" TLSA records then delivery
-should proceed via pre-DANE opportunistic TLS.
+TLSA base domain will be the actual TLSA base domain and the TLSA
+RRset will constitute the TLSA records for the destination.  If
+none of the candidate TLSA base domains yield "secure" TLSA records
+then delivery MAY proceed via pre-DANE opportunistic TLS.  SMTP
+clients MAY elect to use "insecure" TLSA records to avoid STARTTLS
+downgrades or even to skip SMTP servers that fail authentication,
+but MUST NOT misrepresent authentication success as either a secure
+connection to the SMTP server or as a secure delivery to the intended
+next-hop domain.
 </t>
 
 <t>
@@ -1345,12 +1375,14 @@ for matching the server certificate.
 <list style="hanging">
 
 <t hangText="TLSA records for MX hostnames:">
-If the TLSA base domain was obtained indirectly via an MX lookup
+If the TLSA base domain was obtained indirectly via a "secure" MX lookup
 (including any CNAME-expanded name of an MX hostname), then the
 original next-hop domain used in the MX lookup MUST be included as
 as a second reference identifier.  The CNAME-expanded original next-hop
 domain MUST be included as a third reference identifier if different from
-the original next-hop domain. </t>
+the original next-hop domain.  When the client MTA is employing DANE
+TLS security despite "insecure" MX redirection the MX hostname is the
+only reference identifier.</t>
 
 <t hangText="TLSA records for Non-MX hostnames:">
 If MX records were not used (e.g., if none exist) and the TLSA base
