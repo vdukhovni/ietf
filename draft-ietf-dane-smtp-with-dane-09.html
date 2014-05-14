@@ -402,7 +402,7 @@
 
   <meta name="dct.creator" content="Dukhovni, V. and W. Hardaker" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-dane-smtp-with-dane-09" />
-  <meta name="dct.issued" scheme="ISO8601" content="2014-5-6" />
+  <meta name="dct.issued" scheme="ISO8601" content="2014-5-13" />
   <meta name="dct.abstract" content="This memo describes a downgrade-resistant protocol for SMTP transport security between Mail Transfer Agents (MTAs) based on the DNS-Based Authentication of Named Entities (DANE) TLSA DNS record.  Adoption of this protocol enables an incremental transition of the Internet email backbone to one using encrypted and authenticated Transport Layer Security (TLS).  " />
   <meta name="description" content="This memo describes a downgrade-resistant protocol for SMTP transport security between Mail Transfer Agents (MTAs) based on the DNS-Based Authentication of Named Entities (DANE) TLSA DNS record.  Adoption of this protocol enables an incremental transition of the Internet email backbone to one using encrypted and authenticated Transport Layer Security (TLS).  " />
 
@@ -426,12 +426,12 @@
   <td class="right">W. Hardaker</td>
 </tr>
 <tr>
-  <td class="left">Expires: November 7, 2014</td>
+  <td class="left">Expires: November 14, 2014</td>
   <td class="right">Parsons</td>
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">May 6, 2014</td>
+  <td class="right">May 13, 2014</td>
 </tr>
 
     	
@@ -451,7 +451,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on November 7, 2014.</p>
+<p>This Internet-Draft will expire on November 14, 2014.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -639,7 +639,7 @@
 <p id="rfc.section.2.2.1.p.2">MX records MUST be sorted by preference; an MX hostname with a worse (numerically higher) MX preference that has TLSA records MUST NOT preempt an MX hostname with a better (numerically lower) preference that has no TLSA records.  In other words, prevention of delivery loops by obeying MX preferences MUST take precedence over channel security considerations.  Even with two equal-preference MX records, an MTA is not obligated to choose the MX hostname that offers more security.  Domains that want secure inbound mail delivery need to ensure that all their SMTP servers and MX records are configured accordingly.  </p>
 <p id="rfc.section.2.2.1.p.3">In the language of <a href="#RFC5321">[RFC5321]</a> Section 5.1, the original next-hop domain is the "initial name".  If the MX lookup of the initial name results in a CNAME alias, the MTA replaces the initial name with the resulting name and performs a new lookup with the new name.  MTAs typically support recursion in CNAME expansion, so this replacement is performed repeatedly until the ultimate non-CNAME domain is found.  </p>
 <p id="rfc.section.2.2.1.p.4">If the MX RRset (or any CNAME leading to it) is "insecure" (see <a href="#dnserr">Section 2.1.1</a>), DANE TLS need not apply, and delivery MAY proceed via pre-DANE opportunistic TLS.  That said, the protocol in this memo is an "opportunistic security" protocol, meaning that it strives to communicate with each peer as securely as possible, while maintaining broad interoperability.  Therefore, the SMTP client MAY proceed to use DANE TLS (as described in <a href="#non-mx">Section 2.2.2</a> below) even with MX hosts obtained via an "insecure" MX RRset.  For example, when a hosting provider has a signed DNS zone and publishes TLSA records for its SMTP servers, hosted domains that are not signed may still benefit from the provider's TLSA records.  Deliveries via the provider's SMTP servers will not be subject to active attacks when sending SMTP clients elect to make use of the provider's TLSA records.  </p>
-<p id="rfc.section.2.2.1.p.5">When the MX records are not (DNSSEC) signed, an active attacker can redirect SMTP clients to MX hosts of his choice.  Such redirection is tamper-evident when SMTP servers found via "insecure" MX records are recorded as the next-hop relay in the MTA delivery logs in their original (rather than CNAME expanded) form.  Sending MTAs SHOULD log unexpanded MX hostnames when these result from insecure MX lookups.  Any successful authentication via an insecurely determined MX host MUST NOT be misrepresented in the mail logs as secure delivery to the intended next-hop domain.  When DANE TLS is mandatory (xref target="madatory"/&gt;) for a given destination, delivery MUST be delayed when the MX RRset is not "secure".  </p>
+<p id="rfc.section.2.2.1.p.5">When the MX records are not (DNSSEC) signed, an active attacker can redirect SMTP clients to MX hosts of his choice.  Such redirection is tamper-evident when SMTP servers found via "insecure" MX records are recorded as the next-hop relay in the MTA delivery logs in their original (rather than CNAME expanded) form.  Sending MTAs SHOULD log unexpanded MX hostnames when these result from insecure MX lookups.  Any successful authentication via an insecurely determined MX host MUST NOT be misrepresented in the mail logs as secure delivery to the intended next-hop domain.  When DANE TLS is mandatory (<a href="#mandatory">Section 6</a>) for a given destination, delivery MUST be delayed when the MX RRset is not "secure".  </p>
 <p id="rfc.section.2.2.1.p.6">Otherwise, assuming no DNS errors (<a href="#dnserr">Section 2.1.1</a>), the MX RRset is "secure", and the SMTP client MUST treat each MX hostname as a separate non-MX destination for opportunistic DANE TLS as described in <a href="#non-mx">Section 2.2.2</a>.  When, for a given MX hostname, no TLSA records are found, or only "insecure" TLSA records are found, DANE TLSA is not applicable with the SMTP server in question and delivery proceeds to that host as with pre-DANE opportunistic TLS.  To avoid downgrade attacks, any errors during TLSA lookups MUST, as explained in <a href="#dnserr">Section 2.1.1</a>, cause the SMTP server in question to be treated as unreachable.  </p>
 <h1 id="rfc.section.2.2.2"><a href="#rfc.section.2.2.2">2.2.2.</a> <a href="#non-mx" id="non-mx">Non-MX destinations</a></h1>
 <p id="rfc.section.2.2.2.p.1">This section describes the algorithm used to locate the TLSA records and associated TLSA base domain for an input domain not subject to MX resolution.  Such domains include: </p>
