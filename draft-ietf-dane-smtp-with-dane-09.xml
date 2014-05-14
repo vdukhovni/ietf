@@ -812,7 +812,7 @@ log unexpanded MX hostnames when these result from insecure
 MX lookups.  Any successful authentication via an insecurely
 determined MX host MUST NOT be misrepresented in the mail logs as
 secure delivery to the intended next-hop domain.  When DANE TLS is
-mandatory (xref target="madatory"/>) for a given destination,
+mandatory (<xref target="mandatory"/>) for a given destination,
 delivery MUST be delayed when the MX RRset is not "secure".
 </t>
 
