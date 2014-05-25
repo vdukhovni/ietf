@@ -1,19 +1,34 @@
-XML	= \
-	draft-ietf-dane-ops-03.xml \
-	draft-ietf-dane-smtp-with-dane-09.xml
-TXT	= ${XML:%.xml=%.txt}
-HTML	= ${XML:%.xml=%.html}
+SMTP_VERSION = 10
+OPS_VERSION = 03
+
+OPS	= draft-ietf-dane-ops
+SMTP	= draft-ietf-dane-smtp-with-dane
+
+SMTP_XML	= ${SMTP:%=%-${SMTP_VERSION}.xml}
+SMTP_HTML	= ${SMTP:%=%-${SMTP_VERSION}.html}
+SMTP_TXT	= ${SMTP:%=%-${SMTP_VERSION}.txt}
+OPS_XML		= ${OPS:%=%-${OPS_VERSION}.xml}
+OPS_HTML	= ${OPS:%=%-${OPS_VERSION}.html}
+OPS_TXT		= ${OPS:%=%-${OPS_VERSION}.txt}
+
+HTML	= ${SMTP_HTML} ${OPS_HTML}
+TXT	= ${SMTP_TXT} ${OPS_TXT}
 
 all: ${TXT} ${HTML}
 
 clean:
-	$(RM) *.html *.txt
+	$(RM) *.html *.txt *.xml
+
+${SMTP_XML}: ${SMTP}
+	sed -e 's/@@VERSION@@/${OPS_VERSION}/g' $< > $@
+${OPS_XML}: ${OPS}
+	sed -e 's/@@VERSION@@/${OPS_VERSION}/g' $< > $@
 
 %.txt: %.xml
-	xml2rfc $<
+	xml2rfc --text -f $@ $<
 
 %.html: %.xml
-	xml2rfc $< --html
+	xml2rfc --html -f $@ $<
 
 idnits: $(TXT)
 	for i in $(TXT) ; do  \
