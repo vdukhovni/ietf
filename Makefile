@@ -20,7 +20,7 @@ clean:
 	$(RM) *.html *.txt *.xml
 
 ${SMTP_XML}: ${SMTP}
-	sed -e 's/@@VERSION@@/${OPS_VERSION}/g' $< > $@
+	sed -e 's/@@VERSION@@/${SMTP_VERSION}/g' $< > $@
 ${OPS_XML}: ${OPS}
 	sed -e 's/@@VERSION@@/${OPS_VERSION}/g' $< > $@
 
