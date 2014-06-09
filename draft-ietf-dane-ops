@@ -22,10 +22,10 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="bcp" docName="draft-ietf-dane-ops-@@VERSION@@" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-dane-ops-@@VERSION@@" ipr="trust200902">
 
 <front>
-<title abbrev="DANE operations">DANE TLSA implementation and operational guidance</title>
+<title abbrev="DANE operations">Updates to and Operational Guidance for the DANE Protocol</title>
 <author fullname="Viktor Dukhovni" initials="V." surname="Dukhovni">
 <organization>Unaffiliated</organization>
 <address>
@@ -54,14 +54,19 @@
 <abstract>
 
 <t>
-This memo provides guidance to server operators to help
-ensure that clients will be able to authenticate a server's
-certificate chain via published TLSA records.  Guidance is also
-provided to clients for selecting reliable TLSA record parameters and
-using them for server authentication.  Finally, guidance is given to
-protocol designers who wish to make use of TLSA records when securing
-protocols using a combination of the Transport Layer Security (TLS)
-protocol and TLSA records.
+This memo was created based on lessons learned from implementers and
+users of the DANE protocol. It serves two purposes: to update the DANE
+protocol and provide additional implementation and user guidance.
+This memo provides updates to the DANE protocol to provide additional
+protocol requirements for both implementers and network operators
+making use of DANE.  This memo also provides guidance to server
+operators to help ensure that clients will be able to authenticate a
+server's certificate chain via published TLSA records.  Guidance is
+also provided to clients for selecting reliable TLSA record parameters
+and using them for server authentication.  Finally, guidance is given
+to protocol designers who wish to make use of TLSA records when
+securing protocols using a combination of the Transport Layer Security
+(TLS) protocol and TLSA records.
 </t>
 
 </abstract>
@@ -72,7 +77,7 @@ protocol and TLSA records.
 <section title="Introduction">
 
 <t>
-Section 2 of <xref target="RFC6698"/> specifies a new "TLSA" DNS resource
+<xref target="RFC6698"/> specifies a new "TLSA" DNS resource
 record which associates a TLS transport endpoint with a corresponding
 trusted leaf or issuing authority certificates or public keys.
 DNSSEC-validated DANE TLSA records can be used to augment or replace the
@@ -81,11 +86,18 @@ Key Infrastructure (PKI).
 </t>
 
 <t>
-<xref target="RFC6698"/> defines 24 combinations of TLSA record
-parameters.  Additional complexity arises when the TLS transport
-endpoint is obtained indirectly via a Service Record (SRV), Mail
+<xref target="RFC6698"/> defines 3 parameter fields that result in 24
+combinations of potential permutations based on the originally RFC6698
+defined values.  These 24 permutations are a great source of
+complexity with implementation, as various combinations must be given
+careful thought during implementation.</t>
+
+<t>Complexity in implementation
+additionally arises from the fact that the TLS transport endpoint
+details are often obtained indirectly via a Service Record (SRV), Mail
 Exchange (MX) record, CNAME records or other mechanisms that map an
-abstract service domain to a concrete server domain.  With service
+abstract service domain to a concrete server domain.
+With service
 indirection there are multiple potential places for clients to find
 the relevant TLSA records.  Service indirection is often used to
 implement "virtual hosting", where a single Service Provider transport
@@ -135,7 +147,7 @@ in <xref target="RFC2119"/>.
   </t>
   <t hangText="Customer Domain:">
     Customers that make use of a Service Provider to outsource their
-    service(s) will be referred to as "Customer Domains".
+    service(s).
   </t>
   <t hangText="TLSA Publisher:">
     The entity responsible for publishing a TLSA record within a DNS
@@ -146,18 +158,18 @@ in <xref target="RFC2119"/>.
     be the operator of the outsourced DNS service.
   </t>
   <t hangText="public key:">
-    The term "public key" will be an informal short-hand for the
+    The term "public key" is short-hand for the
     subjectPublicKeyInfo component of a PKIX <xref target="RFC5280" />
     certificate.
   </t>
   <t hangText="SNI:">
-    "Server Name Indication", or SNI, describes the TLS protocol
-    extension by which a TLS client requests to connect to a
+    The "Server Name Indication" (SNI) TLS protocol extension allows
+    a TLS client to request a connection to a
     particular service name of a TLS server (<xref target="RFC6066"
     />, section 3).  Without this TLS extension, a TLS server has no choice
     but to offer a PKIX certificate with a default list of server
     names, making it difficult to host multiple Customer Domains at
-    the same TLS service endpoint (i.e., "secure virtual hosting").
+    the same IP-addressed based TLS service endpoint (i.e., "secure virtual hosting").
   </t>
 </list>
 </t>
@@ -231,8 +243,9 @@ in <xref target="RFC2119"/>.
     <t> When the high bit is not set (PKIX-TA(0) and PKIX-EE(1)),
     the TLSA record publishes a server policy stating that its
     certificate chain must pass PKIX validation <xref target="RFC5280"/>
-    and the DANE TLSA record is used to constrain the server
-    certificate chain to contain the referenced CA or EE certificate.
+    and the DANE TLSA record is used to signal an additional
+    requirement that the PKIX validated server
+    certificate chain also contains the referenced CA or EE certificate.
     </t>
 
   </list>
@@ -278,15 +291,19 @@ in <xref target="RFC2119"/>.
     </figure>
 
     <t>
-      The TLSA Certificate Usage is DANE-TA(2), the selector is Cert(0)
-      and the matching type is SHA2-256(1).  The rest of the record is the
-      certificate association data field, which is in this case the SHA2-256
-      digest of the server certificate.
+      The TLSA Certificate Usage is DANE-TA(2), the selector is
+      Cert(0) and the matching type is SHA2-256(1).  The last field is
+      the Certificate Association Data Field, which in this case
+      contains the SHA2-256 digest of the server certificate.
     </t>
 
   </section><!-- Example TLSA record -->
 
 </section><!-- DANE TLSA record overview -->
+
+<section title="Updates to the DANE Protocol">
+<t>TBD</t>
+</section>
 
 <section title="General DANE Guidelines">
 
@@ -300,7 +317,7 @@ in <xref target="RFC2119"/>.
     <t>
       TLS clients that support DANE/TLSA MUST support at least TLS
       1.0 and SHOULD support TLS 1.2.  TLS clients and servers using
-      DANE SHOULD support the "Server Name Indication" extension
+      DANE SHOULD support the "Server Name Indication" (SNI) extension
       of TLS.
     </t>
 
@@ -323,11 +340,12 @@ in <xref target="RFC2119"/>.
       </t>
 
       <t>
-        Although DNS over TCP would provide the ability to transfer
-        larger DNS records between clients and servers, it is not
-        universally deployed and is still blocked by some firewalls.
-        Clients that request DNS records via UDP typically only use
-        TCP upon receipt of a truncated response in TCP.
+        Although DNS over TCP would provide the ability to more easily
+        transfer larger DNS records between clients and servers, it is
+        not universally deployed and is still prohibited by some
+        firewalls.  Clients that request DNS records via UDP typically
+        only use TCP upon receipt of a truncated response in the DNS
+        response message sent over UDP.
       </t>
 
     </section>
@@ -340,7 +358,7 @@ in <xref target="RFC2119"/>.
         TLSA Selector of Cert(0) and a TLSA Matching Type of Full(0),
         as even a single certificate is generally too large to be
         reliably delivered via DNS over UDP.  Furthermore, two TLSA
-        records containing full certificates may need to be published
+        records containing full certificates will need to be published
         simultaneously during a certificate rollover.
       </t>
 
@@ -357,8 +375,8 @@ in <xref target="RFC2119"/>.
 
       <t>
         In summary, the use of a TLSA Matching Type of Full(0) is NOT
-        RECOMMENDED and the use of SHA2-256(1) and SHA2-512(2) is strongly
-        preferred.
+        RECOMMENDED and the use of a digest-based matching type, such
+        as SHA2-256(1) SHOULD be used.
       </t>
 
     </section>
@@ -371,10 +389,15 @@ in <xref target="RFC2119"/>.
       Certificates presented by a TLS server will generally contain a
       subjectAltName (SAN) extension or a Common Name (CN) element in
       the subject distinguished name (DN).  The server's DNS domain name
-      should be published within these elements, ideally within the
-      subjectAltName extension as use of the CN field for this purpose
-      is deprecated.  Name checks SHOULD NOT consider the subject CN
-      when SAN values of type 'dns' are present.
+      is normally published within these elements, ideally within the
+      subjectAltName extension. (Use of the CN field for this purpose
+      is deprecated.)
+      <!--- XXXWJH: Removed this sentence, as it's not within scope of
+          the document and restates what is defined in PKIX
+          processing:
+
+          Name checks SHOULD NOT consider the subject CN when SAN
+          values of type 'dns' are present. -->
     </t>
 
     <t>
@@ -392,7 +415,7 @@ in <xref target="RFC2119"/>.
       checks are not applicable (see <xref target="type3" />), DANE
       clients MUST verify that the client has reached the correct
       server by checking that the server name is listed in the
-      server certificate.  The server name used for this comparison
+      server certificate's SAN or CN.  The server name used for this comparison
       SHOULD be the base domain of the TLSA RRset.  Additional
       acceptable names may be specified by protocol-specific DANE
       standards.  For example, with SMTP both the destination domain
@@ -406,12 +429,9 @@ in <xref target="RFC2119"/>.
       coordination with the TLSA Publisher, to ensure that at least
       one of the TLSA records published for the service will match the
       server's certificate chain (either the default chain or the
-      certificate that was selected based on the SNI information from the
-      client).  With certificate usage values other than DANE-EE(3),
-      the EE certificate SHOULD include the TLSA base
-      domain as one of its names.  If other acceptable names
-      are specified by a protocol-specific DANE standard, one of those
-      MAY be used in place of the TLSA base domain.
+      certificate that was selected based on the SNI information
+      provided by the
+      client).
     </t>
 
     <t>
@@ -435,11 +455,11 @@ in <xref target="RFC2119"/>.
            select multiple base names in the SMTP draft, so the below
            doesn't match perfectly unless _25._tcp.example.com doesn't
            exist. -->
-      The TLSA base domain is "mail.example.com" and this MUST be the
+      The TLSA base domain is "mail.example.com" and this is required to be be the
       HostName in the client's SNI extension.  The server certificate
-      chain MUST be signed by a trust anchor with the above certificate
-      SHA2-256 digest.  One of the DNS names in the server certificate
-      MUST be either "mail.example.com" or "example.com".
+      chain is required to be be signed by a trust anchor with the above certificate
+      SHA2-256 digest.  Finally, one of the DNS names in the server certificate
+      is required to be be either "mail.example.com" or "example.com".
     </t>
 
   </section>
@@ -502,16 +522,17 @@ in <xref target="RFC2119"/>.
     is aliased to the provider's TLSA RRset can delegate authority to
     the provider's CA for the corresponding service.  The Service
     Provider can generate appropriate certificates for each customer
-    and use SNI to select the right certificate chain to present to
+    and use the SNI information provided by clients to select the right certificate chain to present to
     each client. </t>
 
     </list>
     </t>
 
     <t>
-      Below are example DNS records that illustrate both of of the
-      above cases in the case of an HTTPS service whose clients all
-      support DANE TLS.
+      Below are example DNS records (without the required DNSSEC
+      information, such as record signatures) that illustrate both of
+      of the above cases in the case of an HTTPS service whose clients
+      all support DANE TLS.
     </t>
 
     <figure>
@@ -519,15 +540,18 @@ in <xref target="RFC2119"/>.
 ; Hosted web service redirected via a CNAME alias.
 ; Associated TLSA RRset redirected via a CNAME alias.
 ;
-; Single certificate at provider works for all Customer Domains
+; A single certificate at the provider works for all Customer
+; Domains due to the use of the DANE-EE certificate usage type.
 ;
-www1.example.com.             300 IN CNAME w3.example.net.
-_443._tcp.www3.example.com.   300 IN CNAME _443._tcp.w3.example.net.
-_443._tcp.w3.example.net.     300 IN TLSA  DANE-EE SPKI SHA2-256 (
+www1.example.com.             300 IN CNAME w1.example.net.
+_443._tcp.www1.example.com.   300 IN CNAME _443._tcp.w1.example.net.
+_443._tcp.w1.example.net.     300 IN TLSA  DANE-EE SPKI SHA2-256 (
                               8A9A70596E869BED72C69D97A8895DFA
                               D86F300A343FECEFF19E89C27C896BC9 )
 ;
-; CA at provider can issue certificates for each Customer Domain.
+; A CA at the provider can also issue certificates for each Customer
+; Domain, and use the DANE-TA certificate usage type to
+; indicate a trust anchor.
 ;
 www2.example.com.             300 IN CNAME w2.example.net.
 _443._tcp.www2.example.com.   300 IN CNAME _443._tcp.w2.example.net.
@@ -549,7 +573,8 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
       Provider's SMTP hosts.  When the Customer Domain's DNS zone
       is signed, the MX hostnames can be securely used as the base
       domains for TLSA records that are published and managed by the
-      Service Provider.  For example:
+      Service Provider.  For example (without the required DNSSEC
+      information, such as record signatures):
     </t>
 
     <figure>
@@ -594,7 +619,7 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
       via MX, SRV or similar DNS records, the service may be
       redirected via a CNAME.  A CNAME is a more blunt instrument
       for this purpose, since unlike an MX or SRV record, it remaps
-      the origin domain to the target domain for all protocols.
+      the entire origin domain to the target domain for all protocols.
     </t>
 
     <t>
