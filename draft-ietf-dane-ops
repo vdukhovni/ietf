@@ -302,7 +302,169 @@ in <xref target="RFC2119"/>.
 </section><!-- DANE TLSA record overview -->
 
 <section title="Updates to the DANE Protocol">
-<t>TBD</t>
+
+<t>Here we list updates to the DANA protocol based on lessons learned
+from the implementation and deployment of DANE.</t>
+
+<section title="Specific Certificate Usage  DANE Updates and Guidelines">
+
+  <t>The four Certificate Usage types are discussed below, along with
+  notes and updates about how to properly implement and make use of
+  them.  They're presented starting from the simplest, usage DANE-EE(3), and working
+  backward toward the more complex PKIX-TA(0).</t>
+
+  <section title="Certificate Usage DANE-EE(3) Updates and Guidelines" anchor="type3">
+
+    <t>
+      Authentication via certificate usage "DANE-EE(3)" TLSA records involves
+      simply checking that the server's leaf certificate matches the
+      TLSA record.  Other than extracting the relevant certificate
+      elements for comparison, no other use is made of the certificate
+      content.  Authentication via certificate usage "DANE-EE(3)" TLSA records
+      involves no certificate authority signature checks.  It also
+      involves no server name checks, and thus does not impose any new
+      requirements on the names contained in the server certificate
+      (servers don't require an SNI extension to be present when the
+      TLSA record matches the server's default certificate).
+    </t>
+
+    <t>
+      Two TLSA records will need to be published before updating a
+      server's public key, one matching the currently deployed key and
+      the other matching the new key scheduled to replace it.  Once
+      sufficient time has elapsed for all the previous TLSA RRsets,
+      which contain only the old key, to expire from DNS caches, the
+      server may be reconfigured to use the new private key and
+      associated certificate chain.  Once the server is using the new
+      key, the TLSA RR that matches the retired key can be removed
+      from DNS, leaving only the TLSA RR that matches the new key.
+    </t>
+
+    <t>
+      TLSA records for servers SHOULD, when possible, be DANE-EE(3),
+      SPKI(1), SHA2-256(1) records.  Such records specify
+      the SHA2-256 digest of the public key of the server certificate.
+      Since all DANE implementations are required to support SHA2-256,
+      this record works for all clients and need not change across
+      certificate renewals with the same key.  With no name checks
+      required, this TLSA record type supports hosting arrangements
+      with a single certificate matching all client domains!  It
+      is also the easiest to implement correctly in the client.
+    </t>
+
+  </section>
+
+  <section title="Certificate Usage DANE-TA(2) Guidelines" anchor="type2">
+
+    <t>
+      Some domains may prefer to reduce the operational complexity
+      of maintaining a distinct TLSA RRset for each TLS service.
+      If the domain employs a common issuing certificate authority
+      to create certificates for multiple TLS services, it may be
+      simpler to publish the issuing authority as a trust anchor
+      (TA) for the certificate chains of all relevant services.
+      <!-- XXX: should we specify this is true only if the EE cert is
+      expected to roll more frequently than the TA key, as otherwise
+      it's mostly useless to use type 2 -->
+      The TLSA RRs for each service issued by the same TA may then
+      be CNAMEs to a common TLSA RRset that matches the TA.  This
+      certificate usage also allows Service Providers to independently
+      generate appropriate certificates for each Customer Domain
+      (see <xref target="sync"/>).
+    </t>
+
+    <t>
+      As explained in <xref target="tadgst"/>, servers that employ
+      Certificate Usage DANE-TA(2) TLSA records MUST include the TA
+      certificate as part of the certificate chain presented in the
+      TLS handshake even when it is a self-signed root certificate.
+      TLSA Publishers should publish either "DANE-TA(2) SPKI(1)
+      SHA2-256(1)" or "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA
+      parameters.  As with leaf certificate rollover discussed in
+      <xref target="type3" />, two such TLSA RRs need to be published
+      to facilitate TA certificate rollover.
+    </t>
+
+  </section>
+
+  <section title="Certificate Usage PKIX-EE(1) Guidelines" anchor="type1">
+
+    <t>
+      From a TLSA record perspective this certificate usage is similar
+      to DANE-EE(3), but in addition PKIX verification is required.
+      Therefore, name checks, certificate expiration, etc., apply as
+      they would without DANE.  It should be noted that an attacker
+      who can compromise DNSSEC can replace these with usage
+      DANE-EE(3) or DANE-TA(2) TLSA records of his choosing, and thus
+      bypass the PKIX verification requirements.
+    </t>
+
+    <t>
+      Therefore, in most cases this certificate usage offers only
+      illusory incremental security over usage DANE-EE(3).  It
+      provides lower operational reliability than usage 3 since when
+      some clients may not be configured with the required root CA,
+      the server's chain may be incomplete or name checks may fail.
+      PKIX-EE(1) also requires more complex coordination between the Customer
+      Domain and the Service Provider in hosting arrangements.  This
+      certificate usage is NOT RECOMMENDED.
+    </t>
+
+  </section>
+
+  <section title="Certificate Usage PKIX-TA(0) Guidelines" anchor="type0">
+
+    <t>
+      TLSA Certificate Usage PKIX-TA(0) allows a domain to publish
+      constraints on the set of certificate authorities trusted to
+      issue certificates for its TLS servers.  Clients MUST only
+      accept PKIX-verified trust chains which contain a match for
+      one of the published TLSA records.
+    </t>
+
+    <t>
+      TLSA Publishers who publish TLSA records for a particular
+      public root CA, will expect that clients will then only accept
+      chains anchored at that root.  It is possible, however, that
+      the client's trusted certificate store includes some intermediate
+      CAs, either with or without the corresponding root CA.  When
+      a client constructs a trust chain leading from a trusted
+      intermediate CA to the server leaf certificate, such a
+      "truncated" chain might not contain a trusted root published
+      in the server's TLSA records.
+    </t>
+
+    <t>
+      If the omitted root is also trusted, the client may erroneously
+      reject the server chain if it fails to determine that the
+      shorter chain it constructed extends to a longer trusted chain
+      that matches the TLSA records.  This means that, when matching a
+      usage PKIX-TA(0) TLSA record, a client SHOULD NOT always stop
+      extending the chain when the first locally trusted certificate
+      is found.  If no TLSA records have matched any of the elements
+      of the chain, it MUST attempt to build a longer chain if the
+      trusted certificate found is not self-issued, in the hope that a
+      certificate closer to the root may in fact match the server's
+      TLSA records.
+    </t>
+
+    <t>
+      As with PKIX-EE(1) case, An attacker who can compromise DNSSEC
+      can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA
+      records of his choosing and thus bypass the PKIX verification
+      requirements.  Therefore, in most cases this certificate usage
+      offers only illusory incremental security over usage DANE-TA(2).
+      It provides lower reliability than usage DANE-TA(2), since some
+      clients may not be configured with the required root CA, and
+      additionally requires more complex coordination between the
+      Customer Domain and the Service Provider in hosting
+      arrangements.  This certificate usage is NOT RECOMMENDED.
+    </t>
+
+  </section>
+
+</section>
+
 </section>
 
 <section title="General DANE Guidelines">
@@ -892,160 +1054,6 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
     </t>
 
   </section><!-- Trust anchor public keys -->
-
-</section>
-
-<section title="Certificate Usage Specific DANE Guidelines">
-
-  <section title="Certificate Usage DANE-EE(3) Guidelines" anchor="type3">
-
-    <t>
-      Authentication via certificate usage "3" TLSA records involves
-      simply checking that the server's leaf certificate matches the
-      TLSA record.  Other than extracting the relevant certificate
-      elements for comparison, no other use is made of the certificate
-      content.  Authentication via certificate usage "3" TLSA records
-      involves no certificate authority signature checks.  It also
-      involves no server name checks, and thus does not impose any new
-      requirements on the names contained in the server certificate
-      (servers don't require an SNI extension to be present when the
-      TLSA record matches the server's default certificate).
-    </t>
-
-    <t>
-      Two TLSA records will need to be published before updating a
-      server's public key, one matching the currently deployed key and
-      the other matching the new key scheduled to replace it.  Once
-      sufficient time has elapsed for all the previous TLSA RRsets,
-      which contain only the old key, to expire from DNS caches, the
-      server may be reconfigured to use the new private key and
-      associated certificate chain.  Once the server is using the new
-      key, the TLSA RR that matches the retired key can be removed
-      from DNS, leaving only the TLSA RR that matches the new key.
-    </t>
-
-    <t>
-      TLSA records for servers SHOULD, when possible, be DANE-EE(3),
-      SPKI(1), SHA2-256(1) records.  Such records specify
-      the SHA2-256 digest of the public key of the server certificate.
-      Since all DANE implementations are required to support SHA2-256,
-      this record works for all clients and need not change across
-      certificate renewals with the same key.  With no name checks
-      required, this TLSA record type supports hosting arrangements
-      with a single certificate matching all client domains!  It
-      is also the easiest to implement correctly in the client.
-    </t>
-
-  </section>
-
-  <section title="Certificate Usage DANE-TA(2) Guidelines" anchor="type2">
-
-    <t>
-      Some domains may prefer to reduce the operational complexity
-      of maintaining a distinct TLSA RRset for each TLS service.
-      If the domain employs a common issuing certificate authority
-      to create certificates for multiple TLS services, it may be
-      simpler to publish the issuing authority as a trust anchor
-      (TA) for the certificate chains of all relevant services.
-      <!-- XXX: should we specify this is true only if the EE cert is
-      expected to roll more frequently than the TA key, as otherwise
-      it's mostly useless to use type 2 -->
-      The TLSA RRs for each service issued by the same TA may then
-      be CNAMEs to a common TLSA RRset that matches the TA.  This
-      certificate usage also allows Service Providers to independently
-      generate appropriate certificates for each Customer Domain
-      (see <xref target="sync"/>).
-    </t>
-
-    <t>
-      As explained in <xref target="tadgst"/>, servers that employ
-      Certificate Usage DANE-TA(2) TLSA records MUST include the TA
-      certificate as part of the certificate chain presented in the
-      TLS handshake even when it is a self-signed root certificate.
-      TLSA Publishers should publish either "DANE-TA(2) SPKI(1)
-      SHA2-256(1)" or "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA
-      parameters.  As with leaf certificate rollover discussed in
-      <xref target="type3" />, two such TLSA RRs need to be published
-      to facilitate TA certificate rollover.
-    </t>
-
-  </section>
-
-  <section title="Certificate Usage PKIX-EE(1) Guidelines" anchor="type1">
-
-    <t>
-      From a TLSA record perspective this certificate usage is similar
-      to DANE-EE(3), but in addition PKIX verification is required.
-      Therefore, name checks, certificate expiration, etc., apply as
-      they would without DANE.  It should be noted that an attacker
-      who can compromise DNSSEC can replace these with usage
-      DANE-EE(3) or DANE-TA(2) TLSA records of his choosing, and thus
-      bypass the PKIX verification requirements.
-    </t>
-
-    <t>
-      Therefore, in most cases this certificate usage offers only
-      illusory incremental security over usage DANE-EE(3).  It
-      provides lower operational reliability than usage 3 since when
-      some clients may not be configured with the required root CA,
-      the server's chain may be incomplete or name checks may fail.
-      PKIX-EE(1) also requires more complex coordination between the Customer
-      Domain and the Service Provider in hosting arrangements.  This
-      certificate usage is NOT RECOMMENDED.
-    </t>
-
-  </section>
-
-  <section title="Certificate Usage PKIX-TA(0) Guidelines" anchor="type0">
-
-    <t>
-      TLSA Certificate Usage PKIX-TA(0) allows a domain to publish
-      constraints on the set of certificate authorities trusted to
-      issue certificates for its TLS servers.  Clients MUST only
-      accept PKIX-verified trust chains which contain a match for
-      one of the published TLSA records.
-    </t>
-
-    <t>
-      TLSA Publishers who publish TLSA records for a particular
-      public root CA, will expect that clients will then only accept
-      chains anchored at that root.  It is possible, however, that
-      the client's trusted certificate store includes some intermediate
-      CAs, either with or without the corresponding root CA.  When
-      a client constructs a trust chain leading from a trusted
-      intermediate CA to the server leaf certificate, such a
-      "truncated" chain might not contain a trusted root published
-      in the server's TLSA records.
-    </t>
-
-    <t>
-      If the omitted root is also trusted, the client may erroneously
-      reject the server chain if it fails to determine that the
-      shorter chain it constructed extends to a longer trusted chain
-      that matches the TLSA records.  This means that, when matching a
-      usage PKIX-TA(0) TLSA record, a client SHOULD NOT always stop
-      extending the chain when the first locally trusted certificate
-      is found.  If no TLSA records have matched any of the elements
-      of the chain, it MUST attempt to build a longer chain if the
-      trusted certificate found is not self-issued, in the hope that a
-      certificate closer to the root may in fact match the server's
-      TLSA records.
-    </t>
-
-    <t>
-      As with PKIX-EE(1) case, An attacker who can compromise DNSSEC
-      can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA
-      records of his choosing and thus bypass the PKIX verification
-      requirements.  Therefore, in most cases this certificate usage
-      offers only illusory incremental security over usage DANE-TA(2).
-      It provides lower reliability than usage DANE-TA(2), since some
-      clients may not be configured with the required root CA, and
-      additionally requires more complex coordination between the
-      Customer Domain and the Service Provider in hosting
-      arrangements.  This certificate usage is NOT RECOMMENDED.
-    </t>
-
-  </section>
 
 </section>
 
