@@ -568,15 +568,6 @@ be flushed from caches before making another change.
 
 </section><!-- Digest algorithm agility -->
 
-</section>
-
-<section title="General DANE Guidelines">
-
-  <t>
-    These guidelines provide guidance for using or designing protocols
-    for DANE, regardless of what sort of TLSA record will be used.
-  </t>
-
   <section title="TLS Requirements">
 
     <t>
@@ -587,6 +578,66 @@ be flushed from caches before making another change.
     </t>
 
   </section>
+
+  <section title="TLSA Base Domain and CNAMEs" anchor="cname">
+
+    <t>
+      When the protocol does not support service location indirection
+      via MX, SRV or similar DNS records, the service may be
+      redirected via a CNAME.  A CNAME is a more blunt instrument
+      for this purpose, since unlike an MX or SRV record, it remaps
+      the entire origin domain to the target domain for all protocols.
+    </t>
+
+    <t>
+      <!-- XXX: DANEbis: Preferred TLSA base domain with CNAME expansion -->
+      The complexity of coordinating key rollover is largely
+      eliminated when DANE TLSA records are found in the Service
+      Provider's domain, as discussed in <xref target="sync" />.
+      Therefore, DANE TLS clients connecting to a server whose
+      domain name is a CNAME alias SHOULD follow the CNAME hop-by-hop
+      to its ultimate target host (noting at each step whether the
+      CNAME is DNSSEC-validated).  If at each stage of CNAME expansion
+      the DNSSEC validation status is "secure", the final target name
+      SHOULD be the preferred base domain for TLSA lookups.
+    </t>
+
+    <t>
+      <!-- XXX: DANEbis: Fallback TLSA base domain with CNAME expansion -->
+      Implementations failing to find a TLSA record using a base
+      name of the final target of a CNAME expansion SHOULD issue a
+      TLSA query using the original destination name.  That is, the
+      preferred TLSA base domain should be derived from the
+      fully expanded name, and failing that should be the initial
+      domain name.
+    </t>
+
+    <t>
+      Protocol-specific TLSA specifications may provide additional
+      guidance or restrictions when following CNAME expansions.
+    </t>
+
+    <t>
+      Though CNAMEs are illegal on the right hand side of most
+      indirection records, such as MX and SRV records, they are
+      supported by some implementations.  For example, if the MX
+      or SRV host is a CNAME alias, some implementations may "chase"
+      the CNAME.  They SHOULD use the target hostname as the preferred
+      TLSA base domain as well as the HostName in SNI, provided the
+      CNAME RR is found to be "secure" at each step in the CNAME
+      expansion.
+    </t>
+
+  </section>
+
+</section>
+
+<section title="General DANE Guidelines">
+
+  <t>
+    These guidelines provide guidance for using or designing protocols
+    for DANE, regardless of what sort of TLSA record will be used.
+  </t>
 
   <section title="DANE DNS Record Size Guidelines">
 
@@ -877,104 +928,6 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
 
   </section>
 
-  <section title="TLSA Base Domain and CNAMEs" anchor="cname">
-
-    <t>
-      When the protocol does not support service location indirection
-      via MX, SRV or similar DNS records, the service may be
-      redirected via a CNAME.  A CNAME is a more blunt instrument
-      for this purpose, since unlike an MX or SRV record, it remaps
-      the entire origin domain to the target domain for all protocols.
-    </t>
-
-    <t>
-      <!-- XXX: DANEbis: Preferred TLSA base domain with CNAME expansion -->
-      The complexity of coordinating key rollover is largely
-      eliminated when DANE TLSA records are found in the Service
-      Provider's domain, as discussed in <xref target="sync" />.
-      Therefore, DANE TLS clients connecting to a server whose
-      domain name is a CNAME alias SHOULD follow the CNAME hop-by-hop
-      to its ultimate target host (noting at each step whether the
-      CNAME is DNSSEC-validated).  If at each stage of CNAME expansion
-      the DNSSEC validation status is "secure", the final target name
-      SHOULD be the preferred base domain for TLSA lookups.
-    </t>
-
-    <t>
-      <!-- XXX: DANEbis: Fallback TLSA base domain with CNAME expansion -->
-      Implementations failing to find a TLSA record using a base
-      name of the final target of a CNAME expansion SHOULD issue a
-      TLSA query using the original destination name.  That is, the
-      preferred TLSA base domain should be derived from the
-      fully expanded name, and failing that should be the initial
-      domain name.
-    </t>
-
-    <t>
-      Protocol-specific TLSA specifications may provide additional
-      guidance or restrictions when following CNAME expansions.
-    </t>
-
-    <t>
-      Though CNAMEs are illegal on the right hand side of most
-      indirection records, such as MX and SRV records, they are
-      supported by some implementations.  For example, if the MX
-      or SRV host is a CNAME alias, some implementations may "chase"
-      the CNAME.  They SHOULD use the target hostname as the preferred
-      TLSA base domain as well as the HostName in SNI, provided the
-      CNAME RR is found to be "secure" at each step in the CNAME
-      expansion.
-    </t>
-
-  </section>
-
-  <section title="Interaction with Certificate Transparency">
-  <!-- XXX: DANEbis: CT interaction: No CT for DANE-TA/EE -->
-
-    <t>
-      Certificate Transparency (CT) <xref target="RFC6962"/> defines
-      an experimental approach to mitigate the risk of rogue or
-      compromised public CAs issuing unauthorized certificates.  This
-      section clarifies the interaction of CT and DANE.  CT is an
-      experimental protocol and auditing system that applies only to
-      public CAs, and only when they are free to issue unauthorized
-      certificates for a domain.  If the CA is not a public CA, or a
-      DANE-EE(3) TLSA RR directly specifies the end entity
-      certificate, there is no role for CT, and clients need not apply
-      CT checks.
-    </t>
-
-    <t>
-      When a server is authenticated via a DANE TLSA RR with TLSA
-      Certificate Usage DANE-EE(3), the domain owner has directly
-      specified the certificate associated with the given service
-      without reference to any PKIX certificate authority.  Therefore,
-      when a TLS client authenticates the TLS server via a TLSA
-      certificate association with usage DANE-EE(3), CT checks SHOULD
-      NOT be performed.  Publication of the server certificate or
-      public key (digest) in a TLSA record in a DNSSEC signed zone
-      by the domain owner assures the TLS client that the certificate
-      is not an unauthorized certificate issued by a rogue CA without
-      the domain owner's consent.
-    </t>
-
-    <t>
-      When a server is authenticated via a DANE TLSA RR with TLSA
-      usage DANE-TA(2) and the server certificate does not chain
-      to a known public root CA, CT cannot apply (CT logs only
-      accept chains that start with a known, public root).  Since
-      TLSA Certificate Usage DANE-TA(2) is generally intended to
-      support non-PKIX trust anchors, TLS clients SHOULD NOT perform
-      CT checks with usage DANE-TA(2) using unknown root CAs.
-    </t>
-
-    <t>
-      A server operator who wants clients to perform CT checks
-      should publish TLSA RRs with usage PKIX-TA(0) or PKIX-EE(1).
-    </t>
-
-  </section>
-
   <section title="Design Considerations for Protocols Using DANE">
 
     <t>
@@ -1159,6 +1112,52 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
   </section><!-- Trust anchor public keys -->
 
 </section>
+  <section title="Interaction with Certificate Transparency">
+  <!-- XXX: DANEbis: CT interaction: No CT for DANE-TA/EE -->
+
+    <t>
+      Certificate Transparency (CT) <xref target="RFC6962"/> defines
+      an experimental approach to mitigate the risk of rogue or
+      compromised public CAs issuing unauthorized certificates.  This
+      section clarifies the interaction of CT and DANE.  CT is an
+      experimental protocol and auditing system that applies only to
+      public CAs, and only when they are free to issue unauthorized
+      certificates for a domain.  If the CA is not a public CA, or a
+      DANE-EE(3) TLSA RR directly specifies the end entity
+      certificate, there is no role for CT, and clients need not apply
+      CT checks.
+    </t>
+
+    <t>
+      When a server is authenticated via a DANE TLSA RR with TLSA
+      Certificate Usage DANE-EE(3), the domain owner has directly
+      specified the certificate associated with the given service
+      without reference to any PKIX certificate authority.  Therefore,
+      when a TLS client authenticates the TLS server via a TLSA
+      certificate association with usage DANE-EE(3), CT checks SHOULD
+      NOT be performed.  Publication of the server certificate or
+      public key (digest) in a TLSA record in a DNSSEC signed zone
+      by the domain owner assures the TLS client that the certificate
+      is not an unauthorized certificate issued by a rogue CA without
+      the domain owner's consent.
+    </t>
+
+    <t>
+      When a server is authenticated via a DANE TLSA RR with TLSA
+      usage DANE-TA(2) and the server certificate does not chain
+      to a known public root CA, CT cannot apply (CT logs only
+      accept chains that start with a known, public root).  Since
+      TLSA Certificate Usage DANE-TA(2) is generally intended to
+      support non-PKIX trust anchors, TLS clients SHOULD NOT perform
+      CT checks with usage DANE-TA(2) using unknown root CAs.
+    </t>
+
+    <t>
+      A server operator who wants clients to perform CT checks
+      should publish TLSA RRs with usage PKIX-TA(0) or PKIX-EE(1).
+    </t>
+
+  </section>
 
 <section title="Note on DNSSEC security">
 
