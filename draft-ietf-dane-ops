@@ -72,7 +72,7 @@ guidance for DANE implementers and operators.
 record which associates with a TLS transport endpoint corresponding
 trusted leaf or issuing authority certificates or public keys.
 DNSSEC-validated DANE TLSA records can be used to augment or replace the
-trust model of the existing public Certificate Authority (CA) Public
+trust model of the existing public Certification Authority (CA) Public
 Key Infrastructure (PKI).
 </t>
 
@@ -220,13 +220,13 @@ in <xref target="RFC2119"/>.
     leaf or server certificate.)</t>
 
     <t> When the low bit is not set (PKIX-TA(0) and DANE-TA(2)) the
-    TLSA record matches a trust anchor (a Certificate Authority)
+    TLSA record matches a trust anchor (a Certification Authority)
     that issued one of the certificates in the server certificate
     chain.  </t>
 
     <t> When the high bit is set (DANE-TA(2) and DANE-EE(3)), the
     server certificate chain is domain-issued and may be verified
-    without reference to any pre-existing public certificate authority
+    without reference to any pre-existing public certification authority
     PKI.  Trust is entirely placed on the content of the TLSA records
     obtained via DNSSEC.  </t>
 
@@ -428,7 +428,7 @@ from the implementation and deployment of DANE.</t>
 
     <t>
       TLSA Certificate Usage PKIX-TA(0) allows a domain to publish
-      constraints on the set of certificate authorities trusted to
+      constraints on the set of certification authorities trusted to
       issue certificates for its TLS servers.  Clients MUST only
       accept PKIX-verified trust chains which contain a match for
       one of the published TLSA records.
@@ -843,7 +843,7 @@ be flushed from caches before making another change.
     RRset published by the Service Provider.  </t>
 
     <t hangText="Certificate Usage DANE-TA(2):"> When the Service
-    Provider operates a private certificate authority, the Service
+    Provider operates a private certification authority, the Service
     Provider is free to issue a certificate bearing any customer's
     domain name.  Without DANE, such a certificate would not pass
     trust verification, but with DANE, the customer's TLSA RRset that
@@ -1017,7 +1017,7 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
       or public key (i.e., DANE-TA(2) or PKIX-TA(0)), a complication
       arises when the TA certificate is omitted from the server's
       certificate chain.  This can happen when the trust anchor is a
-      root certificate authority, as stated in section
+      root certification authority, as stated in section
       7.4.2 of <xref target="RFC5246"/>:
     </t>
 
@@ -1027,7 +1027,7 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
   following certificate MUST directly certify the one preceding
   it.  Because certificate validation requires that root keys be
   distributed independently, the self-signed certificate that
-  specifies the root certificate authority MAY be omitted from the
+  specifies the root certification authority MAY be omitted from the
   chain, under the assumption that the remote end must already
   possess it in order to validate it in any case.
       </artwork>
@@ -1144,7 +1144,7 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
       When a server is authenticated via a DANE TLSA RR with TLSA
       Certificate Usage DANE-EE(3), the domain owner has directly
       specified the certificate associated with the given service
-      without reference to any PKIX certificate authority.  Therefore,
+      without reference to any PKIX certification authority.  Therefore,
       when a TLS client authenticates the TLS server via a TLSA
       certificate association with usage DANE-EE(3), CT checks SHOULD
       NOT be performed.  Publication of the server certificate or
