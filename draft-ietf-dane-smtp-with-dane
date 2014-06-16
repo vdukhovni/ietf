@@ -1029,9 +1029,9 @@ For example, given the DNSSEC validated records below:
 <artwork>
   example.com.                IN MX 0 mx1.example.com.
   example.com.                IN MX 0 mx2.example.com.
-  _25._tcp.mx1.example.com.   IN CNAME tlsa211._dane.example.com.
-  _25._tcp.mx2.example.com.   IN CNAME tlsa211._dane.example.com.
-  tlsa211._dane.example.com.  IN TLSA 2 1 1 e3b0c44298fc1c149a...
+  _25._tcp.mx1.example.com.   IN CNAME tlsa201._dane.example.com.
+  _25._tcp.mx2.example.com.   IN CNAME tlsa201._dane.example.com.
+  tlsa201._dane.example.com.  IN TLSA 2 0 1 e3b0c44298fc1c149a...
 </artwork>
 </figure>
 
@@ -1246,9 +1246,9 @@ common TLSA RRset that matches the TA.  For example:
 <artwork>
   example.com.                IN MX 0 mx1.example.com.
   example.com.                IN MX 0 mx2.example.com.
-  _25._tcp.mx1.example.com.   IN CNAME tlsa211._dane.example.com.
-  _25._tcp.mx2.example.com.   IN CNAME tlsa211._dane.example.com.
-  tlsa211._dane.example.com.  IN TLSA 2 1 1 e3b0c44298fc1c14....
+  _25._tcp.mx1.example.com.   IN CNAME tlsa201._dane.example.com.
+  _25._tcp.mx2.example.com.   IN CNAME tlsa201._dane.example.com.
+  tlsa201._dane.example.com.  IN TLSA 2 0 1 e3b0c44298fc1c14....
 </artwork>
 </figure>
 
