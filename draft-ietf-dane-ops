@@ -296,7 +296,7 @@ in <xref target="RFC2119"/>.
 <t>Here we list updates to the DANA protocol based on lessons learned
 from the implementation and deployment of DANE.</t>
 
-<section title="Specific Certificate Usage  DANE Updates and Guidelines">
+<section title="Certificate-Usage-specific DANE updates and guidelines">
 
   <t>The four Certificate Usage types are discussed below, along with
   notes and updates about how to properly implement and make use of
