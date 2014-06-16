@@ -77,25 +77,24 @@ Key Infrastructure (PKI).
 </t>
 
 <t>
-<xref target="RFC6698"/> defines 3 parameter fields that result in 24
-combinations of potential permutations based on the originally RFC6698
-defined values.  These 24 permutations are a great source of
-complexity with implementation, as various combinations must be given
-careful thought during implementation.</t>
+<xref target="RFC6698"/> defines three TLSA record parameters that
+yield 24 distinct combinations of TLSA record types.  So many options
+can lead to implementation and operational complexity.  This memo will
+recommend best-practice choices to simplify implementation and deployment.
+</t>
 
-<t>Complexity in implementation
-additionally arises from the fact that the TLS transport endpoint
-details are often obtained indirectly via a Service Record (SRV), Mail
-Exchange (MX) record, CNAME records or other mechanisms that map an
-abstract service domain to a concrete server domain.
-With service
+<t>
+Implementation complexity also arises from the fact that the TLS transport
+endpoint is often specified indirectly via Service Records (SRV), Mail
+Exchange (MX) records, CNAME records or other mechanisms that map an
+abstract service domain to a concrete server domain.  With service
 indirection there are multiple potential places for clients to find
 the relevant TLSA records.  Service indirection is often used to
 implement "virtual hosting", where a single Service Provider transport
 endpoint simultaneously supports multiple hosted domain names.  With
 services that employ TLS, such hosting arrangements may require the
-Service Provider to employ multiple pairs of private keys and
-certificates with TLS clients signalling the desired domain via a
+Service Provider to deploy multiple pairs of private keys and
+certificates with TLS clients signalling the desired domain via the
 Server Name Indication (SNI) extension (<xref target="RFC6066" />,
 section 3).  This memo provides operational guidelines intended to
 maximize interoperability between DANE TLS clients and servers.
