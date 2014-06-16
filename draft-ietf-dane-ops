@@ -488,16 +488,24 @@ in <xref target="RFC2119"/>.
       arrangements.  This certificate usage is NOT RECOMMENDED.
     </t>
 
-  </section>
+  </section><!-- PKIX-EE(1) -->
 
   <section title="Certificate Usage PKIX-TA(0)" anchor="type0">
 
     <t>
+      This section updates <xref target="RFC6698"/> by specifying
+      new client implementation requirements.  Clients that trust
+      intermediate certificates MUST be prepared to construct longer
+      PKIX chains than would be required for PKIX alone.
+    </t>
+
+    <t>
       TLSA Certificate Usage PKIX-TA(0) allows a domain to publish
-      constraints on the set of certification authorities trusted to
-      issue certificates for its TLS servers.  Clients MUST only
-      accept PKIX-verified trust chains which contain a match for
-      one of the published TLSA records.
+      constraints on the set of PKIX certification authorities trusted
+      to issue certificates for its TLS servers.  This TLSA record
+      matches PKIX-verified trust chains which contain an issuer
+      certificate (root or intermediate) that matches its association
+      data field (typically a certificate or digest).
     </t>
 
     <t>
@@ -508,38 +516,40 @@ in <xref target="RFC2119"/>.
       CAs, either with or without the corresponding root CA.  When
       a client constructs a trust chain leading from a trusted
       intermediate CA to the server leaf certificate, such a
-      "truncated" chain might not contain a trusted root published
-      in the server's TLSA records.
+      "truncated" chain might not contain the trusted root published
+      in the server's TLSA record.
     </t>
 
     <t>
       If the omitted root is also trusted, the client may erroneously
       reject the server chain if it fails to determine that the
       shorter chain it constructed extends to a longer trusted chain
-      that matches the TLSA records.  This means that, when matching a
-      usage PKIX-TA(0) TLSA record, a client SHOULD NOT always stop
-      extending the chain when the first locally trusted certificate
-      is found.  If no TLSA records have matched any of the elements
-      of the chain, it MUST attempt to build a longer chain if the
-      trusted certificate found is not self-issued, in the hope that a
-      certificate closer to the root may in fact match the server's
-      TLSA records.
+      that matches the TLSA record.  This means that, when matching
+      a usage PKIX-TA(0) TLSA record, a client SHOULD NOT always
+      stop extending the chain when the first locally trusted
+      certificate is found.  If no TLSA records have matched any
+      of the elements of the chain, and the trusted certificate
+      found is not self-issued, the client MUST attempt to build a
+      longer chain in the hope that a certificate closer to the
+      root may in fact match the server's TLSA record.
     </t>
 
     <t>
-      As with PKIX-EE(1) case, An attacker who can compromise DNSSEC
+      As with PKIX-EE(1) case, an attacker who can compromise DNSSEC
       can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA
       records of his choosing and thus bypass the PKIX verification
-      requirements.  Therefore, in most cases this certificate usage
-      offers only illusory incremental security over usage DANE-TA(2).
-      It provides lower reliability than usage DANE-TA(2), since some
-      clients may not be configured with the required root CA, and
-      additionally requires more complex coordination between the
-      Customer Domain and the Service Provider in hosting
-      arrangements.  This certificate usage is NOT RECOMMENDED.
+      requirements.  Therefore, except when applications support
+      only the PKIX Certificate Usages (0 and 1), this Certificate
+      Usage offers only illusory incremental security over usage
+      DANE-TA(2).  It provides lower operational reliability than
+      DANE-TA(2) since some clients may not be configured with the
+      required root CA.  PKIX-TA(0) also requires more complex
+      coordination between the Customer Domain and the Service
+      Provider in hosting arrangements.  This certificate usage is
+      NOT RECOMMENDED.
     </t>
 
-  </section>
+  </section><!-- PKIX-TA(0) -->
 
 </section>
 
