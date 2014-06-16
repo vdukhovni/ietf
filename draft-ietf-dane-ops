@@ -359,40 +359,108 @@ in <xref target="RFC2119"/>.
       the client.
     </t>
 
-  </section>
+  </section><!-- DANE-TA(1) -->
 
-  <section title="Certificate Usage DANE-TA(2) Guidelines" anchor="type2">
+  <section title="Certificate Usage DANE-TA(2)" anchor="type2">
 
     <t>
-      Some domains may prefer to reduce the operational complexity
-      of maintaining a distinct TLSA RRset for each TLS service.
-      If the domain employs a common issuing certificate authority
-      to create certificates for multiple TLS services, it may be
+      This section updates <xref target="RFC6698"/> by specifying
+      a new operational requirement for servers publishing TLSA
+      records with a usage of DANE-TA(2).  Such servers MUST include
+      the trust-anchor certificate in their TLS server certificate
+      message.
+    </t>
+
+    <!-- XXXWJH: should we specify this is true only if the EE cert is
+    expected to roll more frequently than the TA key, as otherwise
+    it's mostly useless to use type 2 -->
+
+    <!-- XXXVD:  Even if the TA is rolled frequently, once the server's
+     TLSA CNAME is in place, the operational burden of DNS updates is on
+     the TA administrator (before issuing new certs under the TA), not the
+     service administrator, and is done once per TA rollover, not once per
+     server.  So I think the consirations below stand. -->
+
+    <t>
+      Some domains may prefer to avoid the operational complexity
+      of publishing unique TLSA RRs for each TLS service.  If the
+      domain employs a common issuing Certification Authority to
+      create certificates for multiple TLS services, it may be
       simpler to publish the issuing authority as a trust anchor
       (TA) for the certificate chains of all relevant services.
-      <!-- XXX: should we specify this is true only if the EE cert is
-      expected to roll more frequently than the TA key, as otherwise
-      it's mostly useless to use type 2 -->
-      The TLSA RRs for each service issued by the same TA may then
-      be CNAMEs to a common TLSA RRset that matches the TA.  This
-      certificate usage also allows Service Providers to independently
-      generate appropriate certificates for each Customer Domain
-      (see <xref target="sync"/>).
+      The TLSA query domain (TLSA base domain with port and protocol
+      prefix labels) for each service issued by the same TA may
+      then be set to a CNAME alias that points to a common TLSA
+      RRset that matches the TA.  For example:
+    </t>
+
+    <figure>
+      <artwork>
+  www1.example.com.            IN A 192.0.2.1
+  www2.example.com.            IN A 192.0.2.2
+  _443._tcp.www1.example.com.  IN CNAME tlsa201._dane.example.com.
+  _443._tcp.www2.example.com.  IN CNAME tlsa201._dane.example.com.
+  tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14.....
+      </artwork>
+    </figure>
+
+    <t>
+      With usage DANE-TA(2) the server certificates will need to
+      have names that match one of the client's reference identifiers
+      (see <xref target="RFC6125"/>).  The server MAY employ SNI
+      to select the appropriate certificate to present to the client.
     </t>
 
     <t>
-      As explained in <xref target="tadgst"/>, servers that employ
-      Certificate Usage DANE-TA(2) TLSA records MUST include the TA
-      certificate as part of the certificate chain presented in the
-      TLS handshake even when it is a self-signed root certificate.
-      TLSA Publishers should publish either "DANE-TA(2) SPKI(1)
-      SHA2-256(1)" or "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA
-      parameters.  As with leaf certificate rollover discussed in
-      <xref target="type3" />, two such TLSA RRs need to be published
-      to facilitate TA certificate rollover.
+      Servers that rely on certificate usage DANE-TA(2) TLSA records
+      for TLS authentication MUST include the TA certificate as
+      part of the certificate chain presented in the TLS handshake
+      server certificate message even when it is a self-signed root
+      certificate.  DANE clients cannot be expected to be configured
+      with a list of trust anchors that includes the server's issuing
+      Certification Authority.  Client implementations are free to
+      ignore all locally configured trust anchors when processing
+      usage DANE-TA(2) TLSA records and may rely exclusively on the
+      certificicates provided in the server's certificate chain.
+      Thus even when the TA happens to be a public Certification
+      Authority known to the client, authentication may well fail
+      unless the TA certificate is included in the TLS server
+      certificate message.
     </t>
 
-  </section>
+    <t>
+      TLSA records with selector Full(0) are discouraged.  While
+      these potentially obviate the need to transmit the TA certificate
+      in the TLS server certificate message, client implementations
+      may not be able to augment the server certificate chain with
+      the data obtained from DNS, especially when the TLSA record
+      supplies a bare key (selector SPKI(1)).  Since the server
+      will need to transmit the TA certificate in any case, server
+      operators SHOULD publish TLSA records with a selector other
+      than Full(0) and avoid potential DNS interoperability issues
+      with large TLSA records containing full certificates or keys.
+    </t>
+
+    <t>
+      TLSA Publishers employing DANE-TA(2) records SHOULD publish
+      records with a selector of Cert(0).  Such TLSA records are
+      associated with the whole trust anchor certificate, not just
+      with the trust anchor public key.  In particular, the client
+      SHOULD then apply any relevant constraints from the trust
+      anchor certificate, such as, for example, path length
+      constraints.
+    </t>
+
+    <t>
+      While a selector of SPKI(1) may also be employed, the resulting
+      TLSA record will not specify the full trust anchor certificate
+      content, and elements of the trust anchor certificate other than
+      the public key become mutable.  This may, for example, enable a
+      subsidiary CA to issue a chain that violates the trust anchor's
+      path length or name constraints.
+    </t>
+
+  </section><!-- DANE-TA(2) -->
 
   <section title="Certificate Usage PKIX-EE(1)" anchor="type1">
 
