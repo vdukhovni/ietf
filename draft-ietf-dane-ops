@@ -298,12 +298,18 @@ from the implementation and deployment of DANE.</t>
 
 <section title="Certificate-Usage-specific DANE updates and guidelines">
 
-  <t>The four Certificate Usage types are discussed below, along with
-  notes and updates about how to properly implement and make use of
-  them.  They're presented starting from the simplest, usage DANE-EE(3), and working
-  backward toward the more complex PKIX-TA(0).</t>
+  <t>
+    The four Certificate Usages DANE-EE(3), DANE-TA(2), PKIX-EE(1) and
+    PKIX-TA(0) are discussed below.
+  </t>
 
   <section title="Certificate Usage DANE-EE(3) Updates and Guidelines" anchor="type3">
+
+    <t>
+      In this section the meaning of DANE-EE(3) is updated from
+      <xref target="RFC6698"/> to specify peer identity matching and
+      validity interval based solely on the basis of the TLSA RRset.
+    </t>
 
     <t>
       Authentication via certificate usage DANE-EE(3) TLSA records
