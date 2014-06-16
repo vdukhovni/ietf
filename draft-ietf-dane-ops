@@ -298,7 +298,7 @@ in <xref target="RFC2119"/>.
     PKIX-TA(0) are discussed below.
   </t>
 
-  <section title="Certificate Usage DANE-EE(3) Updates and Guidelines" anchor="type3">
+  <section title="Certificate Usage DANE-EE(3)" anchor="type3">
 
     <t>
       In this section the meaning of DANE-EE(3) is updated from
@@ -394,7 +394,7 @@ in <xref target="RFC2119"/>.
 
   </section>
 
-  <section title="Certificate Usage PKIX-EE(1) Guidelines" anchor="type1">
+  <section title="Certificate Usage PKIX-EE(1)" anchor="type1">
 
     <t>
       From a TLSA record perspective this certificate usage is similar
@@ -419,7 +419,7 @@ in <xref target="RFC2119"/>.
 
   </section>
 
-  <section title="Certificate Usage PKIX-TA(0) Guidelines" anchor="type0">
+  <section title="Certificate Usage PKIX-TA(0)" anchor="type0">
 
     <t>
       TLSA Certificate Usage PKIX-TA(0) allows a domain to publish
