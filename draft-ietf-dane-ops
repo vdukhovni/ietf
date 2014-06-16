@@ -69,7 +69,7 @@ guidance for DANE implementers and operators.
 
 <t>
 <xref target="RFC6698"/> specifies a new "TLSA" DNS resource
-record which associates a TLS transport endpoint with a corresponding
+record which associates with a TLS transport endpoint corresponding
 trusted leaf or issuing authority certificates or public keys.
 DNSSEC-validated DANE TLSA records can be used to augment or replace the
 trust model of the existing public Certificate Authority (CA) Public
