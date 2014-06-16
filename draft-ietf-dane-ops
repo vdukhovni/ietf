@@ -291,11 +291,6 @@ in <xref target="RFC2119"/>.
 
 </section><!-- DANE TLSA record overview -->
 
-<section title="Updates to the DANE Protocol">
-
-<t>Here we list updates to the DANA protocol based on lessons learned
-from the implementation and deployment of DANE.</t>
-
 <section title="Certificate-Usage-specific DANE updates and guidelines">
 
   <t>
@@ -641,8 +636,6 @@ be flushed from caches before making another change.
     </t>
 
   </section>
-
-</section>
 
 <section title="General DANE Guidelines">
 
