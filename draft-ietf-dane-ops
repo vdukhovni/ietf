@@ -336,7 +336,7 @@ from the implementation and deployment of DANE.</t>
       all the domain names in question to match the server's primary
       certificate.  For application protocols where the server name
       is obtained indirectly via SRV, MX or similar records, it is
-      simpler still to publish a single hostname as target server
+      simplest to publish a single hostname as the target server
       name for all the hosted domains.
     </t>
 
