@@ -465,24 +465,27 @@ in <xref target="RFC2119"/>.
   <section title="Certificate Usage PKIX-EE(1)" anchor="type1">
 
     <t>
-      From a TLSA record perspective this certificate usage is similar
-      to DANE-EE(3), but in addition PKIX verification is required.
-      Therefore, name checks, certificate expiration, etc., apply as
-      they would without DANE.  It should be noted that an attacker
-      who can compromise DNSSEC can replace these with usage
-      DANE-EE(3) or DANE-TA(2) TLSA records of his choosing, and thus
-      bypass the PKIX verification requirements.
+      This Certificate Usage is similar to DANE-EE(3), but in
+      addition PKIX verification is required.  Therefore, name
+      checks, certificate expiration, etc., apply as they would
+      without DANE.  When for a given application protocol, DANE
+      clients support both DANE-EE(3) and PKIX-EE(1) usages it
+      should be noted that an attacker who can compromise DNSSEC
+      can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA
+      records of his choosing, and thus bypass any PKIX verification
+      requirements.
     </t>
 
     <t>
-      Therefore, in most cases this certificate usage offers only
-      illusory incremental security over usage DANE-EE(3).  It
-      provides lower operational reliability than usage 3 since when
+      Therefore, except when applications support only the PKIX
+      Certificate Usages (0 and 1), this Certificate Usage offers
+      only illusory incremental security over usage DANE-EE(3).  It
+      provides lower operational reliability than DANE-EE(3) since
       some clients may not be configured with the required root CA,
       the server's chain may be incomplete or name checks may fail.
-      PKIX-EE(1) also requires more complex coordination between the Customer
-      Domain and the Service Provider in hosting arrangements.  This
-      certificate usage is NOT RECOMMENDED.
+      PKIX-EE(1) also requires more complex coordination between
+      the Customer Domain and the Service Provider in hosting
+      arrangements.  This certificate usage is NOT RECOMMENDED.
     </t>
 
   </section>
