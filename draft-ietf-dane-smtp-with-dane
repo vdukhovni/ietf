@@ -1022,7 +1022,9 @@ such server to another).
 </t>
 
 <t>
-For example, given the DNSSEC validated records below:
+A better example, employing a shared trust anchor rather than shared
+end-entity certificates, is illustrated by the DNSSEC validated
+records below:
 </t>
 
 <figure>
