@@ -184,7 +184,7 @@ in <xref target="RFC2119"/>.
   <t>
   <list style='hanging'>
 
-    <t hangText="The TLSA Certificate Usage field:"> Section 2.1.1
+    <t hangText="The Certificate Usage field:"> Section 2.1.1
     of <xref target="RFC6698"/> specifies 4 values: PKIX-TA(0),
     PKIX-EE(1), DANE-TA(2), and DANE-EE(3).  There is an additional
     private-use value: PrivCert(255).  All other values are reserved
@@ -259,12 +259,12 @@ in <xref target="RFC2119"/>.
     key, and likewise SHA2-512(2) means a SHA2-512 digest is used.
     Of the two digest algorithms, for now only SHA2-256(1) is mandatory
     to implement.  Clients SHOULD implement SHA2-512(2), but servers
-    SHOULD NOT exclusively publish SHA2-512(2) digests.  A digest algorithm
-    agility protocol is proposed in section 2.3.3 of <xref
-    target="I-D.ietf-dane-smtp-with-dane"/> that SHOULD be used by
-    clients to decide how to process TLSA RRsets that employ multiple
-    digest algorithms.  Server operators MUST publish TLSA RRsets
-    that are compatible with digest algorithm agility.
+    SHOULD NOT exclusively publish SHA2-512(2) digests.  The digest
+    algorithm agility protocol defined in <xref target="agility"/>
+    SHOULD be used by clients to decide how to process TLSA RRsets
+    that employ multiple digest algorithms.  Server operators MUST
+    publish TLSA RRsets that are compatible with digest algorithm
+    agility.
   </t>
 
   <section title="Example TLSA record">
@@ -552,6 +552,26 @@ in <xref target="RFC2119"/>.
   </section><!-- PKIX-TA(0) -->
 
 </section>
+
+<section title="TLSA Publisher requirements" anchor="rrbcp">
+
+  <t>
+    This section updates <xref target="RFC6698"/> by specifying a
+    requirement on the TLSA Publisher to ensure that each combination
+    of Certificate Usage, selector and matching type that is present
+    in the server's TLSA RRset MUST include at least one record
+    that matches the server's present (rather than future or past)
+    certificate chain.  We describe a TLSA record update algorithm
+    that ensures this requirement is met.
+  </t>
+
+  <t>
+    While a server is to be considered authenticated when its certificate
+    chain is matched by any of the published TLSA records, not all clients
+    support all combinations of TLSA record parameters.
+  </t>
+
+</section><!-- TLSA RRset best pracice -->
 
 <section title="Digest algorithm agility" anchor="agility">
 
