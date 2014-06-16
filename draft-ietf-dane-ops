@@ -1171,7 +1171,7 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
     Clearly the security of the DANE TLSA PKI rests on the security
     of the underlying DNSSEC infrastructure.  While this memo is
     not a guide to DNSSEC security, a few comments may be helpful
-    to TLSA implementors.
+    to TLSA implementers.
   </t>
 
   <t>
