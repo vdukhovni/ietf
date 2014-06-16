@@ -306,40 +306,56 @@ from the implementation and deployment of DANE.</t>
   <section title="Certificate Usage DANE-EE(3) Updates and Guidelines" anchor="type3">
 
     <t>
-      Authentication via certificate usage "DANE-EE(3)" TLSA records involves
-      simply checking that the server's leaf certificate matches the
-      TLSA record.  Other than extracting the relevant certificate
-      elements for comparison, no other use is made of the certificate
-      content.  Authentication via certificate usage "DANE-EE(3)" TLSA records
-      involves no certificate authority signature checks.  It also
-      involves no server name checks, and thus does not impose any new
-      requirements on the names contained in the server certificate
-      (servers don't require an SNI extension to be present when the
-      TLSA record matches the server's default certificate).
+      Authentication via certificate usage DANE-EE(3) TLSA records
+      involves simply checking that the server's leaf certificate
+      matches the TLSA record.  In particular the binding of the server
+      public key to its name is based entirely on the TLSA record
+      association.  The server MUST be considered authenticated even
+      if none of the names in the certificate match the client's
+      reference identity for the server.
     </t>
 
     <t>
-      Two TLSA records will need to be published before updating a
-      server's public key, one matching the currently deployed key and
-      the other matching the new key scheduled to replace it.  Once
-      sufficient time has elapsed for all the previous TLSA RRsets,
-      which contain only the old key, to expire from DNS caches, the
-      server may be reconfigured to use the new private key and
-      associated certificate chain.  Once the server is using the new
-      key, the TLSA RR that matches the retired key can be removed
-      from DNS, leaving only the TLSA RR that matches the new key.
+      Similarly, with DANE-EE(3), the expiration date of the server
+      certificate MUST be ignored, the validity period of the TLSA
+      record key binding is determined by the validity interval of
+      the TLSA record DNSSEC signature.
     </t>
 
     <t>
-      TLSA records for servers SHOULD, when possible, be DANE-EE(3),
-      SPKI(1), SHA2-256(1) records.  Such records specify
-      the SHA2-256 digest of the public key of the server certificate.
-      Since all DANE implementations are required to support SHA2-256,
-      this record works for all clients and need not change across
-      certificate renewals with the same key.  With no name checks
-      required, this TLSA record type supports hosting arrangements
-      with a single certificate matching all client domains!  It
-      is also the easiest to implement correctly in the client.
+      With DANE-EE(3) servers need not employ SNI (may ignore the
+      client's SNI message) even when the server is known under
+      multiple domain names that would otherwise require separate
+      certificates.  It is instead sufficient for the TLSA RRsets for
+      all the domain names in question to match the server's primary
+      certificate.  For application protocols where the server name
+      is obtained indirectly via SRV, MX or similar records, it is
+      simpler still to publish a single hostname as target server
+      name for all the hosted domains.
+    </t>
+
+    <t>
+      In organizations where it is practical to make coordinated
+      changes in DNS TLSA records before server key rotation, it is
+      generally best to publish end-entity DANE-EE(3) certificate
+      associations in preference to other choices of certificate
+      usage.  DANE-EE(3) TLSA records support multiple server names
+      without SNI, don't suddenly stop working when leaf or intermediate
+      certificates expire, and don't fail when the server operator
+      neglects to configure all the required issuer certificates in
+      the server certificate chain.
+    </t>
+
+    <t>
+      TLSA records published for DANE servers SHOULD, as a best
+      practice, be "DANE-EE(3) SPKI(1) SHA2-256(1)" records.  Since
+      all DANE implementations are required to support SHA2-256,
+      this record type works for all clients and need not change
+      across certificate renewals with the same key.  With no name
+      checks required, this TLSA record type supports hosting
+      arrangements with a single certificate matching all hosted
+      domains!  It is also the easiest to implement correctly in
+      the client.
     </t>
 
   </section>
