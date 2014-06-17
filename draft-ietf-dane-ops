@@ -11,6 +11,7 @@
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY RFC6962 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6962.xml">
+<!ENTITY I-D.ietf-tls-oob-pubkey SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-oob-pubkey.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 <!ENTITY I-D.ietf-dane-smtp-with-dane SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp-with-dane.xml">
 <!ENTITY I-D.ietf-dane-registry-acronyms SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-registry-acronyms.xml">
@@ -400,7 +401,7 @@ in <xref target="RFC2119"/>.
   www2.example.com.            IN A 192.0.2.2
   _443._tcp.www1.example.com.  IN CNAME tlsa201._dane.example.com.
   _443._tcp.www2.example.com.  IN CNAME tlsa201._dane.example.com.
-  tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14.....
+  tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
       </artwork>
     </figure>
 
@@ -566,9 +567,146 @@ in <xref target="RFC2119"/>.
   </t>
 
   <t>
-    While a server is to be considered authenticated when its certificate
-    chain is matched by any of the published TLSA records, not all clients
-    support all combinations of TLSA record parameters.
+    While a server is to be considered authenticated when its
+    certificate chain is matched by any of the published TLSA
+    records, not all clients support all combinations of TLSA record
+    parameters.  Some clients may not support some digest algorithms,
+    others may either not support or else exclusively support the
+    PKIX Certificate Usages.  Some clients may prefer to negotiate
+    <xref target="I-D.ietf-tls-oob-pubkey"/> raw public keys, which
+    are only compatible with TLSA records whose Certificat Usage is
+    DANE-EE(3) with selector SPKI(1).
+  </t>
+
+  <t>
+    A consequence of the above uncertainty as to which TLSA parameters
+    are supported by any given client is that servers need to ensure that
+    each and every parameter combination that appears in the TLSA RRset
+    is on its own sufficient to match the server's current certificate
+    chain.  In particular when deploying new keys or new parameter
+    combinations some care is required to not generate parameter
+    combinations that only match past or future certificate chains
+    (or raw public keys).  The rest of this section explains how to
+    update the TLSA RRset in a manner that ensures the above requirement
+    is met.
+  </t>
+
+  <t>
+     The simplest case is key rollover while retaining the same set
+     of published parameter combinations.  In this case, TLSA records
+     matching the existing server certificate chain (or raw public
+     keys) are first augmented with corresponding records matching
+     the future keys, at least one TTL (preferably longer) before
+     the the new chain is deployed, this allows the obsolete RRset
+     to age out of client caches before the new chain is used in
+     TLS handshakes.  Once sufficient time has elapsed and all
+     clients performing DNS lookups see the updated TLSA records,
+     the server administrator may deploy the new certificate chain,
+     verify that it works, and shortly thereafter remove any obsolete
+     records matching the no longer active chain:
+  </t>
+
+  <figure>
+    <artwork>
+  ; Initial TLSA RRset
+  ;
+  _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
+
+  ; Transitional TLSA RRset at least 1 TTL before key change
+  ;
+  _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
+  _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
+
+  ; Final TLSA RRset after key change
+  ;
+  _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
+    </artwork>
+  </figure>
+
+  <t>
+     The next case to consider is adding or switching to a new
+     combination of TLSA parameters.  In this case publish the new
+     parameter combinations for the server's existing certificate
+     chain first, and only then deploy new keys if desired:
+  </t>
+
+  <figure>
+    <artwork>
+  ; Initial TLSA RRset
+  ;
+  _443._tcp.www.example.org. IN TLSA 1 1 1 01d09d19c2139a46...
+
+  ; New TLSA RRset, same key re-published as DANE-EE(3)
+  ;
+  _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
+    </artwork>
+  </figure>
+
+  <t>
+     A more complex involves switching to a trust-anchor or PKIX
+     usage from a chain that is either self-signed, or issued by
+     a private CA and thus not compatible with PKIX.  Here the
+     process is to first add TLSA records matching the futre
+     chain that is issued by the desired future CA (private or
+     PKIX), but initially with the same parameters as the legacy
+     chain.  Then, after deploying the new keys, switch to the
+     new TLSA parameter combination.
+  </t>
+
+  <figure>
+    <artwork>
+  ; Initial TLSA RRset
+  ;
+  _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
+
+  ; Transitional TLSA RRset at least 1 TTL before key change
+  ; New keys issued by a DANE-TA(2) CA, for now specified via
+  ; a DANE-EE(3) association.
+  ;
+  _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
+  _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
+
+  ; Final TLSA RRset after key change, now that the old self-signed
+  ; EE keys are not an impediment, specify the issuing TA of the new
+  ; keys.
+  ;
+  _443._tcp.www.example.org. IN TLSA 2 0 1 c57bce38455d9e3d...
+    </artwork>
+  </figure>
+
+  <t>
+    Similarly, for compatibility with digest agility specified in
+    <xref target="agility"/> below, when employing a new digest
+    algorithm in the TLSA RRset, publish the new digest algorithm with
+    each combinations of Certificate Usage and selector and for each
+    associated key or chain used with any other digest algorithm.
+    When removing an algorithm remove it entirely.  Each digest algorithm
+    employed should match the same set of chains (or raw public keys).
+  </t>
+
+  <figure>
+    <artwork>
+  ; Initial TLSA RRset with EE SHA2-256 associations for two keys.
+  ;
+  _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
+  _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
+
+  ; New TLSA RRset also with SHA2-512 associations for each key
+  ;
+  _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
+  _443._tcp.www.example.org. IN TLSA 3 1 2 d9947c35089310bc...
+  _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
+  _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
+    </artwork>
+  </figure>
+
+  <t>
+    In summary, server operators updating TLSA records should make
+    one change at a time.  Either pre-publish new keys with existing
+    TLSA parameters, remove records matching stale keys, or add new
+    TLSA parameters for all current keys.  Ensure that at all times,
+    each combination of parameter values matches the same set of underlying
+    objects (trust anchors, leaf certificates or raw public keys).
   </t>
 
 </section><!-- TLSA RRset best pracice -->
@@ -1380,6 +1518,7 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
 </references>
 <references title="Informative References">
 &RFC6962;
+&I-D.ietf-tls-oob-pubkey;
 &I-D.ietf-dane-registry-acronyms;
 &I-D.ietf-dane-smtp-with-dane;
 &I-D.ietf-dane-srv;
