@@ -815,8 +815,8 @@ among usable records with the given usage and selector.
   <section title="TLSA Base Domain and CNAMEs" anchor="cname">
 
     <t>
-      When the protocol does not support service location indirection
-      via MX, SRV or similar DNS records, the service may be
+      When the application protocol does not support service location
+      indirection via MX, SRV or similar DNS records, the service may be
       redirected via a CNAME.  A CNAME is a more blunt instrument
       for this purpose, since unlike an MX or SRV record, it remaps
       the entire origin domain to the target domain for all protocols.
@@ -861,7 +861,7 @@ among usable records with the given usage and selector.
       expansion.
     </t>
 
-  </section>
+  </section><!-- TLSA Base Domain and CNAMEs -->
 
 <section title="General DANE Guidelines">
 
@@ -1069,42 +1069,44 @@ among usable records with the given usage and selector.
     is aliased to the provider's TLSA RRset can delegate authority to
     the provider's CA for the corresponding service.  The Service
     Provider can generate appropriate certificates for each customer
-    and use the SNI information provided by clients to select the right certificate chain to present to
-    each client. </t>
+    and use the SNI information provided by clients to select the
+    right certificate chain to present to each client.  </t>
 
     </list>
     </t>
 
     <t>
-      Below are example DNS records (without the required DNSSEC
-      information, such as record signatures) that illustrate both of
-      of the above cases in the case of an HTTPS service whose clients
-      all support DANE TLS.
+      Below are example DNS records (assumed "secure" and shown without
+      the associated DNSSEC information, such as record signatures)
+      that illustrate both of of the above models in the case of an
+      HTTPS service whose clients all support DANE TLS.  These examples
+      work even with clients that don't "chase" CNAMEs when constructing
+      the TLSA base domain (see <xref target="cname"/> below).
     </t>
 
     <figure>
     <artwork>
-; Hosted web service redirected via a CNAME alias.
-; Associated TLSA RRset redirected via a CNAME alias.
-;
-; A single certificate at the provider works for all Customer
-; Domains due to the use of the DANE-EE certificate usage type.
-;
-www1.example.com.             300 IN CNAME w1.example.net.
-_443._tcp.www1.example.com.   300 IN CNAME _443._tcp.w1.example.net.
-_443._tcp.w1.example.net.     300 IN TLSA  DANE-EE SPKI SHA2-256 (
-                              8A9A70596E869BED72C69D97A8895DFA
-                              D86F300A343FECEFF19E89C27C896BC9 )
-;
-; A CA at the provider can also issue certificates for each Customer
-; Domain, and use the DANE-TA certificate usage type to
-; indicate a trust anchor.
-;
-www2.example.com.             300 IN CNAME w2.example.net.
-_443._tcp.www2.example.com.   300 IN CNAME _443._tcp.w2.example.net.
-_443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
-                              C164B2C3F36D068D42A6138E446152F5
-                              68615F28C69BD96A73E354CAC88ED00C )
+  ; Hosted web service redirected via a CNAME alias.
+  ; Associated TLSA RRset redirected via a CNAME alias.
+  ;
+  ; A single certificate at the provider works for all Customer
+  ; Domains due to the use of the DANE-EE(3) Certificate Usage.
+  ;
+  www1.example.com.            IN CNAME w1.example.net.
+  _443._tcp.www1.example.com.  IN CNAME _443._tcp.w1.example.net.
+  _443._tcp.w1.example.net.    IN TLSA DANE-EE SPKI SHA2-256 (
+				  8A9A70596E869BED72C69D97A8895DFA
+				  D86F300A343FECEFF19E89C27C896BC9 )
+  ;
+  ; A CA at the provider can also issue certificates for each Customer
+  ; Domain, and use the DANE-TA certificate usage type to
+  ; indicate a trust anchor.
+  ;
+  www2.example.com.            IN CNAME w2.example.net.
+  _443._tcp.www2.example.com.  IN CNAME _443._tcp.w2.example.net.
+  _443._tcp.w2.example.net.    IN TLSA DANE-TA Cert SHA2-256 (
+				  C164B2C3F36D068D42A6138E446152F5
+				  68615F28C69BD96A73E354CAC88ED00C )
     </artwork>
     </figure>
 
@@ -1128,14 +1130,14 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
     <artwork>
   ; Hosted SMTP service
   ;
-  example.com.              300 IN MX 0 mx1.example.net.
-  example.com.              300 IN MX 0 mx2.example.net.
-  _25._tcp.mx1.example.net. 300 IN TLSA DANE-EE SPKI SHA2-256 (
-                                8A9A70596E869BED72C69D97A8895DFA
-                                D86F300A343FECEFF19E89C27C896BC9 )
-  _25._tcp.mx2.example.net. 300 IN TLSA DANE-EE SPKI SHA2-256 (
-                                C164B2C3F36D068D42A6138E446152F5
-                                68615F28C69BD96A73E354CAC88ED00C )
+  example.com.               IN MX 0 mx1.example.net.
+  example.com.               IN MX 0 mx2.example.net.
+  _25._tcp.mx1.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
+				8A9A70596E869BED72C69D97A8895DFA
+				D86F300A343FECEFF19E89C27C896BC9 )
+  _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
+				C164B2C3F36D068D42A6138E446152F5
+				68615F28C69BD96A73E354CAC88ED00C )
     </artwork>
     </figure>
 
@@ -1157,7 +1159,7 @@ _443._tcp.w2.example.net.     300 IN TLSA DANE-TA Cert SHA2-256 (
     see <xref target="I-D.ietf-dane-srv" />.
     </t>
 
-  </section>
+  </section><!-- Service Provider and TLSA Publisher Synchronization -->
 
   <section title="Design Considerations for Protocols Using DANE">
 
