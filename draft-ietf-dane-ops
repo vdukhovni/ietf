@@ -360,7 +360,23 @@ in <xref target="RFC2119"/>.
       the client.
     </t>
 
-  </section><!-- DANE-TA(1) -->
+    <t>
+      Another advantage of "DANE-EE(3) SPKI(1)" (with any suitable
+      matching type) TLSA records is that they are compatible with
+      the raw public key TLS extension specified in <xref
+      target="I-D.ietf-tls-oob-pubkey"/>.  DANE clients that support
+      this extension can use this TLSA record to authenticate servers
+      that negotiate the use of raw public keys in place of X.509
+      certificate chains.  Provided the server adheres to the
+      requirements of <xref target="rrreq"/> the fact that raw
+      public keys are not compatible with any other TLSA record
+      types will not get in the way of successful authentication.
+      Clients that employ DANE to authenticate the peer server
+      SHOULD NOT negotiate the use of raw public keys unless
+      the server's TLSA RRset includes compatible TLSA records.
+    </t>
+
+  </section><!-- DANE-EE(3) -->
 
   <section title="Certificate Usage DANE-TA(2)" anchor="type2">
 
@@ -554,7 +570,7 @@ in <xref target="RFC2119"/>.
 
 </section>
 
-<section title="TLSA Publisher requirements" anchor="rrbcp">
+<section title="TLSA Publisher requirements" anchor="rrreq">
 
   <t>
     This section updates <xref target="RFC6698"/> by specifying a
