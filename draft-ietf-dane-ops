@@ -305,6 +305,10 @@ in <xref target="RFC2119"/>.
       In this section the meaning of DANE-EE(3) is updated from
       <xref target="RFC6698"/> to specify peer identity matching and
       validity interval based solely on the basis of the TLSA RRset.
+      We also extend <xref target="RFC6698"/> to cover the use of
+      DANE authentication of raw public keys <xref
+      target="I-D.ietf-tls-oob-pubkey"/> via TLSA records with
+      Certificate Usage DANE-EE(3) and selector SPKI(1).
     </t>
 
     <t>
@@ -368,12 +372,22 @@ in <xref target="RFC2119"/>.
       this extension can use this TLSA record to authenticate servers
       that negotiate the use of raw public keys in place of X.509
       certificate chains.  Provided the server adheres to the
-      requirements of <xref target="rrreq"/> the fact that raw
+      requirements of <xref target="rrreq"/>, the fact that raw
       public keys are not compatible with any other TLSA record
       types will not get in the way of successful authentication.
       Clients that employ DANE to authenticate the peer server
       SHOULD NOT negotiate the use of raw public keys unless
       the server's TLSA RRset includes compatible TLSA records.
+    </t>
+
+    <t>
+      While it is in principle also possible to authenticate raw
+      public keys via "DANE-EE(3) Cert(0) Full(0)" records by
+      extracting the public key from the certificate in DNS, this
+      is in conflict with the indicated selector and requires extra
+      logic on clients that not all implementations are expected to
+      provide.  Servers SHOULD NOT rely on "3 0 0" TLSA records to
+      publish authentication data for raw public keys.
     </t>
 
   </section><!-- DANE-EE(3) -->
