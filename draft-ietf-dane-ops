@@ -754,49 +754,38 @@ specify such a protocol below.
 </t>
 
 <t>
-<!-- XXXWJH: needs better clarity.  -->
 Suppose that a DANE TLS client authenticating a TLS server considers
 digest algorithm "BetterAlg" stronger than digest algorithm "WorseAlg".
 Suppose further that a server's TLSA RRset contains some records
-with "BetterAlg" as the digest algorithm.  Finally, suppose that
-for every raw public key or certificate object that is included in
-the server's TLSA RRset in digest form, whenever that object appears
-with algorithm "WorseAlg" with some usage and selector it also
-appears with algorithm "BetterAlg" with the same usage and selector.
-In that case our client can safely ignore TLSA records with the
-weaker algorithm "WorseAlg", because it suffices to check the records
-with the stronger algorithm "BetterAlg".
+with "BetterAlg" as the digest algorithm.  Suppose also that the
+server adheres to the requirements of <xref target="rrreq"/> and
+ensures that each combination of TLSA parameters contains at least
+one record that matches the server's current certificate chain (or
+raw public keys).  Under the above assumptions the client can safely
+ignore TLSA records with the weaker algorithm "WorseAlg", because
+it suffices to only check the records with the stronger algorithm
+"BetterAlg".
 </t>
 
 <t>
-Server operators MUST ensure that for any given usage and selector,
-each object (certificate or public key), for which a digest association
-exists in the TLSA RRset, is published with the SAME SET of digest
-algorithms as all other objects that published with that usage and
-selector.  In other words, for each usage and selector, the records
-with non-zero matching types will correspond to on a cross-product
-of a set of underlying objects and a fixed set of digest algorithms
-that apply uniformly to all the objects.
+To make digest algorithm agility possible, all published TLSA RRsets
+for use with DANE TLS MUST conform to the requirements of <xref
+target="rrreq"/>.  With servers publishing compliant TLSA RRsets,
+TLS clients can for each combination of usage and selector ignore
+all digest records except those that employ the strongest digest
+algorithm.  The ordering of digest algorithms by strength is not
+specified in advance, it is entirely up to the TLS client.  TLS
+client implementations SHOULD make the digest algorithm preference
+order configurable.  Only the future will tell which algorithms
+might be weakened by new attacks and when.
 </t>
 
 <t>
-To achieve digest algorithm agility, all published TLSA RRsets for use
-with DANE TLS MUST conform to the above
-requirements.  Then, for each combination of usage and selector, TLS
-clients can simply ignore all digest records except those that employ
-the strongest digest algorithm.  The ordering of digest algorithms by
-strength is not specified in advance, it is entirely up to the TLS
-client.  TLS client implementations SHOULD make the
-digest algorithm preference order configurable.  Only the future will
-tell which algorithms might be weakened by new attacks and when.
-</t>
-
-<t>
-Note, TLSA records with a matching type of Full(0), that publish the
-full value of a certificate or public key object, play no role in
-digest algorithm agility.  They neither trump the processing of
-records that employ digests, nor are they ignored in the presence
-of any records with a digest (i.e. non-zero) matching type.
+Note, TLSA records with a matching type of Full(0) that publish an
+entire certificate or public key object play no role in digest
+algorithm agility.  They neither trump the processing of records
+that employ digests, nor are they ignored in the presence of any
+records with a digest (i.e. non-zero) matching type.
 </t>
 
 <t>
@@ -806,40 +795,8 @@ be applied after first discarding any unusable or malformed records
 (unsupported digest algorithm, or incorrect digest length).  Thus,
 for each usage and selector, the client SHOULD process only any
 usable records with a matching type of Full(0) and the usable records
-whose digest algorithm is believed to be the strongest among usable
-records with the given usage and selector.
-</t>
-
-<t>
-The main impact of this requirement is on key rotation, when the
-TLSA RRset is pre-populated with digests of new certificates or
-public keys, before these replace or augment their predecessors.
-Were the newly introduced RRs to include previously unused digest
-algorithms, clients that employ this protocol could potentially
-ignore all the digests corresponding to the current keys or
-certificates, causing connectivity issues until the new keys or
-certificates are deployed.  Similarly, publishing new records with
-fewer digests could cause problems for clients using cached TLSA
-RRsets that list both the old and new objects once the new keys are
-deployed.
-</t>
-
-<t>
-To avoid problems, server operators SHOULD apply the following strategy:
-<list style="symbols">
-<t> When changing the set of objects published via the TLSA RRset
-(e.g. during key rotation), DO NOT change the set of digest algorithms
-used; change just the list of objects. </t>
-<t> When changing the set of digest algorithms, change only the set
-of algorithms, and generate a new RRset in which all the current objects
-are re-published with the new set of digest algorithms. </t>
-</list>
-</t>
-
-<t>
-After either of these two changes are made, the new TLSA RRset
-should be left in place long enough that the older TLSA RRset can
-be flushed from caches before making another change.
+whose digest algorithm is considered by the client to be the strongest
+among usable records with the given usage and selector.
 </t>
 
 </section><!-- Digest algorithm agility -->
