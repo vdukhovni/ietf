@@ -761,14 +761,14 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
 
   <t>
     <!-- XXX: DANEbis: Preferred TLSA base domain with CNAME expansion -->
-    The complexity of coordinating key rollover is largely
+    The complexity of coordinating key management is largely
     eliminated when DANE TLSA records are found in the Service
     Provider's domain, as discussed in <xref target="sync" />.
-    Therefore, DANE TLS clients connecting to a server whose
-    domain name is a CNAME alias SHOULD follow the CNAME hop-by-hop
-    to its ultimate target host (noting at each step whether the
-    CNAME is DNSSEC-validated).  If at each stage of CNAME expansion
-    the DNSSEC validation status is "secure", the final target name
+    Therefore, DANE TLS clients connecting to a server whose domain
+    name is a CNAME alias SHOULD follow the CNAME hop-by-hop to its
+    ultimate target host (noting at each step whether the CNAME is
+    DNSSEC-validated).  If at each stage of CNAME expansion the
+    DNSSEC validation status is "secure", the final target name
     SHOULD be the preferred base domain for TLSA lookups.
   </t>
 
@@ -783,6 +783,13 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
   </t>
 
   <t>
+    When the TLSA base domain is the result of "secure" CNAME
+    expansion, the resulting domain name MUST be used as the HostName
+    in SNI, and MUST be the primary reference identifier for peer
+    certificate matching with certificate usages other than DANE-EE(3).
+  </t>
+
+  <t>
     Protocol-specific TLSA specifications may provide additional
     guidance or restrictions when following CNAME expansions.
   </t>
@@ -790,12 +797,12 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
   <t>
     Though CNAMEs are illegal on the right hand side of most
     indirection records, such as MX and SRV records, they are
-    supported by some implementations.  For example, if the MX
-    or SRV host is a CNAME alias, some implementations may "chase"
-    the CNAME.  They SHOULD use the target hostname as the preferred
-    TLSA base domain as well as the HostName in SNI, provided the
-    CNAME RR is found to be "secure" at each step in the CNAME
-    expansion.
+    supported by some implementations.  For example, if the MX or
+    SRV host is a CNAME alias, some implementations may "chase" the
+    CNAME.  If they do, they SHOULD use the target hostname as the
+    preferred TLSA base domain as described above (and if the TLSA
+    records are found there, use the CNAME expanded domain also in
+    SNI and certificate name checks).
   </t>
 
 </section><!-- TLSA Base Domain and CNAMEs -->
