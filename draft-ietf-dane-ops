@@ -960,6 +960,12 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
     TLSA parameters for all current keys.  Ensure that at all times,
     each combination of parameter values matches the same set of underlying
     objects (trust anchors, leaf certificates or raw public keys).
+    Another way of saying the same thing is that no combination of
+    Certificate Usage, selector and matching type in a server's
+    TLSA RRset should ever match only some combination of future or
+    past keys.  Such combinations of parameters should be removed
+    before corresponding keys are retired, or added only after new
+    keys become active.
   </t>
 
 </section><!-- TLSA RRset best pracice -->
