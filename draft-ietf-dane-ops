@@ -1301,12 +1301,12 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 
     <t>
       TLSA Publishers that publish TLSA Certificate Usage DANE-TA(2)
-      with a digest (not Full(0)) matching type MUST ensure that
-      the corresponding server is configured to also include the
-      trust anchor certificate in its TLS handshake certificate
-      chain, even if that certificate is a self-signed root CA and
-      would have been optional in the context of the existing public
-      CA PKI.
+      associations with selector SPKI(1) or as a digest matching
+      type (not Full(0)) MUST ensure that the corresponding server
+      is configured to also include the trust anchor certificate
+      in its TLS handshake certificate chain, even if that certificate
+      is a self-signed root CA and would have been optional in the
+      context of the existing public CA PKI.
     </t>
 
   </section><!-- Trust anchor digests -->
