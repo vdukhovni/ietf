@@ -624,14 +624,15 @@ in <xref target="RFC2119"/>.
   <t>
     Having the master TLSA record in the Service Provider's zone
     avoids the complexity of bilateral coordination of server
-    certificate configuration and TLSA record management.  Even when
-    the TLSA RRset must be published in the Customer Domain's DNS
-    zone, it is possible to employ CNAME records (see <xref
-    target="cname"/>) to delegate the content of the TLSA RRset to a
-    domain operated by the Service Provider.  Certificate name
-    checks generally constrain the applicability of TLSA CNAMEs
-    across organizational boundaries to Certificate Usages
-    DANE-EE(3) and DANE-TA(2):
+    certificate configuration and TLSA record management.  Even
+    when the TLSA RRset must be published in the Customer Domain's
+    DNS zone, perhaps the client application does not "chase" CNAMEs
+    to set the TLSA base domain, it is possible to employ CNAME
+    records to delegate the content of the TLSA RRset to a domain
+    operated by the Service Provider.  Certificate name checks
+    generally constrain the applicability of TLSA CNAMEs across
+    organizational boundaries to Certificate Usages DANE-EE(3) and
+    DANE-TA(2):
   </t>
 
   <t>
@@ -726,21 +727,24 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
   </figure>
 
   <t>
-    If redirection to the Service Provider's domain (via MX or
-    SRV records or any similar mechanism) is not possible, and
-    aliasing of the TLSA record is not an option, then more complex
-    coordination between the Customer Domain and Service Provider
-    is required.  Either the Customer Domain periodically provides
-    private keys and a corresponding certificate chain to the
-    Provider after making appropriate changes in its TLSA records,
-    or the Service Provider periodically generates the keys and
-    certificates and must wait for matching TLSA records to be
-    published by its Customer Domains before deploying newly
-    generated keys and certificate chains.
+    If redirection to the Service Provider's domain (via MX or SRV
+    records or any similar mechanism) is not possible, and aliasing
+    of the TLSA record is not an option, then more complex coordination
+    between the Customer Domain and Service Provider may be required.
+    Either the Customer Domain periodically provides private keys
+    and a corresponding certificate chain to the Provider after
+    making appropriate changes in its TLSA records, or the Service
+    Provider periodically generates the keys and certificates and
+    must wait for matching TLSA records to be published by its
+    Customer Domains before deploying newly generated keys and
+    certificate chains.  In <xref target="cname"/> below, we describe
+    an approach that employs CNAME "chasing" to avoid the difficulties
+    of coordinating key management across organization boundaries.
   </t>
 
-  <t>For further information about combining DANE and SRV, please
-  see <xref target="I-D.ietf-dane-srv" />.
+  <t>
+    For further information about combining DANE and SRV, please
+    see <xref target="I-D.ietf-dane-srv" />.
   </t>
 
 </section><!-- Service Provider and TLSA Publisher Synchronization -->
