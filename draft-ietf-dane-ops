@@ -292,7 +292,7 @@ in <xref target="RFC2119"/>.
 
 </section><!-- DANE TLSA record overview -->
 
-<section title="TLS Requirements">
+<section title="TLS Requirements" anchor="tlsreq">
 
   <t>
     TLS clients that support DANE/TLSA MUST support at least TLS
@@ -1464,6 +1464,34 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
   </t>
 
 </section>
+
+<section title="Summary of updates to RFC6698">
+
+  <t>
+    <list style="symbols">
+
+    <t>In <xref target="tlsreq"/> we update <xref target="RFC6698"/>
+    to specify a requirement for clients to support at least TLS
+    1.0, and to support SNI. </t>
+
+    <t>In <xref target="type3"/> we update <xref target="RFC6698"/>
+    to specify peer identity matching and certificate validity
+    interval based solely on the basis of the TLSA RRset.  We also
+    specify DANE authentication of raw public keys <xref
+    target="I-D.ietf-tls-oob-pubkey"/> via TLSA records with
+    Certificate Usage DANE-EE(3) and selector SPKI(1). </t>
+
+    <t>In <xref target="type2"/> we update <xref target="RFC6698"/>
+    to require that servers publishing TLSA records with a usage of
+    DANE-TA(2) MUST include the trust-anchor certificate in
+    their TLS server certificate message.  </t>
+
+    <t>[to be continued...]</t>
+
+    </list>
+  </t>
+
+</section><!-- Summary of RFC6698 updates -->
 
 <section anchor="Security" title="Security Considerations">
 
