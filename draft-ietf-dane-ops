@@ -1185,12 +1185,15 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 
     <t>
       When a TLS client goes to the trouble of authenticating a
-      certificate chain presented by a TLS server, it should not
-      continue to use that server in the event of authentication failure,
-      or else authentication serves no purpose.  Servers publishing
-      TLSA records MUST be configured to allow correctly configured
-      clients to successfully authenticate their TLS certificate
-      chains.
+      certificate chain presented by a TLS server, it should typically
+      not continue to use that server in the event of authentication
+      failure, or else authentication serves no purpose.  Some
+      clients may at times operate in an "audit" mode, where
+      authentication failure is reported to the user or in logs as
+      a potential problem, but the connection proceeds despite the
+      failure.  Nevertheless servers publishing TLSA records MUST
+      be configured to allow correctly configured clients to
+      successfully authenticate their TLS certificate chains.
     </t>
 
     <!-- XXX: DANEbis: Opportunistic TLS discovery. -->
@@ -1208,10 +1211,10 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
       server.  Standards for DANE specific to the particular
       application protocol may modify the above as appropriate to
       specify whether the connection should be established anyway
-      without relying on TLS security, with only encryption but
-      not authentication, or whether to refuse to connect entirely.
-      Protocols must choose whether to prioritize security or
-      robustness.
+      without relying on TLS security, with only encryption but not
+      authentication, or whether to refuse to connect entirely.
+      Application protocols need to specify when to prioritize
+      security over the ability to connect under adverse conditions.
     </t>
 
     <section title="Design Considerations for non-PKIX Protocols" anchor="nopki">
