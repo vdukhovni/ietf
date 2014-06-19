@@ -1154,26 +1154,29 @@ among usable records with the given usage and selector.
 
     <figure>
     <artwork>
-  example.com.               300 IN MX 0 mail.example.com.
-  _25._tcp.mail.example.com. 300 IN TLSA DANE-TA Cert SHA2-256  (
-                                 E8B54E0B4BAA815B06D3462D65FBC7C0
-                                 CF556ECCF9F5303EBFBB77D022F834C0 )
+example.com.               IN MX 0 mail.example.com.
+mail.example.com.          IN A 192.0.2.1
+_25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
+			      E8B54E0B4BAA815B06D3462D65FBC7C0
+			      CF556ECCF9F5303EBFBB77D022F834C0 )
     </artwork>
     </figure>
 
     <t>
-      <!-- XXX: should probably state that a mail.example.com is a
-           record and not a CNAME? And more importantly that there is
-           no TLSA record at _25._tcp.example.com itself, or the MUST
-           doesn't apply because either can be used.  Because we
-           select multiple base names in the SMTP draft, so the below
-           doesn't match perfectly unless _25._tcp.example.com doesn't
-           exist. -->
-      The TLSA base domain is "mail.example.com" and this is required to be be the
-      HostName in the client's SNI extension.  The server certificate
-      chain is required to be be signed by a trust anchor with the above certificate
-      SHA2-256 digest.  Finally, one of the DNS names in the server certificate
-      is required to be be either "mail.example.com" or "example.com".
+      The TLSA base domain is "mail.example.com" and this is required
+      to be the HostName in the client's SNI extension.  The server
+      certificate chain is required to be be signed by a trust
+      anchor with the above certificate SHA2-256 digest.  Finally,
+      one of the DNS names in the server certificate is required
+      to be be either "mail.example.com" or "example.com" (this
+      additional name is a concession to compatibility with prior
+      practice, see <xref target="I-D.ietf-dane-smtp-with-dane"/>
+      for details).
+    </t>
+
+    <t>
+      The semantics of wildcards in server certificates are left to
+      individual application protocol specifications.
     </t>
 
   </section>
