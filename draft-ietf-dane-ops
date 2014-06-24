@@ -1160,7 +1160,7 @@ among usable records with the given usage and selector.
     for DANE, regardless of what sort of TLSA record will be used.
   </t>
 
-  <section title="DANE DNS Record Size Guidelines">
+  <section title="DANE DNS Record Size Guidelines" anchor="dns">
 
     <t>
       Selecting a combination of TLSA parameters to use requires
@@ -1220,7 +1220,7 @@ among usable records with the given usage and selector.
 
   </section>
 
-  <section title="Certificate Name Check Conventions">
+  <section title="Certificate Name Check Conventions" anchor="namechecks">
 
     <t>
       Certificates presented by a TLS server will generally contain a
@@ -1484,11 +1484,34 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
     Certificate Usage DANE-EE(3) and selector SPKI(1). </t>
 
     <t>In <xref target="type2"/> we update <xref target="RFC6698"/>
-    to require that servers publishing TLSA records with a usage of
-    DANE-TA(2) MUST include the trust-anchor certificate in
-    their TLS server certificate message.  </t>
+    to require that servers publishing digest TLSA records with a
+    usage of DANE-TA(2) MUST include the trust-anchor certificate
+    in their TLS server certificate message.  This extends to the
+    case of "2 1 0" TLSA records which publish a full public key. </t>
 
-    <t>[to be continued...]</t>
+    <t>In <xref target="type1"/> and <xref target="type0"/>, we explain
+    that PKIX-EE(1) and PKIX-TA(0) are generally NOT RECOMMENDED.
+    With usage PKIX-TA(0) we note that clients may need to processes
+    extended trust chains beyond the first trusted issuer, when
+    that issuer is not self-signed. </t>
+
+    <t> In <xref target="cname"/>, we recommend that DANE application
+    protocols specify that when possible securely CNAME expanded names
+    be used to derive the TLSA base domain. </t>
+
+    <t> In <xref target="rrreq"/>, we specify a strategy for managing
+    TLSA records that interoperates with DANE clients regardless
+    of what subset of the possible TLSA record types (combinations
+    of TLSA parameters) is supported by the client. </t>
+
+    <t> In <xref target="agility"/>, we propose a digest algorithm
+    agility protocol.  [Note: This section does not yet represent
+    the rough consensus of the DANE working group and requires further
+    discussion.  Perhaps this belongs in a separate document.] </t>
+
+    <t> In <xref target="dns"/> we recommend against the use of
+    Full(0) TLSA records, as digest records are generally much more
+    compact. </t>
 
     </list>
   </t>
