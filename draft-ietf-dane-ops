@@ -57,7 +57,7 @@
 <t>
 This memo clarifies and updates the DANE TLSA protocol based on
 implementation experience since the publication of the original
-specification <xref target="RFC6698"/>.  It also contains
+DANE specification in <xref target="RFC6698"/>.  It also contains
 guidance for DANE implementers and operators.
 </t>
 
@@ -70,20 +70,21 @@ guidance for DANE implementers and operators.
 
   <t>
     <xref target="RFC6698"/> specifies a new DNS resource record
-    "TLSA" which associates with a TLS transport endpoint corresponding
-    trusted leaf or issuing authority certificates or public keys.
-    DNSSEC-validated DANE TLSA records can be used to augment or
-    replace the trust model of the existing public Certification
-    Authority (CA) Public Key Infrastructure (PKI).
+    "TLSA" that associates a public certificate or public key of a
+    trusted leaf or issuing authority with the corresponding TLS
+    transport endpoint.  These DANE TLSA records, when validated by
+    DNSSEC, can be used to augment or replace the trust model of the
+    existing public Certification Authority (CA) Public Key
+    Infrastructure (PKI).
   </t>
 
   <t>
     <xref target="RFC6698"/> defines three TLSA record fields with
-    respectively 4, 2 and 3 specified values that yield 24 distinct
-    combinations of TLSA record types.  So many options can lead
-    to implementation and operational complexity.  This memo will
-    recommend best-practice choices to simplify implementation and
-    deployment.
+    respectively 4, 2 and 3 currently specified values.  These yield
+    24 distinct combinations of TLSA record types.  This many options
+    have been lead to implementation and operational complexity.  This
+    memo will recommend best-practice choices to help simplify
+    implementation and deployment given these plethora of choices.
   </t>
 
   <t>
@@ -120,7 +121,7 @@ guidance for DANE implementers and operators.
   </t>
 
   <t>
-    Related documents that build on <xref target="RFC6698"/> are
+    Other related documents that build on <xref target="RFC6698"/> are
     <xref target="I-D.ietf-dane-srv"/> and <xref
     target="I-D.ietf-dane-smtp-with-dane"/>.  In <xref target="updates"/>
     we summarize the updates this document makes to <xref
