@@ -319,13 +319,15 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 
 </section><!-- DANE TLSA record overview -->
 
-<section title="TLS Requirements" anchor="tlsreq">
+<section title="DANE TLS Requirements" anchor="tlsreq">
 
   <t>
-    TLS clients that support DANE/TLSA MUST support at least TLS
-    1.0 and SHOULD support TLS 1.2.  TLS clients and servers using
-    DANE SHOULD support the "Server Name Indication" (SNI) extension
-    of TLS.
+    <xref target="RFC6698"/> does not discuss what versions of TLS are
+    required when using DANE records.  This document specifies that
+    TLS clients that support DANE/TLSA MUST support at least TLS 1.0
+    and SHOULD support TLS 1.2.  TLS clients and servers using DANE
+    SHOULD support the "Server Name Indication" (SNI) extension of
+    TLS.
   </t>
 
 </section><!-- TLS Requirements -->
