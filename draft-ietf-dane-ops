@@ -335,18 +335,19 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 <section title="Certificate-Usage-specific DANE updates and guidelines">
 
   <t>
-    The four Certificate Usages DANE-EE(3), DANE-TA(2), PKIX-EE(1) and
-    PKIX-TA(0) are discussed below.
+    The four Certificate Usage values from the TLSA record,
+    DANE-EE(3), DANE-TA(2), PKIX-EE(1) and PKIX-TA(0), are discussed
+    below.
   </t>
 
   <section title="Certificate Usage DANE-EE(3)" anchor="type3">
 
     <t>
-      In this section the meaning of DANE-EE(3) is updated from
-      <xref target="RFC6698"/> to specify peer identity matching and
-      validity interval based solely on the basis of the TLSA RRset.
-      We also extend <xref target="RFC6698"/> to cover the use of
-      DANE authentication of raw public keys <xref
+      In this section the meaning of DANE-EE(3) is updated from <xref
+      target="RFC6698"/> to specify that peer identity matching and
+      that validity interval compliance is based solely on the TLSA
+      RRset properties.  We also extend <xref target="RFC6698"/> to
+      cover the use of DANE authentication of raw public keys <xref
       target="I-D.ietf-tls-oob-pubkey"/> via TLSA records with
       Certificate Usage DANE-EE(3) and selector SPKI(1).
     </t>
@@ -354,7 +355,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
     <t>
       Authentication via certificate usage DANE-EE(3) TLSA records
       involves simply checking that the server's leaf certificate
-      matches the TLSA record.  In particular the binding of the server
+      matches the TLSA record.  In particular, the binding of the server
       public key to its name is based entirely on the TLSA record
       association.  The server MUST be considered authenticated even
       if none of the names in the certificate match the client's
@@ -363,21 +364,22 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 
     <t>
       Similarly, with DANE-EE(3), the expiration date of the server
-      certificate MUST be ignored, the validity period of the TLSA
+      certificate MUST be ignored. The validity period of the TLSA
       record key binding is determined by the validity interval of
-      the TLSA record DNSSEC signature.
+      the TLSA record DNSSEC signatures.
     </t>
 
     <t>
-      With DANE-EE(3) servers need not employ SNI (may ignore the
-      client's SNI message) even when the server is known under
-      multiple domain names that would otherwise require separate
-      certificates.  It is instead sufficient for the TLSA RRsets for
-      all the domain names in question to match the server's primary
-      certificate.  For application protocols where the server name
-      is obtained indirectly via SRV, MX or similar records, it is
-      simplest to publish a single hostname as the target server
-      name for all the hosted domains.
+      With DANE-EE(3) servers that know all the connecting clients are
+      making use of DANE, they need not employ SNI (i.e., the may
+      ignore the client's SNI message) even when the server is known
+      under multiple domain names that would otherwise require
+      separate certificates.  It is instead sufficient for the TLSA
+      RRsets for all the domain names in question to match the
+      server's primary certificate.  For application protocols where
+      the server name is obtained indirectly via SRV, MX or similar
+      records, it is simplest to publish a single hostname as the
+      target server name for all the hosted domains.
     </t>
 
     <t>
@@ -387,21 +389,20 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
       associations in preference to other choices of certificate
       usage.  DANE-EE(3) TLSA records support multiple server names
       without SNI, don't suddenly stop working when leaf or intermediate
-      certificates expire, and don't fail when the server operator
-      neglects to configure all the required issuer certificates in
+      certificates expire, and don't fail when a server operator
+      neglects to include all the required issuer certificates in
       the server certificate chain.
     </t>
 
     <t>
       TLSA records published for DANE servers SHOULD, as a best
       practice, be "DANE-EE(3) SPKI(1) SHA2-256(1)" records.  Since
-      all DANE implementations are required to support SHA2-256,
-      this record type works for all clients and need not change
-      across certificate renewals with the same key.  With no name
-      checks required, this TLSA record type supports hosting
-      arrangements with a single certificate matching all hosted
-      domains!  It is also the easiest to implement correctly in
-      the client.
+      all DANE implementations are required to support SHA2-256, this
+      record type works for all clients and need not change across
+      certificate renewals with the same key.  This TLSA record type
+      easily supports hosting arrangements with a single certificate
+      matching all hosted domain.  It is also the easiest to implement
+      correctly in the client.
     </t>
 
     <t>
@@ -409,7 +410,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
       matching type) TLSA records is that they are compatible with
       the raw public key TLS extension specified in <xref
       target="I-D.ietf-tls-oob-pubkey"/>.  DANE clients that support
-      this extension can use this TLSA record to authenticate servers
+      this extension can use the TLSA record to authenticate servers
       that negotiate the use of raw public keys in place of X.509
       certificate chains.  Provided the server adheres to the
       requirements of <xref target="rrreq"/>, the fact that raw
@@ -421,13 +422,16 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
     </t>
 
     <t>
-      While it is in principle also possible to authenticate raw
+      While it is, in principle, also possible to authenticate raw
       public keys via "DANE-EE(3) Cert(0) Full(0)" records by
       extracting the public key from the certificate in DNS, this
-      is in conflict with the indicated selector and requires extra
+      is in conflict <!-- XXX: state how; cause it doesn't require the
+      full comparison of the full value I assume? -->
+      with the indicated selector and requires extra
       logic on clients that not all implementations are expected to
-      provide.  Servers SHOULD NOT rely on "3 0 0" TLSA records to
-      publish authentication data for raw public keys.
+      provide.  Servers SHOULD NOT rely on "DANE-EE(3) Cert(0)
+      Full(0)" TLSA records to publish authentication data for raw
+      public keys.
     </t>
 
   </section><!-- DANE-EE(3) -->
