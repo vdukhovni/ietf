@@ -441,20 +441,10 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
     <t>
       This section updates <xref target="RFC6698"/> by specifying
       a new operational requirement for servers publishing TLSA
-      records with a usage of DANE-TA(2).  Such servers MUST include
+      records with a usage of DANE-TA(2): such servers MUST include
       the trust-anchor certificate in their TLS server certificate
       message.
     </t>
-
-    <!-- XXXWJH: should we specify this is true only if the EE cert is
-    expected to roll more frequently than the TA key, as otherwise
-    it's mostly useless to use type 2 -->
-
-    <!-- XXXVD:  Even if the TA is rolled frequently, once the server's
-     TLSA CNAME is in place, the operational burden of DNS updates is on
-     the TA administrator (before issuing new certs under the TA), not the
-     service administrator, and is done once per TA rollover, not once per
-     server.  So I think the consirations below stand. -->
 
     <t>
       Some domains may prefer to avoid the operational complexity
@@ -467,6 +457,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
       prefix labels) for each service issued by the same TA may
       then be set to a CNAME alias that points to a common TLSA
       RRset that matches the TA.  For example:
+      <!-- XXXWJH: but this is possible for DANE-EE too... -->
     </t>
 
     <figure>
@@ -482,7 +473,7 @@ tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
     <t>
       With usage DANE-TA(2) the server certificates will need to
       have names that match one of the client's reference identifiers
-      (see <xref target="RFC6125"/>).  The server MAY employ SNI
+      (see <xref target="RFC6125"/>).  The server SHOULD employ SNI
       to select the appropriate certificate to present to the client.
     </t>
 
@@ -498,7 +489,8 @@ tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
 	will need to transmit the TA certificate in any case, server
 	operators SHOULD publish TLSA records with a selector other
 	than Full(0) and avoid potential DNS interoperability issues
-	with large TLSA records containing full certificates or keys.
+	with large TLSA records containing full certificates or keys
+	(see <xref target="sizeissues" />).
       </t>
 
       <t>
@@ -1176,7 +1168,7 @@ among usable records with the given usage and selector.
       parameters are selected.
     </t>
 
-    <section title="UDP and TCP Considerations">
+    <section title="UDP and TCP Considerations" anchor="sizeissues">
 
       <t>
         Deployments SHOULD avoid TLSA record sizes that cause UDP
