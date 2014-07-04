@@ -949,7 +949,7 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
     certificate chain is matched by any of the published TLSA
     records, not all clients support all combinations of TLSA record
     parameters.  Some clients may not support some digest algorithms,
-    others may either not support or else exclusively support the
+    others may either not support, or may exclusively support, the
     PKIX Certificate Usages.  Some clients may prefer to negotiate
     <xref target="I-D.ietf-tls-oob-pubkey"/> raw public keys, which
     are only compatible with TLSA records whose Certificat Usage is
@@ -960,8 +960,8 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
     A consequence of the above uncertainty as to which TLSA parameters
     are supported by any given client is that servers need to ensure that
     each and every parameter combination that appears in the TLSA RRset
-    is on its own sufficient to match the server's current certificate
-    chain.  In particular when deploying new keys or new parameter
+    is, on its own, sufficient to match the server's current certificate
+    chain.  In particular, when deploying new keys or new parameter
     combinations some care is required to not generate parameter
     combinations that only match past or future certificate chains
     (or raw public keys).  The rest of this section explains how to
@@ -969,33 +969,36 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
     is met.
   </t>
 
+<section title="Rolling a Key Without Changing TLSA Parameters">
+
   <t>
      The simplest case is key rollover while retaining the same set
      of published parameter combinations.  In this case, TLSA records
      matching the existing server certificate chain (or raw public
      keys) are first augmented with corresponding records matching
-     the future keys, at least one TTL (preferably longer) before
-     the the new chain is deployed, this allows the obsolete RRset
+     the future keys, at least two TTLs or longer before
+     the the new chain is deployed.  This allows the obsolete RRset
      to age out of client caches before the new chain is used in
      TLS handshakes.  Once sufficient time has elapsed and all
-     clients performing DNS lookups see the updated TLSA records,
+     clients performing DNS lookups are retrieving the updated TLSA records,
      the server administrator may deploy the new certificate chain,
-     verify that it works, and shortly thereafter remove any obsolete
+     verify that it works, and then remove any obsolete
      records matching the no longer active chain:
   </t>
 
   <figure>
     <artwork>
-; Initial TLSA RRset
+; The initial TLSA RRset
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 
-; Transitional TLSA RRset at least 1 TTL before key change
+; The transitional TLSA RRset published at least 2*TTL seconds
+; before the actual key change
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
 
-; Final TLSA RRset after key change
+; The final TLSA RRset after the key change
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
     </artwork>
@@ -1020,11 +1023,14 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
     </artwork>
   </figure>
 
+</section><!-- Rolling a Key Without Changing TLSA Parameters -->
+<section title="Switching to DANE-CA from DANE-EE">
+
   <t>
      A more complex involves switching to a trust-anchor or PKIX
      usage from a chain that is either self-signed, or issued by
      a private CA and thus not compatible with PKIX.  Here the
-     process is to first add TLSA records matching the futre
+     process is to first add TLSA records matching the future
      chain that is issued by the desired future CA (private or
      PKIX), but initially with the same parameters as the legacy
      chain.  Then, after deploying the new keys, switch to the
@@ -1033,43 +1039,46 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 
   <figure>
     <artwork>
-; Initial TLSA RRset
+; The initial TLSA RRset
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 
-; Transitional TLSA RRset at least 1 TTL before key change
-; New keys issued by a DANE-TA(2) CA, for now specified via
-; a DANE-EE(3) association.
+; A transitional TLSA RRset, published at least 2*TTL before the
+; actual key change.  The new keys are issued by a DANE-TA(2) CA, 
+; but for now specified via a DANE-EE(3) association.
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
 
-; Final TLSA RRset after key change, now that the old self-signed
-; EE keys are not an impediment, specify the issuing TA of the new
-; keys.
+; The final TLSA RRset after the key change.  Now that the old
+; self-signed EE keys are not an impediment, specify the issuing
+; TA of the new keys.
 ;
 _443._tcp.www.example.org. IN TLSA 2 0 1 c57bce38455d9e3d...
     </artwork>
   </figure>
+</section>
 
+<section title="Switching to new TLSA Parameters">
   <t>
-    Similarly, for compatibility with digest agility specified in
-    <xref target="agility"/> below, when employing a new digest
-    algorithm in the TLSA RRset, publish the new digest algorithm with
-    each combinations of Certificate Usage and selector and for each
-    associated key or chain used with any other digest algorithm.
-    When removing an algorithm remove it entirely.  Each digest algorithm
-    employed should match the same set of chains (or raw public keys).
+    When employing a new digest algorithm in the TLSA RRset, for
+    compatibility with digest agility specified in <xref
+    target="agility"/> below, administrators should publish the new
+    digest algorithm with each combinations of Certificate Usage and
+    selector for each associated key or chain used with any other
+    digest algorithm.  When removing an algorithm, remove it entirely.
+    Each digest algorithm employed should match the same set of chains
+    (or raw public keys).
   </t>
 
   <figure>
     <artwork>
-; Initial TLSA RRset with EE SHA2-256 associations for two keys.
+; The initial TLSA RRset with EE SHA2-256 associations for two keys.
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
 
-; New TLSA RRset also with SHA2-512 associations for each key
+; The new TLSA RRset also with SHA2-512 associations for each key
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 _443._tcp.www.example.org. IN TLSA 3 1 2 d9947c35089310bc...
@@ -1077,7 +1086,8 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
 _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
     </artwork>
   </figure>
-
+</section><!-- Switching to new TLSA Parameters -->
+<section title="TLSA RRset Best Practice Summary">
   <t>
     In summary, server operators updating TLSA records should make
     one change at a time.  Either pre-publish new keys with existing
@@ -1092,7 +1102,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
     before corresponding keys are retired, or added only after new
     keys become active.
   </t>
-
+</section><!-- TLSA RRset Best Practice Summary -->
 </section><!-- TLSA RRset best pracice -->
 
 <section title="Digest algorithm agility" anchor="agility">
