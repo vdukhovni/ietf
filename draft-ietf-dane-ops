@@ -750,8 +750,8 @@ already possess it in order to validate it in any case.
     avoids the complexity of bilateral coordination of server
     certificate configuration and TLSA record management.  Even
     when the TLSA RRset must be published in the Customer Domain's
-    DNS zone, perhaps the client application does not "chase" CNAMEs
-    to set the TLSA base domain, it is possible to employ CNAME
+    DNS zone (perhaps the client application does not "chase" CNAMEs
+    to the TLSA base domain), it is possible to employ CNAME
     records to delegate the content of the TLSA RRset to a domain
     operated by the Service Provider.  Certificate name checks
     generally constrain the applicability of TLSA CNAMEs across
@@ -795,8 +795,8 @@ already possess it in order to validate it in any case.
 
   <figure>
   <artwork>
-; Hosted web service redirected via a CNAME alias.
-; Associated TLSA RRset redirected via a CNAME alias.
+; The hosted web service is redirected via a CNAME alias.
+; The associated TLSA RRset is also redirected via a CNAME alias.
 ;
 ; A single certificate at the provider works for all Customer
 ; Domains due to the use of the DANE-EE(3) Certificate Usage.
@@ -806,9 +806,10 @@ _443._tcp.www1.example.com.  IN CNAME _443._tcp.w1.example.net.
 _443._tcp.w1.example.net.    IN TLSA DANE-EE SPKI SHA2-256 (
                                 8A9A70596E869BED72C69D97A8895DFA
                                 D86F300A343FECEFF19E89C27C896BC9 )
+
 ;
 ; A CA at the provider can also issue certificates for each Customer
-; Domain, and use the DANE-TA certificate usage type to
+; Domain, and use the DANE-TA(2) Certificate Usage type to
 ; indicate a trust anchor.
 ;
 www2.example.com.            IN CNAME w2.example.net.
@@ -825,8 +826,8 @@ _443._tcp.w2.example.net.    IN TLSA DANE-TA Cert SHA2-256 (
     With protocols that support explicit transport redirection
     via DNS MX records, SRV records, or other similar records,
     the TLSA base domain is based on the redirected transport
-    end-point, rather than the origin domain.  With SMTP for
-    example, when email service is hosted by a Service Provider,
+    end-point, rather than the origin domain.  With SMTP, for
+    example, when an email service is hosted by a Service Provider,
     the Customer Domain's MX hostnames will point at the Service
     Provider's SMTP hosts.  When the Customer Domain's DNS zone
     is signed, the MX hostnames can be securely used as the base
@@ -854,10 +855,10 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
     If redirection to the Service Provider's domain (via MX or SRV
     records or any similar mechanism) is not possible, and aliasing
     of the TLSA record is not an option, then more complex coordination
-    between the Customer Domain and Service Provider may be required.
+    between the Customer Domain and Service Provider will be required.
     Either the Customer Domain periodically provides private keys
-    and a corresponding certificate chain to the Provider after
-    making appropriate changes in its TLSA records, or the Service
+    and a corresponding certificate chain to the Provider (after
+    making appropriate changes in its TLSA records), or the Service
     Provider periodically generates the keys and certificates and
     must wait for matching TLSA records to be published by its
     Customer Domains before deploying newly generated keys and
