@@ -1131,17 +1131,22 @@ it suffices to only check the records with the stronger algorithm
 "BetterAlg".
 </t>
 
+<!-- XXXWJH: the problem is that rrreq isn't really structured in
+terms of requirements as much as it examples.  This should probably be
+cleaned up to make it more normative in what you must do, rather than
+simply show examples.  Need to go back and see if there are proper
+MUST/SHOULD/MAYs; maybe my memory of what I just read is bad. -->
 <t>
 To make digest algorithm agility possible, all published TLSA RRsets
 for use with DANE TLS MUST conform to the requirements of <xref
-target="rrreq"/>.  With servers publishing compliant TLSA RRsets,
-TLS clients can for each combination of usage and selector ignore
-all digest records except those that employ the strongest digest
-algorithm.  The ordering of digest algorithms by strength is not
-specified in advance, it is entirely up to the TLS client.  TLS
+target="rrreq"/>.  With servers publishing compliant TLSA RRsets, TLS
+clients can, for each combination of usage and selector, ignore all
+digest records except those that employ their notion of the strongest
+digest algorithm.  (The server should only publish algorithms it deems
+acceptable at all.)  The ordering of digest algorithms by strength is
+not specified in advance; it is entirely up to the TLS client.  TLS
 client implementations SHOULD make the digest algorithm preference
-order configurable.  Only the future will tell which algorithms
-might be weakened by new attacks and when.
+ordering a configurable option.
 </t>
 
 <t>
@@ -1150,6 +1155,8 @@ entire certificate or public key object play no role in digest
 algorithm agility.  They neither trump the processing of records
 that employ digests, nor are they ignored in the presence of any
 records with a digest (i.e. non-zero) matching type.
+<!-- XXXWJH: sort of stops short of specifying what you should do when
+you encounter both digest and full; this needs to be specified -->
 </t>
 
 <t>
