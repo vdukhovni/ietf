@@ -82,7 +82,7 @@ guidance for DANE implementers and operators.
     <xref target="RFC6698"/> defines three TLSA record fields with
     respectively 4, 2 and 3 currently specified values.  These yield
     24 distinct combinations of TLSA record types.  This many options
-    have been lead to implementation and operational complexity.  This
+    have lead to implementation and operational complexity.  This
     memo will recommend best-practice choices to help simplify
     implementation and deployment given these plethora of choices.
   </t>
@@ -401,7 +401,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
       record type works for all clients and need not change across
       certificate renewals with the same key.  This TLSA record type
       easily supports hosting arrangements with a single certificate
-      matching all hosted domain.  It is also the easiest to implement
+      matching all hosted domains.  It is also the easiest to implement
       correctly in the client.
     </t>
 
@@ -517,10 +517,11 @@ tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
     <section title="Trust anchor digests and server certificate chain">
 
       <t>
-	With DANE-TA(2) (TLSA records should match the digest of a TA
-	certificate or public key), a complication arises when the TA
-	certificate is omitted from the server's certificate chain,
-	perhaps on the basis of Section 7.4.2 of <xref target="RFC5246"/>:
+	With DANE-TA(2) (these TLSA records are expected to match
+	the digest of a TA certificate or public key), a complication
+	arises when the TA certificate is omitted from the server's
+	certificate chain, perhaps on the basis of Section 7.4.2
+	of <xref target="RFC5246"/>:
       </t>
 
       <figure>
@@ -1024,7 +1025,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
   </figure>
 
 </section><!-- Rolling a Key Without Changing TLSA Parameters -->
-<section title="Switching to DANE-CA from DANE-EE">
+<section title="Switching to DANE-TA from DANE-EE">
 
   <t>
      A more complex involves switching to a trust-anchor or PKIX
