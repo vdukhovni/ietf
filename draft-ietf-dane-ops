@@ -969,7 +969,7 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
     is met.
   </t>
 
-<section title="Rolling a Key Without Changing TLSA Parameters">
+<section title="Rolling a Key Without Changing TLSA Parameters" anchor="rollkey">
 
   <t>
      The simplest case is key rollover while retaining the same set
@@ -1176,7 +1176,7 @@ among usable records with the given usage and selector.
 
   <t>
     These guidelines provide guidance for using or designing protocols
-    for DANE, regardless of what sort of TLSA record will be used.
+    for DANE.
   </t>
 
   <section title="DANE DNS Record Size Guidelines" anchor="dns">
@@ -1201,7 +1201,9 @@ among usable records with the given usage and selector.
         not universally deployed and is still prohibited by some
         firewalls.  Clients that request DNS records via UDP typically
         only use TCP upon receipt of a truncated response in the DNS
-        response message sent over UDP.
+        response message sent over UDP.  Setting the TC bit alone will
+        be insufficient if the response containing the TC bit is
+        itself fragmented.
       </t>
 
     </section>
@@ -1215,7 +1217,8 @@ among usable records with the given usage and selector.
         as even a single certificate is generally too large to be
         reliably delivered via DNS over UDP.  Furthermore, two TLSA
         records containing full certificates will need to be published
-        simultaneously during a certificate rollover.
+        simultaneously during a certificate rollover, as discussed in
+        <xref target="rollkey" />.
       </t>
 
       <t>
@@ -1226,7 +1229,8 @@ among usable records with the given usage and selector.
 	larger than necessary.  Rather, servers SHOULD publish digest-based
 	TLSA Matching Types in their TLSA records.
         The complete corresponding certificate should, instead, be
-        transmitted to the client in-band during the TLS handshake.
+        transmitted to the client in-band during the TLS handshake,
+        which can be easily verified using the digest value.
       </t>
 
       <t>
