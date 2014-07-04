@@ -517,10 +517,10 @@ tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
     <section title="Trust anchor digests and server certificate chain">
 
       <t>
-	With DANE-TA(2) TLSA records that match the digest of a TA
-	certificate or public key, a complication arises when the TA
+	With DANE-TA(2) (TLSA records should match the digest of a TA
+	certificate or public key), a complication arises when the TA
 	certificate is omitted from the server's certificate chain,
-	perhaps on the basis of section 7.4.2 of <xref target="RFC5246"/>:
+	perhaps on the basis of Section 7.4.2 of <xref target="RFC5246"/>:
       </t>
 
       <figure>
@@ -536,9 +536,9 @@ already possess it in order to validate it in any case.
       </figure>
 
       <t>
-	With TLSA Certificate Usage DANE-TA(2),there is no expectation
+	With TLSA Certificate Usage DANE-TA(2), there is no expectation
 	that the client is pre-configured with the trust anchor
-	certificate.  Client implementations are free to ignore all
+	certificate.  In fact, client implementations are free to ignore all
 	locally configured trust anchors when processing usage
 	DANE-TA(2) TLSA records and may rely exclusively on the
 	certificicates provided in the server's certificate chain.
@@ -551,12 +551,13 @@ already possess it in order to validate it in any case.
 
       <t>
 	TLSA Publishers that publish TLSA Certificate Usage DANE-TA(2)
-	associations with selector SPKI(1) or as a digest matching
-	type (not Full(0)) MUST ensure that the corresponding server
-	is configured to also include the trust anchor certificate
-	in its TLS handshake certificate chain, even if that certificate
-	is a self-signed root CA and would have been optional in the
-	context of the existing public CA PKI.
+	associations with a selector of SPKI(1) or using a
+	digest-based matching type (not Full(0)) MUST ensure that the
+	corresponding server is configured to also include the trust
+	anchor certificate in its TLS handshake certificate chain,
+	even if that certificate is a self-signed root CA and would
+	have been optional in the context of the existing public CA
+	PKI.
       </t>
 
     </section><!-- "Trust anchor digests and server certificate chain" -->
@@ -566,7 +567,7 @@ already possess it in order to validate it in any case.
       <!-- XXX: DANEbis: clarify "IN TLSA 2 1 0" requirements. -->
       <t>
 	TLSA records with TLSA Certificate Usage DANE-TA(2), selector
-	SPKI(1) and a matching type of Full(0) publish the full public
+	SPKI(1) and a matching type of Full(0) will publish the full public
 	key of a trust anchor via DNS.  In section 6.1.1 of <xref
 	target="RFC5280"/> the definition of a trust anchor consists
 	of the following four parts:
@@ -582,12 +583,12 @@ already possess it in order to validate it in any case.
 
       <t>
 	Items 2&ndash;4 are precisely the contents of the subjectPublicKeyInfo
-	published in the TLSA record, but the issuer name is not included
-	in the public key.
+	published in the TLSA record.  The issuer name is not included
+	in the subjectPublicKeyInfo.
       </t>
 
       <t>
-	With TLSA Certificate Usage DANE-TA(2), the client need not
+	With TLSA Certificate Usage DANE-TA(2), the client may not
 	have the associated trust anchor certificate, and cannot generally
 	verify whether a particular certificate chain is "issued by"
 	the trust anchor described in the TLSA record.
@@ -598,13 +599,13 @@ already possess it in order to validate it in any case.
 	whose public key matches the TLSA record, the client can
 	match that CA as the intended issuer.  Otherwise, the client
 	can only check that the topmost certificate in the server's
-	chain is "signed by" the trust anchor public key in the
+	chain is "signed by" the trust anchor's public key in the
 	TLSA record.  Such a check may be difficult to implement,
 	and cannot be expected to be supported by all clients.
       </t>
 
       <t>
-	Servers should not rely on "DANE-TA(2) SPKI(1) Full(0)"
+	Thus, servers should not rely on "DANE-TA(2) SPKI(1) Full(0)"
 	TLSA records to be sufficient to authenticate chains issued
 	by the associated public key in the absense of a corresponding
 	certificate in the server's TLS certificate message.  Servers
@@ -613,8 +614,9 @@ already possess it in order to validate it in any case.
 
       <t>
 	If none of the server's certificate chain elements match a
-	public key specified in full in a TLSA record, and at least
-	one "2 1 0" TLSA record is available, clients are encouraged
+	public key specified in a TLSA record, and at least
+	one "DANE-TA(2) SPKI(1) Full(0)" TLSA record is available,
+        clients are encouraged
 	to check whether the topmost certificate in the chain is
 	signed by the provided public key and has not expired, and
 	in that case consider the server authenticated, provided
