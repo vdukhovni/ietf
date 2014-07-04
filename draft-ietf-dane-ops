@@ -1555,6 +1555,8 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 
 <section anchor="Security" title="Security Considerations">
 
+  <!-- XXXWJH: this section seems a bit weak and short, considering
+  the security ramifications of everything being discussed -->
   <t>
     Application protocols that cannot make use of the existing public
     CA PKI (so called non-PKIX protocols), may choose not to implement
