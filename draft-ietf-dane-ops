@@ -1339,10 +1339,10 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 
     <t>
       When a TLS client goes to the trouble of authenticating a
-      certificate chain presented by a TLS server, it should typically
+      certificate chain presented by a TLS server, it will typically
       not continue to use that server in the event of authentication
       failure, or else authentication serves no purpose.  Some
-      clients may at times operate in an "audit" mode, where
+      clients may, at times, operate in an "audit" mode, where
       authentication failure is reported to the user or in logs as
       a potential problem, but the connection proceeds despite the
       failure.  Nevertheless servers publishing TLSA records MUST
@@ -1352,18 +1352,21 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 
     <!-- XXX: DANEbis: Opportunistic TLS discovery. -->
     <t>
-      A service with DNSSEC-validated TLSA records implicitly
-      promises TLS support.  When all the TLSA records for a service
-      are found "unusable", due to unsupported parameter combinations
-      or malformed associated data, DANE clients cannot authenticate
-      the service certificate chain.  When authenticated TLS is
-      dictated by the application, the client SHOULD NOT connect
-      to the associated server.  If, on the other hand, the use of
-      TLS is "opportunistic", then the client SHOULD generally use
-      the server via an unauthenticated TLS connection, but if TLS
-      encryption cannot be established, the client MUST NOT use the
-      server.  Standards for DANE specific to the particular
-      application protocol may modify the above as appropriate to
+      <!-- XXXWJH: Err....  I'm not sure we can say this generically;
+           smtp, sure, but I'm not sure the WG agreed to it completely -->
+      <!-- XXXWJH: this defines unusable to include broken hashes??? -->
+      A service with DNSSEC-validated TLSA records implicitly promises
+      TLS support.  When all the TLSA records for a service are found
+      "unusable", due to unsupported parameter combinations or
+      malformed associated data, DANE clients cannot authenticate the
+      service certificate chain.  When authenticated TLS is dictated
+      by the application, the client SHOULD NOT connect to the
+      associated server.  If, on the other hand, the use of TLS is
+      "opportunistic", then the client SHOULD generally use the server
+      via an unauthenticated TLS connection, but if TLS encryption
+      cannot be established, the client MUST NOT use the server.
+      Standards for DANE specific to the particular application
+      protocol may modify the above requirements, as appropriate, to
       specify whether the connection should be established anyway
       without relying on TLS security, with only encryption but not
       authentication, or whether to refuse to connect entirely.
