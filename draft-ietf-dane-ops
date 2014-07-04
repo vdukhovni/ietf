@@ -1247,17 +1247,11 @@ among usable records with the given usage and selector.
 
     <t>
       Certificates presented by a TLS server will generally contain a
-      subjectAltName (SAN) extension or a Common Name (CN) element in
-      the subject distinguished name (DN).  The server's DNS domain name
+      subjectAltName (SAN) extension or a Common Name (CN) element within
+      the subject distinguished name (DN).  The TLS server's DNS domain name
       is normally published within these elements, ideally within the
-      subjectAltName extension. (Use of the CN field for this purpose
+      subjectAltName extension. (The use of the CN field for this purpose
       is deprecated.)
-      <!--- XXXWJH: Removed this sentence, as it's not within scope of
-          the document and restates what is defined in PKIX
-          processing:
-
-          Name checks SHOULD NOT consider the subject CN when SAN
-          values of type 'dns' are present. -->
     </t>
 
     <t>
@@ -1267,6 +1261,19 @@ among usable records with the given usage and selector.
       certificate chain is predicated on correct SNI information
       from the client.  DANE clients MUST send the SNI extension
       with a HostName value of the base domain of the TLSA RRset.
+
+      <!-- XXXWJH: but if we select the base name as the original name
+           because of dnssec failures in the middle, then this won't
+           work.  Consider a type 3 cert, where we fall back to the
+           initial name because of broken middle-ness.  But the server
+           is still expecting the final name, and may return some
+           other random cert if it doesn't know the initial name. IE, The
+           client will send one of two SNI values and the server may
+           only understand one and may return a default cert that
+           matches neither.  If they had requested the final name and
+           it worked, the type3 local tlsa could still match.  This is
+           not really a suggested solution, just thinking outloud about
+           problems. --> 
     </t>
 
     <t>
@@ -1309,7 +1316,7 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
     </figure>
 
     <t>
-      The TLSA base domain is "mail.example.com" and this is required
+      The TLSA base domain is "mail.example.com" and is required
       to be the HostName in the client's SNI extension.  The server
       certificate chain is required to be be signed by a trust
       anchor with the above certificate SHA2-256 digest.  Finally,
@@ -1323,9 +1330,10 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
     <t>
       The semantics of wildcards in server certificates are left to
       individual application protocol specifications.
+      <!-- seems like a cop-out without stating why -->
     </t>
 
-  </section>
+  </section><!-- Certificate Name Check Conventions -->
 
   <section title="Design Considerations for Protocols Using DANE">
 
