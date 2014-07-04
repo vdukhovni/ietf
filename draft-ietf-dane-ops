@@ -195,7 +195,7 @@ guidance for DANE implementers and operators.
 
 </section><!-- Introduction -->
 
-<section title="DANE TLSA record overview">
+<section title="DANE TLSA Record Overview">
 
   <t>
     DANE TLSA <xref target="RFC6698"/> specifies a protocol for
@@ -332,7 +332,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 
 </section><!-- TLS Requirements -->
 
-<section title="Certificate-Usage-specific DANE updates and guidelines">
+<section title="Certificate-Usage-Specific DANE Updates and Guidelines">
 
   <t>
     The four Certificate Usage values from the TLSA record,
@@ -932,7 +932,7 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
 
 </section><!-- TLSA Base Domain and CNAMEs -->
 
-<section title="TLSA Publisher requirements" anchor="rrreq">
+<section title="TLSA Publisher Requirements" anchor="rrreq">
 
   <t>
     This section updates <xref target="RFC6698"/> by specifying a
@@ -1059,7 +1059,7 @@ _443._tcp.www.example.org. IN TLSA 2 0 1 c57bce38455d9e3d...
   </figure>
 </section>
 
-<section title="Switching to new TLSA Parameters">
+<section title="Switching to New TLSA Parameters">
   <t>
     When employing a new digest algorithm in the TLSA RRset, for
     compatibility with digest agility specified in <xref
@@ -1087,7 +1087,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
     </artwork>
   </figure>
 </section><!-- Switching to new TLSA Parameters -->
-<section title="TLSA RRset Best Practice Summary">
+<section title="TLSA Publisher Requirements Summary">
   <t>
     In summary, server operators updating TLSA records should make
     one change at a time.  Either pre-publish new keys with existing
@@ -1105,7 +1105,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
 </section><!-- TLSA RRset Best Practice Summary -->
 </section><!-- TLSA RRset best pracice -->
 
-<section title="Digest algorithm agility" anchor="agility">
+<section title="Digest Algorithm Agility" anchor="agility">
 
 <t>
 While <xref target="RFC6698"/> specifies multiple digest algorithms,
@@ -1429,7 +1429,7 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 
   </section>
 
-<section title="Note on DNSSEC security">
+<section title="Note on DNSSEC Security">
 
   <t>
     Clearly the security of the DANE TLSA PKI rests on the security
@@ -1479,7 +1479,7 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 
 </section>
 
-<section title="Summary of updates to RFC6698" anchor="updates">
+<section title="Summary of Updates to RFC6698" anchor="updates">
 
   <t>
     <list style="symbols">
@@ -1557,7 +1557,7 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 
 </section><!-- Security Considerations -->
 
-<section title="IANA considerations">
+<section title="IANA Considerations">
   <t>This specification requires no support from IANA.</t>
 </section>
 
