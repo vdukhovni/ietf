@@ -18,10 +18,11 @@
 <!ENTITY RFC6672 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6672.xml">
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY RFC6895 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6895.xml">
+<!ENTITY RFC7218 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7218.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 <!ENTITY I-D.ietf-dane-smtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp.xml">
 <!ENTITY I-D.ietf-dane-ops SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-ops.xml">
-<!ENTITY I-D.ietf-dane-registry-acronyms SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-registry-acronyms.xml">
+<!ENTITY I-D.dukhovni-opportunistic-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.dukhovni-opportunistic-security.xml">
 ]>
 
 <!-- rfc xmlns:x="http://purl.org/net/xml2rfc/ext" category="std" -->
@@ -94,7 +95,8 @@ transport security is of necessity opportunistic.
 This specification uses the presence of DANE TLSA records to securely
 signal TLS support and to publish the means by which SMTP clients
 can successfully authenticate legitimate SMTP servers.  This becomes
-"opportunistic DANE TLS" and is resistant to downgrade and MITM
+"opportunistic DANE TLS" and is resistant to downgrade and
+man-in-the-middle (MITM)
 attacks.  It enables an incremental transition of the email backbone
 to authenticated TLS delivery, with increased global protection as
 adoption increases.
@@ -149,16 +151,7 @@ The following terms or concepts are used through the document:
     Non-Validating Security-Aware Stub Resolver:">
     Capabilities of the stub resolver in use as defined in <xref
     target="RFC4033" />; note that this specification requires the
-    use of a Security-Aware Stub Resolver; Security-Oblivious
-    stub-resolvers MUST NOT be used.  </t>
-
-    <t hangText="opportunistic DANE TLS:">
-    Best-effort use of TLS, resistant to downgrade attacks for
-    destinations with DNSSEC-validated TLSA records.  When opportunistic
-    DANE TLS is determined to be unavailable, clients should fall
-    back to opportunistic TLS below.  Opportunistic DANE TLS requires
-    support for DNSSEC, DANE and STARTTLS on the client side and
-    STARTTLS plus a DNSSEC published TLSA record on the server side.  </t>
+    use of a Security-Aware Stub Resolver.  </t>
 
     <t hangText="(pre-DANE) opportunistic TLS:">
     Best-effort use of TLS that is generally vulnerable to DNS
@@ -166,6 +159,14 @@ The following terms or concepts are used through the document:
     communication channel is not available, message transmission
     takes place in the clear.  MX record indirection generally
     precludes authentication even when TLS is available.  </t>
+
+    <t hangText="opportunistic DANE TLS:">
+    Best-effort use of TLS, resistant to downgrade attacks for
+    destinations with DNSSEC-validated TLSA records.  When opportunistic
+    DANE TLS is determined to be unavailable, clients should fall
+    back to opportunistic TLS.  Opportunistic DANE TLS requires
+    support for DNSSEC, DANE and STARTTLS on the client side and
+    STARTTLS plus a DNSSEC published TLSA record on the server side.  </t>
 
     <t hangText="reference identifier:">
     (Special case of <xref target="RFC6125"/> definition).  One of
@@ -186,33 +187,15 @@ The following terms or concepts are used through the document:
     specifically a reference to a DNS domain name, rather than any
     host that bears that name.  </t>
 
-    <!-- XXXWJH: I think we need three actions to be defined here (one
-         of which is already next).  Then we can say through the rest
-         of the document at each step what the action should be.  The
-         three actions should be something like "delay delivery",
-         "connect only over authenticated and encrypted TLS" and
-         "connect over either encrypted TLS or over unprotected TCP".
-    With these in place we can rewrite the document again using these
-    terms.  And we can define things based on 4033 language when
-    talking about the appropriate stub resolver cases. -->
-    <!-- XXXVD: Actually we have the following *four* choices:
-    	1.  Secure delivery via authenticated TLS
-	2.  Passive intercept protected delivery via unauthenticated, but
-	    required TLS.
-	3.  Opportunistic TLS.
-	4.  Delayed delivery.
-	Not yet sure whether we want to list them all here, some may be more
-	clear if defined in context.
-    -->
-
     <t hangText="delayed delivery:">
     Email delivery is a multi-hop store &amp; forward process.  When
     an MTA is unable forward a message that may become deliverable
-    later, the message is queued and delivery is retried periodically.
+    later the message is queued and delivery is retried periodically.
     Some MTAs may be configured with a fallback next-hop destination
     that handles messages that the MTA would otherwise queue and
-    retry.  In these cases, messages that would otherwise have to
-    be delayed, may be sent to the fallback next-hop destination
+    retry.  When a fallback next-hop is configured, messages that
+    would otherwise have to
+    be delayed may be sent to the fallback next-hop destination
     instead.  The fallback destination may itself be subject to
     opportunistic or mandatory DANE TLS as though it were the
     original message destination.  </t>
@@ -303,10 +286,12 @@ providing a path forward to ubiquitous SMTP channel security.
 <section title="STARTTLS downgrade attack" anchor="starttls">
 
 <t>
-The Simple Mail Transfer Protocol (SMTP) <xref target="RFC5321"/>
-is a single-hop protocol in a multi-hop store &amp; forward email
-delivery process.  SMTP envelope recipient addresses are not transport
-addresses and are security-agnostic.  Unlike the Hypertext Transfer
+The Simple Mail Transfer Protocol (SMTP) <xref target="RFC5321"/> is a
+single-hop protocol in a multi-hop store &amp; forward email delivery
+process.  An SMTP envelope recipient address does not correspond to a
+specific transport-layer endpoint address, rather at each relay hop the
+transport-layer endpoint is the next-hop relay, while the envelope
+recipient address typically remains the same.  Unlike the Hypertext Transfer
 Protocol (HTTP) and its corresponding secured version, HTTPS, where
 the use of TLS is signaled via the URI scheme, email recipient
 addresses do not directly signal transport security policy.  Indeed,
@@ -332,7 +317,7 @@ use of PKIX, can prevent this.  The attacker can simply disable TLS.
 
 </section><!-- STARTTLS downgrade attack -->
 
-<section title="Insecure server name without DNSSEC">
+<section title="Insecure server name without DNSSEC" anchor="need-dnssec">
 
 <t>
 With SMTP, DNS Mail Exchange (MX) records abstract the next-hop
@@ -346,7 +331,8 @@ A PKIX TLS client is vulnerable to MITM attacks unless it verifies
 that the server's certificate binds the public key to a name that
 matches one of the client's reference identifiers.  A natural choice
 of reference identifier is the server's domain name.  However, with
-SMTP, server names are obtained indirectly via MX records.  Without
+SMTP, server names are not directly encoded in the recipient address,
+instead they are obtained indirectly via MX records.  Without
 DNSSEC, the MX lookup is vulnerable to MITM and DNS cache poisoning
 attacks.  Active attackers can forge DNS replies with fake MX records
 and can redirect email to servers with names of their choice.
@@ -382,9 +368,9 @@ to point out that consequently SMTP with DANE is the most conservative
 possible trust model.  It trusts only what must be trusted and no
 more.  Adding any other trusted actors to the mix can only reduce
 SMTP security.  A sender may choose to further harden DNSSEC for
-selected high-value receiving domains, by configuring explicit trust
+selected high-value receiving domains by configuring explicit trust
 anchors for those domains instead of relying on the chain of trust
-from the root domain.  Detailed discussion of DNSSEC security
+from the root domain.  However, detailed discussion of DNSSEC security
 practices is out of scope for this document.
 </t>
 
@@ -426,7 +412,7 @@ chain is issued by a trusted Certification Authority (a trust anchor).
 MTAs are not interactive applications where a human operator can make
 a decision (wisely or otherwise) to selectively disable TLS security
 policy when certificate chain verification fails.  With no user to
-"click OK", the MTAs list of public CA trust anchors would need to
+"click OK", the MTA's list of public CA trust anchors would need to
 be comprehensive in order to avoid bouncing mail addressed to sites
 that employ unknown Certification Authorities.
 </t>
@@ -454,7 +440,7 @@ inclusive enough.
 <t>
 An SMTP client that implements opportunistic DANE TLS per this
 specification depends critically on the integrity of DNSSEC lookups,
-as discussed in <xref target="channelsecurity" />.
+as discussed in <xref target="need-dnssec" />.
 This section lists the DNS resolver requirements needed to avoid
 downgrade attacks when using opportunistic DANE TLS.
 </t>
@@ -487,22 +473,25 @@ in section 5 of <xref target="RFC4033"/>.
   portion of the tree is secure.
 </artwork>
 </figure>
+<t>
+To avoid further confusion, the adjective "anchorless" will be
+used below to refer to domains or RRsets that are "indeterminate"
+in the <xref target="RFC4033"/> sense, and the term "indeterminate"
+will be used exclusively in the sense of <xref target="RFC4035"/>.
+</t>
 
 <t>
 SMTP clients following this specification SHOULD NOT distinguish
-between "insecure" and "indeterminate" in the <xref target="RFC4033"/>
-sense.  Both "insecure" and RFC4033 "indeterminate" are handled
-identically: in either case unvalidated data for the query domain
-is all that is and can be available, and authentication using the
-data is impossible.  In what follows, when we say
-"insecure", we include also DNS results for domains that lie in a
-portion of the DNS tree for which there is no applicable trust
-anchor.  With the DNS root zone signed, we expect that validating
-resolvers used by Internet-facing MTAs will be configured with trust
-anchor data for the root zone.  Therefore, RFC4033-style "indeterminate"
-domains should be rare in practice.  From here on, when we say
-"indeterminate", it is exclusively in the sense of <xref
-target="RFC4035"/>.
+between "insecure" and "anchorless" DNS responses.  Both "insecure"
+and "anchorless" RRsets MUST be handled identically: in either case
+unvalidated data for the query domain is all that is and can be
+available, and authentication using the data is impossible.  In
+what follows, the term "insecure" will also includes the case of
+"anchorless" domains that lie in a portion of the DNS tree for which
+there is no applicable trust anchor.  With the DNS root zone signed,
+we expect that validating resolvers used by Internet-facing MTAs
+will be configured with trust anchor data for the root zone, and
+that therefore "anchorless" domains should be rare in practice.
 </t>
 
 <t>
@@ -510,7 +499,7 @@ As noted in section 4.3 of <xref target="RFC4035"/>, a security-aware
 DNS resolver MUST be able to determine whether a given non-error
 DNS response is "secure", "insecure", "bogus" or "indeterminate".
 It is expected that most security-aware stub resolvers will not
-signal an "indeterminate" security status in the RFC4035-sense to the
+signal an "indeterminate" security status (in the sense of RFC4035) to the
 application, and will signal a "bogus" or error result instead.  If
 a resolver does signal an RFC4035 "indeterminate" security status,
 this MUST be treated by the SMTP client as though a "bogus" or error
@@ -521,8 +510,9 @@ result had been returned.
 An MTA making use of a non-validating security-aware stub resolver
 MAY use the stub resolver's ability, if available, to signal DNSSEC
 validation status based on information the stub resolver has learned
-from an upstream validating recursive resolver.  In accordance with
-section 4.9.3 of <xref target="RFC4035"/>:
+from an upstream validating recursive resolver.  Security-Oblivious
+stub-resolvers MUST NOT be used.  In accordance with section 4.9.3 of
+<xref target="RFC4035"/>:
 </t>
 <figure>
 <artwork>
@@ -620,14 +610,19 @@ lookup fails.
 <section title="Stub resolver considerations" anchor="stub">
 
 <t>
-A note about DNAME aliases:  a query for a domain name whose ancestor
-domain is a DNAME alias returns the DNAME RR for the ancestor domain,
+SMTP clients that employ opportunistic DANE TLS to secure connections
+to SMTP servers MUST NOT use Security-Oblivious stub-resolvers.
+</t>
+
+<t>
+A note about DNAME aliases: a query for a domain name whose ancestor
+domain is a DNAME alias returns the DNAME RR for the ancestor domain
 along with a CNAME that maps the query domain to the corresponding
 sub-domain of the target domain of the DNAME alias <xref
 target="RFC6672"/>.  Therefore, whenever we speak of CNAME aliases,
 we implicitly allow for the possibility that the alias in question
 is the result of an ancestor domain DNAME record.  Consequently,
-no explicit support for DNAME records is needed in SMTP software,
+no explicit support for DNAME records is needed in SMTP software;
 it is sufficient to process the resulting CNAME aliases.  DNAME
 records only require special processing in the validating stub-resolver
 library that checks the integrity of the combined DNAME + CNAME
@@ -657,19 +652,19 @@ any earlier CNAME records leading to the "insecure" record were
 </t>
 
 <t>
-Note, a security-aware non-validating stub resolver may return to
+Note that a security-aware non-validating stub resolver may return to
 the SMTP client an "insecure" reply received from a validating
 recursive resolver that contains a CNAME record along with additional
 answers recursively obtained starting at the target of the CNAME.
-In this all that one can say is that some record in the set of
-records returned is "insecure", but it is possible that the initial
+In this case, the only possible conclusion is that some record in the set of
+records returned is "insecure", and it is in fact possible that the initial
 CNAME record and a subset of the subsequent records are "secure".
 </t>
 
 <t>
 If the SMTP client needs to determine the security status of the
 DNS zone containing the initial CNAME record, it may need to issue
-an a separate query of type "CNAME" that returns only the initial
+a separate query of type "CNAME" that returns only the initial
 CNAME record.  In particular in <xref target="non-mx"/> when insecure
 A or AAAA records are found for an SMTP server via a CNAME alias,
 it may be necessary to perform an additional CNAME query to determine
@@ -709,7 +704,7 @@ Failure to establish an authenticated TLS connection MUST result
 in falling back to the next SMTP server or delayed delivery.
 </t>
 
-<t hangText="A Secure non-empty TLSA RRset where all the records are unusable:">
+<t hangText="A secure non-empty TLSA RRset where all the records are unusable:">
 A connection to the MTA MUST be made via TLS, but authentication
 is not required.  Failure to establish an encrypted TLS connection
 MUST result in falling back to the next SMTP server or delayed delivery.  </t>
@@ -741,8 +736,9 @@ When the original next-hop destination is an address literal, rather
 than a DNS domain, DANE TLS does not apply.  Delivery proceeds using
 any relevant security policy configured by the MTA administrator.
 Similarly, when an MX RRset incorrectly lists a network address in lieu
-of an MX hostname, if the MTA chooses to connect to the network address
-DANE TLSA does not apply for such a connection.
+of an MX hostname, if an MTA chooses to connect to the network address
+in the non-conformat MX record, DANE TLSA does not apply for such a
+connection.
 </t>
 
 <t>
@@ -781,8 +777,8 @@ next-hop domain is the "initial name".  If the MX lookup of the
 initial name results in a CNAME alias, the MTA replaces the initial
 name with the resulting name and performs a new lookup with the new name.
 MTAs typically support recursion in CNAME expansion, so this
-replacement is performed repeatedly until the ultimate non-CNAME
-domain is found.
+replacement is performed repeatedly (up to the MTA's recursion
+limit) until the ultimate non-CNAME domain is found.
 </t>
 
 <t>
@@ -893,7 +889,8 @@ case will also reduce latency with no detrimental impact on security.
 If the A and/or AAAA lookup of the "initial name" yields a
 CNAME, we replace it with the resulting name as if it were the
 initial name and perform a lookup again using the new name.  This
-replacement is performed recursively.
+replacement is performed recursively (up to the MTA's recursion
+limit).
 </t>
 
 <t> We consider the following cases for handling a DNS response for an
@@ -984,7 +981,7 @@ security-aware stub resolver) restarts the TLSA query at the target
 domain, following CNAMEs as appropriate and keeping track of whether
 the entire chain is "secure".  If any "insecure" records are
 encountered, or the TLSA records don't exist, the next candidate TLSA
-base is tried instead.
+base domain is tried instead.
 </t>
 
 <t>
@@ -1012,11 +1009,12 @@ peer certificate name checks.
 </t>
 
 <t>
-Note, shared end entity certificate associations expose the publishing
+Note that shared end entity certificate associations expose the publishing
 domain to substitution attacks, where an MITM attacker can reroute
 traffic to a different server that shares the same end entity
-certificate.  Such shared end entity records SHOULD be avoided
-unless the servers in question are functionally equivalent (an
+certificate.  Such shared end entity TLSA records SHOULD be avoided
+unless the servers in question are functionally equivalent or employ
+mutually incompatible protocols (an
 active attacker gains nothing by diverting client traffic from one
 such server to another).
 </t>
@@ -1093,7 +1091,7 @@ configuration of the client and server.
 The DANE TLSA specification <xref target="RFC6698"/> defines multiple
 TLSA RR types via combinations of 3 numeric parameters.  The numeric
 values of these parameters were later given symbolic names in <xref
-target="I-D.ietf-dane-registry-acronyms"/>.  The rest of the TLSA
+target="RFC7218"/>.  The rest of the TLSA
 record is the "certificate association data field", which specifies
 the full or digest value of a certificate or public key.  The
 parameters are:
@@ -1102,20 +1100,21 @@ parameters are:
 <t>
 <list style='hanging'>
 
-<t hangText="The TLSA Certificate Usage field:"> Section 2.1.1 of <xref
-target="RFC6698"/> specifies 4 values: PKIX-TA(0), PKIX-EE(1), DANE-TA(2),
-and DANE-EE(3).  There is an additional private-use value: PrivCert(255).
-All other values are reserved for use by future specifications.  </t>
+<t hangText="The TLSA Certificate Usage field:"> Section 2.1.1 of
+<xref target="RFC6698"/> specifies four values: PKIX-TA(0), PKIX-EE(1),
+DANE-TA(2), and DANE-EE(3).  There is an additional private-use
+value: PrivCert(255).  All other values are reserved for use by
+future specifications.  </t>
 
 <t hangText="The selector field:"> Section 2.1.2 of <xref
-target="RFC6698"/> specifies 2 values: Cert(0), SPKI(1).  There is
-an additional private-use value: PrivSel(255).  All other values are
-reserved for use by future specifications.  </t>
+target="RFC6698"/> specifies two values: Cert(0) and SPKI(1).  There
+is an additional private-use value: PrivSel(255).  All other values
+are reserved for use by future specifications.  </t>
 
 <t hangText="The matching type field:"> Section 2.1.3 of <xref
-target="RFC6698"/> specifies 3 values: Full(0), SHA2-256(1), SHA2-512(2).
-There is an additional private-use value: PrivMatch(255).  All other
-values are reserved for use by future specifications.  </t>
+target="RFC6698"/> specifies three values: Full(0), SHA2-256(1) and
+SHA2-512(2).  There is an additional private-use value: PrivMatch(255).
+All other values are reserved for use by future specifications.  </t>
 
 </list>
 </t>
@@ -1130,7 +1129,8 @@ chooses between public PKI issued and domain-issued certificates.
 <t>
 The selector field specifies whether the TLSA RR matches the whole
 certificate: Cert(0), or just its subjectPublicKeyInfo: SPKI(1).
-The subjectPublicKeyInfo is an ASN.1 DER encoding of the certificate's
+The subjectPublicKeyInfo is an ASN.1 DER (<xref target="X.690"/>)
+encoding of the certificate's
 algorithm id, any parameters and the public key data.
 </t>
 
@@ -1360,7 +1360,7 @@ fails, otherwise the SMTP client is vulnerable to MITM attacks.
 
 <t>
 The SMTP client MUST NOT perform certificate name checks with
-certificate usage DANE-EE(3), see <xref target="cert3"/> above.
+certificate usage DANE-EE(3); see <xref target="cert3"/> above.
 </t>
 
 </section><!-- DANE-EE(3) name checks -->
@@ -1817,8 +1817,8 @@ root certificate.
 </t>
 
 <t>
-TLSA Publishers must follow the digest agility guidelines in <xref
-target="agility"/> and must make sure that all objects published in
+TLSA Publishers MUST follow the digest agility guidelines in <xref
+target="agility"/> and MUST make sure that all objects published in
 digest form for a particular usage and selector are published with
 the same set of digest algorithms.
 </t>
@@ -1836,7 +1836,8 @@ Size Guidelines".
 
 <t>
 This protocol leverages DANE TLSA records to implement MITM resistant
-opportunistic channel security for SMTP.  For destination domains
+opportunistic security (<xref target="I-D.dukhovni-opportunistic-security"/>)
+for SMTP.  For destination domains
 that sign their MX records and publish signed TLSA records for their
 MX hostnames, this protocol allows sending MTAs to securely discover
 both the availability of TLS and how to authenticate the destination.
@@ -1910,6 +1911,7 @@ development of the Postfix DANE implementation.
 </middle>
 
 <back>
+
 <references title="Normative References">
 &RFC1035;
 &RFC2119;
@@ -1925,13 +1927,30 @@ development of the Postfix DANE implementation.
 &RFC6066;
 &RFC6672;
 &RFC6698;
+&RFC7218;
 &I-D.ietf-dane-ops;
+<reference anchor="X.690">
+<front>
+<title>
+Recommendation ITU-T X.690 (2002) | ISO/IEC 8825-1:2002, Information
+technology - ASN.1 encoding rules: Specification of Basic Encoding
+Rules (BER), Canonical Encoding Rules (CER) and Distinguished
+Encoding Rules (DER)
+</title>
+<author>
+<organization>International Telecommunications Union</organization>
+</author>
+<date month="July" year="2002"/>
+</front>
+</reference>
 </references>
+
 <references title="Informative References">
 &RFC5598;
 &RFC6409;
 &I-D.ietf-dane-srv;
-&I-D.ietf-dane-registry-acronyms;
+&I-D.dukhovni-opportunistic-security;
 </references>
+
 </back>
 </rfc>
