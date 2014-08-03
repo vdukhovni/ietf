@@ -938,11 +938,15 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
   <t>
     This section updates <xref target="RFC6698"/> by specifying a
     requirement on the TLSA Publisher to ensure that each combination
-    of Certificate Usage, selector and matching type that is present
-    in the server's TLSA RRset MUST include at least one record
-    that matches the server's present (rather than future or past)
-    certificate chain.  We describe a TLSA record update algorithm
-    that ensures this requirement is met.
+    of Certificate Usage, selector and matching type present in the
+    server's TLSA RRset MUST include at least one record that matches
+    the server's current certificate chain.  Additional TLSA records
+    with the same combination of usage, select and matching type
+    may be present during key rollover, but MUST NOT be published
+    without an accompanying TLSA record with the same usage, selector
+    and matching type for the current certificate chain.  We describe
+    a TLSA record update algorithm that ensures this requirement
+    is met.
   </t>
 
   <t>
@@ -970,7 +974,7 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
     is met.
   </t>
 
-<section title="Rolling a Key Without Changing TLSA Parameters" anchor="rollkey">
+<section title="Key rollover with fixed TLSA Parameters" anchor="rollkey">
 
   <t>
      The simplest case is key rollover while retaining the same set
@@ -1088,22 +1092,41 @@ _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
     </artwork>
   </figure>
 </section><!-- Switching to new TLSA Parameters -->
+
 <section title="TLSA Publisher Requirements Summary">
+
   <t>
     In summary, server operators updating TLSA records should make
-    one change at a time.  Either pre-publish new keys with existing
-    TLSA parameters, remove records matching stale keys, or add new
-    TLSA parameters for all current keys.  Ensure that at all times,
-    each combination of parameter values matches the same set of underlying
-    objects (trust anchors, leaf certificates or raw public keys).
-    Another way of saying the same thing is that no combination of
-    Certificate Usage, selector and matching type in a server's
-    TLSA RRset should ever match only some combination of future or
-    past keys.  Such combinations of parameters should be removed
-    before corresponding keys are retired, or added only after new
-    keys become active.
+    one change at a time.  The individual safe changes are:
+
+    <list style="symbols">
+      <t> Pre-publish new certificate associations that employ the
+      same TLSA parameters (usage, selector and matching type) as
+      existing TLSA records, but match certificate chains that will
+      be deployed in the near future.  Wait for stale TLSA RRsets
+      to expire from DNS caches before configuring servers to use
+      the new certificate chain. </t>
+
+      <t> Remove TLSA records matching no longer deployed certificate
+      chains. </t>
+
+      <t> Extend the TLSA RRset with a new combination of parameters
+      (usage, selector and matching type) that is used to generate
+      matching associations for all certificate chains that are
+      published with some other parameter combination. </t>
+    </list>
+
+    The above steps are intended to ensure that at all times, each
+    combination of parameter values matches the same set of underlying
+    objects (trust anchors, leaf certificates or raw public keys),
+    at least of one which corresponds to the server's current
+    certificate chain.  No combination of Certificate Usage, selector
+    and matching type in a server's TLSA RRset should ever match
+    only some combination of future or past certificate chains.
   </t>
+
 </section><!-- TLSA RRset Best Practice Summary -->
+
 </section><!-- TLSA RRset best pracice -->
 
 <section title="Digest Algorithm Agility" anchor="agility">
