@@ -486,7 +486,7 @@ between "insecure" and "anchorless" DNS responses.  Both "insecure"
 and "anchorless" RRsets MUST be handled identically: in either case
 unvalidated data for the query domain is all that is and can be
 available, and authentication using the data is impossible.  In
-what follows, the term "insecure" will also includes the case of
+what follows, the term "insecure" will also include the case of
 "anchorless" domains that lie in a portion of the DNS tree for which
 there is no applicable trust anchor.  With the DNS root zone signed,
 we expect that validating resolvers used by Internet-facing MTAs
