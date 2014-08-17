@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
-<!ENTITY RFC1035 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.1035.xml">
-<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
-<!ENTITY RFC3207 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3207.xml">
-<!ENTITY RFC4033 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4033.xml">
-<!ENTITY RFC4034 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4034.xml">
-<!ENTITY RFC4035 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4035.xml">
-<!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
-<!ENTITY RFC5280 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5280.xml">
-<!ENTITY RFC5321 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5321.xml">
-<!ENTITY RFC5598 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5598.xml">
-<!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
-<!ENTITY RFC6186 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6186.xml">
-<!ENTITY RFC6394 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6394.xml">
-<!ENTITY RFC6409 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6409.xml">
-<!ENTITY RFC6066 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6066.xml">
-<!ENTITY RFC6672 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6672.xml">
-<!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
-<!ENTITY RFC6895 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6895.xml">
-<!ENTITY RFC7218 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7218.xml">
-<!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
-<!ENTITY I-D.ietf-dane-smtp SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp.xml">
-<!ENTITY I-D.ietf-dane-ops SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-ops.xml">
-<!ENTITY I-D.dukhovni-opportunistic-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.dukhovni-opportunistic-security.xml">
+<!ENTITY RFC1035 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.1035.xml">
+<!ENTITY RFC2119 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC3207 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.3207.xml">
+<!ENTITY RFC4033 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4033.xml">
+<!ENTITY RFC4034 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4034.xml">
+<!ENTITY RFC4035 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4035.xml">
+<!ENTITY RFC5246 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5246.xml">
+<!ENTITY RFC5280 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5280.xml">
+<!ENTITY RFC5321 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5321.xml">
+<!ENTITY RFC5598 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5598.xml">
+<!ENTITY RFC6125 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6125.xml">
+<!ENTITY RFC6186 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6186.xml">
+<!ENTITY RFC6394 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6394.xml">
+<!ENTITY RFC6409 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6409.xml">
+<!ENTITY RFC6066 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6066.xml">
+<!ENTITY RFC6672 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6672.xml">
+<!ENTITY RFC6698 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6698.xml">
+<!ENTITY RFC6895 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.6895.xml">
+<!ENTITY RFC7218 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.7218.xml">
+<!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
+<!ENTITY I-D.ietf-dane-smtp SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp.xml">
+<!ENTITY I-D.ietf-dane-ops SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-dane-ops.xml">
+<!ENTITY I-D.dukhovni-opportunistic-security SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml3/reference.I-D.dukhovni-opportunistic-security.xml">
 ]>
 
 <!-- rfc xmlns:x="http://purl.org/net/xml2rfc/ext" category="std" -->
