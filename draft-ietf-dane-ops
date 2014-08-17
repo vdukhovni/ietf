@@ -181,7 +181,7 @@ guidance for DANE implementers and operators.
       </t>
       <t hangText="TLSA parameters:">
 	In <xref target="RFC6698"/> the TLSA record is defined to
-	consist of four fields.  The first three of these are numberic
+	consist of four fields.  The first three of these are numeric
 	parameters that specify the meaning of the data in fourth and final
 	field.  To avoid language contortions when we need to distinguish
 	between the first three fields that together define a TLSA record
@@ -543,7 +543,7 @@ already possess it in order to validate it in any case.
 	certificate.  In fact, client implementations are free to ignore all
 	locally configured trust anchors when processing usage
 	DANE-TA(2) TLSA records and may rely exclusively on the
-	certificicates provided in the server's certificate chain.
+	certificates provided in the server's certificate chain.
 	But, with a digest in the TLSA record, the TLSA record contains
 	neither the full trust anchor certificate nor the full public
 	key.  If the TLS server's certificate chain does not contain
@@ -609,7 +609,7 @@ already possess it in order to validate it in any case.
       <t>
 	Thus, servers should not rely on "DANE-TA(2) SPKI(1) Full(0)"
 	TLSA records to be sufficient to authenticate chains issued
-	by the associated public key in the absense of a corresponding
+	by the associated public key in the absence of a corresponding
 	certificate in the server's TLS certificate message.  Servers
 	SHOULD include the TA certificate in their certificate chain.
       </t>
