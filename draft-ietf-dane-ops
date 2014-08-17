@@ -938,15 +938,14 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
   <t>
     This section updates <xref target="RFC6698"/> by specifying a
     requirement on the TLSA Publisher to ensure that each combination
-    of Certificate Usage, selector and matching type present in the
-    server's TLSA RRset MUST include at least one record that matches
-    the server's current certificate chain.  Additional TLSA records
-    with the same combination of usage, select and matching type
-    may be present during key rollover, but MUST NOT be published
-    without an accompanying TLSA record with the same usage, selector
-    and matching type for the current certificate chain.  We describe
-    a TLSA record update algorithm that ensures this requirement
-    is met.
+    of Certificate Usage, selector and matching type in the server's
+    TLSA RRset MUST include at least one record that matches the
+    server's current certificate chain.  TLSA records that match
+    recently retired or yet to be deployed certificate chains will
+    be present during key rollover.  Such past or future records
+    must never be the only records published for any given combination
+    of usage, selector and matching type.  We describe a TLSA record
+    update algorithm that ensures this requirement is met.
   </t>
 
   <t>
@@ -1116,13 +1115,15 @@ _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
       published with some other parameter combination. </t>
     </list>
 
-    The above steps are intended to ensure that at all times, each
-    combination of parameter values matches the same set of underlying
-    objects (trust anchors, leaf certificates or raw public keys),
-    at least of one which corresponds to the server's current
+    The above steps are intended to ensure that at all times and
+    for each combination of usage, selector and matching type at
+    least one TLSA record corresponds to the server's current
     certificate chain.  No combination of Certificate Usage, selector
     and matching type in a server's TLSA RRset should ever match
     only some combination of future or past certificate chains.
+    As a result, no matter what combinations of usage, selector
+    and matching type may be supported by a given client, they
+    will be sufficient to authenticate the server.
   </t>
 
 </section><!-- TLSA RRset Best Practice Summary -->
