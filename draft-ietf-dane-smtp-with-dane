@@ -1515,10 +1515,16 @@ a CNAME record that references the centrally operated DANE-TA(2)
 RRset.  If a particular server's key is compromised, its TLSA CNAME
 SHOULD be replaced with a DANE-EE(3) association until the certificate
 for the compromised key expires, at which point it can return to
-using CNAME record.  If the central trust anchor is compromised, all
-servers need to be issued new keys by a new TA, and a shared DANE-TA(2)
-TLSA RRset needs to be published containing just the new TA.  SMTP
-servers cannot expect broad SMTP client CRL or OCSP support.
+using a CNAME record.  If the central trust anchor is compromised, all
+servers need to be issued new keys by a new TA, and an updated DANE-TA(2)
+TLSA RRset needs to be published containing just the new TA.
+</t>
+
+<t>
+SMTP servers cannot expect broad CRL or OCSP support from SMTP
+clients.  As outlined above, with DANE, compromised server or trust
+anchor keys can be "revoked" by removing them from the DNS without
+the need for client-side support for OCSP or CRLs.
 </t>
 
 </section><!-- Server key management -->
