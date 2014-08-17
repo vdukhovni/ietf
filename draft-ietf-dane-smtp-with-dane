@@ -737,7 +737,7 @@ than a DNS domain, DANE TLS does not apply.  Delivery proceeds using
 any relevant security policy configured by the MTA administrator.
 Similarly, when an MX RRset incorrectly lists a network address in lieu
 of an MX hostname, if an MTA chooses to connect to the network address
-in the non-conformat MX record, DANE TLSA does not apply for such a
+in the non-conformant MX record, DANE TLSA does not apply for such a
 connection.
 </t>
 
