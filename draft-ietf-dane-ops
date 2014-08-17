@@ -973,7 +973,7 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
     others may either not support, or may exclusively support, the
     PKIX Certificate Usages.  Some clients may prefer to negotiate
     <xref target="I-D.ietf-tls-oob-pubkey"/> raw public keys, which
-    are only compatible with TLSA records whose Certificat Usage is
+    are only compatible with TLSA records whose Certificate Usage is
     DANE-EE(3) with selector SPKI(1).
   </t>
 
