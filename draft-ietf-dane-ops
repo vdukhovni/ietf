@@ -11,10 +11,10 @@
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
 <!ENTITY RFC6962 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6962.xml">
+<!ENTITY RFC7218 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7218.xml">
 <!ENTITY I-D.ietf-tls-oob-pubkey SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-oob-pubkey.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 <!ENTITY I-D.ietf-dane-smtp-with-dane SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp-with-dane.xml">
-<!ENTITY I-D.ietf-dane-registry-acronyms SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-registry-acronyms.xml">
 <!ENTITY I-D.dukhovni-opportunistic-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.dukhovni-opportunistic-security.xml">
 ]>
 <?rfc strict="yes" ?>
@@ -206,8 +206,7 @@ guidance for DANE implementers and operators.
     TLSA RR types via combinations of numeric values of the first three
     fields of the TLSA record (i.e. the "TLSA parameters").  The
     numeric values of these parameters were later given symbolic names
-    in <xref target="I-D.ietf-dane-registry-acronyms"/>.  These
-    parameters are:
+    in <xref target="RFC7218"/>.  These parameters are:
   </t>
 
   <t>
@@ -1660,11 +1659,11 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 &RFC6125;
 &RFC6347;
 &RFC6698;
+&RFC7218;
 </references>
 <references title="Informative References">
 &RFC6962;
 &I-D.ietf-tls-oob-pubkey;
-&I-D.ietf-dane-registry-acronyms;
 &I-D.ietf-dane-smtp-with-dane;
 &I-D.ietf-dane-srv;
 &I-D.dukhovni-opportunistic-security;
