@@ -15,6 +15,7 @@
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 <!ENTITY I-D.ietf-dane-smtp-with-dane SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp-with-dane.xml">
 <!ENTITY I-D.ietf-dane-registry-acronyms SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-registry-acronyms.xml">
+<!ENTITY I-D.dukhovni-opportunistic-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.dukhovni-opportunistic-security.xml">
 ]>
 <?rfc strict="yes" ?>
 <?rfc toc="yes"?>
@@ -717,6 +718,23 @@ already possess it in order to validate it in any case.
     </t>
 
   </section><!-- PKIX-TA(0) -->
+
+  <section title="Opportunistic Security and PKIX usages">
+
+    <t>
+      When the client's protocol design is based on Opportunistic
+      Security (OS, <xref target="I-D.dukhovni-opportunistic-security"/>),
+      and authentication is opportunistically employed based on the
+      presence of server TLSA records, it is especially important
+      to avoid the PKIX-EE(1) and PKIX-TA(0) certificate usages.
+      This is because the client has no way to know in advance that
+      it and the server both trust the requisite root CA.  Use of
+      authentication in OS needs to be employed only when the client
+      can be confident of success, absent an attack, or an operational
+      error on the server side.
+    </t>
+
+  </section><!-- Opportunistic Security considerations -->
 
 </section><!-- Certificate-Usage-specific DANE updates and guidelines -->
 
@@ -1649,6 +1667,7 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 &I-D.ietf-dane-registry-acronyms;
 &I-D.ietf-dane-smtp-with-dane;
 &I-D.ietf-dane-srv;
+&I-D.dukhovni-opportunistic-security;
 </references>
 </back>
 </rfc>
