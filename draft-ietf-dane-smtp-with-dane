@@ -1276,14 +1276,14 @@ is included in the TLS server certificate message.
 </t>
 
 <t>
-TLSA records with selector Full(0) are discouraged.  While these
+TLSA records with matching type Full(0) are discouraged.  While these
 potentially obviate the need to transmit the TA certificate in the
 TLS server certificate message, client implementations may not be
 able to augment the server certificate chain with the data obtained
 from DNS, especially when the TLSA record supplies a bare key
 (selector SPKI(1)).  Since the server will need to transmit the TA
 certificate in any case, server operators SHOULD publish TLSA records
-with a selector other than Full(0) and avoid potential interoperability
+with a matching type other than Full(0) and avoid potential interoperability
 issues with large TLSA records containing full certificates or keys.
 </t>
 
