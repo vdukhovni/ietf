@@ -348,19 +348,46 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
     certificate-usage types to require in their protocol.  It is NOT
     RECOMMENDED to allow the use of all four certificate-usage types
     within a protocol as it only compromises the security design
-    rather than furthers it.  Specifically, by requiring TLS clients
-    to be pre-configured with full PKIX validation trust anchors
-    decreases one of the benefits of the DANE based authentication
-    mechanisms: simplicity in deployment.  Additionally, if PKIX
-    certificate-usage selectors are allowed to be mixed with DANE-only
-    based authentication mechanisms, then the DNS infrastructure
-    becomes the primary point of attack as the attacker needs only to
-    replace the PKIX based DANE record with a DANE-only record in
-    order to remove the PKIX based security checks.  Because of these
-    reasons, protocols should be designed to use only either the
+    rather than furthers it.
+  </t>
+  <t>
+    Specifically, by requiring TLS clients to be pre-configured with
+    full PKIX validation trust anchors decreases one of the benefits
+    of the DANE based authentication mechanisms: simplicity in
+    deployment.  The DANE based certificate usage types offer increased
+    operational reliability specifically because they don't need to
+    track a changing list of trust-anchors in side configuration.
+  </t>
+
+  <t> 
+    Additionally, if PKIX certificate-usage selectors are allowed to
+    be mixed with DANE-only based authentication mechanisms, then the
+    DNS infrastructure becomes the primary point of attack as the
+    attacker needs only to replace the PKIX based DANE record with a
+    DANE-only record in order to remove the PKIX based security
+    checks.  I.E., these certificate usage values offer only illusory
+    incremental security over the DANE based usage types.  Because of
+    these reasons, protocols should be designed to use only either the
     PKIX-* certificate-usage types or the DANE-* certificate-usage
     types.
   </t>
+
+  <section title="Opportunistic Security and PKIX usages">
+
+    <t>
+      When the client's protocol design is based on Opportunistic
+      Security (OS, <xref target="I-D.dukhovni-opportunistic-security"/>),
+      and authentication is opportunistically employed based on the
+      presence of server TLSA records, it is especially important
+      to avoid the PKIX-EE(1) and PKIX-TA(0) certificate usages.
+      This is because the client has no way to know in advance that
+      it and the server both trust the requisite root CA.  Use of
+      authentication in OS needs to be employed only when the client
+      can be confident of success, absent an attack, or an operational
+      error on the server side.
+    </t>
+
+  </section><!-- Opportunistic Security considerations -->
 
   <section title="Transitioning from PKIX-* to DANE-*">
     <t>
@@ -397,7 +424,9 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
   <t>
     The four Certificate Usage values from the TLSA record,
     DANE-EE(3), DANE-TA(2), PKIX-EE(1) and PKIX-TA(0), are discussed
-    below.
+    below.  They are discussed in order of increasing complexity, from
+    the most easy to implement DANE-EE(3) certificate usage type to
+    the hardest PKIX-TA(0) type.
   </t>
 
   <section title="Certificate Usage DANE-EE(3)" anchor="type3">
@@ -485,7 +514,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
       While it is, in principle, also possible to authenticate raw
       public keys via "DANE-EE(3) Cert(0) Full(0)" records by
       extracting the public key from the certificate in DNS, this
-      is in conflict <!-- XXX: state how; cause it doesn't require the
+      is in conflict <!-- XXXWJH: state how; cause it doesn't require the
       full comparison of the full value I assume? -->
       with the indicated selector and requires extra
       logic on clients that not all implementations are expected to
@@ -517,7 +546,6 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
       prefix labels) for each service issued by the same TA may
       then be set to a CNAME alias that points to a common TLSA
       RRset that matches the TA.  For example:
-      <!-- XXXWJH: but this is possible for DANE-EE too... -->
     </t>
 
     <figure>
@@ -623,6 +651,12 @@ already possess it in order to validate it in any case.
 
     </section><!-- "Trust anchor digests and server certificate chain" -->
 
+    <!-- XXXWJH: I suggest we drop this whole section.  Above we
+    specify that you MUST publish the root certificate in the TLS
+    message.  If that's the case, we don't need to do the complex
+    arguments described below.  Note that below it actually says
+    "SHOULD" too, and above we say MUST.  We should only have one
+    normative statement, and it should probably be the one above. -->
     <section title="Trust anchor public keys">
 
       <!-- XXX: DANEbis: clarify "IN TLSA 2 1 0" requirements. -->
@@ -695,24 +729,7 @@ already possess it in order to validate it in any case.
       This Certificate Usage is similar to DANE-EE(3), but in
       addition PKIX verification is required.  Therefore, name
       checks, certificate expiration, etc., apply as they would
-      without DANE.  When, for a given application protocol, DANE
-      clients support both DANE-EE(3) and PKIX-EE(1) usages, it
-      should be noted that an attacker who can compromise DNSSEC
-      can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA
-      records of their choosing, and thus bypass any PKIX verification
-      requirements.
-    </t>
-
-    <t>
-      Therefore, except when applications support only the PKIX
-      Certificate Usages (0 and 1), this Certificate Usage offers
-      only illusory incremental security over usage DANE-EE(3).  It
-      provides lower operational reliability than DANE-EE(3) since
-      some clients may not be configured with the required root CA,
-      the server's chain may be incomplete or name checks may fail.
-      PKIX-EE(1) also requires more complex coordination between
-      the Customer Domain and the Service Provider in hosting
-      arrangements.  This certificate usage is NOT RECOMMENDED.
+      without DANE.
     </t>
 
   </section><!-- PKIX-EE(1) -->
@@ -736,23 +753,15 @@ already possess it in order to validate it in any case.
     </t>
 
     <t>
-      As with PKIX-EE(1) case, an attacker who can compromise DNSSEC
-      can replace these with usage DANE-EE(3) or DANE-TA(2) TLSA
-      records of his choosing and thus bypass the PKIX verification
-      requirements.  Therefore, except when applications support
-      only the PKIX Certificate Usages (0 and 1), this Certificate
-      Usage offers only illusory incremental security over usage
-      DANE-TA(2).  It provides lower operational reliability than
-      DANE-TA(2) since some clients may not be configured with the
-      required root CA.  PKIX-TA(0) also requires more complex
-      coordination between the Customer Domain and the Service
-      Provider in hosting arrangements.  This certificate usage is
-      NOT RECOMMENDED.
+      PKIX-TA(0) also requires more complex coordination between the
+      Customer Domain and the Service Provider in hosting
+      arrangements.  Thus, this certificate usage is NOT RECOMMENDED
+      when the Service Provider is not also the TLSA Publisher.
     </t>
 
     <t>
       TLSA Publishers who publish TLSA records for a particular
-      public root CA, will expect that clients will then only accept
+      public root CA, will expect that clients will only accept
       chains anchored at that root.  It is possible, however, that
       the client's trusted certificate store includes some intermediate
       CAs, either with or without the corresponding root CA.  When
@@ -777,23 +786,6 @@ already possess it in order to validate it in any case.
     </t>
 
   </section><!-- PKIX-TA(0) -->
-
-  <section title="Opportunistic Security and PKIX usages">
-
-    <t>
-      When the client's protocol design is based on Opportunistic
-      Security (OS, <xref target="I-D.dukhovni-opportunistic-security"/>),
-      and authentication is opportunistically employed based on the
-      presence of server TLSA records, it is especially important
-      to avoid the PKIX-EE(1) and PKIX-TA(0) certificate usages.
-      This is because the client has no way to know in advance that
-      it and the server both trust the requisite root CA.  Use of
-      authentication in OS needs to be employed only when the client
-      can be confident of success, absent an attack, or an operational
-      error on the server side.
-    </t>
-
-  </section><!-- Opportunistic Security considerations -->
 
 </section><!-- Certificate-Usage-specific DANE updates and guidelines -->
 
