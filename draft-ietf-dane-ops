@@ -68,7 +68,6 @@ guidance for DANE implementers and operators.
 
 <middle>
 <section title="Introduction">
-
   <t>
     <xref target="RFC6698"/> specifies a new DNS resource record
     "TLSA" that associates a public certificate or public key of a
@@ -196,7 +195,7 @@ guidance for DANE implementers and operators.
 
 </section><!-- Introduction -->
 
-<section title="DANE TLSA Record Overview">
+<section title="DANE TLSA Record Overview" anchor="overview">
 
   <t>
     DANE TLSA <xref target="RFC6698"/> specifies a protocol for
@@ -332,7 +331,68 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 
 </section><!-- TLS Requirements -->
 
-<section title="Certificate-Usage-Specific DANE Updates and Guidelines">
+<section title="DANE Certificate-Usage Selection Guidelines">
+
+  <t>
+    As mentioned in <xref target="overview" />, the TLSA
+    certificate-usage field currently contains four possible values.
+    Two of these values, PKIX-TA(0) and PKIX-EE(1), require the use of
+    full pre-configured Certificate Authority trust anchor based PKIX
+    verification.  The other two values, DANE-TA(2) and DANE-EE(3), do
+    not require a list of pre-configured Certificate Authority trust
+    anchors to be installed.
+  </t>
+
+  <t>
+    Protocol designers should carefully consider which set of DANE
+    certificate-usage types to require in their protocol.  It is NOT
+    RECOMMENDED to allow the use of all four certificate-usage types
+    within a protocol as it only compromises the security design
+    rather than furthers it.  Specifically, by requiring TLS clients
+    to be pre-configured with full PKIX validation trust anchors
+    decreases one of the benefits of the DANE based authentication
+    mechanisms: simplicity in deployment.  Additionally, if PKIX
+    certificate-usage selectors are allowed to be mixed with DANE-only
+    based authentication mechanisms, then the DNS infrastructure
+    becomes the primary point of attack as the attacker needs only to
+    replace the PKIX based DANE record with a DANE-only record in
+    order to remove the PKIX based security checks.  Because of these
+    reasons, protocols should be designed to use only either the
+    PKIX-* certificate-usage types or the DANE-* certificate-usage
+    types.
+  </t>
+
+  <section title="Transitioning from PKIX-* to DANE-*">
+    <t>
+      If a protocol desires to transition from a pre-configured PKIX
+      CA-root based authentication system to a purely DANE based trust
+      model, the protocol need only start allowing the use of the DANE
+      based certificate-usage values.  Implementations, as the
+      upgrade, and drop the deployment requirement of pre-configuring
+      the system with a list of PKIX-based trust anchors.  It has
+      already been decided that a DANE based model is superior for the
+      protocol in question, so there is no downgrade issue with
+      allowing both types to exist during the transition.
+    </t>
+  </section>
+
+  <section title="Transitioning from DANE-* to PKIX-*">
+    <t>
+      Transitioning from accepting DANE certificate-usage types to an
+      infrastructure that requires PKIX certificate-usage types is a
+      challenging deployment problem.  During the transition phase, all
+      of the certificate-usage types must be accepted while clients
+      upgrade their infrastructure with the required pre-configured CA
+      trust anchors.  Only after all of the clients have upgrade can the
+      software stop accepting the DANE based certificate usage types.
+      In other words, at some point in time a "flag day" will be needed
+      where client software should no longer accept the DANE based
+      certificate-usage field types.
+    </t>
+  </section>
+</section>      
+
+<section title="Certificate-Usage Specific DANE Updates and Guidelines">
 
   <t>
     The four Certificate Usage values from the TLSA record,
