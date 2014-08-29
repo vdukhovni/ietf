@@ -59,7 +59,8 @@
 This memo clarifies and updates the DANE TLSA protocol based on
 implementation experience since the publication of the original
 DANE specification in <xref target="RFC6698"/>.  It also contains
-guidance for DANE implementers and operators.
+guidance for implementers, operators and protocol developers that want
+to make use of DANE records.
 </t>
 
 </abstract>
@@ -70,7 +71,7 @@ guidance for DANE implementers and operators.
 <section title="Introduction">
   <t>
     <xref target="RFC6698"/> specifies a new DNS resource record
-    "TLSA" that associates a public certificate or public key of a
+    called "TLSA" that associates a public certificate or public key of a
     trusted leaf or issuing authority with the corresponding TLS
     transport endpoint.  These DANE TLSA records, when validated by
     DNSSEC, can be used to augment or replace the trust model of the
@@ -84,7 +85,7 @@ guidance for DANE implementers and operators.
     24 distinct combinations of TLSA record types.  This many options
     have lead to implementation and operational complexity.  This
     memo will recommend best-practice choices to help simplify
-    implementation and deployment given these plethora of choices.
+    protocol design, implementation and deployment given these plethora of choices.
   </t>
 
   <t>
@@ -99,8 +100,8 @@ guidance for DANE implementers and operators.
     simultaneously supports multiple hosted domain names.  With
     services that employ TLS, such hosting arrangements may require
     the Service Provider to deploy multiple pairs of private keys
-    and certificates with TLS clients signaling the desired domain
-    via the Server Name Indication (SNI) extension (<xref
+    and certificates. The TLS clients, then, signal the desired domain
+    to the TLSA server via the Server Name Indication (SNI) extension (<xref
     target="RFC6066" />, section 3).  This memo provides operational
     guidelines intended to maximize interoperability between DANE
     TLS clients and servers.
@@ -111,20 +112,24 @@ guidance for DANE implementers and operators.
     provided by TLS or DTLS.  The Transport Layer Security (TLS)
     <xref target="RFC5246" /> and Datagram Transport Layer Security
     (DTLS) <xref target="RFC6347" /> protocols provide secured TCP
-    and UDP communication over IP.  By convention, "TLS" will be
+    and UDP communication, respectively, over IP.  By convention, "TLS" will be
     used throughout this document and, unless otherwise specified,
-    the text applies equally well to the DTLS protocol.  Used without
+    the text applies equally well to the DTLS over UDP protocol.  Used without
     authentication, TLS provides protection only against eavesdropping
     through its use of encryption.  With authentication, TLS also
-    provides integrity protection and authentication, which protect
+    provides integrity protection and authentication, which protects
     the transport against man-in-the-middle (MITM) attacks.
   </t>
 
   <t>
     Other related documents that build on <xref target="RFC6698"/> are
     <xref target="I-D.ietf-dane-srv"/> and <xref
-    target="I-D.ietf-dane-smtp-with-dane"/>.  In <xref target="updates"/>
-    we summarize the updates this document makes to <xref
+    target="I-D.ietf-dane-smtp-with-dane"/>.
+  </t>
+
+  <t>
+    In <xref target="updates"/>
+    we summarize the normative updates this document makes to <xref
     target="RFC6698"/>.
   </t>
 
@@ -141,7 +146,7 @@ guidance for DANE implementers and operators.
     <list style="hanging">
       <t hangText="Service Provider:">
 	A company or organization that offers to host a service on behalf
-	of a Customer Domain.  The original domain name associated with the
+	of the owner of a Customer Domain.  The original domain name associated with the
 	service often remains under the control of the customer.  Connecting
 	applications may be directed to the Service Provider via a redirection
 	resource record.  Example redirection records include MX, SRV, and
@@ -151,10 +156,10 @@ guidance for DANE implementers and operators.
 	handled easily by the applications.
       </t>
       <t hangText="Customer Domain:">
-	As described above, a client may be interacting with a
+	As described above, a TLS client may be interacting with a
 	service that is hosted by a third party.  We will refer to
-	the domain name used to locate the service prior to any
-	redirection, as the "Customer Domain".
+	the domain name used to locate the service (prior to any
+	redirection) as the "Customer Domain".
       </t>
       <t hangText="TLSA Publisher:">
 	The entity responsible for publishing a TLSA record within a DNS
@@ -162,7 +167,7 @@ guidance for DANE implementers and operators.
 	to a trust anchor, unless otherwise specified.  If the Customer
 	Domain is not outsourcing their DNS service, the TLSA Publisher
 	will be the customer themselves.  Otherwise, the TLSA Publisher
-	is sometimes the operator of the outsourced DNS service.
+	may be the operator of the outsourced DNS service.
       </t>
       <t hangText="public key:">
 	The term "public key" is short-hand for the
@@ -331,7 +336,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 
 </section><!-- TLS Requirements -->
 
-<section title="DANE Certificate-Usage Selection Guidelines">
+<section title="DANE Certificate-Usage Selection Guidelines" anchor="pkixvsdane">
 
   <t>
     As mentioned in <xref target="overview" />, the TLSA
@@ -389,6 +394,53 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 
   </section><!-- Opportunistic Security considerations -->
 
+  <section title="Interaction with Certificate Transparency">
+  <!-- XXX: DANEbis: CT interaction: No CT for DANE-TA/EE -->
+
+    <t>
+      Certificate Transparency (CT) <xref target="RFC6962"/> defines
+      an experimental approach to mitigate the risk of rogue or
+      compromised public CAs issuing unauthorized certificates.  This
+      section clarifies the interaction of CT and DANE.  CT is an
+      experimental protocol and auditing system that applies only to
+      public CAs, and only when they are free to issue unauthorized
+      certificates for a domain.  If the CA is not a public CA, or a
+      DANE-EE(3) TLSA RR directly specifies the end entity
+      certificate, there is no role for CT, and clients need not apply
+      CT checks.
+    </t>
+
+    <t>
+      When a server is authenticated via a DANE TLSA RR with TLSA
+      Certificate Usage DANE-EE(3), the domain owner has directly
+      specified the certificate associated with the given service
+      without reference to any PKIX certification authority.  Therefore,
+      when a TLS client authenticates the TLS server via a TLSA
+      certificate association with usage DANE-EE(3), CT checks SHOULD
+      NOT be performed.  Publication of the server certificate or
+      public key (digest) in a TLSA record in a DNSSEC signed zone
+      by the domain owner assures the TLS client that the certificate
+      is not an unauthorized certificate issued by a rogue CA without
+      the domain owner's consent.
+    </t>
+
+    <t>
+      When a server is authenticated via a DANE TLSA RR with TLSA
+      usage DANE-TA(2) and the server certificate does not chain
+      to a known public root CA, CT cannot apply (CT logs only
+      accept chains that start with a known, public root).  Since
+      TLSA Certificate Usage DANE-TA(2) is generally intended to
+      support non-PKIX trust anchors, TLS clients SHOULD NOT perform
+      CT checks with usage DANE-TA(2) using unknown root CAs.
+    </t>
+
+    <t>
+      A server operator who wants clients to perform CT checks
+      should publish TLSA RRs with usage PKIX-TA(0) or PKIX-EE(1)
+    </t>
+
+  </section> <!-- Interaction with Certificate Transparency -->
+
   <section title="Transitioning from PKIX-* to DANE-*">
     <t>
       If a protocol desires to transition from a pre-configured PKIX
@@ -401,7 +453,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
       protocol in question, so there is no downgrade issue with
       allowing both types to exist during the transition.
     </t>
-  </section>
+  </section><!-- Transitioning from PKIX-* to DANE-* -->
 
   <section title="Transitioning from DANE-* to PKIX-*">
     <t>
@@ -416,8 +468,8 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
       where client software should no longer accept the DANE based
       certificate-usage field types.
     </t>
-  </section>
-</section>      
+  </section><!-- Transitioning from DANE-* to PKIX-* -->
+</section><!-- DANE Certificate-Usage Selection Guidelines -->
 
 <section title="Certificate-Usage Specific DANE Updates and Guidelines">
 
@@ -1498,52 +1550,6 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
   </section><!-- Design Considerations for Protocols Using DANE -->
 
 </section>
-  <section title="Interaction with Certificate Transparency">
-  <!-- XXX: DANEbis: CT interaction: No CT for DANE-TA/EE -->
-
-    <t>
-      Certificate Transparency (CT) <xref target="RFC6962"/> defines
-      an experimental approach to mitigate the risk of rogue or
-      compromised public CAs issuing unauthorized certificates.  This
-      section clarifies the interaction of CT and DANE.  CT is an
-      experimental protocol and auditing system that applies only to
-      public CAs, and only when they are free to issue unauthorized
-      certificates for a domain.  If the CA is not a public CA, or a
-      DANE-EE(3) TLSA RR directly specifies the end entity
-      certificate, there is no role for CT, and clients need not apply
-      CT checks.
-    </t>
-
-    <t>
-      When a server is authenticated via a DANE TLSA RR with TLSA
-      Certificate Usage DANE-EE(3), the domain owner has directly
-      specified the certificate associated with the given service
-      without reference to any PKIX certification authority.  Therefore,
-      when a TLS client authenticates the TLS server via a TLSA
-      certificate association with usage DANE-EE(3), CT checks SHOULD
-      NOT be performed.  Publication of the server certificate or
-      public key (digest) in a TLSA record in a DNSSEC signed zone
-      by the domain owner assures the TLS client that the certificate
-      is not an unauthorized certificate issued by a rogue CA without
-      the domain owner's consent.
-    </t>
-
-    <t>
-      When a server is authenticated via a DANE TLSA RR with TLSA
-      usage DANE-TA(2) and the server certificate does not chain
-      to a known public root CA, CT cannot apply (CT logs only
-      accept chains that start with a known, public root).  Since
-      TLSA Certificate Usage DANE-TA(2) is generally intended to
-      support non-PKIX trust anchors, TLS clients SHOULD NOT perform
-      CT checks with usage DANE-TA(2) using unknown root CAs.
-    </t>
-
-    <t>
-      A server operator who wants clients to perform CT checks
-      should publish TLSA RRs with usage PKIX-TA(0) or PKIX-EE(1).
-    </t>
-
-  </section>
 
 <section title="Note on DNSSEC Security">
 
