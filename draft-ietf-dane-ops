@@ -344,40 +344,34 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
     PKIX-TA(0) and PKIX-EE(1), depend on additional pre-configured
     Certification Authority trust anchors that are mutually trusted
     by the operators of the TLS server and client.  The other two
-    values, DANE-TA(2) and DANE-EE(3), do not require any additional
-    pre-configured trust anchors beyond those employed in support
-    of DNSSEC.
+    values, DANE-TA(2) and DANE-EE(3), does not require any
+    pre-configured X.509 trust anchors.  The authenticity of the records
+    are verified solely through the usage of the DNSSEC trust anchors.
   </t>
 
   <t>
     Protocol designers should carefully consider which set of DANE
-    certificate-usage types to support.  Support for all four usages
-    is NOT RECOMMENDED for DANE clients.  The requirement for DANE
-    clients that support PKIX-TA(0) or PKIX-EE(1) to be pre-configured
-    with a comprehensive list of trust anchors decreases the
-    operational simplicity and reliability of DANE.  With DANE-TA(2)
-    and DANE-EE(3) clients don't need to track a large changing
-    list of trust-anchors.
-  </t>
-
-  <t>
-    Conversely, clients that want to take advantage of additional
-    assurance via locally trusted certification authorities lose
-    the protection against DNSSEC-only attacks if they also support
-    the DANE-TA/EE certificate usages.  Since an attacker capable
-    of compromising the integrity of DNSSEC needs only to replace
-    server's TLSA RRset with one that lists suitable DANE-EE(3) or
-    DANE-TA(2) records.  In other words, when all four usages are
+    certificate-usage types to support.  Simultaneous support for all
+    four usages is NOT RECOMMENDED for DANE clients.  Protocol
+    designers should either use the PKIX-TA(0) and PKIX-EE(1)
+    certificate-usage types, or use the DANE-TA(2) and DANE-EE(3)
+    usage-types.  If all 4 usage types are deployed together, an
+    attacker capable of compromising the integrity of DNSSEC needs
+    only to replace server's TLSA RRset with one that lists suitable
+    DANE-EE(3) or DANE-TA(2) records, effectively bypassing the PKIX
+    required checks..  In other words, when all four usages are
     supported, PKIX-TA(2) and PKIX-EE(1) offer only illusory
     incremental security.
   </t>
 
   <t>
-    Client implementations are advised to choose between supporting
-    either only the PKIX-TA/EE or the DANE-TA/EE usages.  The DNSSEC
-    TLSA records for servers MAY include both sets of usages if the
-    server needs to support a mixture of clients some supporting
-    one pair of usages and some the other.
+    This document recommends using the DANE-TA(2) and DANE-EE(3)
+    certificate-usage types when possible, as clients don't need to
+    track a large changing list of X.509 trust-anchors and thus
+    decreases the operational simplicity and reliability of DANE-based
+    authentication.  The DNSSEC TLSA records for servers MAY include
+    both sets of usages if the server needs to support a mixture of
+    clients some supporting one pair of usages and some the other.
   </t>
 
   <section title="Opportunistic Security and PKIX usages">
@@ -435,9 +429,6 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
   </section> <!-- Interaction with Certificate Transparency -->
 
   <section title="Transitioning between PKIX-TA/EE and DANE-TA/EE">
-  <!-- XXXVD: Is this section necessary?  The transitions are
-    not particularly remarkable, and the mechanics likely obvious. -->
-
     <t>
       The choice of preferred certificate usages may need to change
       as a protocol evolves.  When transitioning between PKIX-TA/PKIX-EE
@@ -1619,14 +1610,14 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
     validate the certificate chain of the updated server.  TLSA
     RRsets should have TTLs that are short enough to limit unplanned
     service disruption to an acceptable duration.  For example,
-    with SMTP TTLs that are approximately an hour are likely
+    SMTP TTLs of approximately an hour are likely
     sufficiently short, while for interactive HTTP services, TLSA
-    TTLs that are approximately 5 minutes long may be more appropriate.
+    TTLs of approximately 5 minutes long may be more appropriate.
   </t>
 
   <t>
-    The signature validity time for TLSA records should also be
-    chosen to not be too long.  Signed DNSSEC records can be replayed
+    The signature validity time for TLSA records should also not be
+    too long.  Signed DNSSEC records can be replayed
     by an MiTM attacker provided the signatures have not yet expired.
     Shorter signature validity intervals allow for faster invalidation
     of compromised keys.
