@@ -1747,6 +1747,10 @@ found in <xref target="I-D.ietf-dane-ops" /> under "DANE DNS Record
 Size Guidelines".
 </t>
 
+<t> TLSA Publishers SHOULD follow the TLSA record TTL and signature
+lifetime recommendations found in <xref target="I-D.ietf-dane-ops"/>
+under "Operational Considerations".  </t>
+
 </section>
 </section>
 
