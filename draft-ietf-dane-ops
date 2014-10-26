@@ -75,7 +75,7 @@
     certificate or a public key of an end-entity or a trusted issuing
     authority with the corresponding TLS transport endpoint.  DNSSEC
     validated DANE TLSA records can be used to augment or replace
-    the use of trusted public Certification Authorities.
+    the use of trusted public Certification Authorities (CAs).
   </t>
 
   <t>
@@ -258,9 +258,9 @@
 
     <t> When the high bit is set (DANE-TA(2) and DANE-EE(3)), the
     server certificate chain is domain-issued and may be verified
-    without reference to any pre-existing public certification authority
-    PKI.  Trust is entirely placed on the content of the TLSA records
-    obtained via DNSSEC.  </t>
+    without reference to any pre-configured Certification Authority
+    trust anchor.  Trust is based solely on the content of the
+    TLSA records obtained via DNSSEC.  </t>
 
     <t> When the high bit is not set (PKIX-TA(0) and PKIX-EE(1)),
     the TLSA record publishes a server policy stating that its
@@ -339,39 +339,44 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 <section title="DANE Certificate-Usage Selection Guidelines" anchor="pkixvsdane">
 
   <t>
-    As mentioned in <xref target="overview" />, the TLSA certificate-usage
-    field takes one of four possible values.  Two of these values,
-    PKIX-TA(0) and PKIX-EE(1), depend on additional pre-configured
-    Certification Authority trust anchors that are mutually trusted
-    by the operators of the TLS server and client.  The other two
-    values, DANE-TA(2) and DANE-EE(3), does not require any
-    pre-configured X.509 trust anchors.  The authenticity of the records
-    are verified solely through the usage of the DNSSEC trust anchors.
+    As mentioned in <xref target="overview" />, the TLSA certificate
+    usage field takes one of four possible values.  With PKIX-TA(0)
+    and PKIX-EE(1), the validation of peer certificate chains
+    requires additional pre-configured CA trust anchors that are
+    mutually trusted by the operators of the TLS server and client.
+    With DANE-TA(2) and DANE-EE(3), no pre-configured CA trust
+    anchors are required and the published DANE TLSA records are
+    sufficient to verify the peer's certificate chain.
   </t>
 
   <t>
     Protocol designers should carefully consider which set of DANE
-    certificate-usage types to support.  Simultaneous support for all
+    certificate usages to support.  Simultaneous support for all
     four usages is NOT RECOMMENDED for DANE clients.  Protocol
     designers should either use the PKIX-TA(0) and PKIX-EE(1)
-    certificate-usage types, or use the DANE-TA(2) and DANE-EE(3)
-    usage-types.  If all 4 usage types are deployed together, an
-    attacker capable of compromising the integrity of DNSSEC needs
-    only to replace server's TLSA RRset with one that lists suitable
-    DANE-EE(3) or DANE-TA(2) records, effectively bypassing the PKIX
-    required checks..  In other words, when all four usages are
-    supported, PKIX-TA(2) and PKIX-EE(1) offer only illusory
-    incremental security.
+    certificate usages, or use the DANE-TA(2) and DANE-EE(3) usages.
+    If all four usages are deployed together, an attacker capable of
+    compromising the integrity of DNSSEC needs only to replace
+    server's TLSA RRset with one that lists suitable DANE-EE(3) or
+    DANE-TA(2) records, effectively bypassing the PKIX required
+    checks..  In other words, when all four usages are supported,
+    PKIX-TA(2) and PKIX-EE(1) offer only illusory incremental
+    security.
   </t>
 
   <t>
-    This document recommends using the DANE-TA(2) and DANE-EE(3)
-    certificate-usage types when possible, as clients don't need to
-    track a large changing list of X.509 trust-anchors and thus
-    decreases the operational simplicity and reliability of DANE-based
-    authentication.  The DNSSEC TLSA records for servers MAY include
-    both sets of usages if the server needs to support a mixture of
-    clients some supporting one pair of usages and some the other.
+    This document recommends that clients should generally support
+    just the DANE-TA(2) and DANE-EE(3) certificate usages.  With
+    DANE-TA(2) and DANE-EE(3) clients don't need to track a large
+    changing list of X.509 trust-anchors.  Supporting PKIX-TA(0)
+    or PKIX-EE(1) decreases the operational reliability of DANE-based
+    authentication.
+  </t>
+
+  <t>
+    The DNSSEC TLSA records for servers MAY include both sets of
+    usages if the server needs to support a mixture of clients;
+    some supporting one pair of usages and some the other.
   </t>
 
   <section title="Opportunistic Security and PKIX usages">
@@ -1610,17 +1615,18 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
     validate the certificate chain of the updated server.  TLSA
     RRsets should have TTLs that are short enough to limit unplanned
     service disruption to an acceptable duration.  For example,
-    SMTP TTLs of approximately an hour are likely
-    sufficiently short, while for interactive HTTP services, TLSA
-    TTLs of approximately 5 minutes long may be more appropriate.
+    TLSA records for SMTP servers with a TTL of approximately an
+    hour are likely sufficiently short.  For interactive HTTP
+    services, TLSA record TTLs of approximately 5 minutes may be
+    more appropriate.
   </t>
 
   <t>
-    The signature validity time for TLSA records should also not be
-    too long.  Signed DNSSEC records can be replayed
-    by an MiTM attacker provided the signatures have not yet expired.
-    Shorter signature validity intervals allow for faster invalidation
-    of compromised keys.
+    The signature validity time for TLSA records should also not
+    be too long.  Signed DNSSEC records can be replayed by an MiTM
+    attacker provided the signatures have not yet expired.  Shorter
+    signature validity intervals allow for faster invalidation of
+    compromised keys.
   </t>
 
 </section><!-- Operational Considerations -->
