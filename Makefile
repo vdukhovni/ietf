@@ -1,4 +1,4 @@
-SMTP_VERSION = 14
+SMTP_VERSION = 15
 OPS_VERSION = 07
 
 OPS	= draft-ietf-dane-ops
