@@ -90,7 +90,8 @@ destination server is selected indirectly via DNS Mail Exchange
 (MX) records and that neither email addresses nor MX hostnames
 signal a requirement for either secure or cleartext transport.
 Therefore, aside from a few manually configured exceptions, SMTP
-transport security is of necessity opportunistic.
+transport security is of necessity opportunistic (for a definition
+of "Opportunistic Security" see <xref target="RFC7435"/>).
 </t>
 
 <t>
@@ -244,19 +245,19 @@ As described in the introduction of <xref target="RFC6698"/>, TLS
 authentication via the existing public Certification Authority (CA)
 PKI suffers from an over-abundance of trusted parties
 capable of issuing certificates for any domain of their choice.
-DANE leverages the DNSSEC infrastructure to publish trusted public
+DANE leverages the DNSSEC infrastructure to publish public
 keys and certificates for use with the Transport Layer Security
-(TLS) <xref target="RFC5246"/> protocol via a new "TLSA" DNS record
+(TLS) <xref target="RFC5246"/> protocol via the "TLSA" DNS record
 type.  With DNSSEC each domain can only vouch for the keys of its
-directly delegated sub-domains.
+delegated sub-domains.
 </t>
 
 <t>
-The TLS protocol enables secure TCP communication.  In the context of this memo,
-channel security is assumed to be provided by TLS.  Used without
-authentication, TLS provides only privacy protection against
-eavesdropping attacks.  With authentication, TLS also provides data
-integrity protection to guard against MITM attacks.
+The TLS protocol enables secure TCP communication.  In the context
+of this memo, channel security is assumed to be provided by TLS.
+Used without authentication, TLS provides only privacy protection
+against eavesdropping attacks.  Otherwise, TLS also provides data
+origin authentication to guard against MITM attacks.
 </t>
 
 </section><!-- Background -->
@@ -275,7 +276,7 @@ security model is inadequate to protect inter-domain SMTP traffic.
 
 <t>
 The subsections below outline four key problems with applying
-traditional PKI to SMTP that are addressed by this specification.
+traditional Web PKI to SMTP that are addressed by this specification.
 Since SMTP channel security policy is not explicitly specified in
 either the recipient address or the MX record, a new signaling
 mechanism is required to indicate when channel security is possible
@@ -315,8 +316,8 @@ the client also supports TLS, it may negotiate a TLS encrypted
 channel to use for email transmission.  The server's indication of
 TLS support can be easily suppressed by an MITM attacker.
 Thus pre-DANE SMTP TLS security can be subverted by simply downgrading
-a connection to cleartext.  No TLS security feature, such as the
-use of PKIX, can prevent this.  The attacker can simply disable TLS.
+a connection to cleartext.  No TLS security feature can prevent
+this.  The attacker can simply disable TLS.
 </t>
 
 </section><!-- STARTTLS downgrade attack -->
@@ -331,7 +332,7 @@ domain.
 </t>
 
 <t>
-A PKIX TLS client is vulnerable to MITM attacks unless it verifies
+A TLS client is vulnerable to MITM attacks unless it verifies
 that the server's certificate binds the public key to a name that
 matches one of the client's reference identifiers.  A natural choice
 of reference identifier is the server's domain name.  However, with
@@ -450,7 +451,7 @@ downgrade attacks when using opportunistic DANE TLS.
 
 <t>
 A DNS lookup may signal an error or return a definitive answer.  A
-security-aware resolver must be used for this specification.
+security-aware resolver MUST be used for this specification.
 Security-aware resolvers will indicate the security status of a
 DNS RRSet with one of four possible values defined in
 Section 4.3 of <xref target="RFC4035"/>: "secure", "insecure", "bogus"
@@ -477,24 +478,25 @@ in section 5 of <xref target="RFC4033"/>.
 </artwork>
 </figure>
 <t>
-To avoid further confusion, the adjective "anchorless" will be
-used below to refer to domains or RRSets that are "indeterminate"
-in the <xref target="RFC4033"/> sense, and the term "indeterminate"
-will be used exclusively in the sense of <xref target="RFC4035"/>.
+In this document the term "indeterminate" will be used exclusively
+in the <xref target="RFC4035"/> sense.  Therefore, obtaining
+"indeterminate" lookup results is a (transient) failure condition,
+namely, the inability to locate the relevant DNS records.  DNS
+records that would be classified "indeterminate" in the sense of
+<xref target="RFC4035"/> are simply classified as "insecure".
 </t>
 
 <t>
-SMTP clients following this specification SHOULD NOT distinguish
-between "insecure" and "anchorless" DNS responses.  Both "insecure"
-and "anchorless" RRSets MUST be handled identically: in either case
-unvalidated data for the query domain is all that is and can be
-available, and authentication using the data is impossible.  In
-what follows, the term "insecure" will also include the case of
-"anchorless" domains that lie in a portion of the DNS tree for which
-there is no applicable trust anchor.  With the DNS root zone signed,
-we expect that validating resolvers used by Internet-facing MTAs
-will be configured with trust anchor data for the root zone, and
-that therefore "anchorless" domains should be rare in practice.
+We do not need to distinguish between zones that lack a suitable
+ancestor trust anchor, and delegations (ultimately) from a trust-anchor
+that designate a child zone as being "insecure".  All "insecure"
+RRSets MUST be handled identically: in either case unvalidated data
+for the query domain is all that is and can be available, and
+authentication using the data is impossible.  As the DNS root zone
+has been signed, we expect that validating resolvers used by
+Internet-facing MTAs will be configured with trust anchor data for
+the root zone, and that therefore domains with no ancestor
+trust anchor will not be possible in most deployments.
 </t>
 
 <t>
@@ -563,12 +565,13 @@ no such RRSet exists when it does not.
 
 <t>
 In contrast to a "bogus" or an "indeterminate" response, an "insecure"
-DNSSEC response is not an error, rather it indicates that the target
-DNS zone is either securely opted out of DNSSEC validation or is
-not connected with the DNSSEC trust anchors being used.  Insecure
-results will leave the SMTP client with degraded channel security,
-but do not stand in the way of message delivery.  See section <xref
-target="discovery"/> for further details.
+DNSSEC response is not an error, rather, as explained above, it
+indicates that the target DNS zone is either delegated as an
+"insecure" child of a "secure" parent zone, or is not a descendant
+of any of the configured DNSSEC trust anchors in use by the SMTP
+client.  "Insecure" results will leave the SMTP client with degraded
+channel security, but do not stand in the way of message delivery.
+See section <xref target="discovery"/> for further details.
 </t>
 
 </section><!-- DNS lookup errors and bogus responses -->
@@ -701,15 +704,15 @@ this context is in the sense of Section 4.1 of <xref target="RFC6698"/>.
 Specifically, if the DNS lookup for a TLSA record returns:
 
 <list style="hanging">
-<t hangText="A secure TLSA RRSet with at least one usable record:"> A
-connection to the MTA MUST be made using authenticated and encrypted
-TLS, using the techniques discussed in the rest of this document.
-Failure to establish an authenticated TLS connection MUST result
-in falling back to the next SMTP server or delayed delivery.
-</t>
+<t hangText="A secure TLSA RRSet with at least one usable record:">
+Any connection to the MTA MUST employ TLS encryption and MUST
+authenticate the SMTP server using the techniques discussed in the
+rest of this document.  Failure to establish an authenticated TLS
+connection MUST result in falling back to the next SMTP server or
+delayed delivery.  </t>
 
 <t hangText="A secure non-empty TLSA RRSet where all the records are unusable:">
-A connection to the MTA MUST be made via TLS, but authentication
+Any connection to the MTA MUST be made via TLS, but authentication
 is not required.  Failure to establish an encrypted TLS connection
 MUST result in falling back to the next SMTP server or delayed delivery.  </t>
 
@@ -816,10 +819,11 @@ delivery MUST be delayed when the MX RRSet is not "secure".
 </t>
 
 <t>
-Otherwise, assuming no DNS errors (<xref target="dnserr"/>),
+If the MX RRset is not "insecure", then &mdash; assuming no DNS
+lookup errors (<xref target="dnserr"/>) &mdash;
 the MX RRSet is "secure", and the SMTP client MUST treat
 each MX hostname as a separate non-MX destination for opportunistic
-DANE TLS as described in <xref target="non-mx"/>.  When, for a given
+DANE TLS (as described in <xref target="non-mx"/>).  When, for a given
 MX hostname, no TLSA records are found, or only "insecure" TLSA
 records are found, DANE TLSA is not applicable with the SMTP server
 in question and delivery proceeds to that host as with pre-DANE
@@ -834,21 +838,24 @@ the SMTP server in question to be treated as unreachable.
 
 <t>
 This section describes the algorithm used to locate the TLSA records
-and associated TLSA base domain for an input domain not subject to
-MX resolution.  Such domains include:
+and associated TLSA base domain for an input domain that is not
+subject to MX resolution or that lacks MX records.  Such domains
+include:
 </t>
 
 <t>
 <list style="symbols">
 
-<t> Each MX hostname used in a message delivery attempt for an
-original next-hop destination domain subject to MX resolution.
-Note, MTAs are not obligated to support CNAME expansion of MX
-hostnames. </t>
+<t> Any host configured by the sending MTA administrator as the
+next-hop relay for some or all domains, that is not subject to MX
+resolution.  </t>
 
-<t> Any administrator configured relay hostname, not subject to MX
-resolution.  This frequently involves configuration set by the MTA
-administrator to handle some or all mail. </t>
+<t> When a domain has MX records, we treat each MX host listed in
+those MX records as though it were a non-MX destination.  That is,
+in the same way as we would treat an administrator-configured relay
+that handles mail for that domain.  (Unlike administrator-specified
+relays, MTAs are not required to support CNAME expansion of next-hop
+names found via MX lookups).  </t>
 
 <t> A next-hop destination domain subject to MX resolution that has
 no MX records.  In this case the domain's name is implicitly also
@@ -1094,56 +1101,9 @@ configuration of the client and server.
 The DANE TLSA specification <xref target="RFC6698"/> defines multiple
 TLSA RR types via combinations of 3 numeric parameters.  The numeric
 values of these parameters were later given symbolic names in <xref
-target="RFC7218"/>.  The rest of the TLSA
-record is the "certificate association data field", which specifies
-the full or digest value of a certificate or public key.  The
-parameters are:
-</t>
-
-<t>
-<list style='hanging'>
-
-<t hangText="The TLSA Certificate Usage field:"> Section 2.1.1 of
-<xref target="RFC6698"/> specifies four values: PKIX-TA(0), PKIX-EE(1),
-DANE-TA(2), and DANE-EE(3).  There is an additional private-use
-value: PrivCert(255).  All other values are reserved for use by
-future specifications.  </t>
-
-<t hangText="The selector field:"> Section 2.1.2 of <xref
-target="RFC6698"/> specifies two values: Cert(0) and SPKI(1).  There
-is an additional private-use value: PrivSel(255).  All other values
-are reserved for use by future specifications.  </t>
-
-<t hangText="The matching type field:"> Section 2.1.3 of <xref
-target="RFC6698"/> specifies three values: Full(0), SHA2-256(1) and
-SHA2-512(2).  There is an additional private-use value: PrivMatch(255).
-All other values are reserved for use by future specifications.  </t>
-
-</list>
-</t>
-
-<t>
-We may think of TLSA Certificate Usage values 0 through 3 as a
-combination of two one-bit flags.  The low bit chooses between
-trust anchor (TA) and end entity (EE) certificates.  The high bit
-chooses between public PKI issued and domain-issued certificates.
-</t>
-
-<t>
-The selector field specifies whether the TLSA RR matches the whole
-certificate: Cert(0), or just its subjectPublicKeyInfo: SPKI(1).
-The subjectPublicKeyInfo is an ASN.1 DER (<xref target="X.690"/>)
-encoding of the certificate's
-algorithm id, any parameters and the public key data.
-</t>
-
-<t>
-The matching type field specifies how the TLSA RR Certificate Association
-Data field is to be compared with the certificate or public key.  A value
-of Full(0) means an exact match: the full DER encoding of the certificate
-or public key is given in the TLSA RR.  A value of SHA2-256(1) means
-that the association data matches the SHA2-256 digest of the certificate
-or public key, and likewise SHA2-512(2) means a SHA2-512 digest is used.
+target="RFC7218"/>.  The rest of the TLSA record is the "certificate
+association data field", which specifies the full or digest value
+of a certificate or public key.
 </t>
 
 <t>
@@ -1153,7 +1113,8 @@ of peer authentication is paramount.  Server operators are advised
 to publish TLSA records that are least likely to fail authentication
 due to interoperability or operational problems.  Because DANE TLS
 relies on coordinated changes to DNS and SMTP server settings, the
-best choice of records to publish will depend on site-specific practices.
+best choice of records to publish will depend on site-specific
+practices.
 </t>
 
 <t>
@@ -1172,19 +1133,6 @@ SHA2-256(1)" or "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA records
 depending on site needs.  Other combinations of TLSA parameters are
 either explicitly unsupported, or offer little to recommend them
 over these two. 
-</t>
-
-<t>
-As specified in <xref target="RFC6698"/>, the mandatory to implement
-matching type digest algorithm is SHA2-256(1).  When the server's
-TLSA RRSet includes records with a matching type indicating a digest
-record (i.e., a value other than Full(0)), a TLSA record with a
-SHA2-256(1) matching type SHOULD be provided along with any other
-digest published, since some SMTP clients may support only SHA2-256(1).
-If at some point the SHA2-256 digest algorithm is tarnished by new
-cryptanalytic attacks, publishers will need to include an appropriate
-stronger digest in their TLSA records, initially along with, and
-ultimately in place of, SHA2-256.
 </t>
 
 <section title="Certificate usage DANE-EE(3)" anchor="cert3">
@@ -1269,14 +1217,21 @@ appropriate certificate to present to the client.
 SMTP servers that rely on certificate usage DANE-TA(2) TLSA records
 for TLS authentication MUST include the TA certificate as part of
 the certificate chain presented in the TLS handshake server certificate
-message even when it is a self-signed root certificate.  At this
-time, many SMTP servers are not configured with a comprehensive
-list of trust anchors, nor are they expected to at any point in the
-future.  Some MTAs will ignore all locally trusted certificates
-when processing usage DANE-TA(2) TLSA records.  Thus even when the
-TA happens to be a public Certification Authority known to the SMTP
-client, authentication is likely to fail unless the TA certificate
-is included in the TLS server certificate message.
+message even when it is a self-signed root certificate.  Many SMTP
+servers are not configured with a comprehensive list of trust
+anchors, nor are they expected to at any point in the future.  Some
+MTAs will ignore all locally trusted certificates when processing
+usage DANE-TA(2) TLSA records.  Thus even when the TA happens to
+be a public Certification Authority known to the SMTP client,
+authentication is likely to fail unless the TA certificate is
+included in the TLS server certificate message.  </t>
+
+<t>
+With some SMTP server software it is not possible to configure the
+server to include self-signed (root) CA certificates in the server
+certificate chain.  Such servers MUST either publish DANE-TA(2)
+records for an intermediate certificate or MUST instead use DANE-EE(3)
+TLSA records.
 </t>
 
 <t>
@@ -1357,8 +1312,8 @@ only impede SMTP TLS interoperability.
 
 <t>
 SMTP client treatment of TLSA RRs with certificate usages PKIX-TA(0)
-or PKIX-EE(1) is undefined.  SMTP clients should generally treat such
-TLSA records as unusable.
+or PKIX-EE(1) is undefined.  As with any other unsupported certificate
+usage, SMTP clients MAY treat such records as "unusable"
 </t>
 
 </section><!-- Certificate usages 0 and 1 -->
@@ -1389,8 +1344,8 @@ certificate usage DANE-EE(3); see <xref target="cert3"/> above.
 To match a server via a TLSA record with certificate usage DANE-TA(2),
 the client MUST perform name checks to ensure that it has reached
 the correct server.  In all DANE-TA(2) cases the SMTP client MUST
-include the TLSA base domain as one of the valid reference identifiers
-for matching the server certificate.
+employ the TLSA base domain as the primary reference identifier for
+matching the server certificate.
 
 <list style="hanging">
 
@@ -1633,24 +1588,10 @@ SMTP security between MUAs and MSAs.
 <section title="SNI support">
 
 <t>
-<!-- XXXWJH for Viktor: suggest we drop the notes about SSLv2/SSLv3
-and simply state we require TLS version 1.2? and go with it.  We'll
-likely not get this paragraph past the security review.  It would be
-better to drop it and if implementations want to support older
-versions, it's their responsibility. To say you MUST do SNI, reference
-the 1.2 extension RFC and then somehow try to show that SSLv3 is
-possible is probably crazy.  -->
-<!-- XXX from Viktor: Sadly interoperability considerations
-for an *opportunistic* protocol mean tolerance for servers with
-obsolete TLS stacks, so SSLv3.0 should stay.  -->
 To ensure that the server sends the right certificate chain, the
 SMTP client MUST send the TLS SNI extension containing the TLSA
-base domain.  This precludes the use of the backward compatible
-SSL 2.0 compatible SSL HELLO by the SMTP client.  The minimum SSL/TLS
-client HELLO version for SMTP clients performing DANE authentication is
-SSL 3.0, but a client that offers SSL 3.0 MUST also offer at least
-TLS 1.0 and MUST include the SNI extension.  Servers that don't make
-use of SNI MAY negotiate SSL 3.0 if offered by the client.
+base domain.  This precludes the use of the SSL 2.0 compatible SSL
+HELLO by the SMTP client.
 </t>
 
 <t>
@@ -1748,12 +1689,6 @@ that server.
 <section anchor="oppublishers" title="Publisher Operational Considerations">
 
 <t>
-As explained in <xref target="pkix-usages"/> server operators SHOULD
-NOT publish TLSA records for their MTAs (port 25 SMTP) with certificate
-usages PKIX-TA(0) or PKIX-EE(1).
-</t>
-
-<t>
 Some MTAs enable STARTTLS selectively.  For example they might only
 support STARTTLS with clients that have previously demonstrated
 "proper MTA behavior", for example by retrying the delivery of
@@ -1763,16 +1698,6 @@ not attempt the initial cleartext SMTP transaction needed to
 establish the "proper MTA behavior", because they cannot establish
 the required channel security.  Server operators MUST NOT implement
 selective STARTTLS if they also want to support DANE TLSA.
-</t>
-
-<t>
-SMTP servers that publish certificate usage DANE-TA(2)
-associations MUST include the TA certificate in their TLS server
-certificate chain, even when that TA certificate is a self-signed
-root certificate.  With some SMTP server software it is not possible to
-include root CA certificates in the server chain.  Such servers need to
-either publish DANE-TA(2) records for an intermediate certificate or
-to use DANE-EE(3).
 </t>
 
 <t>
@@ -1889,20 +1814,6 @@ development of the Postfix DANE implementation.
 &RFC6698;
 &RFC7218;
 &I-D.ietf-dane-ops;
-<reference anchor="X.690">
-<front>
-<title>
-Recommendation ITU-T X.690 (2002) | ISO/IEC 8825-1:2002, Information
-technology - ASN.1 encoding rules: Specification of Basic Encoding
-Rules (BER), Canonical Encoding Rules (CER) and Distinguished
-Encoding Rules (DER)
-</title>
-<author>
-<organization>International Telecommunications Union</organization>
-</author>
-<date month="July" year="2002"/>
-</front>
-</reference>
 </references>
 
 <references title="Informative References">
