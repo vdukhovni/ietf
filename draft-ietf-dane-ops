@@ -10,12 +10,13 @@
 <!ENTITY RFC6125 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6125.xml">
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6698 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6698.xml">
+<!ENTITY RFC6781 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6781.xml">
 <!ENTITY RFC6962 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6962.xml">
 <!ENTITY RFC7218 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7218.xml">
-<!ENTITY I-D.ietf-tls-oob-pubkey SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-oob-pubkey.xml">
+<!ENTITY RFC7250 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7250.xml">
+<!ENTITY RFC7435 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7435.xml">
 <!ENTITY I-D.ietf-dane-srv SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-srv.xml">
 <!ENTITY I-D.ietf-dane-smtp-with-dane SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-dane-smtp-with-dane.xml">
-<!ENTITY I-D.dukhovni-opportunistic-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.dukhovni-opportunistic-security.xml">
 ]>
 <?rfc strict="yes" ?>
 <?rfc toc="yes"?>
@@ -56,7 +57,7 @@
 <abstract>
 
 <t>
-  This memo clarifies and updates the DNS-Based Authentication of
+  This document clarifies and updates the DNS-Based Authentication of
   Named Entities (DANE) TLSA specification based on subsequent
   implementation experience.  It also contains guidance for
   implementers, operators and protocol developers who want to make
@@ -81,8 +82,8 @@
   <t>
     <xref target="RFC6698"/> defines three TLSA record fields with
     respectively 4, 2 and 3 currently specified values.  These yield
-    24 distinct combinations of TLSA record types.  This memo will
-    recommend a smaller set of best-practice combinations of these
+    24 distinct combinations of TLSA record types.  This document
+    recommends a smaller set of best-practice combinations of these
     fields to simplify protocol design, implementation and deployment.
   </t>
 
@@ -100,13 +101,13 @@
     the Service Provider to deploy multiple pairs of private keys
     and certificates. The TLS clients, then, signal the desired domain
     to the TLSA server via the Server Name Indication (SNI) extension (<xref
-    target="RFC6066" />, section 3).  This memo provides operational
+    target="RFC6066" />, section 3).  This document provides operational
     guidelines intended to maximize interoperability between DANE
     TLS clients and servers.
   </t>
 
   <t>
-    In the context of this memo, channel security is assumed to be
+    In the context of this document, channel security is assumed to be
     provided by TLS or DTLS.  The Transport Layer Security (TLS)
     <xref target="RFC5246" /> and Datagram Transport Layer Security
     (DTLS) <xref target="RFC6347" /> protocols provide secured TCP
@@ -237,11 +238,11 @@
   </t>
 
   <t>
-    We may think of TLSA Certificate Usage values 0 through 3 as
-    a combination of two one-bit flags.  The low-bit chooses between
-    trust anchor (TA) and end entity (EE) certificates.  The high bit
-    chooses between PKIX, or public PKI issued, and DANE, or
-    domain-issued trust anchors:
+    We may think of TLSA Certificate Usage values 0 through 3 as a
+    combination of two one-bit flags.  The low-bit chooses between
+    trust anchor (TA) and end entity (EE) certificates.  The high
+    bit chooses between PKIX (public PKI issued) and DANE (domain-issued)
+    trust anchors:
   </t>
 
   <t>
@@ -306,7 +307,7 @@
 
     <figure>
     <artwork>
-_25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
+_25._tcp.mail.example.com. IN TLSA 2 0 1 (
                            E8B54E0B4BAA815B06D3462D65FBC7C0
                            CF556ECCF9F5303EBFBB77D022F834C0 )
     </artwork>
@@ -359,7 +360,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
     compromising the integrity of DNSSEC needs only to replace
     server's TLSA RRset with one that lists suitable DANE-EE(3) or
     DANE-TA(2) records, effectively bypassing the PKIX required
-    checks..  In other words, when all four usages are supported,
+    checks.  In other words, when all four usages are supported,
     PKIX-TA(2) and PKIX-EE(1) offer only illusory incremental
     security.
   </t>
@@ -383,7 +384,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 
     <t>
       When the client's protocol design is based on Opportunistic
-      Security (OS, <xref target="I-D.dukhovni-opportunistic-security"/>),
+      Security (OS, <xref target="RFC7435"/>),
       and the use of authentication is based on the presence of
       server TLSA records, it is especially important to avoid the
       PKIX-EE(1) and PKIX-TA(0) certificate usages.  Since the
@@ -402,9 +403,9 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
 
     <t>
       Certificate Transparency (CT) <xref target="RFC6962"/> defines
-      an experimental approach to mitigate the risk of rogue or
-      compromised public CAs issuing unauthorized certificates.  This
-      section clarifies the interaction of CT and DANE.
+      an approach to mitigate the risk of rogue or compromised
+      public CAs issuing unauthorized certificates.  This section
+      clarifies the interaction of CT and DANE.
     </t>
 
     <t>
@@ -463,13 +464,13 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
   <section title="Certificate Usage DANE-EE(3)" anchor="type3">
 
     <t>
-      In this section the meaning of DANE-EE(3) is updated from <xref
-      target="RFC6698"/> to specify that peer identity matching and
-      that validity interval compliance is based solely on the TLSA
-      RRset properties.  We also extend <xref target="RFC6698"/> to
-      cover the use of DANE authentication of raw public keys <xref
-      target="I-D.ietf-tls-oob-pubkey"/> via TLSA records with
-      Certificate Usage DANE-EE(3) and selector SPKI(1).
+      In this section the meaning of DANE-EE(3) is updated from
+      <xref target="RFC6698"/> to specify that peer identity matching
+      and that validity period enforcement is based solely on the
+      TLSA RRset properties.  We also extend <xref target="RFC6698"/>
+      to cover the use of DANE authentication of raw public keys
+      <xref target="RFC7250"/> via TLSA records with Certificate
+      Usage DANE-EE(3) and selector SPKI(1).
     </t>
 
     <t>
@@ -485,7 +486,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
     <t>
       Similarly, with DANE-EE(3), the expiration date of the server
       certificate MUST be ignored. The validity period of the TLSA
-      record key binding is determined by the validity interval of
+      record key binding is determined by the validity period of
       the TLSA record DNSSEC signatures.
     </t>
 
@@ -529,7 +530,7 @@ _25._tcp.mail.example.com. IN TLSA PKIX-TA Cert SHA2-256 (
       Another advantage of "DANE-EE(3) SPKI(1)" (with any suitable
       matching type) TLSA records is that they are compatible with
       the raw public key TLS extension specified in <xref
-      target="I-D.ietf-tls-oob-pubkey"/>.  DANE clients that support
+      target="RFC7250"/>.  DANE clients that support
       this extension can use the TLSA record to authenticate servers
       that negotiate the use of raw public keys in place of X.509
       certificate chains.  Provided the server adheres to the
@@ -636,11 +637,9 @@ tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
     <section title="Trust anchor digests and server certificate chain">
 
       <t>
-	With DANE-TA(2) (these TLSA records are expected to match
-	the digest of a TA certificate or public key), a complication
-	arises when the TA certificate is omitted from the server's
-	certificate chain, perhaps on the basis of Section 7.4.2
-	of <xref target="RFC5246"/>:
+	With DANE-TA(2), a complication arises when the TA certificate
+	is omitted from the server's certificate chain, perhaps on
+	the basis of Section 7.4.2 of <xref target="RFC5246"/>:
       </t>
 
       <figure>
@@ -904,7 +903,7 @@ already possess it in order to validate it in any case.
 ;
 www1.example.com.            IN CNAME w1.example.net.
 _443._tcp.www1.example.com.  IN CNAME _443._tcp.w1.example.net.
-_443._tcp.w1.example.net.    IN TLSA DANE-EE SPKI SHA2-256 (
+_443._tcp.w1.example.net.    IN TLSA 3 1 1 (
                                 8A9A70596E869BED72C69D97A8895DFA
                                 D86F300A343FECEFF19E89C27C896BC9 )
 
@@ -915,7 +914,7 @@ _443._tcp.w1.example.net.    IN TLSA DANE-EE SPKI SHA2-256 (
 ;
 www2.example.com.            IN CNAME w2.example.net.
 _443._tcp.www2.example.com.  IN CNAME _443._tcp.w2.example.net.
-_443._tcp.w2.example.net.    IN TLSA DANE-TA Cert SHA2-256 (
+_443._tcp.w2.example.net.    IN TLSA 2 0 1 (
                                 C164B2C3F36D068D42A6138E446152F5
                                 68615F28C69BD96A73E354CAC88ED00C )
   </artwork>
@@ -943,10 +942,10 @@ _443._tcp.w2.example.net.    IN TLSA DANE-TA Cert SHA2-256 (
 ;
 example.com.               IN MX 0 mx1.example.net.
 example.com.               IN MX 0 mx2.example.net.
-_25._tcp.mx1.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
+_25._tcp.mx1.example.net.  IN TLSA 3 1 1 (
                               8A9A70596E869BED72C69D97A8895DFA
                               D86F300A343FECEFF19E89C27C896BC9 )
-_25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
+_25._tcp.mx2.example.net.  IN TLSA 3 1 1 (
                               C164B2C3F36D068D42A6138E446152F5
                               68615F28C69BD96A73E354CAC88ED00C )
   </artwork>
@@ -1055,7 +1054,7 @@ _25._tcp.mx2.example.net.  IN TLSA DANE-EE SPKI SHA2-256 (
     parameters.  Some clients may not support some digest algorithms,
     others may either not support, or may exclusively support, the
     PKIX Certificate Usages.  Some clients may prefer to negotiate
-    <xref target="I-D.ietf-tls-oob-pubkey"/> raw public keys, which
+    <xref target="RFC7250"/> raw public keys, which
     are only compatible with TLSA records whose Certificate Usage is
     DANE-EE(3) with selector SPKI(1).
   </t>
@@ -1434,7 +1433,7 @@ among usable records with the given usage and selector.
       <artwork>
 example.com.               IN MX 0 mail.example.com.
 mail.example.com.          IN A 192.0.2.1
-_25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
+_25._tcp.mail.example.com. IN TLSA 2 0 1 (
                               E8B54E0B4BAA815B06D3462D65FBC7C0
                               CF556ECCF9F5303EBFBB77D022F834C0 )
       </artwork>
@@ -1507,7 +1506,7 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 
   <t>
     Clearly the security of the DANE TLSA PKI rests on the security
-    of the underlying DNSSEC infrastructure.  While this memo is
+    of the underlying DNSSEC infrastructure.  While this document is
     not a guide to DNSSEC security, a few comments may be helpful
     to TLSA implementers.
   </t>
@@ -1567,7 +1566,7 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
     to specify peer identity matching and certificate validity
     interval based solely on the basis of the TLSA RRset.  We also
     specify DANE authentication of raw public keys <xref
-    target="I-D.ietf-tls-oob-pubkey"/> via TLSA records with
+    target="RFC7250"/> via TLSA records with
     Certificate Usage DANE-EE(3) and selector SPKI(1). </t>
 
     <t>In <xref target="type2"/> we update <xref target="RFC6698"/>
@@ -1614,19 +1613,17 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
     or lost, clients that cache stale TLSA records will fail to
     validate the certificate chain of the updated server.  TLSA
     RRsets should have TTLs that are short enough to limit unplanned
-    service disruption to an acceptable duration.  For example,
-    TLSA records for SMTP servers with a TTL of approximately an
-    hour are likely sufficiently short.  For interactive HTTP
-    services, TLSA record TTLs of approximately 5 minutes may be
-    more appropriate.
+    service disruption to an acceptable duration.
   </t>
 
   <t>
-    The signature validity time for TLSA records should also not
+    The signature validity period for TLSA records should also not
     be too long.  Signed DNSSEC records can be replayed by an MiTM
     attacker provided the signatures have not yet expired.  Shorter
-    signature validity intervals allow for faster invalidation of
-    compromised keys.
+    signature validity periods allow for faster invalidation of
+    compromised keys.  Zone refresh and expiration times for secondary
+    nameservers often imply a lower bound on the signature validity
+    period.  See Section 4.4.1 of <xref target="RFC6781"/>.
   </t>
 
 </section><!-- Operational Considerations -->
@@ -1674,7 +1671,7 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
   <t>
     Acknowledgments from Viktor: Thanks to Tony Finch who finally
     prodded me into participating in DANE working group discussions.
-    Thanks to Paul Hoffman who motivated me to produce this memo
+    Thanks to Paul Hoffman who motivated me to produce this document
     and provided feedback on early drafts.  Thanks also to Samuel
     Dukhovni for editorial assistance.
   </t>
@@ -1698,11 +1695,12 @@ _25._tcp.mail.example.com. IN TLSA DANE-TA Cert SHA2-256  (
 &RFC7218;
 </references>
 <references title="Informative References">
+&RFC6781;
 &RFC6962;
-&I-D.ietf-tls-oob-pubkey;
+&RFC7250;
+&RFC7435;
 &I-D.ietf-dane-smtp-with-dane;
 &I-D.ietf-dane-srv;
-&I-D.dukhovni-opportunistic-security;
 </references>
 </back>
 </rfc>
