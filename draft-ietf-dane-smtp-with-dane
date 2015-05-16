@@ -8,6 +8,7 @@
 <!ENTITY RFC4033 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4033.xml">
 <!ENTITY RFC4034 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4034.xml">
 <!ENTITY RFC4035 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4035.xml">
+<!ENTITY RFC4949 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.4949.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC5280 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5280.xml">
 <!ENTITY RFC5321 SYSTEM "http://xml2rfc.ietf.org/public/rfc/bibxml/reference.RFC.5321.xml">
@@ -145,6 +146,17 @@ The following terms or concepts are used through the document:
     <t hangText="Man-in-the-middle or MITM attack:">
     Active modification of network traffic by an adversary able to
     thereby compromise the confidentiality or integrity of the data.  </t>
+
+    <t hangText="Downgrade attack:">
+    (From <xref target="RFC4949"/>). A type of man-in-the-middle
+    attack in which the attacker can cause two parties, at the time
+    they negotiate a security association, to agree on a lower level
+    of protection than the highest level that could have been
+    supported by both of them.  </t>
+
+    <t hangText="Downgrade-resistant:">
+    A protocol is "downgrade-resistant" if it employs effective
+    counter-measures against downgrade attacks.  </t>
 
     <t hangText="secure, bogus, insecure, indeterminate:">
     DNSSEC validation results, as defined in Section 4.3 of <xref
@@ -819,17 +831,16 @@ delivery MUST be delayed when the MX RRSet is not "secure".
 </t>
 
 <t>
-If the MX RRset is not "insecure", then &mdash; assuming no DNS
-lookup errors (<xref target="dnserr"/>) &mdash;
-the MX RRSet is "secure", and the SMTP client MUST treat
-each MX hostname as a separate non-MX destination for opportunistic
-DANE TLS (as described in <xref target="non-mx"/>).  When, for a given
-MX hostname, no TLSA records are found, or only "insecure" TLSA
-records are found, DANE TLSA is not applicable with the SMTP server
-in question and delivery proceeds to that host as with pre-DANE
-opportunistic TLS.  To avoid downgrade attacks, any errors during
-TLSA lookups MUST, as explained in <xref target="dnserr"/>, cause
-the SMTP server in question to be treated as unreachable.
+In the absence of DNS lookup errors (<xref target="dnserr"/>), if
+the MX RRset is not "insecure" then it is "secure", and the SMTP
+client MUST treat each MX hostname as a separate non-MX destination
+for opportunistic DANE TLS (as described in <xref target="non-mx"/>).
+When, for a given MX hostname, no TLSA records are found, or only
+"insecure" TLSA records are found, DANE TLSA is not applicable with
+the SMTP server in question and delivery proceeds to that host as
+with pre-DANE opportunistic TLS.  To avoid downgrade attacks, any
+errors during TLSA lookups MUST, as explained in <xref target="dnserr"/>,
+cause the SMTP server in question to be treated as unreachable.
 </t>
 
 </section><!-- MX resolution -->
@@ -1820,6 +1831,7 @@ development of the Postfix DANE implementation.
 &RFC1034;
 &RFC1035;
 &RFC2181;
+&RFC4949;
 &RFC5598;
 &RFC6409;
 &RFC7435;

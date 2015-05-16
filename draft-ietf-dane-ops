@@ -1232,66 +1232,73 @@ _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
 <section title="Digest Algorithm Agility" anchor="agility">
 
 <t>
-While <xref target="RFC6698"/> specifies multiple digest algorithms,
-it does not specify a protocol by which the TLS client and TLSA
-record publisher can agree on the strongest shared algorithm.  Such
-a protocol would allow the client and server to avoid exposure to
-any deprecated weaker algorithms that are published for compatibility
-with less capable clients, but should be ignored when possible.  We
-specify such a protocol below.
+  While <xref target="RFC6698"/> specifies multiple digest algorithms,
+  it does not specify a protocol by which the client and TLSA record
+  publisher can agree on the strongest shared algorithm.  Such a
+  protocol allows the client and server to avoid exposure to
+  deprecated weaker algorithms that are published for compatibility
+  with less capable clients, but which SHOULD be avoided when
+  possible.  We specify such a protocol below.
 </t>
 
 <t>
-Suppose that a DANE TLS client authenticating a TLS server considers
-digest algorithm "BetterAlg" stronger than digest algorithm "WorseAlg".
-Suppose further that a server's TLSA RRset contains some records
-with "BetterAlg" as the digest algorithm.  Suppose also that the
-server adheres to the requirements of <xref target="rrreq"/> and
-ensures that each combination of TLSA parameters contains at least
-one record that matches the server's current certificate chain (or
-raw public keys).  Under the above assumptions the client can safely
-ignore TLSA records with the weaker algorithm "WorseAlg", because
-it suffices to only check the records with the stronger algorithm
-"BetterAlg".
-</t>
-
-<!-- XXXWJH: the problem is that rrreq isn't really structured in
-terms of requirements as much as it examples.  This should probably be
-cleaned up to make it more normative in what you must do, rather than
-simply show examples.  Need to go back and see if there are proper
-MUST/SHOULD/MAYs; maybe my memory of what I just read is bad. -->
-<t>
-To make digest algorithm agility possible, all published TLSA RRsets
-for use with DANE TLS MUST conform to the requirements of <xref
-target="rrreq"/>.  With servers publishing compliant TLSA RRsets, TLS
-clients can, for each combination of usage and selector, ignore all
-digest records except those that employ their notion of the strongest
-digest algorithm.  (The server should only publish algorithms it deems
-acceptable at all.)  The ordering of digest algorithms by strength is
-not specified in advance; it is entirely up to the TLS client.  TLS
-client implementations SHOULD make the digest algorithm preference
-ordering a configurable option.
+  This section defines a protocol for avoiding deprecated digest
+  algorithms when these are published in a peer's TLSA RRset alongside
+  stronger digest algorithms.  Note that this protocol never avoids
+  RRs with DANE matching type Full(0), as these do not employ a
+  digest algorithm that might some day be weakened by cryptanalysis.
 </t>
 
 <t>
-Note, TLSA records with a matching type of Full(0) that publish an
-entire certificate or public key object play no role in digest
-algorithm agility.  They neither trump the processing of records
-that employ digests, nor are they ignored in the presence of any
-records with a digest (i.e. non-zero) matching type.
-<!-- XXXWJH: sort of stops short of specifying what you should do when
-you encounter both digest and full; this needs to be specified -->
+  The ordering of digest algorithms by strength is not specified
+  in advance; it is entirely up to the client.  Client implementations
+  SHOULD make the digest algorithm preference ordering a configurable
+  option.
 </t>
 
 <t>
-TLS clients SHOULD use digest algorithm agility when processing
-the DANE TLSA records of an TLS server.  Algorithm agility is to
-be applied after first discarding any unusable or malformed records
-(unsupported digest algorithm, or incorrect digest length).  Thus,
-for each usage and selector, the client SHOULD process only any
-usable records with a matching type of Full(0) and the usable records
-whose digest algorithm is considered by the client to be the strongest
-among usable records with the given usage and selector.
+  To make digest algorithm agility possible, all published DANE
+  TLSA RRsets MUST conform to the requirements of <xref target="rrreq"/>.
+  Clients SHOULD use digest algorithm agility when processing the
+  peer's DANE TLSA records.  Algorithm agility is to be applied
+  after first discarding any unusable or malformed records (unsupported
+  digest algorithm, or incorrect digest length).  For each usage
+  and selector, the client SHOULD process only any usable records
+  with a matching type of Full(0) and the usable records whose
+  digest algorithm is considered by the client to be the strongest
+  among usable records with the given usage and selector.
+</t>
+
+<t>
+  Example: a client implements digest agility and prefers SHA2-512(2)
+  over SHA2-256(1), while the server publishes an RRset that employs
+  both digest algorithms as well as a Full(0) record.
+</t>
+
+  <figure>
+  <artwork>
+_25._tcp.mail.example.com. IN TLSA 3 1 1 (
+                              3FE246A848798236DD2AB78D39F0651D
+			      6B6E7CA8E2984012EB0A2E1AC8A87B72 )
+_25._tcp.mail.example.com. IN TLSA 3 1 2 (
+                              D4F5AF015B46C5057B841C7E7BAB759C
+			      BF029526D29520C5BE6A32C67475439E
+			      54AB3A945D80C743347C9BD4DADC9D8D
+			      57FAB78EAA835362F3CA07CCC19A3214 )
+_25._tcp.mail.example.com. IN TLSA 3 1 0 (
+                              3059301306072A8648CE3D020106082A
+			      8648CE3D0301070342000471CB1F504F
+			      9E4B33971376C005445DACD33CD79A28
+			      81C3DED1981F18E7AAA76609DD0E4EF2
+			      8265C82703030AD60C5DBA6FB8A9397A
+			      C0FCF06D424C885D484887 )
+  </artwork>
+  </figure>
+
+<t>
+  In this case the client SHOULD accept a server public key that
+  matches either the "3 1 0" record or the "3 1 2" record, but
+  SHOULD not accept keys that match only the weaker "3 1 1" record.
 </t>
 
 </section><!-- Digest algorithm agility -->
@@ -1590,10 +1597,8 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     of what subset of the possible TLSA record types (combinations
     of TLSA parameters) is supported by the client. </t>
 
-    <t> In <xref target="agility"/>, we propose a digest algorithm
-    agility protocol.  [Note: This section does not yet represent
-    the rough consensus of the DANE working group and requires further
-    discussion.  Perhaps this belongs in a separate document.] </t>
+    <t> In <xref target="agility"/>, we specify a digest algorithm
+    agility protocol. </t>
 
     <t> In <xref target="dns"/> we recommend against the use of
     Full(0) TLSA records, as digest records are generally much more
