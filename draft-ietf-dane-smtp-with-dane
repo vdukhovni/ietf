@@ -800,20 +800,26 @@ limit) until the ultimate non-CNAME domain is found.
 </t>
 
 <t>
-If the MX RRSet (or any CNAME leading to it) is "insecure" (see
-<xref target="dnserr"/>), DANE TLS need not apply, and delivery MAY
-proceed via pre-DANE opportunistic TLS.  That said, the protocol
-in this memo is an "opportunistic security" protocol, meaning that
-it strives to communicate with each peer as securely as possible,
-while maintaining broad interoperability.  Therefore, the SMTP
-client MAY proceed to use DANE TLS (as described in <xref
-target="non-mx"/> below) even with MX hosts obtained via an "insecure"
-MX RRSet.  For example, when a hosting provider has a signed DNS
-zone and publishes TLSA records for its SMTP servers, hosted domains
-that are not signed may still benefit from the provider's TLSA
-records.  Deliveries via the provider's SMTP servers will not be
-subject to active attacks when sending SMTP clients elect to make
-use of the provider's TLSA records.
+  If the MX RRSet (or any CNAME leading to it) is "insecure" (see
+  <xref target="dnserr"/>) and DANE TLS for the given destination
+  is mandatory (<xref target="mandatory"/>), delivery MUST be
+  delayed.  If the MX RRSet is "insecure" and DANE TLS is not
+  mandatory, the SMTP client is free to use pre-DANE opportunistic
+  TLS (possibly even cleartext).
+</t>
+
+<t>
+  Since the protocol in this memo is an "opportunistic security"
+  protocol (<xref target="RFC7435"/>) the SMTP client MAY elect to
+  use DANE TLS (as described in <xref target="non-mx"/> below) even
+  with MX hosts obtained via an "insecure" MX RRSet.  For example,
+  when a hosting provider has a signed DNS zone and publishes TLSA
+  records for its SMTP servers, hosted domains that are not signed
+  may still benefit from the provider's TLSA records.  Deliveries
+  via the provider's SMTP servers will not be subject to active
+  attacks when sending SMTP clients elect to make use of the
+  provider's TLSA records (active attacks that tamper with the
+  "insecure" MX RRSet are of course still possible in this case).
 </t>
 
 <t>
@@ -825,22 +831,20 @@ original (rather than CNAME expanded) form.  Sending MTAs SHOULD
 log unexpanded MX hostnames when these result from insecure
 MX lookups.  Any successful authentication via an insecurely
 determined MX host MUST NOT be misrepresented in the mail logs as
-secure delivery to the intended next-hop domain.  When DANE TLS is
-mandatory (<xref target="mandatory"/>) for a given destination,
-delivery MUST be delayed when the MX RRSet is not "secure".
+secure delivery to the intended next-hop domain.
 </t>
 
 <t>
-In the absence of DNS lookup errors (<xref target="dnserr"/>), if
-the MX RRset is not "insecure" then it is "secure", and the SMTP
-client MUST treat each MX hostname as a separate non-MX destination
-for opportunistic DANE TLS (as described in <xref target="non-mx"/>).
-When, for a given MX hostname, no TLSA records are found, or only
-"insecure" TLSA records are found, DANE TLSA is not applicable with
-the SMTP server in question and delivery proceeds to that host as
-with pre-DANE opportunistic TLS.  To avoid downgrade attacks, any
-errors during TLSA lookups MUST, as explained in <xref target="dnserr"/>,
-cause the SMTP server in question to be treated as unreachable.
+  In the absence of DNS lookup errors (<xref target="dnserr"/>),
+  if the MX RRSet is not "insecure" then it is "secure", and the
+  SMTP client MUST treat each MX hostname as described in <xref
+  target="non-mx"/>).  When, for a given MX hostname, no TLSA records
+  are found, or only "insecure" TLSA records are found, DANE TLSA
+  is not applicable with the SMTP server in question and delivery
+  proceeds to that host as with pre-DANE opportunistic TLS.  To
+  avoid downgrade attacks, any errors during TLSA lookups MUST, as
+  explained in <xref target="dnserr"/>, cause the SMTP server in
+  question to be treated as unreachable.
 </t>
 
 </section><!-- MX resolution -->
@@ -848,10 +852,10 @@ cause the SMTP server in question to be treated as unreachable.
 <section title="Non-MX destinations" anchor="non-mx">
 
 <t>
-This section describes the algorithm used to locate the TLSA records
-and associated TLSA base domain for an input domain that is not
-subject to MX resolution or that lacks MX records.  Such domains
-include:
+  This section describes the algorithm used to locate the TLSA
+  records and associated TLSA base domain for an input domain that
+  is not subject to MX resolution, that represents a hostname from
+  a secure MX RRSet, or that lacks MX records.  Such domains include:
 </t>
 
 <t>
@@ -972,12 +976,22 @@ delaying or abandoning delivery.
 <section title="TLSA record lookup" anchor="tlsa-lookup">
 
 <t>
-Each candidate TLSA base domain (the original or fully
-CNAME-expanded name of a non-MX destination or a particular MX
-hostname of an MX destination) is in turn prefixed with service
-labels of the form "_&lt;port&gt;._tcp".  The resulting domain
-name is used to issue a DNSSEC query with the query type set to
-TLSA (<xref target="RFC6698"/> Section 7.1).
+  For a particular SMTP server, the associated TLSA base domain is
+  either the server hostname or, when that hostname is an alias
+  (CNAME or DNAME), possibly its fully alias-expanded name if
+  every stage in the alias expansion is "secure".  This yields
+  either one or two candidate TLSA base domains for the SMTP server.
+  When there are two candidate TLSA base domains, the alias-expanded
+  domain name has a higher precedence (is tried first).  The first
+  of these to yield a "secure" TLSA RRSet is the final TLSA base
+  domain.
+</t>
+
+<t>
+  Each candidate TLSA base domain (alias-expanded or original) is
+  in turn prefixed with service labels of the form "_&lt;port&gt;._tcp".
+  The resulting domain name is used to issue a DNSSEC query with
+  the query type set to TLSA (<xref target="RFC6698"/> Section 7.1).
 </t>
 
 <t>
@@ -999,29 +1013,25 @@ _25._tcp.mx.example.com. IN TLSA ?
 The query response may be a CNAME, or the actual TLSA RRSet.  If the
 response is a CNAME, the SMTP client (through the use of its
 security-aware stub resolver) restarts the TLSA query at the target
-domain, following CNAMEs as appropriate and keeping track of whether
+domain, following CNAMEs as appropriate and keeps track of whether
 the entire chain is "secure".  If any "insecure" records are
 encountered, or the TLSA records don't exist, the next candidate TLSA
 base domain is tried instead.
 </t>
 
 <t>
-If the ultimate response is a "secure" TLSA RRSet, then the candidate
-TLSA base domain will be the actual TLSA base domain and the TLSA
-RRSet will constitute the TLSA records for the destination.  If
-none of the candidate TLSA base domains yield "secure" TLSA records
-then delivery MAY proceed via pre-DANE opportunistic TLS.  SMTP
-clients MAY elect to use "insecure" TLSA records to avoid STARTTLS
-downgrades or even to skip SMTP servers that fail authentication,
-but MUST NOT misrepresent authentication success as either a secure
-connection to the SMTP server or as a secure delivery to the intended
-next-hop domain.
+  If the ultimate response is a "secure" TLSA RRSet, then the
+  candidate TLSA base domain will be the actual TLSA base domain
+  and the TLSA RRSet will constitute the TLSA records for the
+  destination.  If none of the candidate TLSA base domains yield
+  "secure" TLSA records then the SMTP client is free to use pre-DANE
+  opportunistic TLS (possibly even cleartext).
 </t>
 
 <t>
 TLSA record publishers may leverage CNAMEs to reference a single
 authoritative TLSA RRSet specifying a common Certification Authority
-or a common end entity certificate to be used with multiple TLS
+or a common end-entity certificate to be used with multiple TLS
 services.  Such CNAME expansion does not change the SMTP client's
 notion of the TLSA base domain; thus, when _25._tcp.mx.example.com
 is a CNAME, the base domain remains mx.example.com and this is still
@@ -1030,10 +1040,10 @@ peer certificate name checks.
 </t>
 
 <t>
-Note that shared end entity certificate associations expose the publishing
+Note that shared end-entity certificate associations expose the publishing
 domain to substitution attacks, where an MITM attacker can reroute
-traffic to a different server that shares the same end entity
-certificate.  Such shared end entity TLSA records SHOULD be avoided
+traffic to a different server that shares the same end-entity
+certificate.  Such shared end-entity TLSA records SHOULD be avoided
 unless the servers in question are functionally equivalent or employ
 mutually incompatible protocols (an
 active attacker gains nothing by diverting client traffic from one
@@ -1139,11 +1149,12 @@ with opportunistic DANE TLS.
 </t>
 
 <t>
-In summary, we RECOMMEND the use of either "DANE-EE(3) SPKI(1)
-SHA2-256(1)" or "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA records
-depending on site needs.  Other combinations of TLSA parameters are
-either explicitly unsupported, or offer little to recommend them
-over these two. 
+  In summary, we RECOMMEND the use of "DANE-EE(3) SPKI(1) SHA2-256(1)",
+  with "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA records as a second
+  choice, depending on site needs. See the following two subsections
+  for more details.  Other combinations of TLSA parameters are
+  either explicitly unsupported, or offer little to recommend them
+  over these two.
 </t>
 
 <section title="Certificate usage DANE-EE(3)" anchor="cert3">
@@ -1158,20 +1169,19 @@ certificate match the client's reference identity for the server.
 </t>
 
 <t>
-Similarly, the expiration date of the server certificate MUST be
-ignored, the validity period of the TLSA record key binding is
-determined by the validity interval of the TLSA record DNSSEC
-signature.
+  The expiration date of the server certificate MUST be ignored:
+  the validity period of the TLSA record key binding is determined
+  by the validity interval of the TLSA record DNSSEC signature.
 </t>
 
 <t>
-With DANE-EE(3) servers need not employ SNI (may ignore the client's
-SNI message) even when the server is known under independent names
-that would otherwise require separate certificates.  It is instead
-sufficient for the TLSA RRSets for all the domains in question
-to match the server's default certificate.  Of course with SMTP
-servers it is simpler still to publish the same MX hostname for
-all the hosted domains.
+  With DANE-EE(3), servers need not employ SNI (they may ignore the
+  client's SNI message) even when the server is known under independent
+  names that would otherwise require separate certificates.  It is
+  instead sufficient for the TLSA RRSets for all the domains in
+  question to match the server's default certificate.  Of course
+  with SMTP servers it is simpler still to publish the same MX
+  hostname for all the hosted domains.
 </t>
 
 <t>
@@ -1240,7 +1250,7 @@ included in the TLS server certificate message.  </t>
 <t>
 With some SMTP server software it is not possible to configure the
 server to include self-signed (root) CA certificates in the server
-certificate chain.  Such servers MUST either publish DANE-TA(2)
+certificate chain.  Such servers either MUST publish DANE-TA(2)
 records for an intermediate certificate or MUST instead use DANE-EE(3)
 TLSA records.
 </t>
@@ -1280,13 +1290,14 @@ path length or name constraints.
 <section title="Certificate usages PKIX-TA(0) and PKIX-EE(1)" anchor="pkix-usages">
 
 <t>
-Note, this section applies to MTA-to-MTA SMTP on port 25.  That is,
-to servers that are the SMTP servers for one or more destination
-domains.  Other uses of SMTP, such as in MUA-to-MSA submission on
-ports 587 or 465 are out of scope for this document.  Where those
-other uses also employ TLS opportunistically and/or depend on DNSSEC
-as a result of DNS-based discovery of service location, the relevant
-specifications should, as appropriate, arrive at similar conclusions.
+  Note, this section applies to MTA-to-MTA SMTP, which is normally
+  on port 25.  That is, to servers that are the SMTP servers for
+  one or more destination domains.  Other uses of SMTP, such as in
+  MUA-to-MSA submission on ports 587 or 465 are out of scope for
+  this document.  Where those other uses also employ TLS opportunistically
+  and/or depend on DNSSEC as a result of DNS-based discovery of
+  service location, the relevant specifications should, as appropriate,
+  arrive at similar conclusions.
 </t>
 
 <t>
@@ -1324,7 +1335,7 @@ only impede SMTP TLS interoperability.
 <t>
 SMTP client treatment of TLSA RRs with certificate usages PKIX-TA(0)
 or PKIX-EE(1) is undefined.  As with any other unsupported certificate
-usage, SMTP clients MAY treat such records as "unusable"
+usage, SMTP clients MAY treat such records as "unusable".
 </t>
 
 </section><!-- Certificate usages 0 and 1 -->
@@ -1467,7 +1478,7 @@ Two TLSA records MUST be published before employing a new EE or TA
 public key or certificate, one matching the currently deployed key
 and the other matching the new key scheduled to replace it.  Once
 sufficient time has elapsed for all DNS caches to expire the previous
-TLSA RRSet and related signature RRsets, servers may be configured
+TLSA RRSet and related signature RRSets, servers may be configured
 to use the new EE private key and associated public key certificate
 or may employ certificates signed by the new trust anchor.
 </t>
@@ -1560,7 +1571,7 @@ admins need to do appropriate monitoring, etc. The only difference we
 may need to spell out here is simply due to the likely need for
 increased robustness between partnering organizations. -->
 <t>
-Administrators of mail servers that employ mandatory DANE TLS, need
+Administrators of mail servers that employ mandatory DANE TLS need
 to carefully monitor their mail logs and queues.  If a partner
 domain unwittingly misconfigures their TLSA records, disables DNSSEC,
 or misconfigures SMTP server certificate chains, mail will be delayed
@@ -1810,6 +1821,7 @@ development of the Postfix DANE implementation.
 <back>
 
 <references title="Normative References">
+&RFC1034;
 &RFC2119;
 &RFC3207;
 &RFC4033;
@@ -1818,6 +1830,7 @@ development of the Postfix DANE implementation.
 &RFC5246;
 &RFC5280;
 &RFC5321;
+&RFC5598;
 &RFC6125;
 &RFC6186;
 &RFC6066;
@@ -1828,11 +1841,9 @@ development of the Postfix DANE implementation.
 </references>
 
 <references title="Informative References">
-&RFC1034;
 &RFC1035;
 &RFC2181;
 &RFC4949;
-&RFC5598;
 &RFC6409;
 &RFC7435;
 &I-D.ietf-dane-srv;
