@@ -1235,7 +1235,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
   While <xref target="RFC6698"/> specifies multiple digest algorithms,
   it does not specify a protocol by which the client and TLSA record
   publisher can agree on the strongest shared algorithm.  Such a
-  protocol allows the client and server to avoid exposure to
+  protocol would allow the client and server to avoid exposure to
   deprecated weaker algorithms that are published for compatibility
   with less capable clients, but which SHOULD be avoided when
   possible.  We specify such a protocol below.
@@ -1250,10 +1250,14 @@ _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
 </t>
 
 <t>
-  The ordering of digest algorithms by strength is not specified
-  in advance; it is entirely up to the client.  Client implementations
-  SHOULD make the digest algorithm preference ordering a configurable
-  option.
+  Client implementations SHOULD implement a default order of digest
+  algorithms by strength.  This order SHOULD be configurable by the
+  MTA administrator.  If possible, a configurable mapping from
+  numeric DANE TLSA matching types to underlying digest algorithms
+  provided by the cryptographic library SHOULD be implemented to
+  allow new matching types to be used with software that predates
+  their introduction.  Configurable ordering of digest algorithms
+  SHOULD be extensible to any new digest algorithms.
 </t>
 
 <t>
