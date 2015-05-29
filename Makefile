@@ -1,5 +1,5 @@
-SMTP_VERSION = 18
-OPS_VERSION = 10
+SMTP_VERSION = 19
+OPS_VERSION = 11
 
 OPS	= draft-ietf-dane-ops
 SMTP	= draft-ietf-dane-smtp-with-dane
@@ -25,10 +25,10 @@ ${OPS_XML}: ${OPS}
 	sed -e 's/@@VERSION@@/${OPS_VERSION}/g' $< > $@
 
 %.txt: %.xml
-	xml2rfc --text -f $@ $<
+	xml2rfc --text -o $@ $<
 
 %.html: %.xml
-	xml2rfc --html -f $@ $<
+	xml2rfc --html -o $@ $<
 
 idnits: $(TXT)
 	for i in $(TXT) ; do  \

@@ -628,12 +628,6 @@ lookup fails.
 <section title="Stub resolver considerations" anchor="stub">
 
 <t>
-SMTP clients that employ opportunistic DANE TLS to secure connections
-to SMTP servers MUST NOT use Security-Oblivious (<xref target="RFC4033"/>)
-stub-resolvers.
-</t>
-
-<t>
 A note about DNAME aliases: a query for a domain name whose ancestor
 domain is a DNAME alias returns the DNAME RR for the ancestor domain
 along with a CNAME that maps the query domain to the corresponding
@@ -681,13 +675,14 @@ CNAME record and a subset of the subsequent records are "secure".
 </t>
 
 <t>
-If the SMTP client needs to determine the security status of the
-DNS zone containing the initial CNAME record, it may need to issue
-a separate query of type "CNAME" that returns only the initial
-CNAME record.  In particular in <xref target="non-mx"/> when insecure
-A or AAAA records are found for an SMTP server via a CNAME alias,
-it may be necessary to perform an additional CNAME query to determine
-whether the DNS zone in which the alias is published is signed.
+  If the SMTP client needs to determine the security status of the
+  DNS zone containing the initial CNAME record, it will need to
+  issue a separate query of type "CNAME" that returns only the
+  initial CNAME record.  Specifically, in <xref target="non-mx"/>
+  when insecure A or AAAA records are found for an SMTP server via
+  a CNAME alias, the SMTP client will need to perform an additional
+  CNAME query in order to determine whether the DNS zone in which
+  the alias is published is DNSSEC signed.
 </t>
 
 </section><!-- Stub resolver considerations -->
@@ -976,15 +971,16 @@ delaying or abandoning delivery.
 <section title="TLSA record lookup" anchor="tlsa-lookup">
 
 <t>
-  For a particular SMTP server, the associated TLSA base domain is
-  either the server hostname or, when that hostname is an alias
-  (CNAME or DNAME), possibly its fully alias-expanded name if
-  every stage in the alias expansion is "secure".  This yields
-  either one or two candidate TLSA base domains for the SMTP server.
-  When there are two candidate TLSA base domains, the alias-expanded
-  domain name has a higher precedence (is tried first).  The first
-  of these to yield a "secure" TLSA RRSet is the final TLSA base
-  domain.
+  When the SMTP server's hostname is not a CNAME or DNAME alias,
+  the list of associated candidate TLSA base domains (see below)
+  consists of just the server hostname.
+</t>
+
+<t>
+  When hostname is an alias with a "secure" (at every stage) full
+  expansion, the list of candidate TLSA base domains (see below)
+  is a pair of domains: the fully expanded server hostname first
+  and the unexpanded server hostname second.
 </t>
 
 <t>
@@ -992,6 +988,11 @@ delaying or abandoning delivery.
   in turn prefixed with service labels of the form "_&lt;port&gt;._tcp".
   The resulting domain name is used to issue a DNSSEC query with
   the query type set to TLSA (<xref target="RFC6698"/> Section 7.1).
+</t>
+
+<t>
+  The first of these candidate domains to yield a "secure" TLSA
+  RRSet becomes the actual TLSA base domain.
 </t>
 
 <t>
