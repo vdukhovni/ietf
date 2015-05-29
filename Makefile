@@ -1,5 +1,5 @@
 SMTP_VERSION = 18
-OPS_VERSION = 09
+OPS_VERSION = 10
 
 OPS	= draft-ietf-dane-ops
 SMTP	= draft-ietf-dane-smtp-with-dane

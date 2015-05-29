@@ -25,7 +25,7 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="std" docName="draft-ietf-dane-ops-@@VERSION@@" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-dane-ops-@@VERSION@@" ipr="trust200902" updates="6698">
 
 <front>
 <title abbrev="DANE operations">Updates to and Operational Guidance for the DANE Protocol</title>
@@ -57,11 +57,11 @@
 <abstract>
 
 <t>
-  This document clarifies and updates the DNS-Based Authentication of
-  Named Entities (DANE) TLSA specification based on subsequent
-  implementation experience.  It also contains guidance for
-  implementers, operators and protocol developers who want to make
-  use of DANE records.
+  This document clarifies and updates the DNS-Based Authentication
+  of Named Entities (DANE) TLSA specification (RFC6698) based on
+  subsequent implementation experience.  It also contains guidance
+  for implementers, operators and protocol developers who want to
+  make use of DANE records.
 </t>
 
 </abstract>
@@ -1562,9 +1562,6 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
 </section>
 
 <section title="Summary of Updates to RFC6698" anchor="updates">
-
-  <t>Authors note: is this section needed?  Or is it sufficiently
-  clear above that we don't need to restate things here?</t>
 
   <t>
     <list style="symbols">
