@@ -1131,13 +1131,25 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 
   <t>
     This section explains how to migrate to a new certificate chain
-    and TLSA records with usage DANE-TA(2) from a self-signed server
-    certificate.  Here the process is to add DANE-TA(2) TLSA records
-    matching the future chain, but retain the existing TLSA parameters
-    for the legacy self-signed certificate.  It is not possible to
-    publish DANE-TA(2) TLSA records for for the legacy self-signed
-    certificate.  After deploying the new chain, drop the legacy
-    TLSA record.
+    and TLSA record with usage DANE-TA(2) from a self-signed server
+    certificate and a DANE-EE(3) SPKI(1) SHA2-256(1) TLSA record.
+    The original TLSA record supports <xref target="RFC7250"/> raw
+    public keys, and clients may choose to negotiate their use.
+    Use of raw public keys rules out the possibility of certificate
+    chain verification.  Therefore, the transitional TLSA record
+    for the planned DANE-TA(2) certificate chain is a "3 1 1" record
+    that works even when raw public keys are used.  The TLSA RRset
+    is updated to use DANE-TA(2) only after the new chain is deployed
+    and the "3 1 1" record matching the original key is dropped.
+  </t>
+
+  <t>
+    This process follows the requirement that each combination of
+    parameters present in the RRset is always sufficient to validate
+    the server.  It avoids publishing a transitional TLSA RRset in
+    which "3 1 1" matches only the current key and "2 0 1" matches
+    only the future certificate chain, because these might not work
+    reliably during the initial deployment of the new keys.
   </t>
 
   <figure>
@@ -1146,13 +1158,16 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 
-; Transitional (mixed) TLSA RRset, published at least 2*TTL before
-; the actual key change.
+; Transitional TLSA RRset, published at least 2*TTL before the
+; actual key change.  The new keys are issued by a DANE-TA(2) CA,
+; but are initially specified via a DANE-EE(3) association.
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
-_443._tcp.www.example.org. IN TLSA 2 0 1 c57bce38455d9e3d...
+_443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
 
-; Final TLSA RRset after the key change.
+; The final TLSA RRset after the key change.  Now that the old
+; self-signed EE key is out of the picture, publish the issuing
+; TA of the new chain.
 ;
 _443._tcp.www.example.org. IN TLSA 2 0 1 c57bce38455d9e3d...
     </artwork>
