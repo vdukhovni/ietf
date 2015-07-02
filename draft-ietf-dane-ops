@@ -133,6 +133,15 @@
 
     <t>The following terms are used throughout this document:
     <list style="hanging">
+
+      <t hangText="Web PKI:">
+	The Public Key Infrastructure (PKI) model employed by
+	browsers to authenticate web servers.  This employs a set
+	of trusted public Certification Authorities (CAs) to vouch
+	for the authenticity of public keys associated with a
+	particular party (the subject).
+      </t>
+
       <t hangText="Service Provider:">
 	A company or organization that offers to host a service on behalf
 	of the owner of a Customer Domain.  The original domain name associated with the
@@ -918,8 +927,6 @@ _443._tcp.w2.example.net.    IN TLSA 2 0 1 (
   </figure>
 
   <t>
-    <!-- XXX: DANEbis: Note redirection of TLSA base domain via MX, SRV
-    and related records -->
     With protocols that support explicit transport redirection
     via DNS MX records, SRV records, or other similar records,
     the TLSA base domain is based on the redirected transport
@@ -982,7 +989,6 @@ _25._tcp.mx2.example.net.  IN TLSA 3 1 1 (
   </t>
 
   <t>
-    <!-- XXX: DANEbis: Preferred TLSA base domain with CNAME expansion -->
     The complexity of coordinating key management is largely
     eliminated when DANE TLSA records are found in the Service
     Provider's domain, as discussed in <xref target="sync" />.
@@ -1368,7 +1374,6 @@ _25._tcp.mail.example.com. IN TLSA 3 1 0 (
 
     </section>
 
-    <!-- XXX: DANEbis: Discourage use of Full(0) -->
     <section title= "Packet Size Considerations for TLSA Parameters">
 
       <t>
@@ -1473,9 +1478,10 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     </t>
 
     <t>
-      The semantics of wildcards in server certificates are left to
-      individual application protocol specifications.
-      <!-- seems like a cop-out without stating why -->
+      <xref target="RFC6125"/> specifies the the semantics of
+      wildcards in server certificates for various application
+      protocols.  DANE does not change how wildcards are treated
+      by any given application.
     </t>
 
   </section><!-- Certificate Name Check Conventions -->
@@ -1495,7 +1501,6 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       successfully authenticate their TLS certificate chains.
     </t>
 
-    <!-- XXX: DANEbis: Opportunistic TLS discovery. -->
     <t>
       A service with DNSSEC-validated TLSA records implicitly
       promises TLS support.  When all the TLSA records for a service
@@ -1529,7 +1534,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
   </t>
 
   <t>
-    With the existing public CA WebPKI, name constraints are rarely
+    With the existing public CA Web PKI, name constraints are rarely
     used, and a public root CA can issue certificates for any domain
     of its choice.  With DNSSEC, under the Registry/Registrar/Registrant
     model, the situation is different: only the registrar of record
@@ -1643,29 +1648,29 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
 
 <section anchor="Security" title="Security Considerations">
 
-  <!-- XXXWJH: this section seems a bit weak and short, considering
-  the security ramifications of everything being discussed -->
   <t>
-    Application protocols that cannot make use of the existing public
-    CA PKI (so called non-PKIX protocols), may choose not to implement
-    certain PKIX-dependent TLSA record types defined in <xref
-    target="RFC6698"/>.  If such records are published despite
-    not being supported by the application protocol, they are treated as
-    "unusable".  When TLS is opportunistic, the client may proceed
-    to use the server with mandatory unauthenticated TLS.  This is stronger
-    than opportunistic TLS without DANE, since in that case the client
-    may also proceed with a plaintext connection.  When TLS is not
-    opportunistic, the client MUST NOT connect to the server.
+    Application protocols that cannot make use of the existing
+    public CA Web PKI, may choose to not implement certain TLSA
+    record types defined in <xref target="RFC6698"/>.  If such
+    records are published despite not being supported by the
+    application protocol, they are treated as "unusable".  When TLS
+    is opportunistic, the client MAY proceed to use the server with
+    mandatory unauthenticated TLS.  This is stronger than opportunistic
+    TLS without DANE, since in that case the client may also proceed
+    with a plaintext connection.  When TLS is not opportunistic,
+    the client MUST NOT connect to the server.
   </t>
 
   <t>
-    Therefore, when TLSA records are used with protocols where PKIX
-    does not apply, the recommended policy is for servers to not
-    publish PKIX-dependent TLSA records, and for opportunistic TLS
-    clients to use them to enforce the use of (albeit unauthenticated)
-    TLS, but otherwise treat them as unusable.  Of course, when PKIX
-    validation is supported by the application protocol, clients
-    SHOULD perform PKIX validation per <xref target="RFC6698"/>.
+    Thus, when TLSA records are used with opportunistic protocols
+    where the PKIX-TA(0( and PKIX-EE(1) do not apply, the recommended
+    protocol design is for servers to not publish such TLSA records,
+    and for opportunistic TLS clients to use them to only enforce
+    the use of (albeit unauthenticated) TLS, but otherwise treat
+    them as unusable.  Of course, when PKIX-TA(0) and PKIX-EE(1)
+    are supported by the application protocol, clients SHOULD
+    implement these certificate usages as described in <xref
+    target="RFC6698"/>.
   </t>
 
 </section><!-- Security Considerations -->
