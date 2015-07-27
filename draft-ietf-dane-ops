@@ -81,7 +81,7 @@
     without authentication, TLS provides protection only against
     eavesdropping through its use of encryption.  With authentication,
     TLS also provides integrity protection and authentication, which
-    protects the transport against man-in-the-middle (MITM) attacks.
+    protects the transport against man-in-the-middle (MiTM) attacks.
   </t>
 
   <t>
@@ -179,7 +179,7 @@
 	section 3).  Without this TLS extension, a TLS server has
 	no choice but to offer a certificate with a default
 	list of server names, making it difficult to host multiple
-	Customer Domains at the same IP-addressed based TLS service
+	Customer Domains at the same IP-address-based TLS service
 	endpoint (i.e., provide "secure virtual hosting").
       </t>
 
@@ -499,7 +499,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     <t>
       If a server uses just DANE-EE(3) TLSA records, and all its
       clients are DANE clients, the server need not employ SNI
-      (i.e., they may ignore the client's SNI message) even when
+      (i.e., it may ignore the client's SNI message) even when
       the server is known via multiple domain names that would
       otherwise require separate certificates.  It is instead
       sufficient for the TLSA RRsets for all the domain names in
@@ -747,7 +747,7 @@ already possess it in order to validate it in any case.
 	TLSA records to be sufficient to authenticate chains issued
 	by the associated public key in the absence of a corresponding
 	certificate in the server's TLS certificate message.  Servers
-	employing "2 1 0" TLSA records, MUST include the correspoding
+	employing "2 1 0" TLSA records, MUST include the corresponding
 	trust-anchor certificate in their certificate chain.
       </t>
 
@@ -1141,7 +1141,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
     and TLSA record with usage DANE-TA(2) from a self-signed server
     certificate and a DANE-EE(3) SPKI(1) SHA2-256(1) TLSA record.
     This example assumes that a new private key is generated in
-    conjuction with transitioning to a new certificate issued by
+    conjunction with transitioning to a new certificate issued by
     the desired trust-anchor.
   </t>
 
