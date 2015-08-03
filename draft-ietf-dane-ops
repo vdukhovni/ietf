@@ -91,17 +91,18 @@
     a certificate or a public key of an end-entity or a trusted
     issuing authority with the corresponding TLS transport endpoint.
     DANE relies on the DNS Security Extensions (DNSSEC, <xref
-    target="RFC4033"/>).  DNSSEC validated DANE TLSA records can be
-    used to augment or replace the use of trusted public Certification
-    Authorities (CAs).
+    target="RFC4033"/>).  DANE TLSA records validated by DNSSEC can
+    be used to augment or replace the use of trusted public
+    Certification Authorities (CAs).
   </t>
 
   <t>
-    <xref target="RFC6698"/> defines three TLSA record fields with
-    respectively 4, 2 and 3 currently specified values.  These yield
-    24 distinct combinations of TLSA record types.  This document
-    recommends a smaller set of best-practice combinations of these
-    fields to simplify protocol design, implementation and deployment.
+    <xref target="RFC6698"/> defines three TLSA record fields, the
+    first with 4 possible values, the second with 2, and the third
+    with 3.  These yield 24 distinct combinations of TLSA record
+    types.  This document recommends a smaller set of best-practice
+    combinations of these fields to simplify protocol design,
+    implementation and deployment.
   </t>
 
   <t>
@@ -303,12 +304,12 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     (SNI) extension of TLS (<xref target="RFC6066" />).  Servers
     MAY support SNI and respond with a matching certificate chain,
     but MAY also ignore SNI and respond with a default certificate
-    chain.  When a servers does support SNI, but is not configured
-    with a certificate chain that exactly matches the client's SNI
-    extension, SHOULD respond with some other (default or closest
-    match) certificate chain, since clients may support more than
-    one server name, but can only put a single name in the SNI
-    extension.
+    chain.  When a server supports SNI but is not configured with
+    a certificate chain that exactly matches the client's SNI
+    extension, the server SHOULD respond with another certificate
+    chain (a default or closest match).  This is because clients
+    might support more than one server name, but can only put a
+    single name in the SNI extension.
   </t>
 
 </section><!-- TLS Requirements -->
@@ -1060,7 +1061,7 @@ _25._tcp.mx2.example.net.  IN TLSA 3 1 1 (
     PKIX Certificate Usages.  Some clients may prefer to negotiate
     <xref target="RFC7250"/> raw public keys, which are only
     compatible with TLSA records whose Certificate Usage is DANE-EE(3)
-    with selector SPKI(1).  the only other TLSA record type that
+    with selector SPKI(1).  The only other TLSA record type that
     is potentially compatible with raw public keys is DANE-EE(3)
     Cert(0) Full(0), but support for raw public keys with that TLSA
     record type is not expected to be broadly implemented.
@@ -1390,7 +1391,7 @@ _25._tcp.mail.example.com. IN TLSA 3 1 0 (
 	While TLSA records using a TLSA Selector of SPKI(1) and a
 	TLSA Matching Type of Full(0) (which publish the bare public
 	keys without the overhead of a containing X.509 certificate)
-	are generally more compact, these are also best avoided as
+	are generally more compact, these are also best avoided
 	when significantly larger than their digests.  Rather,
 	servers SHOULD publish digest-based TLSA Matching Types in
 	their TLSA records.  Instead, the complete corresponding
@@ -1598,7 +1599,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     <t><xref target="type1"/> and <xref target="type0"/> explain
     that PKIX-EE(1) and PKIX-TA(0) are generally NOT RECOMMENDED.
     This document notes that with usage PKIX-TA(0) clients may need
-    to processes extended trust chains beyond the first trusted
+    to process extended trust chains beyond the first trusted
     issuer, when that issuer is not self-signed. </t>
 
     <t><xref target="cname"/> recommends that DANE application
@@ -1663,7 +1664,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
 
   <t>
     Thus, when TLSA records are used with opportunistic protocols
-    where the PKIX-TA(0( and PKIX-EE(1) do not apply, the recommended
+    where the PKIX-TA(0) and PKIX-EE(1) do not apply, the recommended
     protocol design is for servers to not publish such TLSA records,
     and for opportunistic TLS clients to use them to only enforce
     the use of (albeit unauthenticated) TLS, but otherwise treat
