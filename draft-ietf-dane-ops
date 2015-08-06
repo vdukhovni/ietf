@@ -70,30 +70,31 @@
 
 <middle>
 <section title="Introduction">
-  <t>
-    The Transport Layer Security (TLS) <xref target="RFC5246"/> and
-    Datagram Transport Layer Security (DTLS) <xref target="RFC6347"/>
-    protocols provide secured TCP and UDP communication, respectively,
-    over IP.  In the context of this document, channel security is
-    assumed to be provided by TLS or DTLS.  By convention, "TLS"
-    will be used throughout this document and, unless otherwise
-    specified, the text applies equally well to DTLS over UDP.  Used
-    without authentication, TLS provides protection only against
-    eavesdropping through its use of encryption.  With authentication,
-    TLS also provides integrity protection and authentication, which
-    protects the transport against man-in-the-middle (MiTM) attacks.
-  </t>
 
   <t>
     The DNS-Based Authentication of Named Entities (DANE) specification
     (<xref target="RFC6698"/>) introduces the DNS "TLSA" resource
     record type ("TLSA" is not an acronym).  TLSA records associate
     a certificate or a public key of an end-entity or a trusted
-    issuing authority with the corresponding TLS transport endpoint.
+    issuing authority with the corresponding Transport Layer Security
+    (TLS) <xref target="RFC5246"/> or Datagram Transport Layer
+    Security (DTLS) <xref target="RFC6347"/> transport endpoint.
     DANE relies on the DNS Security Extensions (DNSSEC, <xref
     target="RFC4033"/>).  DANE TLSA records validated by DNSSEC can
     be used to augment or replace the use of trusted public
     Certification Authorities (CAs).
+  </t>
+
+  <t>
+    The TLS and DTLS protocols provide secured TCP and UDP
+    communication, respectively, over IP.  In the context of this
+    document, channel security is assumed to be provided by TLS or
+    DTLS.  By convention, "TLS" will be used throughout this document
+    and, unless otherwise specified, the text applies equally well
+    to DTLS over UDP.  Used without authentication, TLS provides
+    protection only against eavesdropping through its use of
+    encryption.  With authentication, TLS also protects the transport
+    against man-in-the-middle (MiTM) attacks.
   </t>
 
   <t>
@@ -221,12 +222,8 @@
   <t>
     DANE TLSA <xref target="RFC6698"/> specifies a protocol for
     publishing TLS server certificate associations via DNSSEC <xref
-    target="RFC4033" /> <xref target="RFC4034" /> <xref
-    target="RFC4035" />.  The DANE TLSA specification defines multiple
-    TLSA RR types via combinations of numeric values of the first three
-    fields of the TLSA record (i.e. the "TLSA parameters").  The
-    numeric values of these parameters were later given symbolic names
-    in <xref target="RFC7218"/>.  These parameters are:
+    target="RFC4033" /> <xref target="RFC4034" /> <xref target="RFC4035"
+    />.  DANE TLSA records consist of four fields:
   </t>
 
   <t>
@@ -240,18 +237,31 @@
     other values are reserved for use by future specifications.
     </t>
 
-    <t hangText="The selector field:"> Section 2.1.2 of <xref
+    <t hangText="The Selector field:"> Section 2.1.2 of <xref
     target="RFC6698"/> specifies 2 values: Cert(0), SPKI(1).  There
     is an additional private-use value: PrivSel(255).  All other
     values are reserved for use by future specifications.  </t>
 
-    <t hangText="The matching type field:"> Section 2.1.3 of <xref
+    <t hangText="The Matching Type field:"> Section 2.1.3 of <xref
     target="RFC6698"/> specifies 3 values: Full(0), SHA2-256(1),
     SHA2-512(2).  There is an additional private-use value:
     PrivMatch(255).  All other values are reserved for use by future
     specifications.  </t>
 
+    <t hangText="The Certificate Association Data field:">Section
+    2.1.4 of <xref target="RFC6698"/>.  This stores the full value
+    or digest of the certificate or subject public key as determined
+    by the matching type and selector respectively. </t>
+
   </list>
+  </t>
+
+  <t>
+    The record type is determined by the values of the first three
+    fields, which this document refers to as the "TLSA parameters",
+    to distinguish them from the fourth and last field.  The numeric
+    values of these parameters were given symbolic names in <xref
+    target="RFC7218"/>.
   </t>
 
   <t>
@@ -328,32 +338,33 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
   </t>
 
   <t>
-    Protocol designers need to carefully consider which set of DANE
-    certificate usages to support.  Simultaneous support for all
-    four usages is NOT RECOMMENDED for DANE clients.  Protocol
-    designers are encouraged to specify use of either the PKIX-TA(0)
-    and PKIX-EE(1) certificate usages, or the use of the DANE-TA(2)
-    and DANE-EE(3) usages.  When all four usages are supported, an
-    attacker capable of compromising the integrity of DNSSEC needs
-    only to replace server's TLSA RRset with one that lists suitable
-    DANE-EE(3) or DANE-TA(2) records, effectively bypassing an added
-    verification via public CAs.  In other words, when all four
-    usages are supported, PKIX-TA(2) and PKIX-EE(1) offer only
-    illusory incremental security over DANE-TA(2) and DANE-EE(3).
+    Standards for application protocols that employ DANE TLSA can
+    specify more specific guidance than <xref target="RFC6698"/>
+    or this document.  Such application-specific standards need to
+    carefully consider which set of DANE certificate usages to
+    support.  Simultaneous support for all four usages is NOT
+    RECOMMENDED for DANE clients.  When all four usages are
+    supported, an attacker capable of compromising the integrity
+    of DNSSEC needs only to replace server's TLSA RRset with one
+    that lists suitable DANE-EE(3) or DANE-TA(2) records, effectively
+    bypassing any added verification via public CAs.  In other words,
+    when all four usages are supported, PKIX-TA(2) and PKIX-EE(1)
+    offer only illusory incremental security over DANE-TA(2) and
+    DANE-EE(3).
   </t>
 
   <t>
     Designs in which clients support just the DANE-TA(2) and
-    DANE-EE(3) certificate usages are generally RECOMMENDED.  With
-    DANE-TA(2) and DANE-EE(3) clients don't need to track a large
-    changing list of X.509 trust-anchors in order to successfully
-    authenticate servers whose certificates are issued by a brand
-    new or not widely trusted CA.
+    DANE-EE(3) certificate usages are RECOMMENDED.  With DANE-TA(2)
+    and DANE-EE(3) clients don't need to track a large changing
+    list of X.509 trust-anchors in order to successfully authenticate
+    servers whose certificates are issued by a brand new or not
+    widely trusted CA.
   </t>
 
   <t>
     The DNSSEC TLSA records for servers MAY include both sets of
-    usages if the server needs to support a mixture of clients;
+    usages if the server needs to support a mixture of clients,
     some supporting one pair of usages and some the other.
   </t>
 
@@ -433,10 +444,19 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       When a server is authenticated via a DANE TLSA record with
       TLSA usage DANE-TA(2) and the server certificate does not
       chain to a known public root CA, CT cannot apply (CT logs
-      only accept chains that start with a known, public root).
+      only accept chains that start with a known public root).
       Since TLSA Certificate Usage DANE-TA(2) is generally intended
       to support non-public trust anchors, TLS clients SHOULD NOT
       perform CT checks with usage DANE-TA(2).
+    </t>
+
+    <t>
+      With certificate usages PKIX-TA(0) and PKIX-EE(1), CT applies
+      just at it would without DANE.  TLSA records of this type
+      only constrain which CAs are acceptable in PKIX validation.
+      All checks used in the absence of DANE still apply when
+      validating certificate chains with DANE PKIX-TA(0) and
+      PKIX-EE(1) constraints.
     </t>
 
   </section> <!-- Interaction with Certificate Transparency -->
@@ -524,30 +544,30 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     </t>
 
     <t>
-      TLSA records published for DANE servers should, as a best
-      practice, be "DANE-EE(3) SPKI(1) SHA2-256(1)" records.  Since
-      all DANE implementations are required to support SHA2-256, this
-      record type works for all clients and need not change across
-      certificate renewals with the same key.  This TLSA record type
-      easily supports hosting arrangements with a single certificate
-      matching all hosted domains.  It is also the easiest to implement
-      correctly in the client.
+      As a best practice, at most sites TLSA records published for
+      DANE servers should be "DANE-EE(3) SPKI(1) SHA2-256(1)"
+      records.  Selector SPKI(1) is chosen because it is compatible
+      with raw public keys (<xref target="RFC7250"/>) and the
+      resulting TLSA record need not change across certificate
+      renewals with the same key.  Matching type SHA2-256(1) is
+      chosen because all DANE implementations are required to support
+      SHA2-256.  This TLSA record type easily supports hosting
+      arrangements with a single certificate matching all hosted
+      domains.  It is also the easiest to implement correctly in
+      the client.
     </t>
 
     <t>
-      Another advantage of "DANE-EE(3) SPKI(1)" (with any suitable
-      matching type) TLSA records is that they are compatible with
-      the raw public key TLS extension specified in <xref
-      target="RFC7250"/>.  DANE clients that support
-      this extension can use the TLSA record to authenticate servers
-      that negotiate the use of raw public keys in place of X.509
-      certificate chains.  Provided the server adheres to the
-      requirements of <xref target="rrreq"/>, the fact that raw
-      public keys are not compatible with any other TLSA record
-      types will not get in the way of successful authentication.
-      Clients that employ DANE to authenticate the peer server
-      SHOULD NOT negotiate the use of raw public keys unless
-      the server's TLSA RRset includes compatible TLSA records.
+      Clients that support raw public keys can use DANE TLSA records
+      with certificate usage DANE-EE(3) and selector SPKI(1) to
+      authenticate servers that negotiate the use of raw public
+      keys.  Provided the server adheres to the requirements of
+      <xref target="rrreq"/>, the fact that raw public keys are not
+      compatible with any other TLSA record types will not get in
+      the way of successful authentication.  Clients that employ
+      DANE to authenticate the peer server SHOULD NOT negotiate the
+      use of raw public keys unless the server's TLSA RRset includes
+      DANE-EE(3) SPKI(1) TLSA records.
     </t>
 
     <t>
@@ -560,6 +580,17 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       target="RFC7250"/> raw public keys need to publish TLSA records
       with a certificate usage of DANE-EE(3) and a selector of
       SPKI(1).
+    </t>
+
+    <t>
+      While DANE-EE(3) TLSA records are expected to be by far the
+      most prevalent, as explained in <xref target="type2"/>
+      DANE-TA(2) records are a valid alternative for sites with
+      many DANE services.  Note however, that virtual hosting is
+      more complex with DANE-TA(2).  Also with DANE-TA(2) server
+      operators MUST ensure that the server is configured with a
+      sufficiently complete certificate chain and need to not forget
+      to replace certificates prior to their expiration dates.
     </t>
 
   </section><!-- DANE-EE(3) -->
@@ -655,13 +686,13 @@ tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
 
       <figure>
         <artwork>
-The sender's certificate MUST come first in the list.  Each
-following certificate MUST directly certify the one preceding
-it.  Because certificate validation requires that root keys be
-distributed independently, the self-signed certificate that
-specifies the root certification authority MAY be omitted from
-the chain, under the assumption that the remote end must
-already possess it in order to validate it in any case.
+  The sender's certificate MUST come first in the list.  Each
+  following certificate MUST directly certify the one preceding
+  it.  Because certificate validation requires that root keys be
+  distributed independently, the self-signed certificate that
+  specifies the root certification authority MAY be omitted from
+  the chain, under the assumption that the remote end must already
+  possess it in order to validate it in any case.
         </artwork>
       </figure>
 
@@ -792,7 +823,7 @@ already possess it in order to validate it in any case.
       constraints on the set of PKIX certification authorities trusted
       to issue certificates for its TLS servers.  This TLSA record
       matches PKIX-verified trust chains which contain an issuer
-      certificate (root or intermediate) that matches its association
+      certificate (root or intermediate) that matches its certificate association
       data field (typically a certificate or digest).
     </t>
 
@@ -1039,17 +1070,16 @@ _25._tcp.mx2.example.net.  IN TLSA 3 1 1 (
 <section title="TLSA Publisher Requirements" anchor="rrreq">
 
   <t>
-    This section updates <xref target="RFC6698"/> by specifying a
-    requirement on the TLSA Publisher to ensure that each combination
-    of Certificate Usage, selector and matching type in the server's
-    TLSA RRset MUST include at least one record that matches the
-    server's current certificate chain.  TLSA records that match
-    recently retired or yet to be deployed certificate chains will
-    be present during key rollover.  Such past or future records
-    MUST NOT at any time be the only records published for any given
-    combination of usage, selector and matching type.  The TLSA
-    record update process described below ensures that this requirement
-    is met.
+    This section updates <xref target="RFC6698"/> by specifying
+    that the TLSA Publisher MUST ensure that each combination of
+    Certificate Usage, selector and matching type in the server's
+    TLSA RRset includes at least one record that matches the server's
+    current certificate chain.  TLSA records that match recently
+    retired or yet to be deployed certificate chains will be present
+    during key rollover.  Such past or future records MUST NOT at
+    any time be the only records published for any given combination
+    of usage, selector and matching type.  The TLSA record update
+    process described below ensures that this requirement is met.
   </t>
 
   <t>
@@ -1506,19 +1536,33 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       A service with DNSSEC-validated TLSA records implicitly
       promises TLS support.  When all the TLSA records for a service
       are found "unusable", due to unsupported parameter combinations
-      or malformed associated data, DANE clients cannot authenticate
-      the service certificate chain.  When authenticated TLS is
-      mandatory, the client SHOULD NOT connect to the associated
+      or malformed certificate association data, DANE clients cannot
+      authenticate the service certificate chain.  When authenticated
+      TLS is mandatory, the client MUST NOT connect to the associated
       server.
     </t>
 
     <t>
-      If, on the other hand, the use of TLS is "opportunistic",
-      then the client SHOULD generally use the server via an
-      unauthenticated TLS connection, but if TLS encryption cannot
-      be established, the client MUST NOT use the server.  Standards
-      for DANE specific to the particular application protocol may
-      modify the above requirements, as appropriate.
+      If, on the other hand, the use of TLS and DANE is "opportunistic",
+      (<xref target="RFC7435"/>) then the client SHOULD generally
+      use the server via an unauthenticated TLS connection, but if
+      TLS encryption cannot be established, the client MUST NOT use
+      the server.
+    </t>
+
+    <t>
+      Standards for opportunistic DANE TLS specific to a particular
+      application protocol may modify the above requirements.  The
+      key consideration is whether mandating the use of (unauthenticated)
+      TLS even for unusable TLSA records is asking for more security
+      than one can realistically expect.  If expecting TLS support
+      when unusable TLSA records are published is realistic for the
+      application in question, then avoid use of cleartext.  If not
+      realistic, then mandating TLS would cause clients (even in
+      the absence of active attacks) to run into problems with
+      various peers that do not interoperate "securely enough".
+      That would create strong incentives to just disable opportunistic
+      security and stick with cleartext.
     </t>
 
   </section><!-- Design Considerations for Protocols Using DANE -->
@@ -1545,9 +1589,9 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     registrars compete to provide domains in a single registry, it
     is important to make sure that rogue registrars cannot easily
     initiate an unauthorized domain transfer, and thus take over
-    DNSSEC for the domain.  DNS Operators SHOULD use a registrar
-    lock of their domains to offer some protection against this
-    possibility.
+    DNSSEC for the domain.  DNS Operators are advised to set a
+    registrar lock on their domains to offer some protection against
+    this possibility.
   </t>
 
   <t>
@@ -1555,8 +1599,9 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     needs to consider whether the registrar will allow orderly
     migration of the domain to another registrar or DNS operator
     in a way that will maintain DNSSEC integrity.  TLSA Publishers
-    SHOULD ensure their registrar publishes a suitable domain
-    transfer policy.
+    are advised to seek out a DNS hosting registrar that makes it
+    possible to transfer domains to another hosting provider without
+    disabling DNSSEC.
   </t>
 
   <t>
