@@ -731,17 +731,16 @@ tlsa._dane.example.com.      IN TLSA 2 0 1 e3b0c44298fc1c14...
 	the basis of Section 7.4.2 of <xref target="RFC5246"/>:
       </t>
 
-      <figure>
-        <artwork>
-  The sender's certificate MUST come first in the list.  Each
-  following certificate MUST directly certify the one preceding
-  it.  Because certificate validation requires that root keys be
-  distributed independently, the self-signed certificate that
-  specifies the root certification authority MAY be omitted from
-  the chain, under the assumption that the remote end must already
-  possess it in order to validate it in any case.
-        </artwork>
-      </figure>
+    <figure><artwork>
+    The sender's certificate MUST come first in the list.
+    Each following certificate MUST directly certify the one
+    preceding it.  Because certificate validation requires
+    that root keys be distributed independently, the
+    self-signed certificate that specifies the root
+    certification authority MAY be omitted from the chain,
+    under the assumption that the remote end must already
+    possess it in order to validate it in any case.
+    </artwork></figure>
 
       <t>
 	With TLSA Certificate Usage DANE-TA(2), there is no expectation
