@@ -110,7 +110,7 @@
     This document explains and recommends DANE-specific strategies
     to simplify "virtual hosting", where a single Service Provider
     transport endpoint simultaneously supports multiple hosted
-    Customer Domains.  
+    Customer Domains.
   </t>
 
   <t>
@@ -148,12 +148,12 @@
 	A company or organization that offers to host a service on behalf
 	of the owner of a Customer Domain.  The original domain name associated with the
 	service often remains under the control of the customer.  Connecting
-	applications may be directed to the Service Provider via a redirection
-	resource record.  Example redirection records include MX, SRV, and
-	CNAME.  The Service Provider frequently provides services for
-	many customers and needs to carefully manage any TLS credentials
-	offered to connecting applications to ensure name matching is
-	handled easily by the applications.
+	applications may be directed to the Service Provider via a
+	redirection resource record.  Example redirection records
+	include MX, SRV, and CNAME.  The Service Provider frequently
+	provides services for many customers and needs to ensure
+	that the TLS credentials presented to connecting applications
+	authenticate it as a valid server for the requested domain.
       </t>
       <t hangText="Customer Domain:">
 	As described above, a TLS client may be interacting with a
@@ -306,7 +306,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     <xref target="RFC6698"/> does not discuss what versions of TLS
     are required when using DANE records.  This document specifies
     that TLS clients that support DANE/TLSA MUST support at least
-    TLS 1.0 and SHOULD support TLS 1.2 or later.  
+    TLS 1.0 and SHOULD support TLS 1.2 or later.
   </t>
 
   <t>
@@ -375,15 +375,15 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       Security (OS, <xref target="RFC7435"/>), and the use of
       authentication is based on the presence of server TLSA records,
       it is especially important to avoid the PKIX-EE(1) and
-      PKIX-TA(0) certificate usages.  
+      PKIX-TA(0) certificate usages.
     </t>
 
     <t>
       When authenticated TLS is used opportunistically, based on
-      the presence of DANE TLSA records, and no usable secure TLSA
-      records are present, unauthenticated TLS is used if possible,
-      and otherwise perhaps even cleartext.  If however, usable
-      secure TLSA records are published, authentication must succeed.
+      the presence of DANE TLSA records, and no secure TLSA records
+      are present, unauthenticated TLS is used if possible, and
+      otherwise perhaps even cleartext.  However, if usable secure
+      TLSA records are published then authentication MUST succeed.
       Also, outside the browser space, there is no pre-ordained
       canon of trusted CAs, and in any case there is no security
       advantage in using PKIX-TA(0) or PKIX-EE(1) when the DANE-TA(2)
@@ -462,19 +462,21 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
   </section> <!-- Interaction with Certificate Transparency -->
 
   <section title="Switching from/to PKIX-TA/EE to/from DANE-TA/EE">
+
     <t>
       The choice of preferred certificate usages may need to change
-      as a protocol evolves.  When transitioning between PKIX-TA/PKIX-EE
-      and DANE-TA/DANE-EE, clients begin to enable support for the
-      new certificate usage values.  If the new preferred certificate
-      usages are PKIX-TA/EE this requires installing and managing
-      the appropriate set of CA trust anchors.  During this time
-      servers will publish both types of TLSA records.  At some
-      later time when the vast majority of servers have published
-      the new preferred TLSA records, clients can stop supporting
-      the legacy certificate usages.  Similarly, servers can stop
-      publishing legacy TLSA records once the vast majority of
-      clients support the new certificate usages.
+      as an application protocol evolves.  When transitioning between
+      PKIX-TA/PKIX-EE and DANE-TA/DANE-EE, clients begin to enable
+      support for the new certificate usage values.  If the new
+      preferred certificate usages are PKIX-TA/EE this requires
+      installing and managing the appropriate set of CA trust
+      anchors.  During this time servers will publish both types
+      of TLSA records.  At some later time when the vast majority
+      of servers have published the new preferred TLSA records,
+      clients can stop supporting the legacy certificate usages.
+      Similarly, servers can stop publishing legacy TLSA records
+      once the vast majority of clients support the new certificate
+      usages.
     </t>
 
   </section><!-- Transitioning from PKIX-TA/EE to DANE-TA/EE -->
@@ -503,18 +505,48 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     <t>
       Authentication via certificate usage DANE-EE(3) TLSA records
       involves simply checking that the server's leaf certificate
-      matches the TLSA record.  In particular, the binding of the server
-      public key to its name is based entirely on the TLSA record
-      association.  The server MUST be considered authenticated even
-      if none of the names in the certificate match the client's
-      reference identity for the server.
+      matches the TLSA record.  In particular, the binding of the
+      server public key to its name is based entirely on the TLSA
+      record association.  The server MUST be considered authenticated
+      even if none of the names in the certificate match the client's
+      reference identity for the server.  This simplifies the
+      operation of servers that host multiple Customer Domains, as
+      a single certificate can be associated with multiple domains,
+      without having to match each of the corresponding reference
+      identifiers.
     </t>
 
+    <figure>
+      <artwork>
+; Multiple client domains hosted by example.net service provider:
+;
+www.example.com.            IN CNAME ex-com.example.net.
+www.example.org.            IN CNAME ex-org.example.net.
+;
+; In the provider's DNS zone, a single certificate and TLSA
+; record supports multiple client domains, greatly simplifying
+; "virtual hosting".
+;
+ex-com.example.net.         IN A 192.0.2.1
+ex-org.example.net.         IN A 192.0.2.1
+_443._tcp.ex-com.example.net. IN CNAME tlsa._dane.example.net.
+_443._tcp.ex-org.example.net. IN CNAME tlsa._dane.example.net.
+tlsa._dane.example.net.     IN TLSA 3 1 1 e3b0c44298fc1c14...
+      </artwork>
+    </figure>
+
     <t>
-      Similarly, with DANE-EE(3), the expiration date of the server
+      Also with DANE-EE(3), the expiration date of the server
       certificate MUST be ignored. The validity period of the TLSA
       record key binding is determined by the validity period of
-      the TLSA record DNSSEC signatures.
+      the TLSA record DNSSEC signatures.  Validity is reaffirmed
+      on an ongoing basis by continuing to publish the TLSA record
+      and sign the containing zone, rather than via dates set in
+      stone in certificate.  The expiration becomes a reminder to
+      the administrator that it is likely time to rotate the key,
+      but missing the date no longer causes an outage.  When keys
+      are rotated (for whatever reason) it is important to follow
+      the procedures outlined in <xref target="rrreq"/>.
     </t>
 
     <t>
@@ -544,11 +576,11 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     </t>
 
     <t>
-      As a best practice, at most sites TLSA records published for
-      DANE servers should be "DANE-EE(3) SPKI(1) SHA2-256(1)"
-      records.  Selector SPKI(1) is chosen because it is compatible
-      with raw public keys (<xref target="RFC7250"/>) and the
-      resulting TLSA record need not change across certificate
+      More specifically, it is RECOMMENDED that at most sites TLSA
+      records published for DANE servers be "DANE-EE(3) SPKI(1)
+      SHA2-256(1)" records.  Selector SPKI(1) is chosen because it
+      is compatible with raw public keys (<xref target="RFC7250"/>)
+      and the resulting TLSA record need not change across certificate
       renewals with the same key.  Matching type SHA2-256(1) is
       chosen because all DANE implementations are required to support
       SHA2-256.  This TLSA record type easily supports hosting
@@ -589,7 +621,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       many DANE services.  Note however, that virtual hosting is
       more complex with DANE-TA(2).  Also with DANE-TA(2) server
       operators MUST ensure that the server is configured with a
-      sufficiently complete certificate chain and need to not forget
+      sufficiently complete certificate chain and need to remember
       to replace certificates prior to their expiration dates.
     </t>
 
@@ -621,13 +653,28 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
 
     <figure>
       <artwork>
+; Two servers, each with its own certificate, that share
+; a common issuer (trust-anchor).
+;
 www1.example.com.            IN A 192.0.2.1
 www2.example.com.            IN A 192.0.2.2
-_443._tcp.www1.example.com.  IN CNAME tlsa201._dane.example.com.
-_443._tcp.www2.example.com.  IN CNAME tlsa201._dane.example.com.
-tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
+_443._tcp.www1.example.com.  IN CNAME tlsa._dane.example.com.
+_443._tcp.www2.example.com.  IN CNAME tlsa._dane.example.com.
+tlsa._dane.example.com.      IN TLSA 2 0 1 e3b0c44298fc1c14...
       </artwork>
     </figure>
+
+    <t>
+      The above configuration simplifies server key rotation, because
+      while the servers continue to receive new certificates from
+      a CA matched by the shared (target of the CNAMEs) TLSA record,
+      servers certificates can be updated without making any DNS
+      changes.  As the list of active issuing CAs changes, the
+      shared TLSA record will be updated (much less frequently) by
+      the administrators who manage the CAs.  Those administrators
+      still need to perform TLSA record updates with care as described
+      in <xref target="rrreq"/>.
+    </t>
 
     <t>
       With usage DANE-TA(2) the server certificates will need to
@@ -726,9 +773,9 @@ tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
 	Cert(0) Full(0)" TLSA record containing a full trust-anchor
 	certificate, is the trust-anchor certificate optional in
 	the server's TLS certificate message.  Only in this case,
-	the client MUST be able to verify the server's certificate
-	chain via a trust-anchor provided via DNS or via the TLS
-	handshake.
+	the client MUST also be able to verify the server's certificate
+	chain via a trust-anchor provided via DNS rather than via
+	the TLS handshake server certificate message.
       </t>
 
     </section><!-- "Trust anchor digests and server certificate chain" -->
@@ -803,8 +850,8 @@ tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
     <t>
       This Certificate Usage is similar to DANE-EE(3), but in
       addition PKIX verification is required.  Therefore, name
-      checks, certificate expiration, etc., apply as they would
-      without DANE.
+      checks, certificate expiration, certificate transparency,
+      etc., apply as they would without DANE.
     </t>
 
   </section><!-- PKIX-EE(1) -->
@@ -820,18 +867,21 @@ tlsa201._dane.example.com.   IN TLSA 2 0 1 e3b0c44298fc1c14...
 
     <t>
       TLSA Certificate Usage PKIX-TA(0) allows a domain to publish
-      constraints on the set of PKIX certification authorities trusted
-      to issue certificates for its TLS servers.  This TLSA record
-      matches PKIX-verified trust chains which contain an issuer
-      certificate (root or intermediate) that matches its certificate association
-      data field (typically a certificate or digest).
+      constraints on the set of PKIX certification authorities
+      trusted to issue certificates for its TLS servers.  A PKIX-TA(0)
+      TLSA record matches PKIX-verified trust chains which contain
+      an issuer certificate (root or intermediate) that matches its
+      certificate association data field (typically a certificate
+      or digest).
     </t>
 
     <t>
-      PKIX-TA(0) also requires more complex coordination between the
-      Customer Domain and the Service Provider in hosting
-      arrangements.  Thus, this certificate usage is NOT RECOMMENDED
-      when the Service Provider is not also the TLSA Publisher.
+      PKIX-TA(0) requires more complex coordination (than with
+      DANE-TA(2) or DANE-EE(3)) between the Customer Domain and the
+      Service Provider in hosting arrangements.  Thus, this certificate
+      usage is NOT RECOMMENDED when the Service Provider is not
+      also the TLSA Publisher (at the TLSA base domain obtained via
+      CNAMEs, SRV or MX records).
     </t>
 
     <t>
@@ -1133,8 +1183,8 @@ _25._tcp.mx2.example.net.  IN TLSA 3 1 1 (
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 
-; Transitional TLSA RRset published at least 2*TTL seconds
-; before the actual key change
+; Transitional TLSA RRset published at least 2 TTLs before
+; the actual key change
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
@@ -1202,7 +1252,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 
-; Transitional TLSA RRset, published at least 2*TTL before the
+; Transitional TLSA RRset, published at least 2 TTLs before the
 ; actual key change.  The new keys are issued by a DANE-TA(2) CA,
 ; but are initially specified via a DANE-EE(3) association.
 ;
@@ -1424,16 +1474,16 @@ _25._tcp.mail.example.com. IN TLSA 3 1 0 (
 	are generally more compact, these are also best avoided
 	when significantly larger than their digests.  Rather,
 	servers SHOULD publish digest-based TLSA Matching Types in
-	their TLSA records.  Instead, the complete corresponding
-	certificate SHOULD be transmitted to the client in-band
-	during the TLS handshake.  The certificate (or raw public
-	key) can be easily verified using the digest value.
+	their TLSA records.  In which case, the complete corresponding
+	certificate MUST be transmitted to the client in-band during
+	the TLS handshake.  The certificate (or raw public key) can
+	be easily verified using the digest value.
       </t>
 
       <t>
-        In summary, the use of a TLSA Matching Type of Full(0) is NOT
-        RECOMMENDED and the use of a digest-based matching type, such
-        as SHA2-256(1) SHOULD be used.
+	In summary, the use of a TLSA Matching Type of Full(0) is
+	NOT RECOMMENDED and a digest-based matching type, such as
+	SHA2-256(1), SHOULD be used instead.
       </t>
 
     </section>
@@ -1464,13 +1514,13 @@ _25._tcp.mail.example.com. IN TLSA 3 1 0 (
       checks are not applicable (see <xref target="type3" />), DANE
       clients MUST verify that the client has reached the correct
       server by checking that the server name is listed in the
-      server certificate's SAN or CN.  The server name used for
-      this comparison MUST be the TLSA base domain, however additional
-      acceptable names may be specified by protocol-specific DANE
-      standards.  For example, with SMTP both the destination domain
-      name and the MX host name are acceptable names to be found
-      in the server certificate (see <xref
-      target="I-D.ietf-dane-smtp-with-dane"/>).
+      server certificate's SAN or CN (when still supported).  The
+      primary server name used for this comparison MUST be the TLSA
+      base domain, however additional acceptable names may be
+      specified by protocol-specific DANE standards.  For example,
+      with SMTP both the destination domain name and the MX host
+      name are acceptable names to be found in the server certificate
+      (see <xref target="I-D.ietf-dane-smtp-with-dane"/>).
     </t>
 
     <t>
@@ -1509,10 +1559,10 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     </t>
 
     <t>
-      <xref target="RFC6125"/> specifies the the semantics of
-      wildcards in server certificates for various application
-      protocols.  DANE does not change how wildcards are treated
-      by any given application.
+      <xref target="RFC6125"/> specifies the semantics of wildcards
+      in server certificates for various application protocols.
+      DANE does not change how wildcards are treated by any given
+      application.
     </t>
 
   </section><!-- Certificate Name Check Conventions -->
@@ -1527,7 +1577,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       clients may, at times, operate in an "audit" mode, where
       authentication failure is reported to the user or in logs as
       a potential problem, but the connection proceeds despite the
-      failure.  Nevertheless servers publishing TLSA records MUST
+      failure.  Nevertheless, servers publishing TLSA records MUST
       be configured to allow correctly configured clients to
       successfully authenticate their TLS certificate chains.
     </t>
@@ -1543,33 +1593,33 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     </t>
 
     <t>
-      If, on the other hand, the use of TLS and DANE is "opportunistic",
-      (<xref target="RFC7435"/>) then the client SHOULD generally
-      use the server via an unauthenticated TLS connection, but if
-      TLS encryption cannot be established, the client MUST NOT use
-      the server.
+      If, on the other hand, the use of TLS and DANE is "opportunistic"
+      (<xref target="RFC7435"/>), then when all TLSA records are
+      unusable, the client SHOULD connect to the server via an
+      unauthenticated TLS connection, and if TLS encryption cannot
+      be established, the client MUST NOT connect to the server.
     </t>
 
     <t>
       Standards for opportunistic DANE TLS specific to a particular
       application protocol may modify the above requirements.  The
       key consideration is whether mandating the use of (unauthenticated)
-      TLS even for unusable TLSA records is asking for more security
+      TLS even with unusable TLSA records is asking for more security
       than one can realistically expect.  If expecting TLS support
       when unusable TLSA records are published is realistic for the
-      application in question, then avoid use of cleartext.  If not
-      realistic, then mandating TLS would cause clients (even in
-      the absence of active attacks) to run into problems with
-      various peers that do not interoperate "securely enough".
-      That would create strong incentives to just disable opportunistic
-      security and stick with cleartext.
+      application in question, then the application MUST avoid
+      cleartext.  If not realistic, then mandating TLS would cause
+      clients (even in the absence of active attacks) to run into
+      problems with various peers that do not interoperate "securely
+      enough".  That would create strong incentives to just disable
+      opportunistic security and stick with cleartext.
     </t>
 
   </section><!-- Design Considerations for Protocols Using DANE -->
 
 </section>
 
-<section title="Note on DNSSEC Security">
+<section title="Note on DNSSEC Security" anchor="dnssec">
 
   <t>
     Clearly the security of the DANE TLSA PKI rests on the security
@@ -1607,14 +1657,27 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
   <t>
     DNSSEC signed RRsets cannot be securely revoked before they
     expire.  Operators need to plan accordingly and not generate
-    signatures with excessively long duration periods.  For domains
-    publishing high-value keys, a signature lifetime of a few days
-    is reasonable, and the zone can be re-signed daily.  For
-    domains with less critical data, a reasonable signature lifetime
-    is a couple of weeks to a month, and the zone can be re-signed
-    weekly.  Monitoring of the signature lifetime is important.  If
-    the zone is not re-signed in a timely manner, one risks a major
-    outage and the entire domain will become bogus.
+    signatures of excessively long duration.  For domains publishing
+    high-value keys, a signature lifetime of a few days is reasonable,
+    and the zone can be re-signed daily.  For domains with less
+    critical data, a reasonable signature lifetime is a couple of
+    weeks to a month, and the zone can be re-signed weekly.
+  </t>
+
+  <t>
+    Short signature lifetimes require tighter synchronization of
+    primary and secondary nameservers, to make sure that secondary
+    servers never serve records with expired signatures.  They also
+    limit the maximum time for which a primary server that signs
+    the zone can be down.  Therefore, short signature lifetimes are
+    more appropriate for sites with dedicated operations staff, who
+    can restore service quickly in case of a problem.
+  </t>
+
+  <t>
+    Monitoring is important.  If a DNS zone is not re-signed in a
+    timely manner, a major outage is likely as the entire domain
+    and all its sub-domains become "bogus".
   </t>
 
 </section>
@@ -1648,7 +1711,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     issuer, when that issuer is not self-signed. </t>
 
     <t><xref target="cname"/> recommends that DANE application
-    protocols specify that when possible securely CNAME expanded
+    protocols specify that, when possible, securely CNAME expanded
     names be used to derive the TLSA base domain. </t>
 
     <t><xref target="rrreq"/> specifies a strategy for managing
@@ -1687,7 +1750,8 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     signature validity periods allow for faster invalidation of
     compromised keys.  Zone refresh and expiration times for secondary
     nameservers often imply a lower bound on the signature validity
-    period.  See Section 4.4.1 of <xref target="RFC6781"/>.
+    period (<xref target="dnssec"/>).  See Section 4.4.1 of <xref
+    target="RFC6781"/>.
   </t>
 
 </section><!-- Operational Considerations -->
@@ -1703,7 +1767,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     is opportunistic, the client MAY proceed to use the server with
     mandatory unauthenticated TLS.  This is stronger than opportunistic
     TLS without DANE, since in that case the client may also proceed
-    with a plaintext connection.  When TLS is not opportunistic,
+    with a cleartext connection.  When TLS is not opportunistic,
     the client MUST NOT connect to the server.
   </t>
 
@@ -1714,9 +1778,9 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     and for opportunistic TLS clients to use them to only enforce
     the use of (albeit unauthenticated) TLS, but otherwise treat
     them as unusable.  Of course, when PKIX-TA(0) and PKIX-EE(1)
-    are supported by the application protocol, clients SHOULD
+    are supported by the application protocol, clients MUST
     implement these certificate usages as described in <xref
-    target="RFC6698"/>.
+    target="RFC6698"/> and this document.
   </t>
 
 </section><!-- Security Considerations -->
