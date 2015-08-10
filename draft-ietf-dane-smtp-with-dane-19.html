@@ -419,12 +419,12 @@
 <link href="#rfc.authors" rel="Chapter"/>
 
 
-  <meta name="generator" content="xml2rfc version 2.4.8 - http://tools.ietf.org/tools/xml2rfc" />
+  <meta name="generator" content="xml2rfc version 2.5.0 - http://tools.ietf.org/tools/xml2rfc" />
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
   <meta name="dct.creator" content="Dukhovni, V. and W. Hardaker" />
-  <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-dane-smtp-with-dane-17" />
-  <meta name="dct.issued" scheme="ISO8601" content="2015-5-16" />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-dane-smtp-with-dane-19" />
+  <meta name="dct.issued" scheme="ISO8601" content="2015-8-10" />
   <meta name="dct.abstract" content="This memo describes a downgrade-resistant protocol for SMTP transport security between Mail Transfer Agents (MTAs) based on the DNS-Based Authentication of Named Entities (DANE) TLSA DNS record.  Adoption of this protocol enables an incremental transition of the Internet email backbone to one using encrypted and authenticated Transport Layer Security (TLS).  " />
   <meta name="description" content="This memo describes a downgrade-resistant protocol for SMTP transport security between Mail Transfer Agents (MTAs) based on the DNS-Based Authentication of Named Entities (DANE) TLSA DNS record.  Adoption of this protocol enables an incremental transition of the Internet email backbone to one using encrypted and authenticated Transport Layer Security (TLS).  " />
 
@@ -448,12 +448,12 @@
   <td class="right">W. Hardaker</td>
 </tr>
 <tr>
-  <td class="left">Expires: November 17, 2015</td>
+  <td class="left">Expires: February 11, 2016</td>
   <td class="right">Parsons</td>
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">May 16, 2015</td>
+  <td class="right">August 10, 2015</td>
 </tr>
 
     	
@@ -461,7 +461,7 @@
   </table>
 
   <p class="title">SMTP security via opportunistic DANE TLS<br />
-  <span class="filename">draft-ietf-dane-smtp-with-dane-17</span></p>
+  <span class="filename">draft-ietf-dane-smtp-with-dane-19</span></p>
   
   <h1 id="rfc.abstract">
   <a href="#rfc.abstract">Abstract</a>
@@ -473,7 +473,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on November 17, 2015.</p>
+<p>This Internet-Draft will expire on February 11, 2016.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -486,48 +486,48 @@
   <ul class="toc">
 
   	<li>1.   <a href="#rfc.section.1">Introduction</a></li>
-<li>1.1.   <a href="#rfc.section.1.1">Terminology</a></li>
+<ul><li>1.1.   <a href="#rfc.section.1.1">Terminology</a></li>
 <li>1.2.   <a href="#rfc.section.1.2">Background</a></li>
 <li>1.3.   <a href="#rfc.section.1.3">SMTP channel security</a></li>
-<li>1.3.1.   <a href="#rfc.section.1.3.1">STARTTLS downgrade attack</a></li>
+<ul><li>1.3.1.   <a href="#rfc.section.1.3.1">STARTTLS downgrade attack</a></li>
 <li>1.3.2.   <a href="#rfc.section.1.3.2">Insecure server name without DNSSEC</a></li>
 <li>1.3.3.   <a href="#rfc.section.1.3.3">Sender policy does not scale</a></li>
 <li>1.3.4.   <a href="#rfc.section.1.3.4">Too many certification authorities</a></li>
-<li>2.   <a href="#rfc.section.2">Identifying applicable TLSA records</a></li>
-<li>2.1.   <a href="#rfc.section.2.1">DNS considerations</a></li>
-<li>2.1.1.   <a href="#rfc.section.2.1.1">DNS errors, bogus and indeterminate responses</a></li>
+</ul></ul><li>2.   <a href="#rfc.section.2">Identifying applicable TLSA records</a></li>
+<ul><li>2.1.   <a href="#rfc.section.2.1">DNS considerations</a></li>
+<ul><li>2.1.1.   <a href="#rfc.section.2.1.1">DNS errors, bogus and indeterminate responses</a></li>
 <li>2.1.2.   <a href="#rfc.section.2.1.2">DNS error handling</a></li>
 <li>2.1.3.   <a href="#rfc.section.2.1.3">Stub resolver considerations</a></li>
-<li>2.2.   <a href="#rfc.section.2.2">TLS discovery</a></li>
-<li>2.2.1.   <a href="#rfc.section.2.2.1">MX resolution</a></li>
+</ul><li>2.2.   <a href="#rfc.section.2.2">TLS discovery</a></li>
+<ul><li>2.2.1.   <a href="#rfc.section.2.2.1">MX resolution</a></li>
 <li>2.2.2.   <a href="#rfc.section.2.2.2">Non-MX destinations</a></li>
 <li>2.2.3.   <a href="#rfc.section.2.2.3">TLSA record lookup</a></li>
-<li>3.   <a href="#rfc.section.3">DANE authentication</a></li>
-<li>3.1.   <a href="#rfc.section.3.1">TLSA certificate usages</a></li>
-<li>3.1.1.   <a href="#rfc.section.3.1.1">Certificate usage DANE-EE(3)</a></li>
+</ul></ul><li>3.   <a href="#rfc.section.3">DANE authentication</a></li>
+<ul><li>3.1.   <a href="#rfc.section.3.1">TLSA certificate usages</a></li>
+<ul><li>3.1.1.   <a href="#rfc.section.3.1.1">Certificate usage DANE-EE(3)</a></li>
 <li>3.1.2.   <a href="#rfc.section.3.1.2">Certificate usage DANE-TA(2)</a></li>
 <li>3.1.3.   <a href="#rfc.section.3.1.3">Certificate usages PKIX-TA(0) and PKIX-EE(1)</a></li>
-<li>3.2.   <a href="#rfc.section.3.2">Certificate matching</a></li>
-<li>3.2.1.   <a href="#rfc.section.3.2.1">DANE-EE(3) name checks</a></li>
+</ul><li>3.2.   <a href="#rfc.section.3.2">Certificate matching</a></li>
+<ul><li>3.2.1.   <a href="#rfc.section.3.2.1">DANE-EE(3) name checks</a></li>
 <li>3.2.2.   <a href="#rfc.section.3.2.2">DANE-TA(2) name checks</a></li>
 <li>3.2.3.   <a href="#rfc.section.3.2.3">Reference identifier matching</a></li>
-<li>4.   <a href="#rfc.section.4">Server key management</a></li>
+</ul></ul><li>4.   <a href="#rfc.section.4">Server key management</a></li>
 <li>5.   <a href="#rfc.section.5">Digest algorithm agility</a></li>
 <li>6.   <a href="#rfc.section.6">Mandatory TLS Security</a></li>
 <li>7.   <a href="#rfc.section.7">Note on DANE for Message User Agents</a></li>
 <li>8.   <a href="#rfc.section.8">Interoperability considerations</a></li>
-<li>8.1.   <a href="#rfc.section.8.1">SNI support</a></li>
+<ul><li>8.1.   <a href="#rfc.section.8.1">SNI support</a></li>
 <li>8.2.   <a href="#rfc.section.8.2">Anonymous TLS cipher suites</a></li>
-<li>9.   <a href="#rfc.section.9">Operational Considerations</a></li>
-<li>9.1.   <a href="#rfc.section.9.1">Client Operational Considerations</a></li>
+</ul><li>9.   <a href="#rfc.section.9">Operational Considerations</a></li>
+<ul><li>9.1.   <a href="#rfc.section.9.1">Client Operational Considerations</a></li>
 <li>9.2.   <a href="#rfc.section.9.2">Publisher Operational Considerations</a></li>
-<li>10.   <a href="#rfc.section.10">Security Considerations</a></li>
+</ul><li>10.   <a href="#rfc.section.10">Security Considerations</a></li>
 <li>11.   <a href="#rfc.section.11">IANA considerations</a></li>
 <li>12.   <a href="#rfc.section.12">Acknowledgements</a></li>
 <li>13.   <a href="#rfc.references">References</a></li>
-<li>13.1.   <a href="#rfc.references.1">Normative References</a></li>
+<ul><li>13.1.   <a href="#rfc.references.1">Normative References</a></li>
 <li>13.2.   <a href="#rfc.references.2">Informative References</a></li>
-<li><a href="#rfc.authors">Authors' Addresses</a></li>
+</ul><li><a href="#rfc.authors">Authors' Addresses</a></li>
 
 
   </ul>
@@ -637,12 +637,11 @@
 <p id="rfc.section.2.1.2.p.2">When a particular SMTP server is securely identified as the delivery destination, a set of DNS lookups (<a href="#discovery">Section 2.2</a>) MUST be performed to locate any related TLSA records.  If any DNS queries used to locate TLSA records fail (be it due to "bogus" or "indeterminate" records, timeouts, malformed replies, ServFails, etc.), then the SMTP client MUST treat that server as unreachable and MUST NOT deliver the message via that server.  If no servers are reachable, delivery is delayed.  </p>
 <p id="rfc.section.2.1.2.p.3">In what follows, we will only describe what happens when all relevant DNS queries succeed.  If any DNS failure occurs, the SMTP client MUST behave as described in this section, by skipping the problem SMTP server, or the problem destination.  Queries for candidate TLSA records are explicitly part of "all relevant DNS queries" and SMTP clients MUST NOT continue to connect to an SMTP server or destination whose TLSA record lookup fails.  </p>
 <h1 id="rfc.section.2.1.3"><a href="#rfc.section.2.1.3">2.1.3.</a> <a href="#stub" id="stub">Stub resolver considerations</a></h1>
-<p id="rfc.section.2.1.3.p.1">SMTP clients that employ opportunistic DANE TLS to secure connections to SMTP servers MUST NOT use Security-Oblivious (<a href="#RFC4033">[RFC4033]</a>) stub-resolvers.  </p>
-<p id="rfc.section.2.1.3.p.2">A note about DNAME aliases: a query for a domain name whose ancestor domain is a DNAME alias returns the DNAME RR for the ancestor domain along with a CNAME that maps the query domain to the corresponding sub-domain of the target domain of the DNAME alias <a href="#RFC6672">[RFC6672]</a>.  Therefore, whenever we speak of CNAME aliases, we implicitly allow for the possibility that the alias in question is the result of an ancestor domain DNAME record.  Consequently, no explicit support for DNAME records is needed in SMTP software; it is sufficient to process the resulting CNAME aliases.  DNAME records only require special processing in the validating stub-resolver library that checks the integrity of the combined DNAME + CNAME reply.  When DNSSEC validation is handled by a local caching resolver, rather than the MTA itself, even that part of the DNAME support logic is outside the MTA.  </p>
-<p id="rfc.section.2.1.3.p.3">When a stub resolver returns a response containing a CNAME alias that does not also contain the corresponding query results for the target of the alias, the SMTP client will need to repeat the query at the target of the alias, and should do so recursively up to some configured or implementation-dependent recursion limit.  If at any stage of CNAME expansion an error is detected, the lookup of the original requested records MUST be considered to have failed.  </p>
-<p id="rfc.section.2.1.3.p.4">Whether a chain of CNAME records was returned in a single stub resolver response or via explicit recursion by the SMTP client, if at any stage of recursive expansion an "insecure" CNAME record is encountered, then it and all subsequent results (in particular, the final result) MUST be considered "insecure" regardless of whether any earlier CNAME records leading to the "insecure" record were "secure".  </p>
-<p id="rfc.section.2.1.3.p.5">Note that a security-aware non-validating stub resolver may return to the SMTP client an "insecure" reply received from a validating recursive resolver that contains a CNAME record along with additional answers recursively obtained starting at the target of the CNAME.  In this case, the only possible conclusion is that some record in the set of records returned is "insecure", and it is in fact possible that the initial CNAME record and a subset of the subsequent records are "secure".  </p>
-<p id="rfc.section.2.1.3.p.6">If the SMTP client needs to determine the security status of the DNS zone containing the initial CNAME record, it may need to issue a separate query of type "CNAME" that returns only the initial CNAME record.  In particular in <a href="#non-mx">Section 2.2.2</a> when insecure A or AAAA records are found for an SMTP server via a CNAME alias, it may be necessary to perform an additional CNAME query to determine whether the DNS zone in which the alias is published is signed.  </p>
+<p id="rfc.section.2.1.3.p.1">A note about DNAME aliases: a query for a domain name whose ancestor domain is a DNAME alias returns the DNAME RR for the ancestor domain along with a CNAME that maps the query domain to the corresponding sub-domain of the target domain of the DNAME alias <a href="#RFC6672">[RFC6672]</a>.  Therefore, whenever we speak of CNAME aliases, we implicitly allow for the possibility that the alias in question is the result of an ancestor domain DNAME record.  Consequently, no explicit support for DNAME records is needed in SMTP software; it is sufficient to process the resulting CNAME aliases.  DNAME records only require special processing in the validating stub-resolver library that checks the integrity of the combined DNAME + CNAME reply.  When DNSSEC validation is handled by a local caching resolver, rather than the MTA itself, even that part of the DNAME support logic is outside the MTA.  </p>
+<p id="rfc.section.2.1.3.p.2">When a stub resolver returns a response containing a CNAME alias that does not also contain the corresponding query results for the target of the alias, the SMTP client will need to repeat the query at the target of the alias, and should do so recursively up to some configured or implementation-dependent recursion limit.  If at any stage of CNAME expansion an error is detected, the lookup of the original requested records MUST be considered to have failed.  </p>
+<p id="rfc.section.2.1.3.p.3">Whether a chain of CNAME records was returned in a single stub resolver response or via explicit recursion by the SMTP client, if at any stage of recursive expansion an "insecure" CNAME record is encountered, then it and all subsequent results (in particular, the final result) MUST be considered "insecure" regardless of whether any earlier CNAME records leading to the "insecure" record were "secure".  </p>
+<p id="rfc.section.2.1.3.p.4">Note that a security-aware non-validating stub resolver may return to the SMTP client an "insecure" reply received from a validating recursive resolver that contains a CNAME record along with additional answers recursively obtained starting at the target of the CNAME.  In this case, the only possible conclusion is that some record in the set of records returned is "insecure", and it is in fact possible that the initial CNAME record and a subset of the subsequent records are "secure".  </p>
+<p id="rfc.section.2.1.3.p.5">If the SMTP client needs to determine the security status of the DNS zone containing the initial CNAME record, it will need to issue a separate query of type "CNAME" that returns only the initial CNAME record.  Specifically, in <a href="#non-mx">Section 2.2.2</a> when insecure A or AAAA records are found for an SMTP server via a CNAME alias, the SMTP client will need to perform an additional CNAME query in order to determine whether the DNS zone in which the alias is published is DNSSEC signed.  </p>
 <h1 id="rfc.section.2.2"><a href="#rfc.section.2.2">2.2.</a> <a href="#discovery" id="discovery">TLS discovery</a></h1>
 <p id="rfc.section.2.2.p.1">As noted previously (in <a href="#starttls">Section 1.3.1</a>), opportunistic TLS with SMTP servers that advertise TLS support via STARTTLS is subject to an MITM downgrade attack.  Also some SMTP servers that are not, in fact, TLS capable erroneously advertise STARTTLS by default and clients need to be prepared to retry cleartext delivery after STARTTLS fails.  In contrast, DNSSEC validated TLSA records MUST NOT be published for servers that do not support TLS.  Clients can safely interpret their presence as a commitment by the server operator to implement TLS and STARTTLS.  </p>
 <p id="rfc.section.2.2.p.2">This memo defines four actions to be taken after the search for a TLSA record returns secure usable results, secure unusable results, insecure or no results or an error signal.  The term "usable" in this context is in the sense of Section 4.1 of <a href="#RFC6698">[RFC6698]</a>.  Specifically, if the DNS lookup for a TLSA record returns: </p>
@@ -666,11 +665,12 @@
 <p id="rfc.section.2.2.1.p.1">In this section we consider next-hop domains that are subject to MX resolution and have MX records.  The TLSA records and the associated base domain are derived separately for each MX hostname that is used to attempt message delivery.  DANE TLS can authenticate message delivery to the intended next-hop domain only when the MX records are obtained securely via a DNSSEC validated lookup.  </p>
 <p id="rfc.section.2.2.1.p.2">MX records MUST be sorted by preference; an MX hostname with a worse (numerically higher) MX preference that has TLSA records MUST NOT preempt an MX hostname with a better (numerically lower) preference that has no TLSA records.  In other words, prevention of delivery loops by obeying MX preferences MUST take precedence over channel security considerations.  Even with two equal-preference MX records, an MTA is not obligated to choose the MX hostname that offers more security.  Domains that want secure inbound mail delivery need to ensure that all their SMTP servers and MX records are configured accordingly.  </p>
 <p id="rfc.section.2.2.1.p.3">In the language of <a href="#RFC5321">[RFC5321]</a> Section 5.1, the original next-hop domain is the "initial name".  If the MX lookup of the initial name results in a CNAME alias, the MTA replaces the initial name with the resulting name and performs a new lookup with the new name.  MTAs typically support recursion in CNAME expansion, so this replacement is performed repeatedly (up to the MTA's recursion limit) until the ultimate non-CNAME domain is found.  </p>
-<p id="rfc.section.2.2.1.p.4">If the MX RRSet (or any CNAME leading to it) is "insecure" (see <a href="#dnserr">Section 2.1.1</a>), DANE TLS need not apply, and delivery MAY proceed via pre-DANE opportunistic TLS.  That said, the protocol in this memo is an "opportunistic security" protocol, meaning that it strives to communicate with each peer as securely as possible, while maintaining broad interoperability.  Therefore, the SMTP client MAY proceed to use DANE TLS (as described in <a href="#non-mx">Section 2.2.2</a> below) even with MX hosts obtained via an "insecure" MX RRSet.  For example, when a hosting provider has a signed DNS zone and publishes TLSA records for its SMTP servers, hosted domains that are not signed may still benefit from the provider's TLSA records.  Deliveries via the provider's SMTP servers will not be subject to active attacks when sending SMTP clients elect to make use of the provider's TLSA records.  </p>
-<p id="rfc.section.2.2.1.p.5">When the MX records are not (DNSSEC) signed, an active attacker can redirect SMTP clients to MX hosts of his choice.  Such redirection is tamper-evident when SMTP servers found via "insecure" MX records are recorded as the next-hop relay in the MTA delivery logs in their original (rather than CNAME expanded) form.  Sending MTAs SHOULD log unexpanded MX hostnames when these result from insecure MX lookups.  Any successful authentication via an insecurely determined MX host MUST NOT be misrepresented in the mail logs as secure delivery to the intended next-hop domain.  When DANE TLS is mandatory (<a href="#mandatory">Section 6</a>) for a given destination, delivery MUST be delayed when the MX RRSet is not "secure".  </p>
-<p id="rfc.section.2.2.1.p.6">In the absence of DNS lookup errors (<a href="#dnserr">Section 2.1.1</a>), if the MX RRset is not "insecure" then it is "secure", and the SMTP client MUST treat each MX hostname as a separate non-MX destination for opportunistic DANE TLS (as described in <a href="#non-mx">Section 2.2.2</a>).  When, for a given MX hostname, no TLSA records are found, or only "insecure" TLSA records are found, DANE TLSA is not applicable with the SMTP server in question and delivery proceeds to that host as with pre-DANE opportunistic TLS.  To avoid downgrade attacks, any errors during TLSA lookups MUST, as explained in <a href="#dnserr">Section 2.1.1</a>, cause the SMTP server in question to be treated as unreachable.  </p>
+<p id="rfc.section.2.2.1.p.4">If the MX RRSet (or any CNAME leading to it) is "insecure" (see <a href="#dnserr">Section 2.1.1</a>) and DANE TLS for the given destination is mandatory (<a href="#mandatory">Section 6</a>), delivery MUST be delayed.  If the MX RRSet is "insecure" and DANE TLS is not mandatory, the SMTP client is free to use pre-DANE opportunistic TLS (possibly even cleartext).  </p>
+<p id="rfc.section.2.2.1.p.5">Since the protocol in this memo is an "opportunistic security" protocol (<a href="#RFC7435">[RFC7435]</a>) the SMTP client MAY elect to use DANE TLS (as described in <a href="#non-mx">Section 2.2.2</a> below) even with MX hosts obtained via an "insecure" MX RRSet.  For example, when a hosting provider has a signed DNS zone and publishes TLSA records for its SMTP servers, hosted domains that are not signed may still benefit from the provider's TLSA records.  Deliveries via the provider's SMTP servers will not be subject to active attacks when sending SMTP clients elect to make use of the provider's TLSA records (active attacks that tamper with the "insecure" MX RRSet are of course still possible in this case).  </p>
+<p id="rfc.section.2.2.1.p.6">When the MX records are not (DNSSEC) signed, an active attacker can redirect SMTP clients to MX hosts of his choice.  Such redirection is tamper-evident when SMTP servers found via "insecure" MX records are recorded as the next-hop relay in the MTA delivery logs in their original (rather than CNAME expanded) form.  Sending MTAs SHOULD log unexpanded MX hostnames when these result from insecure MX lookups.  Any successful authentication via an insecurely determined MX host MUST NOT be misrepresented in the mail logs as secure delivery to the intended next-hop domain.  </p>
+<p id="rfc.section.2.2.1.p.7">In the absence of DNS lookup errors (<a href="#dnserr">Section 2.1.1</a>), if the MX RRSet is not "insecure" then it is "secure", and the SMTP client MUST treat each MX hostname as described in <a href="#non-mx">Section 2.2.2</a>).  When, for a given MX hostname, no TLSA records are found, or only "insecure" TLSA records are found, DANE TLSA is not applicable with the SMTP server in question and delivery proceeds to that host as with pre-DANE opportunistic TLS.  To avoid downgrade attacks, any errors during TLSA lookups MUST, as explained in <a href="#dnserr">Section 2.1.1</a>, cause the SMTP server in question to be treated as unreachable.  </p>
 <h1 id="rfc.section.2.2.2"><a href="#rfc.section.2.2.2">2.2.2.</a> <a href="#non-mx" id="non-mx">Non-MX destinations</a></h1>
-<p id="rfc.section.2.2.2.p.1">This section describes the algorithm used to locate the TLSA records and associated TLSA base domain for an input domain that is not subject to MX resolution or that lacks MX records.  Such domains include: </p>
+<p id="rfc.section.2.2.2.p.1">This section describes the algorithm used to locate the TLSA records and associated TLSA base domain for an input domain that is not subject to MX resolution, that represents a hostname from a secure MX RRSet, or that lacks MX records.  Such domains include: </p>
 <p/>
 
 <ul>
@@ -701,16 +701,19 @@
 <p> </p>
 <p id="rfc.section.2.2.2.p.9">In summary, if it is possible to securely obtain the full, CNAME-expanded, DNSSEC-validated address records for the input domain, then that name is the preferred TLSA base domain.  Otherwise, the unexpanded input-MX domain is the candidate TLSA base domain.  When no "secure" TLSA records are found at either the CNAME-expanded or unexpanded domain, then DANE TLS does not apply for mail delivery via the input domain in question.  And, as always, errors, bogus or indeterminate results for any query in the process MUST result in delaying or abandoning delivery.  </p>
 <h1 id="rfc.section.2.2.3"><a href="#rfc.section.2.2.3">2.2.3.</a> <a href="#tlsa-lookup" id="tlsa-lookup">TLSA record lookup</a></h1>
-<p id="rfc.section.2.2.3.p.1">Each candidate TLSA base domain (the original or fully CNAME-expanded name of a non-MX destination or a particular MX hostname of an MX destination) is in turn prefixed with service labels of the form "_&lt;port&gt;._tcp".  The resulting domain name is used to issue a DNSSEC query with the query type set to TLSA (<a href="#RFC6698">[RFC6698]</a> Section 7.1).  </p>
-<p id="rfc.section.2.2.3.p.2">For SMTP, the destination TCP port is typically 25, but this may be different with custom routes specified by the MTA administrator in which case the SMTP client MUST use the appropriate number in the "_&lt;port&gt;" prefix in place of "_25".  If, for example, the candidate base domain is "mx.example.com", and the SMTP connection is to port 25, the TLSA RRSet is obtained via a DNSSEC query of the form: </p>
+<p id="rfc.section.2.2.3.p.1">When the SMTP server's hostname is not a CNAME or DNAME alias, the list of associated candidate TLSA base domains (see below) consists of just the server hostname.  </p>
+<p id="rfc.section.2.2.3.p.2">When hostname is an alias with a "secure" (at every stage) full expansion, the list of candidate TLSA base domains (see below) is a pair of domains: the fully expanded server hostname first and the unexpanded server hostname second.  </p>
+<p id="rfc.section.2.2.3.p.3">Each candidate TLSA base domain (alias-expanded or original) is in turn prefixed with service labels of the form "_&lt;port&gt;._tcp".  The resulting domain name is used to issue a DNSSEC query with the query type set to TLSA (<a href="#RFC6698">[RFC6698]</a> Section 7.1).  </p>
+<p id="rfc.section.2.2.3.p.4">The first of these candidate domains to yield a "secure" TLSA RRSet becomes the actual TLSA base domain.  </p>
+<p id="rfc.section.2.2.3.p.5">For SMTP, the destination TCP port is typically 25, but this may be different with custom routes specified by the MTA administrator in which case the SMTP client MUST use the appropriate number in the "_&lt;port&gt;" prefix in place of "_25".  If, for example, the candidate base domain is "mx.example.com", and the SMTP connection is to port 25, the TLSA RRSet is obtained via a DNSSEC query of the form: </p>
 <pre>
 _25._tcp.mx.example.com. IN TLSA ?
 </pre>
-<p id="rfc.section.2.2.3.p.3">The query response may be a CNAME, or the actual TLSA RRSet.  If the response is a CNAME, the SMTP client (through the use of its security-aware stub resolver) restarts the TLSA query at the target domain, following CNAMEs as appropriate and keeping track of whether the entire chain is "secure".  If any "insecure" records are encountered, or the TLSA records don't exist, the next candidate TLSA base domain is tried instead.  </p>
-<p id="rfc.section.2.2.3.p.4">If the ultimate response is a "secure" TLSA RRSet, then the candidate TLSA base domain will be the actual TLSA base domain and the TLSA RRSet will constitute the TLSA records for the destination.  If none of the candidate TLSA base domains yield "secure" TLSA records then delivery MAY proceed via pre-DANE opportunistic TLS.  SMTP clients MAY elect to use "insecure" TLSA records to avoid STARTTLS downgrades or even to skip SMTP servers that fail authentication, but MUST NOT misrepresent authentication success as either a secure connection to the SMTP server or as a secure delivery to the intended next-hop domain.  </p>
-<p id="rfc.section.2.2.3.p.5">TLSA record publishers may leverage CNAMEs to reference a single authoritative TLSA RRSet specifying a common Certification Authority or a common end entity certificate to be used with multiple TLS services.  Such CNAME expansion does not change the SMTP client's notion of the TLSA base domain; thus, when _25._tcp.mx.example.com is a CNAME, the base domain remains mx.example.com and this is still the reference identifier used together with the next-hop domain in peer certificate name checks.  </p>
-<p id="rfc.section.2.2.3.p.6">Note that shared end entity certificate associations expose the publishing domain to substitution attacks, where an MITM attacker can reroute traffic to a different server that shares the same end entity certificate.  Such shared end entity TLSA records SHOULD be avoided unless the servers in question are functionally equivalent or employ mutually incompatible protocols (an active attacker gains nothing by diverting client traffic from one such server to another).  </p>
-<p id="rfc.section.2.2.3.p.7">A better example, employing a shared trust anchor rather than shared end-entity certificates, is illustrated by the DNSSEC validated records below: </p>
+<p id="rfc.section.2.2.3.p.6">The query response may be a CNAME, or the actual TLSA RRSet.  If the response is a CNAME, the SMTP client (through the use of its security-aware stub resolver) restarts the TLSA query at the target domain, following CNAMEs as appropriate and keeps track of whether the entire chain is "secure".  If any "insecure" records are encountered, or the TLSA records don't exist, the next candidate TLSA base domain is tried instead.  </p>
+<p id="rfc.section.2.2.3.p.7">If the ultimate response is a "secure" TLSA RRSet, then the candidate TLSA base domain will be the actual TLSA base domain and the TLSA RRSet will constitute the TLSA records for the destination.  If none of the candidate TLSA base domains yield "secure" TLSA records then the SMTP client is free to use pre-DANE opportunistic TLS (possibly even cleartext).  </p>
+<p id="rfc.section.2.2.3.p.8">TLSA record publishers may leverage CNAMEs to reference a single authoritative TLSA RRSet specifying a common Certification Authority or a common end-entity certificate to be used with multiple TLS services.  Such CNAME expansion does not change the SMTP client's notion of the TLSA base domain; thus, when _25._tcp.mx.example.com is a CNAME, the base domain remains mx.example.com and this is still the reference identifier used together with the next-hop domain in peer certificate name checks.  </p>
+<p id="rfc.section.2.2.3.p.9">Note that shared end-entity certificate associations expose the publishing domain to substitution attacks, where an MITM attacker can reroute traffic to a different server that shares the same end-entity certificate.  Such shared end-entity TLSA records SHOULD be avoided unless the servers in question are functionally equivalent or employ mutually incompatible protocols (an active attacker gains nothing by diverting client traffic from one such server to another).  </p>
+<p id="rfc.section.2.2.3.p.10">A better example, employing a shared trust anchor rather than shared end-entity certificates, is illustrated by the DNSSEC validated records below: </p>
 <pre>
   example.com.                IN MX 0 mx1.example.com.
   example.com.                IN MX 0 mx2.example.com.
@@ -718,20 +721,20 @@ _25._tcp.mx.example.com. IN TLSA ?
   _25._tcp.mx2.example.com.   IN CNAME tlsa201._dane.example.com.
   tlsa201._dane.example.com.  IN TLSA 2 0 1 e3b0c44298fc1c149a...
 </pre>
-<p id="rfc.section.2.2.3.p.8">The SMTP servers mx1.example.com and mx2.example.com will be expected to have certificates issued under a common trust anchor, but each MX hostname's TLSA base domain remains unchanged despite the above CNAME records.  Correspondingly, each SMTP server will be associated with a pair of reference identifiers consisting of its hostname plus the next-hop domain "example.com".  </p>
-<p id="rfc.section.2.2.3.p.9">If, during TLSA resolution (including possible CNAME indirection), at least one "secure" TLSA record is found (even if not usable because it is unsupported by the implementation or support is administratively disabled), then the corresponding host has signaled its commitment to implement TLS.  The SMTP client MUST NOT deliver mail via the corresponding host unless a TLS session is negotiated via STARTTLS.  This is required to avoid MITM STARTTLS downgrade attacks.  </p>
-<p id="rfc.section.2.2.3.p.10">As noted previously (in Section <a href="#non-mx">Section 2.2.2</a>), when no "secure" TLSA records are found at the fully CNAME-expanded name, the original unexpanded name MUST be tried instead.  This supports customers of hosting providers where the provider's zone cannot be validated with DNSSEC, but the customer has shared appropriate key material with the hosting provider to enable TLS via SNI.  Intermediate names that arise during CNAME expansion that are neither the original, nor the final name, are never candidate TLSA base domains, even if "secure".  </p>
+<p id="rfc.section.2.2.3.p.11">The SMTP servers mx1.example.com and mx2.example.com will be expected to have certificates issued under a common trust anchor, but each MX hostname's TLSA base domain remains unchanged despite the above CNAME records.  Correspondingly, each SMTP server will be associated with a pair of reference identifiers consisting of its hostname plus the next-hop domain "example.com".  </p>
+<p id="rfc.section.2.2.3.p.12">If, during TLSA resolution (including possible CNAME indirection), at least one "secure" TLSA record is found (even if not usable because it is unsupported by the implementation or support is administratively disabled), then the corresponding host has signaled its commitment to implement TLS.  The SMTP client MUST NOT deliver mail via the corresponding host unless a TLS session is negotiated via STARTTLS.  This is required to avoid MITM STARTTLS downgrade attacks.  </p>
+<p id="rfc.section.2.2.3.p.13">As noted previously (in Section <a href="#non-mx">Section 2.2.2</a>), when no "secure" TLSA records are found at the fully CNAME-expanded name, the original unexpanded name MUST be tried instead.  This supports customers of hosting providers where the provider's zone cannot be validated with DNSSEC, but the customer has shared appropriate key material with the hosting provider to enable TLS via SNI.  Intermediate names that arise during CNAME expansion that are neither the original, nor the final name, are never candidate TLSA base domains, even if "secure".  </p>
 <h1 id="rfc.section.3"><a href="#rfc.section.3">3.</a> <a href="#authentication" id="authentication">DANE authentication</a></h1>
 <p id="rfc.section.3.p.1">This section describes which TLSA records are applicable to SMTP opportunistic DANE TLS and how to apply such records to authenticate the SMTP server.  With opportunistic DANE TLS, both the TLS support implied by the presence of DANE TLSA records and the verification parameters necessary to authenticate the TLS peer are obtained together.  In contrast to protocols where channel security policy is set exclusively by the client, authentication via this protocol is expected to be less prone to connection failure caused by incompatible configuration of the client and server.  </p>
 <h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> TLSA certificate usages</h1>
 <p id="rfc.section.3.1.p.1">The DANE TLSA specification <a href="#RFC6698">[RFC6698]</a> defines multiple TLSA RR types via combinations of 3 numeric parameters.  The numeric values of these parameters were later given symbolic names in <a href="#RFC7218">[RFC7218]</a>.  The rest of the TLSA record is the "certificate association data field", which specifies the full or digest value of a certificate or public key.  </p>
 <p id="rfc.section.3.1.p.2">Since opportunistic DANE TLS will be used by non-interactive MTAs, with no user to "press OK" when authentication fails, reliability of peer authentication is paramount.  Server operators are advised to publish TLSA records that are least likely to fail authentication due to interoperability or operational problems.  Because DANE TLS relies on coordinated changes to DNS and SMTP server settings, the best choice of records to publish will depend on site-specific practices.  </p>
 <p id="rfc.section.3.1.p.3">The certificate usage element of a TLSA record plays a critical role in determining how the corresponding certificate association data field is used to authenticate server's certificate chain.  The next two subsections explain the process for certificate usages DANE-EE(3) and DANE-TA(2).  The third subsection briefly explains why certificate usages PKIX-TA(0) and PKIX-EE(1) are not applicable with opportunistic DANE TLS.  </p>
-<p id="rfc.section.3.1.p.4">In summary, we RECOMMEND the use of either "DANE-EE(3) SPKI(1) SHA2-256(1)" or "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA records depending on site needs.  Other combinations of TLSA parameters are either explicitly unsupported, or offer little to recommend them over these two.  </p>
+<p id="rfc.section.3.1.p.4">In summary, we RECOMMEND the use of "DANE-EE(3) SPKI(1) SHA2-256(1)", with "DANE-TA(2) Cert(0) SHA2-256(1)" TLSA records as a second choice, depending on site needs. See the following two subsections for more details.  Other combinations of TLSA parameters are either explicitly unsupported, or offer little to recommend them over these two.  </p>
 <h1 id="rfc.section.3.1.1"><a href="#rfc.section.3.1.1">3.1.1.</a> <a href="#cert3" id="cert3">Certificate usage DANE-EE(3)</a></h1>
 <p id="rfc.section.3.1.1.p.1">Authentication via certificate usage DANE-EE(3) TLSA records involves simply checking that the server's leaf certificate matches the TLSA record.  In particular the binding of the server public key to its name is based entirely on the TLSA record association.  The server MUST be considered authenticated even if none of the names in the certificate match the client's reference identity for the server.  </p>
-<p id="rfc.section.3.1.1.p.2">Similarly, the expiration date of the server certificate MUST be ignored, the validity period of the TLSA record key binding is determined by the validity interval of the TLSA record DNSSEC signature.  </p>
-<p id="rfc.section.3.1.1.p.3">With DANE-EE(3) servers need not employ SNI (may ignore the client's SNI message) even when the server is known under independent names that would otherwise require separate certificates.  It is instead sufficient for the TLSA RRSets for all the domains in question to match the server's default certificate.  Of course with SMTP servers it is simpler still to publish the same MX hostname for all the hosted domains.  </p>
+<p id="rfc.section.3.1.1.p.2">The expiration date of the server certificate MUST be ignored: the validity period of the TLSA record key binding is determined by the validity interval of the TLSA record DNSSEC signature.  </p>
+<p id="rfc.section.3.1.1.p.3">With DANE-EE(3), servers need not employ SNI (they may ignore the client's SNI message) even when the server is known under independent names that would otherwise require separate certificates.  It is instead sufficient for the TLSA RRSets for all the domains in question to match the server's default certificate.  Of course with SMTP servers it is simpler still to publish the same MX hostname for all the hosted domains.  </p>
 <p id="rfc.section.3.1.1.p.4">For domains where it is practical to make coordinated changes in DNS TLSA records during SMTP server key rotation, it is often best to publish end-entity DANE-EE(3) certificate associations.  DANE-EE(3) certificates don't suddenly stop working when leaf or intermediate certificates expire, and don't fail when the server operator neglects to configure all the required issuer certificates in the server certificate chain.  </p>
 <p id="rfc.section.3.1.1.p.5">TLSA records published for SMTP servers SHOULD, in most cases, be "DANE-EE(3) SPKI(1) SHA2-256(1)" records.  Since all DANE implementations are required to support SHA2-256, this record type works for all clients and need not change across certificate renewals with the same key.  </p>
 <h1 id="rfc.section.3.1.2"><a href="#rfc.section.3.1.2">3.1.2.</a> <a href="#dane-ta" id="dane-ta">Certificate usage DANE-TA(2)</a></h1>
@@ -745,16 +748,16 @@ _25._tcp.mx.example.com. IN TLSA ?
 </pre>
 <p id="rfc.section.3.1.2.p.2">With usage DANE-TA(2) the server certificates will need to have names that match one of the client's reference identifiers (see <a href="#RFC6125">[RFC6125]</a>).  The server MAY employ SNI to select the appropriate certificate to present to the client.  </p>
 <p id="rfc.section.3.1.2.p.3">SMTP servers that rely on certificate usage DANE-TA(2) TLSA records for TLS authentication MUST include the TA certificate as part of the certificate chain presented in the TLS handshake server certificate message even when it is a self-signed root certificate.  Many SMTP servers are not configured with a comprehensive list of trust anchors, nor are they expected to at any point in the future.  Some MTAs will ignore all locally trusted certificates when processing usage DANE-TA(2) TLSA records.  Thus even when the TA happens to be a public Certification Authority known to the SMTP client, authentication is likely to fail unless the TA certificate is included in the TLS server certificate message.  </p>
-<p id="rfc.section.3.1.2.p.4">With some SMTP server software it is not possible to configure the server to include self-signed (root) CA certificates in the server certificate chain.  Such servers MUST either publish DANE-TA(2) records for an intermediate certificate or MUST instead use DANE-EE(3) TLSA records.  </p>
+<p id="rfc.section.3.1.2.p.4">With some SMTP server software it is not possible to configure the server to include self-signed (root) CA certificates in the server certificate chain.  Such servers either MUST publish DANE-TA(2) records for an intermediate certificate or MUST instead use DANE-EE(3) TLSA records.  </p>
 <p id="rfc.section.3.1.2.p.5">TLSA records with matching type Full(0) are discouraged.  While these potentially obviate the need to transmit the TA certificate in the TLS server certificate message, client implementations may not be able to augment the server certificate chain with the data obtained from DNS, especially when the TLSA record supplies a bare key (selector SPKI(1)).  Since the server will need to transmit the TA certificate in any case, server operators SHOULD publish TLSA records with a matching type other than Full(0) and avoid potential interoperability issues with large TLSA records containing full certificates or keys.  </p>
 <p id="rfc.section.3.1.2.p.6">TLSA Publishers employing DANE-TA(2) records SHOULD publish records with a selector of Cert(0).  Such TLSA records are associated with the whole trust anchor certificate, not just with the trust anchor public key.  In particular, the SMTP client SHOULD then apply any relevant constraints from the trust anchor certificate, such as, for example, path length constraints.  </p>
 <p id="rfc.section.3.1.2.p.7">While a selector of SPKI(1) may also be employed, the resulting TLSA record will not specify the full trust anchor certificate content, and elements of the trust anchor certificate other than the public key become mutable.  This may, for example, allow a subsidiary CA to issue a chain that violates the trust anchor's path length or name constraints.  </p>
 <h1 id="rfc.section.3.1.3"><a href="#rfc.section.3.1.3">3.1.3.</a> <a href="#pkix-usages" id="pkix-usages">Certificate usages PKIX-TA(0) and PKIX-EE(1)</a></h1>
-<p id="rfc.section.3.1.3.p.1">Note, this section applies to MTA-to-MTA SMTP on port 25.  That is, to servers that are the SMTP servers for one or more destination domains.  Other uses of SMTP, such as in MUA-to-MSA submission on ports 587 or 465 are out of scope for this document.  Where those other uses also employ TLS opportunistically and/or depend on DNSSEC as a result of DNS-based discovery of service location, the relevant specifications should, as appropriate, arrive at similar conclusions.  </p>
+<p id="rfc.section.3.1.3.p.1">Note, this section applies to MTA-to-MTA SMTP, which is normally on port 25.  That is, to servers that are the SMTP servers for one or more destination domains.  Other uses of SMTP, such as in MUA-to-MSA submission on ports 587 or 465 are out of scope for this document.  Where those other uses also employ TLS opportunistically and/or depend on DNSSEC as a result of DNS-based discovery of service location, the relevant specifications should, as appropriate, arrive at similar conclusions.  </p>
 <p id="rfc.section.3.1.3.p.2">As noted in <a href="#starttls">Section 1.3.1</a> and <a href="#need-dnssec">Section 1.3.2</a>, sending MTAs cannot, without relying on DNSSEC for secure MX records and DANE for STARTTLS support signaling, perform server identity verification or prevent STARTTLS downgrade attacks.  The use of PKIX CAs offers no added security since an attacker capable of compromising DNSSEC is free to replace any PKIX-TA(0) or PKIX-EE(1) TLSA records with records bearing any convenient non-PKIX certificate usage.  Finally, as explained in <a href="#YACA">Section 1.3.4</a>, there is no list of trusted CAs agreed by all MTAs, and no user to "click OK" when a server's CA is not trusted by a client.  </p>
 <p id="rfc.section.3.1.3.p.3">Therefore, TLSA records for the port 25 SMTP service used by client MTAs SHOULD NOT include TLSA RRs with certificate usage PKIX-TA(0) or PKIX-EE(1).  SMTP client MTAs cannot be expected to be configured with a suitably complete set of trusted public CAs.  Lacking a complete set of public CAs, MTA clients would not be able to verify the certificates of SMTP servers whose issuing root CAs are not trusted by the client.  </p>
 <p id="rfc.section.3.1.3.p.4">Opportunistic DANE TLS needs to interoperate without bilateral coordination of security settings between client and server systems.  Therefore, parameter choices that are fragile in the absence of bilateral coordination are unsupported.  Nothing is lost since the PKIX certificate usages cannot aid SMTP TLS security, they can only impede SMTP TLS interoperability.  </p>
-<p id="rfc.section.3.1.3.p.5">SMTP client treatment of TLSA RRs with certificate usages PKIX-TA(0) or PKIX-EE(1) is undefined.  As with any other unsupported certificate usage, SMTP clients MAY treat such records as "unusable" </p>
+<p id="rfc.section.3.1.3.p.5">SMTP client treatment of TLSA RRs with certificate usages PKIX-TA(0) or PKIX-EE(1) is undefined.  As with any other unsupported certificate usage, SMTP clients MAY treat such records as "unusable".  </p>
 <h1 id="rfc.section.3.2"><a href="#rfc.section.3.2">3.2.</a> <a href="#matching" id="matching">Certificate matching</a></h1>
 <p id="rfc.section.3.2.p.1">When at least one usable "secure" TLSA record is found, the SMTP client MUST use TLSA records to authenticate the SMTP server.  Messages MUST NOT be delivered via the SMTP server if authentication fails, otherwise the SMTP client is vulnerable to MITM attacks.  </p>
 <h1 id="rfc.section.3.2.1"><a href="#rfc.section.3.2.1">3.2.1.</a> DANE-EE(3) name checks</h1>
@@ -795,7 +798,7 @@ _25._tcp.mx.example.com. IN TLSA ?
 <p id="rfc.section.3.2.3.p.1">When name checks are applicable (certificate usage DANE-TA(2)), if the server certificate contains a Subject Alternative Name extension (<a href="#RFC5280">[RFC5280]</a>), with at least one DNS-ID (<a href="#RFC6125">[RFC6125]</a>) then only the DNS-IDs are matched against the client's reference identifiers.  The CN-ID (<a href="#RFC6125">[RFC6125]</a>) is only considered when no DNS-IDs are present.  The server certificate is considered matched when one of its presented identifiers (<a href="#RFC5280">[RFC5280]</a>) matches any of the client's reference identifiers.  </p>
 <p id="rfc.section.3.2.3.p.2">Wildcards are valid in either DNS-IDs or the CN-ID when applicable.  The wildcard character must be the entire first label of the DNS-ID or CN-ID.  Thus, "*.example.com" is valid, while "smtp*.example.com" and "*smtp.example.com" are not.  SMTP clients MUST support wildcards that match the first label of the reference identifier, with the remaining labels matching verbatim.  For example, the DNS-ID "*.example.com" matches the reference identifier "mx1.example.com".  SMTP clients MAY, subject to local policy allow wildcards to match multiple reference identifier labels, but servers cannot expect broad support for such a policy.  Therefore any wildcards in server certificates SHOULD match exactly one label in either the TLSA base domain or the next-hop domain.  </p>
 <h1 id="rfc.section.4"><a href="#rfc.section.4">4.</a> Server key management</h1>
-<p id="rfc.section.4.p.1">Two TLSA records MUST be published before employing a new EE or TA public key or certificate, one matching the currently deployed key and the other matching the new key scheduled to replace it.  Once sufficient time has elapsed for all DNS caches to expire the previous TLSA RRSet and related signature RRsets, servers may be configured to use the new EE private key and associated public key certificate or may employ certificates signed by the new trust anchor.  </p>
+<p id="rfc.section.4.p.1">Two TLSA records MUST be published before employing a new EE or TA public key or certificate, one matching the currently deployed key and the other matching the new key scheduled to replace it.  Once sufficient time has elapsed for all DNS caches to expire the previous TLSA RRSet and related signature RRSets, servers may be configured to use the new EE private key and associated public key certificate or may employ certificates signed by the new trust anchor.  </p>
 <p id="rfc.section.4.p.2">Once the new public key or certificate is in use, the TLSA RR that matches the retired key can be removed from DNS, leaving only RRs that match keys or certificates in active use.  </p>
 <p id="rfc.section.4.p.3">As described in <a href="#dane-ta">Section 3.1.2</a>, when server certificates are validated via a DANE-TA(2) trust anchor, and CNAME records are employed to store the TA association data at a single location, the responsibility of updating the TLSA RRSet shifts to the operator of the trust anchor.  Before a new trust anchor is used to sign any new server certificates, its certificate (digest) is added to the relevant TLSA RRSet.  After enough time elapses for the original TLSA RRSet to age out of DNS caches, the new trust anchor can start issuing new server certificates.  Once all certificates issued under the previous trust anchor have expired, its associated RRs can be removed from the TLSA RRSet.  </p>
 <p id="rfc.section.4.p.4">In the DANE-TA(2) key management model server operators do not generally need to update DNS TLSA records after initially creating a CNAME record that references the centrally operated DANE-TA(2) RRSet.  If a particular server's key is compromised, its TLSA CNAME SHOULD be replaced with a DANE-EE(3) association until the certificate for the compromised key expires, at which point it can return to using a CNAME record.  If the central trust anchor is compromised, all servers need to be issued new keys by a new TA, and an updated DANE-TA(2) TLSA RRSet needs to be published containing just the new TA.  </p>
@@ -805,7 +808,7 @@ _25._tcp.mx.example.com. IN TLSA ?
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#mandatory" id="mandatory">Mandatory TLS Security</a></h1>
 <p id="rfc.section.6.p.1">An MTA implementing this protocol may require a stronger security assurance when sending email to selected destinations.  The sending organization may need to send sensitive email and/or may have regulatory obligations to protect its content.  This protocol is not in conflict with such a requirement, and in fact can often simplify authenticated delivery to such destinations.  </p>
 <p id="rfc.section.6.p.2">Specifically, with domains that publish DANE TLSA records for their MX hostnames, a sending MTA can be configured to use the receiving domains's DANE TLSA records to authenticate the corresponding SMTP server.  Authentication via DANE TLSA records is easier to manage, as changes in the receiver's expected certificate properties are made on the receiver end and don't require manually communicated configuration changes.  With mandatory DANE TLS, when no usable TLSA records are found, message delivery is delayed.  Thus, mail is only sent when an authenticated TLS channel is established to the remote SMTP server.  </p>
-<p id="rfc.section.6.p.3">Administrators of mail servers that employ mandatory DANE TLS, need to carefully monitor their mail logs and queues.  If a partner domain unwittingly misconfigures their TLSA records, disables DNSSEC, or misconfigures SMTP server certificate chains, mail will be delayed and may bounce if the issue is not resolved in a timely manner.  </p>
+<p id="rfc.section.6.p.3">Administrators of mail servers that employ mandatory DANE TLS need to carefully monitor their mail logs and queues.  If a partner domain unwittingly misconfigures their TLSA records, disables DNSSEC, or misconfigures SMTP server certificate chains, mail will be delayed and may bounce if the issue is not resolved in a timely manner.  </p>
 <h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#mua" id="mua">Note on DANE for Message User Agents</a></h1>
 <p id="rfc.section.7.p.1">We note that the SMTP protocol is also used between Message User Agents (MUAs) and Message Submission Agents (MSAs) <a href="#RFC6409">[RFC6409]</a>.  In <a href="#RFC6186">[RFC6186]</a> a protocol is specified that enables an MUA to dynamically locate the MSA based on the user's email address.  SMTP connection security considerations for MUAs implementing <a href="#RFC6186">[RFC6186]</a> are largely analogous to connection security requirements for MTAs, and this specification could be applied largely verbatim with DNS MX records replaced by corresponding DNS Service (SRV) records <a href="#I-D.ietf-dane-srv">[I-D.ietf-dane-srv]</a>.  </p>
 <p id="rfc.section.7.p.2">However, until MUAs begin to adopt the dynamic configuration mechanisms of <a href="#RFC6186">[RFC6186]</a> they are adequately served by more traditional static TLS security policies.  Specification of DANE TLS for Message User Agent (MUA) to Message Submission Agent (MSA) SMTP is left to future documents that focus specifically on SMTP security between MUAs and MSAs.  </p>
@@ -845,91 +848,103 @@ _25._tcp.mx.example.com. IN TLSA ?
       <td class="reference">
         <b id="I-D.ietf-dane-ops">[I-D.ietf-dane-ops]</b>
       </td>
-      <td class="top"><a>Dukhovni, V.</a> and <a>W. Hardaker</a>, "<a href="http://tools.ietf.org/html/draft-ietf-dane-ops-07">Updates to and Operational Guidance for the DANE Protocol</a>", Internet-Draft draft-ietf-dane-ops-07, October 2014.</td>
+      <td class="top"><a>Dukhovni, V.</a> and <a>W. Hardaker</a>, "<a href="http://tools.ietf.org/html/draft-ietf-dane-ops-14">Updates to and Operational Guidance for the DANE Protocol</a>", Internet-Draft draft-ietf-dane-ops-14, July 2015.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC1034">[RFC1034]</b>
+      </td>
+      <td class="top"><a>Mockapetris, P.</a>, "<a href="http://tools.ietf.org/html/rfc1034">Domain names - concepts and facilities</a>", STD 13, RFC 1034, DOI 10.17487/RFC1034, November 1987.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC2119">[RFC2119]</b>
       </td>
-      <td class="top"><a href="mailto:sob@harvard.edu" title="Harvard University">Bradner, S.</a>, "<a href="http://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>", BCP 14, RFC 2119, March 1997.</td>
+      <td class="top"><a>Bradner, S.</a>, "<a href="http://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC3207">[RFC3207]</b>
       </td>
-      <td class="top"><a>Hoffman, P.</a>, "<a href="http://tools.ietf.org/html/rfc3207">SMTP Service Extension for Secure SMTP over Transport Layer Security</a>", RFC 3207, February 2002.</td>
+      <td class="top"><a>Hoffman, P.</a>, "<a href="http://tools.ietf.org/html/rfc3207">SMTP Service Extension for Secure SMTP over Transport Layer Security</a>", RFC 3207, DOI 10.17487/RFC3207, February 2002.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC4033">[RFC4033]</b>
       </td>
-      <td class="top"><a>Arends, R.</a>, <a>Austein, R.</a>, <a>Larson, M.</a>, <a>Massey, D.</a> and <a>S. Rose</a>, "<a href="http://tools.ietf.org/html/rfc4033">DNS Security Introduction and Requirements</a>", RFC 4033, March 2005.</td>
+      <td class="top"><a>Arends, R.</a>, <a>Austein, R.</a>, <a>Larson, M.</a>, <a>Massey, D.</a> and <a>S. Rose</a>, "<a href="http://tools.ietf.org/html/rfc4033">DNS Security Introduction and Requirements</a>", RFC 4033, DOI 10.17487/RFC4033, March 2005.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC4034">[RFC4034]</b>
       </td>
-      <td class="top"><a>Arends, R.</a>, <a>Austein, R.</a>, <a>Larson, M.</a>, <a>Massey, D.</a> and <a>S. Rose</a>, "<a href="http://tools.ietf.org/html/rfc4034">Resource Records for the DNS Security Extensions</a>", RFC 4034, March 2005.</td>
+      <td class="top"><a>Arends, R.</a>, <a>Austein, R.</a>, <a>Larson, M.</a>, <a>Massey, D.</a> and <a>S. Rose</a>, "<a href="http://tools.ietf.org/html/rfc4034">Resource Records for the DNS Security Extensions</a>", RFC 4034, DOI 10.17487/RFC4034, March 2005.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC4035">[RFC4035]</b>
       </td>
-      <td class="top"><a>Arends, R.</a>, <a>Austein, R.</a>, <a>Larson, M.</a>, <a>Massey, D.</a> and <a>S. Rose</a>, "<a href="http://tools.ietf.org/html/rfc4035">Protocol Modifications for the DNS Security Extensions</a>", RFC 4035, March 2005.</td>
+      <td class="top"><a>Arends, R.</a>, <a>Austein, R.</a>, <a>Larson, M.</a>, <a>Massey, D.</a> and <a>S. Rose</a>, "<a href="http://tools.ietf.org/html/rfc4035">Protocol Modifications for the DNS Security Extensions</a>", RFC 4035, DOI 10.17487/RFC4035, March 2005.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC5246">[RFC5246]</b>
       </td>
-      <td class="top"><a>Dierks, T.</a> and <a>E. Rescorla</a>, "<a href="http://tools.ietf.org/html/rfc5246">The Transport Layer Security (TLS) Protocol Version 1.2</a>", RFC 5246, August 2008.</td>
+      <td class="top"><a>Dierks, T.</a> and <a>E. Rescorla</a>, "<a href="http://tools.ietf.org/html/rfc5246">The Transport Layer Security (TLS) Protocol Version 1.2</a>", RFC 5246, DOI 10.17487/RFC5246, August 2008.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC5280">[RFC5280]</b>
       </td>
-      <td class="top"><a>Cooper, D.</a>, <a>Santesson, S.</a>, <a>Farrell, S.</a>, <a>Boeyen, S.</a>, <a>Housley, R.</a> and <a>W. Polk</a>, "<a href="http://tools.ietf.org/html/rfc5280">Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile</a>", RFC 5280, May 2008.</td>
+      <td class="top"><a>Cooper, D.</a>, <a>Santesson, S.</a>, <a>Farrell, S.</a>, <a>Boeyen, S.</a>, <a>Housley, R.</a> and <a>W. Polk</a>, "<a href="http://tools.ietf.org/html/rfc5280">Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile</a>", RFC 5280, DOI 10.17487/RFC5280, May 2008.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC5321">[RFC5321]</b>
       </td>
-      <td class="top"><a>Klensin, J.</a>, "<a href="http://tools.ietf.org/html/rfc5321">Simple Mail Transfer Protocol</a>", RFC 5321, October 2008.</td>
+      <td class="top"><a>Klensin, J.</a>, "<a href="http://tools.ietf.org/html/rfc5321">Simple Mail Transfer Protocol</a>", RFC 5321, DOI 10.17487/RFC5321, October 2008.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC5598">[RFC5598]</b>
+      </td>
+      <td class="top"><a>Crocker, D.</a>, "<a href="http://tools.ietf.org/html/rfc5598">Internet Mail Architecture</a>", RFC 5598, DOI 10.17487/RFC5598, July 2009.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC6066">[RFC6066]</b>
       </td>
-      <td class="top"><a>Eastlake, D.</a>, "<a href="http://tools.ietf.org/html/rfc6066">Transport Layer Security (TLS) Extensions: Extension Definitions</a>", RFC 6066, January 2011.</td>
+      <td class="top"><a>Eastlake 3rd, D.</a>, "<a href="http://tools.ietf.org/html/rfc6066">Transport Layer Security (TLS) Extensions: Extension Definitions</a>", RFC 6066, DOI 10.17487/RFC6066, January 2011.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC6125">[RFC6125]</b>
       </td>
-      <td class="top"><a>Saint-Andre, P.</a> and <a>J. Hodges</a>, "<a href="http://tools.ietf.org/html/rfc6125">Representation and Verification of Domain-Based Application Service Identity within Internet Public Key Infrastructure Using X.509 (PKIX) Certificates in the Context of Transport Layer Security (TLS)</a>", RFC 6125, March 2011.</td>
+      <td class="top"><a>Saint-Andre, P.</a> and <a>J. Hodges</a>, "<a href="http://tools.ietf.org/html/rfc6125">Representation and Verification of Domain-Based Application Service Identity within Internet Public Key Infrastructure Using X.509 (PKIX) Certificates in the Context of Transport Layer Security (TLS)</a>", RFC 6125, DOI 10.17487/RFC6125, March 2011.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC6186">[RFC6186]</b>
       </td>
-      <td class="top"><a>Daboo, C.</a>, "<a href="http://tools.ietf.org/html/rfc6186">Use of SRV Records for Locating Email Submission/Access Services</a>", RFC 6186, March 2011.</td>
+      <td class="top"><a>Daboo, C.</a>, "<a href="http://tools.ietf.org/html/rfc6186">Use of SRV Records for Locating Email Submission/Access Services</a>", RFC 6186, DOI 10.17487/RFC6186, March 2011.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC6672">[RFC6672]</b>
       </td>
-      <td class="top"><a>Rose, S.</a> and <a>W. Wijngaards</a>, "<a href="http://tools.ietf.org/html/rfc6672">DNAME Redirection in the DNS</a>", RFC 6672, June 2012.</td>
+      <td class="top"><a>Rose, S.</a> and <a>W. Wijngaards</a>, "<a href="http://tools.ietf.org/html/rfc6672">DNAME Redirection in the DNS</a>", RFC 6672, DOI 10.17487/RFC6672, June 2012.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC6698">[RFC6698]</b>
       </td>
-      <td class="top"><a>Hoffman, P.</a> and <a>J. Schlyter</a>, "<a href="http://tools.ietf.org/html/rfc6698">The DNS-Based Authentication of Named Entities (DANE) Transport Layer Security (TLS) Protocol: TLSA</a>", RFC 6698, August 2012.</td>
+      <td class="top"><a>Hoffman, P.</a> and <a>J. Schlyter</a>, "<a href="http://tools.ietf.org/html/rfc6698">The DNS-Based Authentication of Named Entities (DANE) Transport Layer Security (TLS) Protocol: TLSA</a>", RFC 6698, DOI 10.17487/RFC6698, August 2012.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC7218">[RFC7218]</b>
       </td>
-      <td class="top"><a>Gudmundsson, O.</a>, "<a href="http://tools.ietf.org/html/rfc7218">Adding Acronyms to Simplify Conversations about DNS-Based Authentication of Named Entities (DANE)</a>", RFC 7218, April 2014.</td>
+      <td class="top"><a>Gudmundsson, O.</a>, "<a href="http://tools.ietf.org/html/rfc7218">Adding Acronyms to Simplify Conversations about DNS-Based Authentication of Named Entities (DANE)</a>", RFC 7218, DOI 10.17487/RFC7218, April 2014.</td>
     </tr>
   </tbody>
 </table>
@@ -944,45 +959,33 @@ _25._tcp.mx.example.com. IN TLSA ?
     </tr>
     <tr>
       <td class="reference">
-        <b id="RFC1034">[RFC1034]</b>
-      </td>
-      <td class="top"><a title="Information Sciences Institute (ISI)">Mockapetris, P.</a>, "<a href="http://tools.ietf.org/html/rfc1034">Domain names - concepts and facilities</a>", STD 13, RFC 1034, November 1987.</td>
-    </tr>
-    <tr>
-      <td class="reference">
         <b id="RFC1035">[RFC1035]</b>
       </td>
-      <td class="top"><a title="USC/ISI">Mockapetris, P.</a>, "<a href="http://tools.ietf.org/html/rfc1035">Domain names - implementation and specification</a>", STD 13, RFC 1035, November 1987.</td>
+      <td class="top"><a>Mockapetris, P.</a>, "<a href="http://tools.ietf.org/html/rfc1035">Domain names - implementation and specification</a>", STD 13, RFC 1035, DOI 10.17487/RFC1035, November 1987.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC2181">[RFC2181]</b>
       </td>
-      <td class="top"><a href="mailto:kre@munnari.OZ.AU" title="Computer Science">Elz, R.</a> and <a href="mailto:randy@psg.com" title="RGnet, Inc.">R. Bush</a>, "<a href="http://tools.ietf.org/html/rfc2181">Clarifications to the DNS Specification</a>", RFC 2181, July 1997.</td>
+      <td class="top"><a>Elz, R.</a> and <a>R. Bush</a>, "<a href="http://tools.ietf.org/html/rfc2181">Clarifications to the DNS Specification</a>", RFC 2181, DOI 10.17487/RFC2181, July 1997.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC4949">[RFC4949]</b>
       </td>
-      <td class="top"><a>Shirey, R.</a>, "<a href="http://tools.ietf.org/html/rfc4949">Internet Security Glossary, Version 2</a>", RFC 4949, August 2007.</td>
-    </tr>
-    <tr>
-      <td class="reference">
-        <b id="RFC5598">[RFC5598]</b>
-      </td>
-      <td class="top"><a>Crocker, D.</a>, "<a href="http://tools.ietf.org/html/rfc5598">Internet Mail Architecture</a>", RFC 5598, July 2009.</td>
+      <td class="top"><a>Shirey, R.</a>, "<a href="http://tools.ietf.org/html/rfc4949">Internet Security Glossary, Version 2</a>", FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC6409">[RFC6409]</b>
       </td>
-      <td class="top"><a>Gellens, R.</a> and <a>J. Klensin</a>, "<a href="http://tools.ietf.org/html/rfc6409">Message Submission for Mail</a>", STD 72, RFC 6409, November 2011.</td>
+      <td class="top"><a>Gellens, R.</a> and <a>J. Klensin</a>, "<a href="http://tools.ietf.org/html/rfc6409">Message Submission for Mail</a>", STD 72, RFC 6409, DOI 10.17487/RFC6409, November 2011.</td>
     </tr>
     <tr>
       <td class="reference">
         <b id="RFC7435">[RFC7435]</b>
       </td>
-      <td class="top"><a>Dukhovni, V.</a>, "<a href="http://tools.ietf.org/html/rfc7435">Opportunistic Security: Some Protection Most of the Time</a>", RFC 7435, December 2014.</td>
+      <td class="top"><a>Dukhovni, V.</a>, "<a href="http://tools.ietf.org/html/rfc7435">Opportunistic Security: Some Protection Most of the Time</a>", RFC 7435, DOI 10.17487/RFC7435, December 2014.</td>
     </tr>
   </tbody>
 </table>
