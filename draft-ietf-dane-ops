@@ -741,7 +741,7 @@ tlsa._dane.example.com.      IN TLSA 2 0 1 e3b0c44298fc1c14...
     preceding it.  Because certificate validation requires
     that root keys be distributed independently, the
     self-signed certificate that specifies the root
-    certificate authority MAY be omitted from the chain,
+    certification authority MAY be omitted from the chain,
     under the assumption that the remote end must already
     possess it in order to validate it in any case.</t>
     </list></t>
