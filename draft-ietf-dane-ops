@@ -34,18 +34,11 @@
 (DANE) Protocol: Updates&nbsp;and Operational Guidance</title>
 
 <author fullname="Viktor Dukhovni" initials="V." surname="Dukhovni">
-<organization>Unaffiliated</organization>
+<organization>Two Sigma</organization>
 <address>
 <email>ietf-dane@dukhovni.org</email>
 </address>
 </author>
-
-<!--[rfced] ) We see that Viktor Dukhovni is listed in
-draft-ietf-dane-smtp-with-dane with an affiliation of "Two Sigma"
-but is listed as "Unaffiliated" in draft-ietf-dane-ops.  Should
-Viktor's listing be made to match in both of these documents?
-
--->
 
     <author initials="W.H." surname="Hardaker" fullname="Wes Hardaker">
       <organization>Parsons</organization>
