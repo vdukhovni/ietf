@@ -1538,8 +1538,8 @@ _25._tcp.mail.example.com. IN TLSA 3 1 0 (
       primary server name used for this comparison MUST be the TLSA
       base domain; however, additional acceptable names may be
       specified by protocol-specific DANE standards.  For example,
-      with SMTP, both the destination domain name and the MX host
-      name are acceptable names to be found in the server certificate
+      with SMTP, both the destination domain name and the MX hostname
+      are acceptable names to be found in the server certificate
       (see <xref target="RFC7672"/>).
     </t>
 

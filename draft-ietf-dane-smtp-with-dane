@@ -474,7 +474,7 @@ meaning of the "indeterminate" security status is:
   <t>An RRSet for which the resolver is not able to determine whether
   the RRSet should be signed, as the resolver is not able to obtain
   the necessary DNSSEC RRs.  This can occur when the security-aware
-  resolver is not able to contact security-aware name servers for
+  resolver is not able to contact security-aware nameservers for
   the relevant zones.</t>
  </list></t>
 
@@ -540,7 +540,7 @@ accordance with Section&nbsp;4.9.3 of <xref target="RFC4035"/>:
   <t>... a security-aware stub resolver MUST NOT place any reliance on
   signature validation allegedly performed on its behalf, except
   when the security-aware stub resolver obtained the data in question
-  from a trusted security-aware recursive name server via a secure
+  from a trusted security-aware recursive nameserver via a secure
   channel.</t>
  </list></t>
 <!--End DNE Text -->
