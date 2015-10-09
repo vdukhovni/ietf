@@ -1571,12 +1571,11 @@ While <xref target="RFC6698"/> specifies multiple digest algorithms,
 it does not specify a protocol by which the SMTP client and TLSA
 record publisher can agree on the strongest shared algorithm.  Such
 a protocol would allow the client and server to avoid exposure to
-any deprecated weaker algorithms that are published for compatibility
-with less capable clients, but it should be ignored when possible.
-Such a protocol is specified in <xref target="RFC7671"/>.
-SMTP clients and servers that implement this specification MUST
-comply with the requirements outlined in
-Section 9 of <xref target="RFC7671"/>.
+deprecated weaker algorithms that are published for compatibility
+with less capable clients, but which SHOULD be avoided when possible.
+Such a protocol is specified in <xref target="RFC7671"/>.  SMTP
+clients and servers that implement this specification MUST comply
+with the requirements outlined in Section 9 of <xref target="RFC7671"/>.
 </t>
 
 </section>
@@ -1812,15 +1811,15 @@ deployment with no adverse security consequences.
 </t>
 
 <t>
-Implementations must strictly follow
-<xref target="dns-err-handling"/>,
-<xref target="stub"/>,
-<xref target="discovery"/>,
-<xref target="mx"/>,
-<xref target="non-mx"/>,
-<xref target="tlsa-lookup"/>,
-<xref target="matching"/> and 
-<xref target="opclients"/>
+Implementations must strictly follow Sections
+<xref target="dns-err-handling" format="counter"/>,
+<xref target="stub" format="counter"/>,
+<xref target="discovery" format="counter"/>,
+<xref target="mx" format="counter"/>,
+<xref target="non-mx" format="counter"/>,
+<xref target="tlsa-lookup" format="counter"/>,
+<xref target="matching" format="counter"/> and
+<xref target="opclients" format="counter"/>
 of this specification that indicate when it is appropriate to initiate a
 non&nbhy;authenticated connection or cleartext connection to an SMTP
 server.  Specifically, in order to prevent downgrade attacks on this
