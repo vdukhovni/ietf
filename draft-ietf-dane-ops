@@ -33,10 +33,6 @@
 <title abbrev="DANE Operations">The DNS-Based Authentication of Named Entities
 (DANE) Protocol: Updates&nbsp;and Operational Guidance</title>
 
-<!--[rfced] FYI - We have updated the title for readability and similarity to use in previous RFCs.  Please let us know any objections.
-
--->
-
 <author fullname="Viktor Dukhovni" initials="V." surname="Dukhovni">
 <organization>Unaffiliated</organization>
 <address>
