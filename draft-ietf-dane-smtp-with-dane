@@ -237,8 +237,8 @@ The following terms or concepts are used throughout this document:
     <t hangText="RR:">A DNS resource record as defined in <xref
     target="RFC1034"/>, Section 3.6.</t>
 
-    <t hangText="RRSet:">
-    An RRSet (<xref target="RFC2181"/>, Section 5) is a group of DNS resource
+    <t hangText="RRset:">
+    An RRset (<xref target="RFC2181"/>, Section 5) is a group of DNS resource
     records that share the same label, class, and type.</t>
 </list>
 </t>
@@ -464,15 +464,15 @@ using opportunistic DANE TLS.
 A DNS lookup may signal an error or return a definitive answer.  A
 security-aware resolver MUST be used for this specification.
 Security-aware resolvers will indicate the security status of a
-DNS RRSet with one of four possible values defined in
+DNS RRset with one of four possible values defined in
 Section 4.3 of <xref target="RFC4035"/>: "secure", "insecure",
 "bogus", and "indeterminate".  In <xref target="RFC4035"/>, the
 meaning of the "indeterminate" security status is:
 </t>
 <!--Begin DNE Text -->
 <t><list style="empty">
-  <t>An RRSet for which the resolver is not able to determine whether
-  the RRSet should be signed, as the resolver is not able to obtain
+  <t>An RRset for which the resolver is not able to determine whether
+  the RRset should be signed, as the resolver is not able to obtain
   the necessary DNSSEC RRs.  This can occur when the security-aware
   resolver is not able to contact security-aware nameservers for
   the relevant zones.</t>
@@ -556,7 +556,7 @@ in this memo with lookup failure.
 <t>
 There is an important non&nbhy;failure condition we need to highlight
 in addition to the obvious case of the DNS client obtaining a
-non&nbhy;empty "secure" or "insecure" RRSet of the requested type.
+non&nbhy;empty "secure" or "insecure" RRset of the requested type.
 Namely, it is not an error when either "secure" or "insecure"
 nonexistence is determined for the requested data.  When a DNSSEC
 response with a validation status that is either "secure" or
@@ -575,8 +575,8 @@ treated the same way by this specification, regardless of whether they
 are from a "bogus" or "indeterminate" DNSSEC status or from a more
 generic DNS error: the information that was requested cannot be
 obtained by the security-aware resolver at this time.  Thus, a lookup
-error is either a failure to obtain the relevant RRSet if it exists or
-a failure to determine that no such RRSet exists when it does not.
+error is either a failure to obtain the relevant RRset if it exists or
+a failure to determine that no such RRset exists when it does not.
 </t>
 
 <t>
@@ -718,19 +718,19 @@ this context is in the sense of Section&nbsp;4.1 of
 record returns:
 
 <list style="hanging">
-<t hangText="A &quot;secure&quot; TLSA RRSet with at least one usable record:">
+<t hangText="A &quot;secure&quot; TLSA RRset with at least one usable record:">
 Any connection to the MTA MUST employ TLS encryption and MUST
 authenticate the SMTP server using the techniques discussed in the
 rest of this document.  Failure to establish an authenticated TLS
 connection MUST result in falling back to the next SMTP server or
 delayed delivery.</t>
 
-<t hangText="A &quot;secure&quot; non-empty TLSA RRSet where all the records are unusable:">
+<t hangText="A &quot;secure&quot; non-empty TLSA RRset where all the records are unusable:">
 Any connection to the MTA MUST be made via TLS, but authentication
 is not required.  Failure to establish an encrypted TLS connection
 MUST result in falling back to the next SMTP server or delayed delivery.</t>
 
-<t hangText="An &quot;insecure&quot; TLSA RRSet or DNSSEC-authenticated denial
+<t hangText="An &quot;insecure&quot; TLSA RRset or DNSSEC-authenticated denial
 of existence of the TLSA records:">
 A connection to the MTA SHOULD be made using (pre&nbhy;DANE) opportunistic
 TLS; this includes using cleartext delivery when the remote SMTP
@@ -756,7 +756,7 @@ server.</t>
 When the original next-hop destination is an address literal rather
 than a DNS domain, DANE TLS does not apply.  Delivery proceeds using
 any relevant security policy configured by the MTA administrator.
-Similarly, when an MX RRSet incorrectly lists a network address in lieu
+Similarly, when an MX RRset incorrectly lists a network address in lieu
 of an MX hostname, if an MTA chooses to connect to the network address
 in the nonconformant MX record, DANE TLSA does not apply for such a
 connection.
@@ -803,10 +803,10 @@ limit) until the ultimate non&nbhy;CNAME domain is found.
 </t>
 
 <t>
-  If the MX RRSet (or any CNAME leading to it) is "insecure" (see
+  If the MX RRset (or any CNAME leading to it) is "insecure" (see
   <xref target="dnserr"/>) and DANE TLS for the given destination
   is mandatory (<xref target="mandatory"/>), delivery MUST be
-  delayed.  If the MX RRSet is "insecure" and DANE TLS is not
+  delayed.  If the MX RRset is "insecure" and DANE TLS is not
   mandatory, the SMTP client is free to use pre&nbhy;DANE opportunistic
   TLS (possibly even cleartext).
 </t>
@@ -815,14 +815,14 @@ limit) until the ultimate non&nbhy;CNAME domain is found.
   Since the protocol in this memo is an Opportunistic Security
   protocol <xref target="RFC7435"/>, the SMTP client MAY elect to
   use DANE TLS (as described in <xref target="non-mx"/> below), even
-  with MX hosts obtained via an "insecure" MX RRSet.  For example,
+  with MX hosts obtained via an "insecure" MX RRset.  For example,
   when a hosting provider has a signed DNS zone and publishes TLSA
   records for its SMTP servers, hosted domains that are not signed
   may still benefit from the provider's TLSA records.  Deliveries
   via the provider's SMTP servers will not be subject to active
   attacks when sending SMTP clients elect to use the provider's
   TLSA records (active attacks that tamper with the "insecure"
-  MX RRSet are of course still possible in this case).
+  MX RRset are of course still possible in this case).
 </t>
 
 <t>
@@ -839,7 +839,7 @@ intended next-hop domain.
 
 <t>
   In the absence of DNS lookup errors (<xref target="dnserr"/>),
-  if the MX RRSet is not "insecure", then it is "secure", and the
+  if the MX RRset is not "insecure", then it is "secure", and the
   SMTP client MUST treat each MX hostname as described in <xref
   target="non-mx"/>.  When, for a given MX hostname, no TLSA records
   are found or only "insecure" TLSA records are found, DANE TLSA
@@ -858,7 +858,7 @@ intended next-hop domain.
   This section describes the algorithm used to locate the TLSA
   records and associated TLSA base domain for an input domain that
   is not subject to MX resolution, that represents a hostname from
-  a "secure" MX RRSet, or that lacks MX records.  Such domains include:
+  a "secure" MX RRset, or that lacks MX records.  Such domains include:
 </t>
 
 <t>
@@ -957,7 +957,7 @@ destination is unreachable.
 </t>
 
 <t hangText="Non-CNAME:">
-The answer is not a CNAME alias.  If the address RRSet is
+The answer is not a CNAME alias.  If the address RRset is
 "secure", TLSA lookups are performed as described in <xref
 target="tlsa-lookup"/> with the initial name as the candidate TLSA
 base domain.  If no "secure" TLSA records are found, DANE TLS is
@@ -968,7 +968,7 @@ delivery when STARTTLS is not available or the TLS handshake fails).
 
 <t hangText="Insecure CNAME:">
 The input domain is a CNAME alias, but the ultimate network address
-RRSet is "insecure" (see <xref target="dnserr"/>).  If the initial
+RRset is "insecure" (see <xref target="dnserr"/>).  If the initial
 CNAME response is also "insecure", DANE TLS does not apply.  Otherwise,
 this case is treated just like the non&nbhy;CNAME case above, where a
 search is performed for a TLSA record with the original input domain
@@ -977,7 +977,7 @@ as the candidate TLSA base domain.
 
 <t hangText="Secure CNAME:">
 The input domain is a CNAME alias, and the ultimate network address
-RRSet is "secure" (see <xref target="dnserr"/>).  Two candidate TLSA
+RRset is "secure" (see <xref target="dnserr"/>).  Two candidate TLSA
 base domains are tried: the fully CNAME-expanded initial name and,
 failing that, the initial name itself.
 </t>
@@ -1023,7 +1023,7 @@ delaying or abandoning delivery.
 
 <t>
   The first of these candidate domains to yield a "secure" TLSA
-  RRSet becomes the actual TLSA base domain.
+  RRset becomes the actual TLSA base domain.
 </t>
 
 <t>
@@ -1032,7 +1032,7 @@ be different with custom routes specified by the MTA administrator,
 in which case the SMTP client MUST use the appropriate number in
 the "_&lt;port&gt;" prefix in place of "_25".  If, for example,
 the candidate base domain is "mx.example.com" and the SMTP connection
-is to port 25, the TLSA RRSet is obtained via a DNSSEC query of the
+is to port 25, the TLSA RRset is obtained via a DNSSEC query of the
 form:
 </t>
 
@@ -1043,7 +1043,7 @@ form:
 </figure>
 
 <t>
-The query response may be a CNAME or the actual TLSA RRSet.  If the
+The query response may be a CNAME or the actual TLSA RRset.  If the
 response is a CNAME, the SMTP client (through the use of its
 security-aware stub resolver) restarts the TLSA query at the target
 domain, following CNAMEs as appropriate, and keeps track of whether or
@@ -1053,9 +1053,9 @@ base domain is tried instead.
 </t>
 
 <t>
-  If the ultimate response is a "secure" TLSA RRSet, then the
+  If the ultimate response is a "secure" TLSA RRset, then the
   candidate TLSA base domain will be the actual TLSA base domain,
-  and the TLSA RRSet will constitute the TLSA records for the
+  and the TLSA RRset will constitute the TLSA records for the
   destination.  If none of the candidate TLSA base domains yield
   "secure" TLSA records, then the SMTP client is free to use
   pre&nbhy;DANE opportunistic TLS (possibly even cleartext).
@@ -1063,7 +1063,7 @@ base domain is tried instead.
 
 <t>
 TLSA record publishers may leverage CNAMEs to reference a single
-authoritative TLSA RRSet specifying a common CA or a common
+authoritative TLSA RRset specifying a common CA or a common
 end&nbhy;entity certificate to be used with multiple TLS services.
 Such CNAME expansion does not change the SMTP client's notion of
 the TLSA base domain; thus, when _25._tcp.mx.example.com is a
@@ -1248,7 +1248,7 @@ TLS services, it may be simpler to publish the issuing authority
 as a trust anchor (TA) for the certificate chains of all relevant
 services.  The TLSA query domain (TLSA base domain with port and
 protocol prefix labels) for each service issued by the same TA may
-then be set to a CNAME alias that points to a common TLSA RRSet that
+then be set to a CNAME alias that points to a common TLSA RRset that
 matches the TA.  For example:
 </t>
 
@@ -1516,7 +1516,7 @@ Two TLSA records MUST be published before employing a new EE or TA
 public key or certificate: one matching the currently deployed key
 and the other matching the new key scheduled to replace it.  Once
 sufficient time has elapsed for all DNS caches to expire the previous
-TLSA RRSet and related signature RRSets, servers may be configured
+TLSA RRset and related signature RRSets, servers may be configured
 to use the new EE private key and associated public key certificate
 or may employ certificates signed by the new trust anchor.
 </t>
@@ -1531,26 +1531,26 @@ that match keys or certificates in active use.
 As described in <xref target="dane-ta"/>, when server certificates
 are validated via a DANE&nbhy;TA(2) trust anchor and CNAME records are
 employed to store the TA association data at a single location, the
-responsibility of updating the TLSA RRSet shifts to the operator
+responsibility of updating the TLSA RRset shifts to the operator
 of the trust anchor.  Before a new trust anchor is used to sign any
 new server certificates, its certificate (digest) is added to the
-relevant TLSA RRSet.  After enough time elapses for the original
-TLSA RRSet to age out of DNS caches, the new trust anchor can start
+relevant TLSA RRset.  After enough time elapses for the original
+TLSA RRset to age out of DNS caches, the new trust anchor can start
 issuing new server certificates.  Once all certificates issued under
 the previous trust anchor have expired, its associated RRs can be
-removed from the TLSA RRSet.
+removed from the TLSA RRset.
 </t>
 
 <t>
 In the DANE&nbhy;TA(2) key management model, server operators do not
 generally need to update DNS TLSA records after initially creating
 a CNAME record that references the centrally operated DANE&nbhy;TA(2)
-RRSet.  If a particular server's key is compromised, its TLSA CNAME
+RRset.  If a particular server's key is compromised, its TLSA CNAME
 SHOULD be replaced with a DANE&nbhy;EE(3) association until the certificate
 for the compromised key expires, at which point it can return to
 using a CNAME record.  If the central trust anchor is compromised, all
 servers need to be issued new keys by a new TA, and an updated
-DANE&nbhy;TA(2) TLSA RRSet needs to be published containing just the
+DANE&nbhy;TA(2) TLSA RRset needs to be published containing just the
 new TA.
 </t>
 
