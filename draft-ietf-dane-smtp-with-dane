@@ -51,13 +51,6 @@ Entities (DANE) Transport Layer Security (TLS)</title>
     </address>
 </author>
 
-<!--[rfced] ) We see that Viktor Dukhovni is listed in
-draft-ietf-dane-smtp-with-dane with an affiliation of "Two Sigma"
-but is listed as "Unaffiliated" in draft-ietf-dane-ops.  Should
-Viktor's listing be made to match in both of these documents?
-
--->
-
     <author initials="W.H." surname="Hardaker" fullname="Wes Hardaker">
       <organization>Parsons</organization>
       <address>
@@ -1819,20 +1812,18 @@ deployment with no adverse security consequences.
 </t>
 
 <t>
-Implementations must strictly follow the portions of this
-specification that indicate when it is appropriate to initiate a
+Implementations must strictly follow
+<xref target="dns-err-handling"/>,
+<xref target="stub"/>,
+<xref target="discovery"/>,
+<xref target="mx"/>,
+<xref target="non-mx"/>,
+<xref target="tlsa-lookup"/>,
+<xref target="matching"/> and 
+<xref target="opclients"/>
+of this specification that indicate when it is appropriate to initiate a
 non&nbhy;authenticated connection or cleartext connection to an SMTP
-server.
-
-<!-- [rfced] Section 10:  Will "portions of this specification" be
-clear to readers, or would you like to provide section numbers here?
-
-Original:
- Implementations must strictly follow the portions of this
- specification that indicate when it is appropriate to initiate a non-
- authenticated connection or cleartext connection to a SMTP server. -->
-
-  Specifically, in order to prevent downgrade attacks on this
+server.  Specifically, in order to prevent downgrade attacks on this
 protocol, implementations must not initiate a connection when this
 specification indicates that a particular SMTP server must be
 considered unreachable.
