@@ -917,30 +917,6 @@ Changed to:
       in the server's TLSA record.
     </t>
 
-<!--[rfced] May we update this text as follows to improve the readability of a "when" clause followed by a "while" clause:
-
-Original:
-Thus, when matching a usage PKIX-TA(0) TLSA record,
-   while no matching certificate is found, a client MUST continue
-   extending the chain even after any locally trusted certificate is
-   found. 
-
-Perhaps:
-Thus, when matching a usage PKIX-TA(0) TLSA record,
-   even though no matching certificate can be found, a client MUST continue
-   extending the chain even after any locally trusted certificate is
-   found. 
-
-[viktor] No.  The "while" above is meant in the sense of "so long as"
-rather than "even though".  I am changing the sentence to:
-
-New:
-    Thus, when matching a usage
-    PKIX&nbhy;TA(0) TLSA record, so long as no matching certificate has
-    yet been found, a client MUST continue extending the chain even after
-    any locally trusted certificate is found.
--->
-
     <t>
       If the omitted root is also trusted, the client may erroneously
       reject the server chain if it fails to determine that the
