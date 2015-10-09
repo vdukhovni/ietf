@@ -785,10 +785,10 @@ per author feedback during the AUTH state).  We will await your feedback prior t
 
 Original (the previous sentence is included for context):
  Only when the server TLSA record includes a "DANE-TA(2) Cert(0)
- Full(0)" TLSA record containing a full trust-anchor certificate, is
- the trust-anchor certificate optional in the server's TLS certificate
+ Full(0)" TLSA record containing a full trust&nbsp;anchor certificate, is
+ the trust&nbsp;anchor certificate optional in the server's TLS certificate
  message.  Only in this case, the client MUST also be able to verify
- the server's certificate chain via a trust-anchor provided via DNS
+ the server's certificate chain via a trust&nbsp;anchor provided via DNS
  rather than via the TLS handshake server certificate message.
 
 Changed to:
