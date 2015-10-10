@@ -928,7 +928,7 @@ If address records are found but the DNSSEC validation status of
 the first query response is "insecure" (see <xref target="stub"/>),
 the SMTP client SHOULD NOT proceed to search for any associated
 TLSA records.  In the case of these problematic domains, TLSA queries
-will lead to DNS lookup errors and will cause messages to be
+would lead to DNS lookup errors and would cause messages to be
 consistently delayed and ultimately returned to the sender.  We
 don't expect to find any "secure" TLSA records associated with a
 TLSA base domain that lies in an unsigned DNS zone.  Therefore,
