@@ -603,7 +603,7 @@ tlsa._dane.example.net.       IN TLSA 3 1 1 e3b0c44298fc1c14...
       the way of successful authentication.  Clients that employ
       DANE to authenticate the peer server SHOULD&nbsp;NOT negotiate the
       use of raw public keys unless the server's TLSA RRset includes
-      DANE&nbhy;EE(3) SPKI(1) TLSA records.
+      "DANE&nbhy;EE(3) SPKI(1)" TLSA records.
     </t>
 
     <t>
@@ -1161,8 +1161,8 @@ _25._tcp.mx2.example.net.  IN TLSA 3 1 1 (
     <xref target="RFC7250"/> raw public keys, which are only
     compatible with TLSA records whose certificate usage is DANE&nbhy;EE(3)
     with selector SPKI(1).  The only other TLSA record type that
-    is potentially compatible with raw public keys is DANE&nbhy;EE(3)
-    Cert(0) Full(0), but support for raw public keys with that TLSA
+    is potentially compatible with raw public keys is "DANE&nbhy;EE(3)
+    Cert(0) Full(0)", but support for raw public keys with that TLSA
     record type is not expected to be broadly implemented.
   </t>
 
@@ -1239,7 +1239,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
   <t>
     This section explains how to migrate to a new certificate chain
     and TLSA record with usage DANE&nbhy;TA(2) from a self-signed server
-    certificate and a DANE&nbhy;EE(3) SPKI(1) SHA2-256(1) TLSA record.
+    certificate and a "DANE&nbhy;EE(3) SPKI(1) SHA2-256(1)" TLSA record.
     This example assumes that a new private key is generated in
     conjunction with transitioning to a new certificate issued by
     the desired trust&nbsp;anchor.
