@@ -88,7 +88,7 @@ Layer Security (TLS).
 <t>
 This memo specifies a new connection security model for Message
 Transfer Agents (MTAs).  This model is motivated by key features
-of inter-domain SMTP delivery, particularly the fact that the
+of inter-domain SMTP delivery, principally, the fact that the
 destination server is selected indirectly via DNS Mail Exchange
 (MX) records and that neither email addresses nor MX hostnames
 signal a requirement for either secure or cleartext transport.
