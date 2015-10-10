@@ -88,7 +88,7 @@ Layer Security (TLS).
 <t>
 This memo specifies a new connection security model for Message
 Transfer Agents (MTAs).  This model is motivated by key features
-of inter-domain SMTP delivery, particularly the fact that the
+of inter-domain SMTP delivery, principally, the fact that the
 destination server is selected indirectly via DNS Mail Exchange
 (MX) records and that neither email addresses nor MX hostnames
 signal a requirement for either secure or cleartext transport.
@@ -505,7 +505,7 @@ records that would be classified "indeterminate" in the sense of
 We do not need to distinguish between zones that lack a suitable
 ancestor trust anchor, and delegations (ultimately) from a trust anchor
 that designate a child zone as being "insecure".  All "insecure"
-RRSets MUST be handled identically: in either case, non&nbhy;validated
+RRsets MUST be handled identically: in either case, non&nbhy;validated
 data for the query domain is all that is and can be available, and
 authentication using the data is impossible.  As the DNS root zone
 has been signed, we expect that validating resolvers used by
@@ -1212,7 +1212,7 @@ certificate match the client's reference identity for the server.
   With DANE&nbhy;EE(3), servers need not employ SNI (they may ignore the
   client's SNI message) even when the server is known under independent
   names that would otherwise require separate certificates.  It is
-  instead sufficient for the TLSA RRSets for all the domains in
+  instead sufficient for the TLSA RRsets for all the domains in
   question to match the server's default certificate.  Of course,
   with SMTP servers it is simpler still to publish the same MX
   hostname for all the hosted domains.
@@ -1516,7 +1516,7 @@ Two TLSA records MUST be published before employing a new EE or TA
 public key or certificate: one matching the currently deployed key
 and the other matching the new key scheduled to replace it.  Once
 sufficient time has elapsed for all DNS caches to expire the previous
-TLSA RRset and related signature RRSets, servers may be configured
+TLSA RRset and related signature RRsets, servers may be configured
 to use the new EE private key and associated public key certificate
 or may employ certificates signed by the new trust anchor.
 </t>
