@@ -520,7 +520,8 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
 
     <figure>
       <artwork>
-; Multiple Customer Domains hosted by an example.net Service Provider:
+; Multiple Customer Domains hosted by an example.net
+; Service Provider:
 ;
 www.example.com.              IN CNAME ex-com.example.net.
 www.example.org.              IN CNAME ex-org.example.net.
@@ -1233,7 +1234,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
   </figure>
 
 </section>
-<section title="Switching to DANE-TA from DANE-EE">
+<section title="Switching to DANE-TA(2) from DANE-EE(3)">
 
   <t>
     This section explains how to migrate to a new certificate chain
@@ -1302,12 +1303,14 @@ _443._tcp.www.example.org. IN TLSA 2 0 1 c57bce38455d9e3d...
 
   <figure>
     <artwork>
-; Initial TLSA RRset with DANE&nbhy;EE SHA2-256 associations for two keys.
+; Initial TLSA RRset with "DANE&nbhy;EE(3) SHA2-256(1)" associations
+; for two keys.
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 _443._tcp.www.example.org. IN TLSA 3 1 1 7aa7a5359173d05b...
 
-; New TLSA RRset, also with SHA2-512 associations for each key.
+; New TLSA RRset, also with SHA2-512(2) associations
+; for each key.
 ;
 _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
 _443._tcp.www.example.org. IN TLSA 3 1 2 d9947c35089310bc...
