@@ -282,7 +282,7 @@
 
   <section title="Example TLSA Record">
     <t>
-      In the example TLSA record below, the TLSA Certificate Usage is
+      In the example TLSA record below, the TLSA certificate usage is
       DANE&nbhy;TA(2), the selector is Cert(0), and the matching type is
       SHA2&nbhy;256(1).  The last field is the Certificate Association
       Data field, which in this case contains the SHA2-256 digest of the
@@ -429,7 +429,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
 
     <t>
       When a server is authenticated via a DANE TLSA RR with TLSA
-      Certificate Usage DANE&nbhy;EE(3), the domain owner has directly
+      certificate usage DANE&nbhy;EE(3), the domain owner has directly
       specified the certificate associated with the given service
       without reference to any public CA. Therefore, when a TLS
       client authenticates the TLS server via a TLSA record with
@@ -446,7 +446,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       TLSA usage DANE&nbhy;TA(2) and the server certificate does not
       chain to a known public root CA, CT cannot apply (CT logs
       only accept chains that start with a known public root).
-      Since TLSA Certificate Usage DANE&nbhy;TA(2) is generally intended
+      Since TLSA certificate usage DANE&nbhy;TA(2) is generally intended
       to support non-public trust anchors, TLS clients SHOULD&nbsp;NOT
       perform CT checks with usage DANE&nbhy;TA(2).
     </t>
@@ -487,7 +487,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
 <section title="Certificate-Usage-Specific DANE Updates and Guidelines">
 
   <t>
-    The four Certificate Usage values from the TLSA record --
+    The four certificate usage values from the TLSA record --
     DANE&nbhy;EE(3), DANE&nbhy;TA(2), PKIX&nbhy;EE(1), and
     PKIX&nbhy;TA(0) -- are discussed below.
   </t>
@@ -501,7 +501,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       RRset properties.  This document also extends <xref
       target="RFC6698"/> to cover the use of DANE authentication
       of raw public keys <xref target="RFC7250"/> via TLSA records
-      with Certificate Usage DANE&nbhy;EE(3) and selector SPKI(1).
+      with certificate usage DANE&nbhy;EE(3) and selector SPKI(1).
     </t>
 
     <t>
@@ -747,7 +747,7 @@ tlsa._dane.example.com.      IN TLSA 2 0 1 e3b0c44298fc1c14...
     </list></t>
 
       <t>
-        With TLSA Certificate Usage DANE&nbhy;TA(2), there is no
+        With TLSA certificate usage DANE&nbhy;TA(2), there is no
         expectation that the client is preconfigured with the trust anchor
         certificate.  In fact, client implementations are free to ignore
         all locally configured trust anchors when processing usage
@@ -761,7 +761,7 @@ tlsa._dane.example.com.      IN TLSA 2 0 1 e3b0c44298fc1c14...
       </t>
 
       <t>
-        TLSA Publishers that publish TLSA Certificate Usage DANE&nbhy;TA(2)
+        TLSA Publishers that publish TLSA certificate usage DANE&nbhy;TA(2)
         associations with a selector of SPKI(1) or with a digest-based
         matching type (not Full(0)) MUST ensure that the corresponding
         server is configured to also include the trust anchor
@@ -804,7 +804,7 @@ Changed to:
     <section title="Trust Anchor Public Keys">
 
       <t>
-        TLSA records with TLSA Certificate Usage DANE&nbhy;TA(2),
+        TLSA records with TLSA certificate usage DANE&nbhy;TA(2),
         selector SPKI(1), and a matching type of Full(0) publish the
         full public key of a trust anchor via DNS.  In
         Section&nbsp;6.1.1 of <xref target="RFC5280"/>, the definition
@@ -826,7 +826,7 @@ Changed to:
       </t>
 
       <t>
-        With TLSA Certificate Usage DANE&nbhy;TA(2), the client may not
+        With TLSA certificate usage DANE&nbhy;TA(2), the client may not
         have the associated trust anchor certificate and cannot generally
         verify whether or not a particular certificate chain is
         "issued by" the trust anchor described in the TLSA record.
@@ -869,7 +869,7 @@ Changed to:
   <section title="Certificate Usage PKIX-EE(1)" anchor="type1">
 
     <t>
-      This Certificate Usage is similar to DANE&nbhy;EE(3); but, in
+      This certificate usage is similar to DANE&nbhy;EE(3); but, in
       addition, PKIX verification is required.  Therefore, name
       checks, certificate expiration, CT, etc. apply as they would
       without DANE.
@@ -887,7 +887,7 @@ Changed to:
     </t>
 
     <t>
-      TLSA Certificate Usage PKIX&nbhy;TA(0) allows a domain to publish
+      TLSA certificate usage PKIX&nbhy;TA(0) allows a domain to publish
       constraints on the set of PKIX CAs trusted to issue
       certificates for its TLS servers.  A PKIX&nbhy;TA(0) TLSA
       record matches PKIX&nbhy;verified trust chains that contain an
@@ -959,7 +959,7 @@ Changed to:
   </t>
 
   <t>
-    Only Certificate Usages DANE&nbhy;EE(3) and DANE&nbhy;TA(2) work well
+    Only certificate usages DANE&nbhy;EE(3) and DANE&nbhy;TA(2) work well
     with TLSA CNAMEs across organizational boundaries.  With
     PKIX&nbhy;TA(0) or PKIX&nbhy;EE(1), the Service Provider would need
     to obtain certificates in the name of the Customer Domain from a
@@ -1006,8 +1006,8 @@ Changed to:
 ; The hosted web service is redirected via a CNAME alias.
 ; The associated TLSA RRset is also redirected via a CNAME alias.
 ;
-; A single certificate at the provider works for all Customer
-; Domains due to the use of the DANE&nbhy;EE(3) Certificate Usage.
+; Certificate usage DANE&nbhy;EE(3) makes it possible to deploy
+; a single provider certificate for all Customer Domains.
 ;
 www1.example.com.            IN CNAME w1.example.net.
 _443._tcp.www1.example.com.  IN CNAME _443._tcp.w1.example.net.
@@ -1017,8 +1017,8 @@ _443._tcp.w1.example.net.    IN TLSA 3 1 1 (
 
 ;
 ; A CA at the provider can also issue certificates for each Customer
-; Domain and use the DANE&nbhy;TA(2) Certificate Usage type to
-; indicate a trust anchor.
+; Domain and employ the DANE&nbhy;TA(2) certificate usage to
+; designate the provider's CA as a trust anchor.
 ;
 www2.example.com.            IN CNAME w2.example.net.
 _443._tcp.www2.example.com.  IN CNAME _443._tcp.w2.example.net.
@@ -1140,7 +1140,7 @@ _25._tcp.mx2.example.net.  IN TLSA 3 1 1 (
   <t>
     This section updates <xref target="RFC6698"/> by specifying
     that the TLSA Publisher MUST ensure that each combination of
-    Certificate Usage, selector, and matching type in the server's
+    certificate usage, selector, and matching type in the server's
     TLSA RRset includes at least one record that matches the server's
     current certificate chain.  TLSA records that match recently
     retired or yet-to-be-deployed certificate chains will be present
@@ -1156,9 +1156,9 @@ _25._tcp.mx2.example.net.  IN TLSA 3 1 1 (
     records, not all clients support all combinations of TLSA record
     parameters.  Some clients may not support some digest algorithms;
     others may either not support or exclusively support the
-    PKIX Certificate Usages.  Some clients may prefer to negotiate
+    PKIX certificate usages.  Some clients may prefer to negotiate
     <xref target="RFC7250"/> raw public keys, which are only
-    compatible with TLSA records whose Certificate Usage is DANE&nbhy;EE(3)
+    compatible with TLSA records whose certificate usage is DANE&nbhy;EE(3)
     with selector SPKI(1).  The only other TLSA record type that
     is potentially compatible with raw public keys is DANE&nbhy;EE(3)
     Cert(0) Full(0), but support for raw public keys with that TLSA
@@ -1293,7 +1293,7 @@ _443._tcp.www.example.org. IN TLSA 2 0 1 c57bce38455d9e3d...
     When employing a new digest algorithm in the TLSA RRset, for
     compatibility with digest algorithm agility as specified in <xref
     target="agility"/> below, administrators SHOULD publish the new
-    digest algorithm with each combination of Certificate Usage
+    digest algorithm with each combination of certificate usage
     and selector for each associated key or chain used with any
     other digest algorithm.  When removing an algorithm, remove it
     entirely.  Each digest algorithm employed SHOULD match the same
@@ -1346,7 +1346,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 2 89a7486a4b6ae714...
     The above steps are intended to ensure that at all times, and
     for each combination of usage, selector, and matching type, at
     least one TLSA record corresponds to the server's current
-    certificate chain.  Each combination of Certificate Usage,
+    certificate chain.  Each combination of certificate usage,
     selector, and matching type in a server's TLSA RRset SHOULD&nbsp;NOT
     at any time (including unexpired RRsets  in client caches) match
     only some combination of future or past certificate chains.  As
@@ -1530,7 +1530,7 @@ _25._tcp.mail.example.com. IN TLSA 3 1 0 (
     </t>
 
     <t>
-      With the exception of TLSA Certificate Usage DANE&nbhy;EE(3),
+      With the exception of TLSA certificate usage DANE&nbhy;EE(3),
       where name checks are not applicable (see <xref target="type3" />),
       DANE clients MUST verify that the client has reached the correct
       server by checking that the server name is listed in the
@@ -1723,7 +1723,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     enforcement are based solely on the TLSA RRset properties.  It
     also specifies DANE authentication of raw public keys <xref
     target="RFC7250"/> via TLSA records with
-    Certificate Usage DANE&nbhy;EE(3) and selector SPKI(1). </t>
+    certificate usage DANE&nbhy;EE(3) and selector SPKI(1). </t>
 
     <t><xref target="type2"/> updates <xref target="RFC6698"/>
     to require that servers publishing digest TLSA records with a
