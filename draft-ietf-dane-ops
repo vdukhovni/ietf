@@ -143,7 +143,7 @@
       <t hangText="Web PKI:">
         The Public Key Infrastructure (PKI) model employed by
         browsers to authenticate web servers.  This employs a set
-        of trusted public CAs to vouch for the authenticity of public keys
+        of trusted CAs to vouch for the authenticity of public keys
         associated with a particular party (the subject).
       </t>
 
