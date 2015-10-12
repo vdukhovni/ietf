@@ -1572,11 +1572,11 @@ it does not specify a protocol by which the SMTP client and TLSA
 record publisher can agree on the strongest shared algorithm.  Such
 a protocol would allow the client and server to avoid exposure to
 deprecated weaker algorithms that are published for compatibility
-with less capable clients and SHOULD be avoided when possible by
-clients that support stroger algorithms.
-Such a protocol is specified in <xref target="RFC7671"/>.  SMTP
-clients and servers that implement this specification MUST comply
-with the requirements outlined in Section 9 of <xref target="RFC7671"/>.
+with less capable clients.  When stronger algorithms are an option,
+deprecated algorithms SHOULD be avoided.  Such a protocol is
+specified in <xref target="RFC7671"/>.  SMTP clients and servers that
+implement this specification MUST comply with the requirements outlined
+in Section 9 of <xref target="RFC7671"/>.
 </t>
 
 </section>
