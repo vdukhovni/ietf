@@ -168,10 +168,10 @@
       <t hangText="TLSA Publisher:">
         The entity responsible for publishing a TLSA record within a DNS
         zone.  This zone will be assumed DNSSEC-signed and validatable
-        to a trust anchor, unless otherwise specified.  If the Customer
-        Domain is not outsourcing its DNS service, the TLSA Publisher
-        will be the customer itself.  Otherwise, the TLSA Publisher may
-        be the operator of the outsourced DNS service.
+        to a trust anchor (TA), unless otherwise specified.  If the
+        Customer Domain is not outsourcing its DNS service, the
+        TLSA Publisher will be the customer itself.  Otherwise, the
+        TLSA Publisher may be the operator of the outsourced DNS service.
       </t>
       <t hangText="Public key:">
         The term "public key" is shorthand for the subjectPublicKeyInfo
@@ -332,9 +332,9 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     Certificate Usage field takes one of four possible values.
     With PKIX&nbhy;TA(0) and PKIX&nbhy;EE(1), the validation of peer
     certificate chains requires additional preconfigured CA
-    trust anchors that are mutually trusted by the operators of the
+    TAs that are mutually trusted by the operators of the
     TLS server and client. With DANE&nbhy;TA(2) and DANE&nbhy;EE(3), no
-    preconfigured CA trust anchors are required and the published
+    preconfigured CA TAs are required and the published
     DANE TLSA records are sufficient to verify the peer's
     certificate chain.
   </t>
@@ -359,7 +359,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     Designs in which clients support just the DANE&nbhy;TA(2) and
     DANE&nbhy;EE(3) certificate usages are RECOMMENDED.  With
     DANE&nbhy;TA(2) and DANE&nbhy;EE(3), clients don't need to track a
-    large changing list of X.509 trust&nbsp;anchors in order to
+    large changing list of X.509 TAs in order to
     successfully authenticate servers whose certificates are issued
     by a CA that is brand new or not widely trusted.
   </t>
@@ -447,7 +447,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       chain to a known public root CA, CT cannot apply (CT logs
       only accept chains that start with a known public root).
       Since TLSA certificate usage DANE&nbhy;TA(2) is generally intended
-      to support non-public trust anchors, TLS clients SHOULD&nbsp;NOT
+      to support non-public TAs, TLS clients SHOULD&nbsp;NOT
       perform CT checks with usage DANE&nbhy;TA(2).
     </t>
 
@@ -471,7 +471,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
       begin to enable support for the new certificate usage values.
       If the new preferred certificate usages are PKIX&nbhy;TA/EE,
       this requires installing and managing the appropriate set of CA
-      trust anchors.  During this time, servers will publish both types
+      TAs.  During this time, servers will publish both types
       of TLSA records.  At some later time, when the vast majority
       of servers have published the new preferred TLSA records,
       clients can stop supporting the legacy certificate usages.
@@ -637,7 +637,7 @@ tlsa._dane.example.net.       IN TLSA 3 1 1 e3b0c44298fc1c14...
       This section updates <xref target="RFC6698"/> by specifying
       a new operational requirement for servers publishing TLSA
       records with a usage of DANE&nbhy;TA(2): such servers MUST include
-      the trust&nbsp;anchor certificate in their TLS server certificate
+      the TA certificate in their TLS server certificate
       message unless all such TLSA records are "2 0 0" records that
       publish the server certificate in full.
     </t>
@@ -647,18 +647,17 @@ tlsa._dane.example.net.       IN TLSA 3 1 1 e3b0c44298fc1c14...
       of publishing unique TLSA RRs for each TLS service.  If the
       domain employs a common issuing CA to create certificates
       for multiple TLS services, it may be simpler to publish the
-      issuing authority as a trust anchor (TA) for the certificate
-      chains of all relevant services. The TLSA query domain
-      (TLSA base domain with port and protocol prefix labels) for
-      each service issued by the same TA may then be set to a
-      CNAME alias that points to a common TLSA RRset that matches the
-      TA.  For example:
+      issuing authority as a TA for the certificate chains of all
+      relevant services. The TLSA query domain (TLSA base domain
+      with port and protocol prefix labels) for each service issued
+      by the same TA may then be set to a CNAME alias that points to
+      a common TLSA RRset that matches the TA.  For example:
     </t>
 
     <figure>
       <artwork>
 ; Two servers, each with its own certificate, that share
-; a common issuer (trust anchor).
+; a common issuer (TA).
 ;
 www1.example.com.            IN A 192.0.2.1
 www2.example.com.            IN A 192.0.2.2
@@ -709,20 +708,20 @@ tlsa._dane.example.com.      IN TLSA 2 0 1 e3b0c44298fc1c14...
       <t>
         TLSA Publishers employing DANE&nbhy;TA(2) records SHOULD publish
         records with a selector of Cert(0).  Such TLSA records are
-        associated with the whole trust anchor certificate, not
-        just with the trust anchor public key.  In particular, when
+        associated with the whole TA certificate, not
+        just with the TA public key.  In particular, when
         authenticating the peer certificate chain via such a TLSA
         record, the client SHOULD apply any relevant constraints
-        from the trust anchor certificate, such as, for example,
+        from the TA certificate, such as, for example,
         path length constraints.
       </t>
 
       <t>
         While a selector of SPKI(1) may also be employed, the resulting
-        TLSA record will not specify the full trust anchor certificate
-        content, and elements of the trust anchor certificate other than
+        TLSA record will not specify the full TA certificate
+        content, and elements of the TA certificate other than
         the public key become mutable.  This may, for example, enable a
-        subsidiary CA to issue a chain that violates the trust anchor's
+        subsidiary CA to issue a chain that violates the TA's
         path length or name constraints.
       </t>
 
@@ -742,22 +741,22 @@ tlsa._dane.example.com.      IN TLSA 2 0 1 e3b0c44298fc1c14...
     preceding it.  Because certificate validation requires
     that root keys be distributed independently, the
     self-signed certificate that specifies the root
-    certification authority MAY be omitted from the chain,
+    certificate authority MAY be omitted from the chain,
     under the assumption that the remote end must already
     possess it in order to validate it in any case.</t>
     </list></t>
 
       <t>
         With TLSA certificate usage DANE&nbhy;TA(2), there is no
-        expectation that the client is preconfigured with the trust anchor
+        expectation that the client is preconfigured with the TA
         certificate.  In fact, client implementations are free to ignore
-        all locally configured trust anchors when processing usage
+        all locally configured TAs when processing usage
         DANE&nbhy;TA(2) TLSA records and may rely exclusively on the
         certificates provided in the server's certificate chain.
         But, with a digest in the TLSA record, the TLSA record contains
-        neither the full trust anchor certificate nor the full public
+        neither the full TA certificate nor the full public
         key.  If the TLS server's certificate chain does not contain
-        the trust anchor certificate, DANE clients will be unable to
+        the TA certificate, DANE clients will be unable to
         authenticate the server.
       </t>
 
@@ -765,7 +764,7 @@ tlsa._dane.example.com.      IN TLSA 2 0 1 e3b0c44298fc1c14...
         TLSA Publishers that publish TLSA certificate usage DANE&nbhy;TA(2)
         associations with a selector of SPKI(1) or with a digest-based
         matching type (not Full(0)) MUST ensure that the corresponding
-        server is configured to also include the trust anchor
+        server is configured to also include the TA
         certificate in its TLS handshake certificate chain, even if
         that certificate is a self-signed root CA and would have been
         optional in the context of the existing public CA PKI.
@@ -773,30 +772,31 @@ tlsa._dane.example.com.      IN TLSA 2 0 1 e3b0c44298fc1c14...
 
       <t>
         Only when the server TLSA record includes a "DANE&nbhy;TA(2)
-        Cert(0) Full(0)" TLSA record containing a full trust&nbsp;anchor
-        certificate is the trust&nbsp;anchor certificate optional in
+        Cert(0) Full(0)" TLSA record containing a full TA
+        certificate is the TA certificate optional in
         the server's TLS certificate message.  This is also the only
         type of DANE&nbhy;TA(2) record for which the client MUST be
         able to verify the server's certificate chain even if the
-        trust&nbsp;anchor certificate appears only in DNS and is
+        TA certificate appears only in DNS and is
         absent from the TLS handshake server certificate message.
 
 <!-- [rfced] AD:  Please review/approve this update to Section 5.2.2 (made
-per author feedback during the AUTH state).  We will await your feedback prior to publication.
+per author feedback during the AUTH state).  We will await your feedback
+prior to publication.
 
 Original (the previous sentence is included for context):
  Only when the server TLSA record includes a "DANE-TA(2) Cert(0)
- Full(0)" TLSA record containing a full trust&nbsp;anchor certificate, is
- the trust&nbsp;anchor certificate optional in the server's TLS certificate
+ Full(0)" TLSA record containing a full trust anchor certificate, is
+ the trust anchor certificate optional in the server's TLS certificate
  message.  Only in this case, the client MUST also be able to verify
- the server's certificate chain via a trust&nbsp;anchor provided via DNS
+ the server's certificate chain via a trust anchor provided via DNS
  rather than via the TLS handshake server certificate message.
 
 Changed to:
  This is also the only type of DANE-TA(2) record for which
  the client MUST be able to verify the server's certificate chain even
- if the trust anchor certificate appears only in DNS and is absent
- from the TLS handshake server certificate message. -->
+ if the TA certificate appears only in DNS and is absent from the TLS
+ handshake server certificate message. -->
 
       </t>
 
@@ -807,9 +807,9 @@ Changed to:
       <t>
         TLSA records with TLSA certificate usage DANE&nbhy;TA(2),
         selector SPKI(1), and a matching type of Full(0) publish the
-        full public key of a trust anchor via DNS.  In
+        full public key of a TA via DNS.  In
         Section&nbsp;6.1.1 of <xref target="RFC5280"/>, the definition
-        of a trust anchor consists of the following four parts:
+        of a TA consists of the following four parts:
       </t>
 
       <t><list style="numbers">
@@ -828,9 +828,9 @@ Changed to:
 
       <t>
         With TLSA certificate usage DANE&nbhy;TA(2), the client may not
-        have the associated trust anchor certificate and cannot generally
+        have the associated TA certificate and cannot generally
         verify whether or not a particular certificate chain is
-        "issued by" the trust anchor described in the TLSA record.
+        "issued by" the TA described in the TLSA record.
       </t>
 
       <t>
@@ -838,7 +838,7 @@ Changed to:
         whose public key matches the TLSA record, the client can
         match that CA as the intended issuer.  Otherwise, the client
         can only check that the topmost certificate in the server's
-        chain is "signed by" the trust anchor's public key in the
+        chain is "signed by" the TA's public key in the
         TLSA record.  Such a check may be difficult to implement
         and cannot be expected to be supported by all clients.
       </t>
@@ -849,7 +849,7 @@ Changed to:
         by the associated public key in the absence of a corresponding
         certificate in the server's TLS certificate message.  Servers
         employing "2 1 0" TLSA records MUST include the corresponding
-        trust&nbsp;anchor certificate in their certificate chain.
+        TA certificate in their certificate chain.
       </t>
 
       <t>
@@ -1019,7 +1019,7 @@ _443._tcp.w1.example.net.    IN TLSA 3 1 1 (
 ;
 ; A CA at the provider can also issue certificates for each Customer
 ; Domain and employ the DANE&nbhy;TA(2) certificate usage to
-; designate the provider's CA as a trust anchor.
+; designate the provider's CA as a TA.
 ;
 www2.example.com.            IN CNAME w2.example.net.
 _443._tcp.www2.example.com.  IN CNAME _443._tcp.w2.example.net.
@@ -1242,7 +1242,7 @@ _443._tcp.www.example.org. IN TLSA 3 1 1 01d09d19c2139a46...
     certificate and a "DANE&nbhy;EE(3) SPKI(1) SHA2-256(1)" TLSA record.
     This example assumes that a new private key is generated in
     conjunction with transitioning to a new certificate issued by
-    the desired trust&nbsp;anchor.
+    the desired TA.
   </t>
 
   <t>
@@ -1572,11 +1572,11 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
     <t>
       The TLSA base domain is "mail.example.com" and is required
       to be the HostName in the client's SNI extension.  The server
-      certificate chain is required to be signed by a trust anchor
-      with the above certificate SHA2-256 digest.  Finally, one of
-      the DNS names in the server certificate is required to be
-      either "mail.example.com" or "example.com" (this additional
-      name is a concession to compatibility with prior practice;
+      certificate chain is required to be signed by a TA with the
+      above certificate SHA2-256 digest.  Finally, one of the DNS
+      names in the server certificate is required to be either
+      "mail.example.com" or "example.com" (this additional name is a
+      concession to compatibility with prior practice;
       see <xref target="RFC7672"/> for details).
     </t>
 
@@ -1730,7 +1730,7 @@ _25._tcp.mail.example.com. IN TLSA 2 0 1 (
 
     <t><xref target="type2"/> updates <xref target="RFC6698"/>
     to require that servers publishing digest TLSA records with a
-    usage of DANE&nbhy;TA(2) MUST include the trust&nbsp;anchor certificate
+    usage of DANE&nbhy;TA(2) MUST include the TA certificate
     in their TLS server certificate message.  This extends to the
     case of "2 1 0" TLSA records that publish a full public key. </t>
 
