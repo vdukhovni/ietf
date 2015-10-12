@@ -73,7 +73,7 @@ Entities (DANE) Transport Layer Security (TLS)</title>
 
 <abstract> <t>
 This memo describes a downgrade-resistant protocol for SMTP transport
-security between Mail Transfer Agents (MTAs), based on the DNS-Based
+security between Message Transfer Agents (MTAs), based on the DNS-Based
 Authentication of Named Entities (DANE) TLSA DNS record.  Adoption
 of this protocol enables an incremental transition of the Internet
 email backbone to one using encrypted and authenticated Transport
@@ -1572,7 +1572,7 @@ it does not specify a protocol by which the SMTP client and TLSA
 record publisher can agree on the strongest shared algorithm.  Such
 a protocol would allow the client and server to avoid exposure to
 deprecated weaker algorithms that are published for compatibility
-with less capable clients, but which SHOULD be avoided when possible.
+with less capable clients but that SHOULD be avoided when possible.
 Such a protocol is specified in <xref target="RFC7671"/>.  SMTP
 clients and servers that implement this specification MUST comply
 with the requirements outlined in Section 9 of <xref target="RFC7671"/>.
@@ -1818,14 +1818,14 @@ Implementations must strictly follow Sections
 <xref target="mx" format="counter"/>,
 <xref target="non-mx" format="counter"/>,
 <xref target="tlsa-lookup" format="counter"/>,
-<xref target="matching" format="counter"/> and
+<xref target="matching" format="counter"/>, and
 <xref target="opclients" format="counter"/>
-of this specification that indicate when it is appropriate to initiate a
-non&nbhy;authenticated connection or cleartext connection to an SMTP
-server.  Specifically, in order to prevent downgrade attacks on this
-protocol, implementations must not initiate a connection when this
-specification indicates that a particular SMTP server must be
-considered unreachable.
+of this specification; these sections indicate when it is appropriate to
+initiate a non&nbhy;authenticated connection or cleartext connection to
+an SMTP server.  Specifically, in order to prevent downgrade attacks on
+this protocol, implementations must not initiate a connection when this
+specification indicates that a particular SMTP server must be considered
+unreachable.
 </t>
 
 </section>
